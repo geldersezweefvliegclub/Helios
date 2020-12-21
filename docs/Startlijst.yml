@@ -1,0 +1,499 @@
+openapi: 3.0.2
+info:
+  title: Startlijst
+  description: De startlijst met de vluchten van de vliegers
+  version: '1.0'
+          
+paths:
+  /Startlijst/CreateTable:
+    post:
+      summary: Creeer database objecten
+      parameters:
+        - in: query
+          name: FILLDATA
+          description: Dummy records aanmaken
+          required: true
+          schema:
+            type: boolean
+      responses:
+        201:
+          description: "Aangemaakt, Tabel toegevoegd"
+        500:
+          description: "Data verwerkingsfout, bijv omdat de tabel al bestaat" 
+
+  /Startlijst/CreateViews:
+    post:
+      summary: Creeer database views
+      responses:
+        201:
+          description: "Aangemaakt, View toegevoegd"
+        500:
+          description: "Data verwerkingsfout, view niet aangemaak"    
+
+  /Startlijst/GetObject:
+    get:
+      summary: Haal een enkele vlucht op uit de database
+      parameters:
+        - in: query
+          name: ID
+          description: Database ID van de vlucht
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        200:
+          description: "OK, data succesvol opgehaald"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/oper_startlijst'
+        404:
+          description: "Data niet gevonden"
+        405:
+          description: "Methode niet toegestaan, input validatie error"  
+        406:
+          description: "Niet aanvaardbaar, input ontbreekt"           
+        500:
+          description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"       
+
+  /Startlijst/GetObjects:
+    get:
+      summary: Haal de startlijst op uit de database. Query parameters worden in AND conditie gebruikt
+      parameters:
+        - in: query
+          name: LAATSTE_AANPASSING
+          description: Laatste aanpassing op basis van records in dataset. Bedoeld om data verbruik te verminderen. Dataset is daarom leeg
+          required: false
+          schema:
+            type: boolean
+        - in: query
+          name: SORT
+          description: Sortering van de velden in ORDER BY formaat. Default = NAAM
+          required: false
+          schema:
+            type: string     
+        - in: query
+          name: MAX
+          description: Maximum aantal records in de dataset. Gebruikt in LIMIT query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 1  
+        - in: query
+          name: START
+          description: Eerste record in de dataset. Gebruikt in LIMIT query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 1  
+        - in: query
+          name: BEGIN_DATUM
+          description: Begin datum (inclusief deze dag)
+          required: false
+          schema:
+            type: string
+            format: date   
+        - in: query
+          name: EIND_DATUM
+          description: Eind datum (inclusief deze dag)
+          required: false
+          schema:
+            type: string
+            format: date            
+        - in: query        
+          name: VELDEN
+          description: Welke velden moet opgenomen worden in de dataset
+          required: false
+          schema:
+            type: string 
+        - in: query        
+          name: STARTMETHODE_ID
+          description: De startmethode van de start. Zie voor ID de types met groep 5
+          required: false
+          schema:
+            type: string                                              
+        - in: query        
+          name: SELECTIE
+          description: Zoek in de NAAM, VLIEGTUIG
+          required: false
+          schema:
+            type: string 
+        - in: query        
+          name: LID_ID
+          description: Startlijst voor bepaald lid, zowel als vlieger als inzittende
+          required: false
+          schema:
+            type: int 
+        - in: query        
+          name: VLIEGTUIG_ID
+          description: Startlijst voor bepaald vliegtuig
+          required: false
+          schema:
+            type: int             
+        - in: query
+          name: OPEN_STARTS
+          description: Wanneer 'true', toon alleen de vluchten die nog niet geland zijn, of waar gezagvoeder onbekend is
+          required: false
+          schema:
+            type: boolean                                                       
+      responses:
+        200:
+          description: "OK, data succesvol opgehaald"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/view_startlijst'
+        405:
+          description: "Methode niet toegestaan, input validatie error"  
+        500:
+          description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"    
+
+  /Startlijst/GetLogboek:
+    get:
+      summary: Haal logboek van gebruiker op. Query parameters worden in AND conditie gebruikt
+      parameters:
+        - in: query
+          name: LAATSTE_AANPASSING
+          description: Laatste aanpassing op basis van records in dataset. Bedoeld om data verbruik te verminderen. Dataset is daarom leeg
+          required: false
+          schema:
+            type: boolean
+        - in: query
+          name: SORT
+          description: Sortering van de velden in ORDER BY formaat. Default, meerste recente vlucht eerst
+          required: false
+          schema:
+            type: string     
+        - in: query
+          name: MAX
+          description: Maximum aantal records in de dataset. Gebruikt in LIMIT query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 1  
+        - in: query
+          name: START
+          description: Eerste record in de dataset. Gebruikt in LIMIT query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 1                                  
+        - in: query        
+          name: JAAR
+          description: Alle vluchten van het opgegven jaar
+          required: false
+          schema:
+            type: int         
+        - in: query        
+          name: LID_ID
+          description: Logboek voor bepaald lid, indien niet aanwezig voor ingelogde gebruiker
+          required: false
+          schema:
+            type: int           
+        - in: query        
+          name: VLIEGTUIG_ID
+          description: Logboek voor ingelogde lid op het gespecificeerde vliegtuig. Lid kan ook via LID_ID gezet worden
+          required: false
+          schema:
+            type: int                                       
+      responses:
+        200:
+          description: "OK, data succesvol opgehaald"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/view_startlijst'
+        401:
+          description: "Niet geautoriseerd, geen rechten om data op te halen"                 
+        405:
+          description: "Methode niet toegestaan, input validatie error"  
+        500:
+          description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"    
+
+  /Startlijst/DeleteObject:
+    delete:
+      summary: Markeer record als verwijderd.
+      parameters:
+        - in: query
+          name: ID
+          description: Database ID van het start record
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        204:
+          description: "Record verwijderd"
+        401:
+          description: "Niet geautoriseerd, geen schrijfrechten"  
+        404:
+          description: "Data niet gevonden"        
+        405:
+          description: "Methode niet toegestaan, input validatie error"  
+        406:
+          description: "Niet aanvaardbaar, input ontbreekt"            
+        500:
+          description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)" 
+
+  /Startlijst/SaveObject:
+    post:
+      summary: Voeg nieuwe vlucht toe
+      requestBody:
+        description: start data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/oper_startlijst'
+      responses:
+        200:
+          description: "OK, data succesvol toegevoegd"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/oper_startlijst'  
+        401:
+          description: "Niet geautoriseerd, geen schrijfrechten"                
+        405:
+          description: "Methode niet toegestaan, input validatie error"  
+        406:
+          description: "Niet aanvaardbaar, input ontbreekt"          
+        409:
+          description: "Conflict, lidnummer bestaat al"     # @@@@@@   is dit nodig
+        500:
+          description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"                      
+    put:
+      summary: Update bestaande start
+      requestBody:
+        description: start data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/oper_startlijst'
+      responses:
+        200:
+          description: "OK, data succesvol aangepast"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/oper_startlijst'  
+        401:
+          description: "Niet geautoriseerd, geen schrijfrechten"  
+        404:
+          description: "Data niet gevonden"                
+        405:
+          description: "Methode niet toegestaan, input validatie error"  
+        406:
+          description: "Niet aanvaardbaar, input ontbreekt"          
+        409:
+          description: "Conflict, lidnummer bestaat al"   # @@@@@@   is dit nodig
+        500:
+          description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"  
+
+  /Startlijst/GetRecency:
+    get:
+      summary: Hoeveel heeft de vlieger de afgelopen periode gevlogen en hoe is zijn barometer status
+      parameters:
+        - in: query
+          name: ID
+          description: Database ID van de vlieger
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        200:
+          description: "OK, data succesvol opgehaald"
+          content:
+            application/json:
+            schema:
+              type: object
+              properties:
+                STARTS_DRIE_MND:
+                  type: string
+                  example: "2"
+                STARTS_VORIG_JAAR: 
+                  type: string
+                  example: "36"
+                STARTS_DIT_JAAR:
+                  type: string
+                  example: "2"
+                UREN_DRIE_MND: 
+                  type: string
+                  example: "1:42"
+                UREN_VORIG_JAAR: 
+                  type: string
+                  example: "1:42"
+                UREN_DIT_JAAR: 
+                  type: string
+                  example: "27:31"
+                STATUS_BAROMETER: 
+                  type: string
+                  example: "onbekend"
+                STARTS_BAROMETER: 
+                  type: string
+                  example: "38"
+                UREN_BAROMETER: 
+                  type: string
+                  example: "29:13"
+                
+        404:
+          description: "Data niet gevonden"
+        405:
+          description: "Methode niet toegestaan, input validatie error"  
+        406:
+          description: "Niet aanvaardbaar, input ontbreekt"           
+        500:
+          description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"    
+
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+      description: Eerst inloggen voordat API beschikbaar is
+
+  schemas:
+    oper_startlijst:
+      type: object
+      properties:
+        ID:
+          description: Database ID van de vlucht
+          type: integer
+          format: int32
+          example: 12871
+        DAGNUMMER:
+          description: Dagnummer, start iedere dag op 1
+          type: integer
+          format: int32
+          example: 4       
+        VLIEGTUIG_ID: 
+          description: Het vliegtuig ID. Verwijzing naar vliegtuigen tabel
+          type: int
+          example: 215   
+        DATUM:
+          description: Datum van de start 
+          type: string
+          format: date
+          example: 2017-07-21            
+        STARTTIJD: 
+          description: Starttijd (hh:mm:ss)
+          type: string
+          pattern: '^([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$'
+          example: "12:32:44"                      
+        LANDINGSTIJD: 
+          description: Starttijd (hh:mm:ss)
+          type: string
+          pattern: '^([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$'
+          example: "12:32:15"   
+        STARTMETHODE_ID: 
+          description: De manier van starten (lier / sleep / zelfstart) Verwijzing naar type tabel
+          type: int
+          example: 506       
+        VLIEGER_ID: 
+          description: De vlieger van deze vlucht. Verwijzing naar leden tabel
+          type: int
+          example: 10825 
+        INZITTENDE_ID: 
+          description: Wie zit er nog meer bij. Verwijzing naar leden tabel
+          type: int
+          example: 10412 
+        VLIEGERNAAM:
+          description: De naam van de vlieger. Nodig indien de vlieger niet in de leden tabel staat 
+          type: string
+          maxLength: 50
+          example: "Peter Panda"                     
+        INZITTENDENAAM:
+          description: De naam van de vlieger. Nodig indien de vlieger niet in de leden tabel staat 
+          type: string
+          maxLength: 50
+          example: "Wally Windhond"        
+        SLEEPKIST_ID: 
+          description: Het sleepvliegtuig ID. Verwijzing naar vliegtuigen tabel
+          type: int
+          example: 215  
+        SLEEP_HOOGTE: 
+          description: Tot welke hoogte (meters) is er gesleept
+          type: int
+          example: 400  
+        VELD_ID: 
+          description: Op welk veld is er gestart. Verwijzing naar type tabel
+          type: int
+          example: 901            
+        OPMERKINGEN:
+          description: Extra text om opmerkingen toe te voegen
+          type: string
+          maxLength: 255
+          example: Buitenlanding   
+        VERWIJDERD:
+          description: Is dit record gemarkeerd als verwijderd?  Waarde 0..1
+          type: boolean
+          example: 0            
+        LAATSTE_AANPASSING:
+          description: Tijdstempel van laaste aanpassing in de database
+          type: string
+          format: date-time   
+          example: 2019-01-04 22:34:18 
+    view_startlijst:
+      type: object
+      properties:
+        totaal:
+          description: Aantal records dat voldoet aan de criteria in de database
+          type: integer
+          format: int32
+          example: 287
+        laatste_aanpassing:
+          description: Tijdstempel van laaste aanpassing in de database van de records dat voldoet aan de criteria
+          type: string
+          format: date-time   
+          example: 2019-01-04 22:34:18 
+        dataset:
+          description: De dataset met records
+          type: array
+          items: 
+            type: object
+            allOf:
+              - $ref: '#/components/schemas/oper_startlijst'
+              - type: object
+                properties:
+                  REGISTRATIE:
+                    description: Registratie van het vliegtuig waarop gevlogen is
+                    type: string
+                    example: D-KLUU                
+                  CALLSIGN:
+                    description: Callsign van het vliegtuig waarop gevlogen is
+                    type: string
+                    example: 7U                    
+                  REG_CALL: 
+                    description: Combinatie van registratie en callsign van het vliegtuig waarop gevlogen is
+                    type: string
+                    example: D-KLUU (7U)                    
+                  DUUR:
+                    description: Hoe lang is er gevlogen. Indien landingstijd niet is ingevuld, op de dag zelf vliegtijd to nu toe, op alle andere dagen null
+                    type: string
+                    example: 02:11                    
+                  VLIEGERNAAM_LID:
+                    description: De naam van het lid zoals dat in ref_leden staat
+                    type: string
+                    example: "Lowieke de Vos"                    
+                  INZITTENDENAAM_LID:
+                    description: De naam van de inzittende zoals dat in ref_leden staat
+                    type: string
+                    example: "Momfer de Mol"                    
+                  STARTMETHODE:
+                    description: De manier van de start
+                    type: string
+                    example: Lierstart GeZC                    
+                  VELD:
+                    description: Naam van het vliegveld waarop gestart is
+                    type: string
+                    example: Terlet                    
+
+
+

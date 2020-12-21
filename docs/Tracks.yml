@@ -1,0 +1,286 @@
+openapi: 3.0.2
+info:
+  title: Tracks
+  description: Opmerkingen door IC over de voortgang van de opleiding
+  version: '1.0'
+          
+paths:
+  /Tracks/CreateTable:
+    post:
+      summary: Creeer database objecten
+      parameters:
+        - in: query
+          name: FILLDATA
+          description: Dummy records aanmaken
+          required: true
+          schema:
+            type: boolean
+      responses:
+        201:
+          description: "Aangemaakt, Tabel toegevoegd"
+        500:
+          description: "Data verwerkingsfout, bijv omdat de tabel al bestaat"   
+
+  /Tracks/CreateViews:
+    post:
+      summary: Creeer database views
+      responses:
+        201:
+          description: "Aangemaakt, View toegevoegd"
+        500:
+          description: "Data verwerkingsfout, view niet aangemaak"    
+
+  /Tracks/GetObject:
+    get:
+      summary: Haal een enkel record op uit de database
+      parameters:
+        - in: query
+          name: ID
+          description: Database ID van het track record
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        200:
+          description: "OK, data succesvol opgehaald"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/oper_tracks'
+        404:
+          description: "Data niet gevonden"
+        405:
+          description: "Methode niet toegestaan, input validatie error"  
+        406:
+          description: "Niet aanvaardbaar, input ontbreekt"    
+        500:
+          description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"     
+
+  /Tracks/GetObjects:
+    get:
+      summary: Haal een lijst met records op uit de database. Query parameters worden in AND conditie gebruikt
+      parameters:
+        - in: query
+          name: LAATSTE_AANPASSING
+          description: Laatste aanpassing op basis van records in dataset. Bedoeld om data verbruik te verminderen. Dataset is daarom leeg
+          required: false
+          schema:
+            type: boolean
+        - in: query
+          name: SORT
+          description: Sortering van de velden in ORDER BY formaat. Default = CLUBKIST DESC, VOLGORDE, REGISTRATIE
+          required: false
+          schema:
+            type: string     
+        - in: query
+          name: MAX
+          description: Maximum aantal records in de dataset. Gebruikt in LIMIT query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 1  
+        - in: query
+          name: START
+          description: Eerste record in de dataset. Gebruikt in LIMIT query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 1  
+        - in: query        
+          name: VELDEN
+          description: Welke velden moet opgenomen worden in de dataset
+          required: false
+          schema:
+            type: string                                    
+        - in: query
+          name: LID_ID
+          description: Haal alle tracks op van een specifiek lid
+          required: false
+          schema:
+            type: string       
+        - in: query
+          name: INSTRUCTEUR_ID
+          description: Haal alle tracks op die door deze instrcuteur zijn toegevoegd
+          required: false
+          schema:
+            type: string                                  
+      responses:
+        200:
+          description: "OK, data succesvol opgehaald"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/oper_tracks'
+        405:
+          description: "Methode niet toegestaan, input validatie error"  
+        500:
+          description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"          
+
+  /Tracks/DeleteObject:
+    delete:
+      summary: Markeer record als verwijderd.
+      parameters:
+        - in: query
+          name: ID
+          description: Database ID van het record
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        204:
+          description: "Track verwijderd"
+        401:
+          description: "Niet geautoriseerd, geen schrijfrechten" 
+        404:
+          description: "Data niet gevonden"             
+        405:
+          description: "Methode niet toegestaan, input validatie error"  
+        406:
+          description: "Niet aanvaardbaar, input ontbreekt"            
+        500:
+          description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)" 
+
+  /Tracks/SaveObject:
+    post:
+      summary: Voeg nieuw track record toe
+      requestBody:
+        description: track data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/oper_tracks'
+      responses:
+        200:
+          description: "OK, data succesvol toegevoegd"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/oper_tracks'  
+        401:
+          description: "Niet geautoriseerd, geen schrijfrechten"                          
+        405:
+          description: "Methode niet toegestaan, input validatie error"  
+        406:
+          description: "Niet aanvaardbaar, input ontbreekt"   
+        409:
+          description: "Conflict, record bestaat al"                     
+        500:
+          description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"                       
+    put:
+      summary: Update bestaand track record
+      requestBody:
+        description: track data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/oper_tracks'
+      responses:
+        200:
+          description: "OK, data succesvol aangepast"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/oper_tracks'  
+        401:
+          description: "Niet geautoriseerd, geen schrijfrechten" 
+        404:
+          description: "Data niet gevonden"                          
+        405:
+          description: "Methode niet toegestaan, input validatie error"  
+        406:
+          description: "Niet aanvaardbaar, input ontbreekt"             
+        500:
+          description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"  
+
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+      description: Eerst inloggen voordat API beschikbaar is
+
+  schemas:
+    oper_tracks:
+      type: object
+      properties:
+        ID:
+          description: Database ID van het record
+          type: integer
+          format: int32
+          example: 14
+        LID_ID:
+          description: Voor welk lid is deze tekst bedoeld
+          type: integer
+          format: int32
+          example: 10115
+        INSTRUCTEUR_ID:
+          description: Door wie is de tekst ingevoerd
+          type: integer
+          format: int32
+          example: 10001                 
+        TEKST:
+          description: De tekst
+          type: integer
+          format: String
+          example: "Kabelbreuk oefening ging prima. Netjes verkort circuit gevlogen"
+        START_ID:
+          description: Verwijzing naar een start. Verwijzing naar oper_startlijst
+          type: integer
+          format: int32
+          example: 1655  
+        INGEVOERD:
+          description: Tijdstempel wanneer record is toegevoegd
+          type: string
+          format: date-time   
+          example: 2019-01-04 22:34:18           
+        LINK_ID:
+          description: Verwijzing naar eerder ingevoerde data
+          type: integer
+          format: int32
+          example: 1655         
+        VERWIJDERD:
+          description: Is dit record gemarkeerd als verwijderd?  Waarde 0..1
+          type: boolean
+          example: 0        
+        LAATSTE_AANPASSING:
+          description: Tijdstempel van laaste aanpassing in de database
+          type: string
+          format: date-time   
+          example: 2019-01-04 22:34:18 
+    view_tracks:
+      type: object
+      properties:
+        totaal:
+          description: Aantal records dat voldoet aan de criteria in de database
+          type: integer
+          format: int32
+          example: 287
+        laatste_aanpassing:
+          description: Tijdstempel van laaste aanpassing in de database van de records dat voldoet aan de criteria
+          type: string
+          format: date-time   
+          example: 2020-01-04 12:06:22 
+        dataset:
+          description: De dataset met records
+          type: array
+          items: 
+            type: object
+            allOf:
+              - $ref: '#/components/schemas/oper_tracks'
+              - type: object
+                properties:
+                  LID_NAAM:
+                    description: De naam van het lid waar de tekst over gaat
+                    type: string
+                    example: Momfer de Mol       
+                  INSTRUCTEUR_NAAM:
+                    description: De naam van de instructeur die de tekst heeft ingevoerd
+                    type: string
+                    example: Zoef de Haas
+                             

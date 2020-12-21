@@ -1,0 +1,465 @@
+openapi: 3.0.2
+info:
+  title: RefLeden
+  description: Ledenlijst
+  version: '1.0'
+     
+paths:
+  /Leden/CreateTable:
+    post:
+      summary: Creeer database objecten
+      parameters:
+        - in: query
+          name: FILLDATA
+          description: Dummy records aanmaken
+          required: true
+          schema:
+            type: boolean
+      responses:
+        201:
+          description: "Aangemaakt, Tabel toegevoegd"
+        500:
+          description: "Data verwerkingsfout, bijv omdat de tabel al bestaat" 
+
+  /Leden/CreateViews:
+    post:
+      summary: Creeer database views
+      responses:
+        201:
+          description: "Aangemaakt, View toegevoegd"
+        500:
+          description: "Data verwerkingsfout, view niet aangemaak"    
+
+  /Leden/GetObject:
+    get:
+      summary: Haal een enkel lid op uit de database
+      parameters:
+        - in: query
+          name: ID
+          description: Database ID van het lid record
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        200:
+          description: "OK, data succesvol opgehaald"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ref_leden'
+        404:
+          description: "Data niet gevonden"
+        405:
+          description: "Methode niet toegestaan, input validatie error"  
+        406:
+          description: "Niet aanvaardbaar, input ontbreekt"           
+        500:
+          description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"       
+
+  /Leden/GetObjects:
+    get:
+      summary: Haal de ledenlijst op uit de database. Query parameters worden in AND conditie gebruikt
+      parameters:
+        - in: query
+          name: LAATSTE_AANPASSING
+          description: Laatste aanpassing op basis van records in dataset. Bedoeld om data verbruik te verminderen. Dataset is daarom leeg
+          required: false
+          schema:
+            type: boolean
+        - in: query
+          name: SORT
+          description: Sortering van de velden in ORDER BY formaat. Default = NAAM
+          required: false
+          schema:
+            type: string     
+        - in: query
+          name: MAX
+          description: Maximum aantal records in de dataset. Gebruikt in LIMIT query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 1  
+        - in: query
+          name: START
+          description: Eerste record in de dataset. Gebruikt in LIMIT query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 1  
+        - in: query        
+          name: VELDEN
+          description: Welke velden moet opgenomen worden in de dataset
+          required: false
+          schema:
+            type: string                                    
+        - in: query        
+          name: SELECTIE
+          description: Zoek in de NAAM, TELEFOON, MOBIEL, NOODNUMMER, EMAIL
+          required: false
+          schema:
+            type: string   
+        - in: query
+          name: IN
+          description: Meerdere lid database IDs in CSV formaat
+          required: false
+          schema:
+            type: string   
+        - in: query
+          name: TYPES
+          description: Zoek op een of meerder lid types. Types als CSV formaat
+          required: false
+          schema:
+            type: string    
+        - in: query
+          name: CLUBLEDEN
+          description: Wanneer 'true', toon alleen de leden
+          required: false
+          schema:
+            type: boolean      
+        - in: query
+          name: INSTRUCTEURS
+          description: Wanneer 'true', toon alleen de instructeurs
+          required: false
+          schema:
+            type: boolean    
+        - in: query
+          name: DDWV_CREW
+          description: Wanneer 'true', toon alleen de DDWV crew
+          required: false
+          schema:
+            type: boolean                
+        - in: query
+          name: LIERISTEN
+          description: Wanneer 'true', toon alleen de lieristen
+          required: false
+          schema:
+            type: boolean    
+        - in: query
+          name: STARTLEIDERS
+          description: Wanneer 'true', toon alleen de startleiders
+          required: false
+          schema:
+            type: boolean                                                                       
+      responses:
+        200:
+          description: "OK, data succesvol opgehaald"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/view_leden'
+        405:
+          description: "Methode niet toegestaan, input validatie error"  
+        500:
+          description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"    
+
+  /Leden/DeleteObject:
+    delete:
+      summary: Markeer record als verwijderd.
+      parameters:
+        - in: query
+          name: ID
+          description: Database ID van het lid record
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        204:
+          description: "Lid verwijderd"
+        401:
+          description: "Niet geautoriseerd, geen schrijfrechten"  
+        404:
+          description: "Data niet gevonden"        
+        405:
+          description: "Methode niet toegestaan, input validatie error"  
+        406:
+          description: "Niet aanvaardbaar, input ontbreekt"            
+        500:
+          description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)" 
+
+  /Leden/UploadAvatar:
+    post:
+      summary: Avatar dat bij het lid hoort
+      parameters:
+        - in: query
+          name: ID
+          description: Database ID van het lid record
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - in: query
+          name: FILE
+          description: Afbeelding ('gif','jpg','jpe','jpeg','png')
+          required: true
+          schema:
+            type: string
+            format: binary
+
+      responses:
+        200:
+          description: "OK, avatar succesvol opgeslagen"
+          content:
+            application/json:
+              schema:
+                type: string
+                description: Url van waarop avatar beschikbaar is.
+
+        404:
+          description: "Lid ID niet gevonden"
+        405:
+          description: "Methode niet toegestaan, input validatie error"  
+        422:
+          description: "Ongeldige bestand extentie"           
+        500:
+          description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"       
+
+  /Leden/SaveObject:
+    post:
+      summary: Voeg nieuw lid toe
+      requestBody:
+        description: lid data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ref_leden'
+      responses:
+        200:
+          description: "OK, data succesvol toegevoegd"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ref_leden'  
+        401:
+          description: "Niet geautoriseerd, geen schrijfrechten"                
+        405:
+          description: "Methode niet toegestaan, input validatie error"  
+        406:
+          description: "Niet aanvaardbaar, input ontbreekt"          
+        409:
+          description: "Conflict, lidnummer bestaat al"  
+        500:
+          description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"                      
+    put:
+      summary: Update bestaand lid
+      requestBody:
+        description: lid data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ref_leden'
+      responses:
+        200:
+          description: "OK, data succesvol aangepast"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ref_leden'  
+        401:
+          description: "Niet geautoriseerd, geen schrijfrechten"  
+        404:
+          description: "Data niet gevonden"                
+        405:
+          description: "Methode niet toegestaan, input validatie error"  
+        406:
+          description: "Niet aanvaardbaar, input ontbreekt"          
+        409:
+          description: "Conflict, lidnummer bestaat al"  
+        500:
+          description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"  
+
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+      description: Eerst inloggen voordat API beschikbaar is
+
+  schemas:
+    ref_leden:
+      type: object
+      properties:
+        ID:
+          description: Database ID van het lid record
+          type: integer
+          format: int32
+          example: 12871
+        NAAM: 
+          description: De volledige naam van het lid
+          type: string
+          maxLength: 255
+          example: Meindert het Paard
+        VOORNAAM: 
+          description: De voornaam van het lid
+          type: string
+          maxLength: 15
+          example: Meindert        
+        TUSSENVOEGSEL: 
+          description: De tussenvoegsel van het lid
+          type: string
+          maxLength: 8
+          example: het              
+        ACHTERNAAM:
+          description: De achternaam van het lid zonder tussenvoegsels
+          type: string
+          maxLength: 30
+          example: Paard        
+        ADRES:
+          description: Het (post) adres waar het lid woont
+          type: string
+          maxLength: 50
+          example: Werf 18       
+        POSTCODE:
+          description: De postcode die bij het adres hoort
+          type: string
+          maxLength: 50
+          example: 7158 PP          
+        WOONPLAATS:
+          description: De plaatsnaam 
+          type: string
+          maxLength: 50
+          example: Berkum                           
+        TELEFOON: 
+          description: Telefoon nummer van het lid
+          type: string
+          maxLength: 255
+          example: 086-1506822
+        MOBIEL: 
+          description: Mobiel telefoon nummer van het lid
+          type: string
+          maxLength: 255
+          example: 06-1025500
+        NOODNUMMER:
+          description: Het telefoonnummer van een naaste, kan gebruikt worden in noodgevallen
+          type: string
+          maxLength: 255
+          example: 0112-11801              
+        EMAIL:
+          description: email adres van het lid
+          type: string
+          maxLength: 45
+          example: meindert@fabeltje.com
+        LIDNR: 
+          description: Het lidnummer zoals dat in de leden administratie bekend is
+          type: string
+          maxLength: 10
+          example: 11139        
+        LIDTYPE_ID: 
+          description: Het soort lid (jeugdlid, lid, donateur). Verwijzing naar type tabel
+          type: integer
+          format: int32
+          example: 603        
+        LIERIST:
+          description: Mag dit lid lieren? Waarde 0..1
+          type: boolean
+          example: 0            
+        STARTLEIDER: 
+          description: Kan dit lid het startbedrijf leiden?  Waarde 0..1
+          type: boolean
+          example: 0    
+        INSTRUCTEUR:
+          description: Heeft dit lid een instructie bevoegdheid?  Waarde 0..1
+          type: boolean
+          example: 0    
+        DDWV_CREW:
+          description: Werkt dit lid mee in het DDWV bedrijf  Waarde 0..1
+          type: boolean
+          example: 0  
+        DDWV_BEHEERDER:
+          description: Is dit lid de beheerder van het DDWV bedrijf, heeft toegang tot DDWV gerelateede data  Waarde 0..1
+          type: boolean
+          example: 0  
+        BEHEERDER:
+          description: Is dit lid de beheerder van deze omgeving, heeft toegang tot alles   Waarde 0..1
+          type: boolean
+          example: 0                
+        ROOSTER:
+          description: Is dit lid  belast met het maken van roosters    Waarde 0..1
+          type: boolean
+          example: 0       
+        STARTTOREN:
+          description: Dit account wordt gebruikt om starts in de start toren in te voeren    Waarde 0..1
+          type: boolean
+          example: 0                                        
+        MEDICAL:
+          description: Verloopdatum van het medical 
+          type: string
+          format: date
+          example: 2022-01-16           
+        INLOGNAAM: 
+          description: De inlognaam van het lid
+          type: string
+          maxLength: 45
+          example: mpaard        
+        WACHTWOORD: 
+          description: Het geheime password
+          type: string
+          maxLength: 255
+          example: 123456     
+        SECRET: 
+          description: Readonly, **** voor gewone gebruikers, URL om QRcode op te halen voor beheerders 
+          type: string
+          maxLength: 255
+          example: 123456               
+        AUTH: 
+          description: 2Factor authenticatie voor deze gebruiker  Waarde 0..1
+          type: boolean
+          example: 0                
+        HEEFT_BETAALD: 
+          description: Heef het lid de factuur van dit jaar betaald?  Waarde 0..1
+          type: boolean
+          example: 0   
+        PRIVACY: 
+          description: Staat privacy mode (AVG / GDPR) uit/aan Waarde 0..1
+          type: boolean
+          example: 0     
+        BEPERKINGEN:
+          description: Wat zijn de beperkingen (vliegen / diensten) voor dit lid
+          type: string
+          maxLength: 255
+          example: Meindert niet inzetten als startleider, hij gaat gras eten :-)   
+        OPMERKINGEN:
+          description: Extra text om opmerkingen toe te voegen
+          type: string
+          maxLength: 255
+          example: Voorkeur om 's morgens lierdienst te doen                                
+        VERWIJDERD:
+          description: Is dit record gemarkeerd als verwijderd?  Waarde 0..1
+          type: boolean
+          example: 0            
+        LAATSTE_AANPASSING:
+          description: Tijdstempel van laaste aanpassing in de database
+          type: string
+          format: date-time   
+          example: 2019-01-04 22:34:18 
+    view_leden:
+      type: object
+      properties:
+        totaal:
+          description: Aantal records dat voldoet aan de criteria in de database
+          type: integer
+          format: int32
+          example: 287
+        laatste_aanpassing:
+          description: Tijdstempel van laaste aanpassing in de database van de records dat voldoet aan de criteria
+          type: string
+          format: date-time   
+          example: 2019-01-04 22:34:18 
+        dataset:
+          description: De dataset met records
+          type: array
+          items: 
+            type: object
+            allOf:
+              - $ref: '#/components/schemas/ref_leden'
+              - type: object
+                properties:
+                  LIDTYPE: 
+                    description: Lidtype in text
+                    type: string
+                    example: Jeugdlid
