@@ -372,7 +372,7 @@ paths:
             type: string     
         - in: query
           name: MAX
-          description: Maximum aantal records in de dataset. Gebruikt in LIMIT query
+          description: Maximum aantal records in de dataset. Gebruikt in LIMIT query, default 10 dagen
           required: false
           schema:
             type: integer

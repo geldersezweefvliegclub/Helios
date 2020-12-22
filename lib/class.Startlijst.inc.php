@@ -1225,7 +1225,7 @@
 
 			$where = ' WHERE 1=1 ';
 			$orderby = "";
-			$limit = -1;
+			$limit = 10;
 			$start = -1;
 			$query_params = array();
 
