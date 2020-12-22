@@ -277,11 +277,21 @@
 			$limit = -1;
 			$start = -1;
 			$velden = "*";
+			$query_params = array();
 
 			foreach ($params as $key => $value)
 			{
 				switch ($key)
 				{
+					case "ID" : 
+						{
+							$id = isINT($value, "ID");
+							$where .= " AND ID=?";
+							array_push($query_params, $id);
+
+							Debug(__FILE__, __LINE__, sprintf("%s: ID='%s'", $functie, $id));
+							break;
+						}					
 					case "LAATSTE_AANPASSING" : 
 						{
 							$alleenLaatsteAanpassing = isBOOL($value, "LAATSTE_AANPASSING");
@@ -333,7 +343,8 @@
 					case "LEERFASE_ID" : 
 						{
 							$leerfaseID = isINT($value, "LEERFASE_ID");
-							$where .= sprintf(" AND LEERFASE_ID=%d",  $leerfaseID);	
+							$where .= " AND LEERFASE_ID=?";	
+							array_push($query_params, $leerfaseID);
 							
 							Debug(__FILE__, __LINE__, sprintf("%s: LEERFASE_ID='%s'", $functie, $leerfaseID));
 							break;	  
@@ -354,8 +365,8 @@
 			
 			$retVal = array();
 
-			$retVal['totaal'] = $this->Count($query);		// total amount of records in the database
-			$retVal['laatste_aanpassing']=  $this->LaatsteAanpassing($query);
+			$retVal['totaal'] = $this->Count($query, $query_params);		// totaal aantal of record in de database
+			$retVal['laatste_aanpassing']=  $this->LaatsteAanpassing($query, $query_params);
 			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s", $retVal['totaal'], $retVal['laatste_aanpassing']));
 
 			$query = "
@@ -379,7 +390,7 @@
 					$query .= sprintf(" LIMIT %d , %d ", $start, $limit);
 				}			
 				$rquery = sprintf($query, $velden);
-				parent::DbOpvraag($rquery);
+				parent::DbOpvraag($rquery, $query_params);
 				$retVal['dataset'] = parent::DbData();
 
 				return $retVal;

@@ -141,11 +141,21 @@
 			$limit = -1;
 			$start = -1;
 			$velden = "*";
+			$query_params = array();
 
 			foreach ($params as $key => $value)
 			{
 				switch ($key)
 				{
+					case "ID" : 
+						{
+							$id = isINT($value, "ID");
+							$where .= " AND ID=?";
+							array_push($query_params, $id);
+
+							Debug(__FILE__, __LINE__, sprintf("%s: ID='%s'", $functie, $id));
+							break;
+						}					
 					case "LAATSTE_AANPASSING" : 
 						{
 							$alleenLaatsteAanpassing = isBOOL($value, "LAATSTE_AANPASSING");
@@ -197,7 +207,8 @@
 					case "LID_ID" : 
 						{
 							$lidID = isINT($value, "LID_ID");
-							$where .= sprintf(" AND LID_ID=%d",  $lidID);	
+							$where .= " AND LID_ID=?";
+							array_push($query_params, $lidID);	
 							
 							Debug(__FILE__, __LINE__, sprintf("%s: LID_ID='%s'", $functie, $lidID));
 							break;	  
@@ -205,7 +216,8 @@
 					case "INSTRUCTEUR_ID" : 
 						{
 							$instructeurID = isINT($value, "INSTRUCTEUR_ID");
-							$where .= sprintf(" AND INSTRUCTEUR_ID=%d",  $instructeurID);	
+							$where .= " AND INSTRUCTEUR_ID=?";
+							array_push($query_params, $instructeurID);	
 							
 							Debug(__FILE__, __LINE__, sprintf("%s: INSTRUCTEUR_ID='%s'", $functie, $instructeurID));
 							break;	  
@@ -226,8 +238,8 @@
 			
 			$retVal = array();
 
-			$retVal['totaal'] = $this->Count($query);		// total amount of records in the database
-			$retVal['laatste_aanpassing']=  $this->LaatsteAanpassing($query);
+			$retVal['totaal'] = $this->Count($query, $query_params);		// totaal aantal of record in de database
+			$retVal['laatste_aanpassing']=  $this->LaatsteAanpassing($query, $query_params);
 			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s", $retVal['totaal'], $retVal['laatste_aanpassing']));
 
 			if ($alleenLaatsteAanpassing)
@@ -245,7 +257,7 @@
 					$query .= sprintf(" LIMIT %d , %d ", $start, $limit);
 				}			
 				$rquery = sprintf($query, $velden);
-				parent::DbOpvraag($rquery);
+				parent::DbOpvraag($rquery, $query_params);
 				$retVal['dataset'] = parent::DbData();
 
 				return $retVal;

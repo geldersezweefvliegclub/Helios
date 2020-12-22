@@ -234,6 +234,15 @@
 			{
 				switch ($key)
 				{
+					case "ID" : 
+						{
+							$id = isINT($value, "ID");	
+							$where .= " AND ID=?";
+							array_push($query_params, $id);
+
+							Debug(__FILE__, __LINE__, sprintf("%s: ID='%s'", $functie, $id));
+							break;
+						}					
 					case "LAATSTE_AANPASSING" : 
 						{
 							$alleenLaatsteAanpassing = isBOOL($value, "LAATSTE_AANPASSING");
@@ -323,7 +332,6 @@
 					case "STARTMETHODE_ID" :
 						{
 							$sm_id = isINT($value, "STARTMETHODE_ID");
-
 							$where .= " AND STARTMETHODE_ID = ?";
 							array_push($query_params, $sm_id);
 
@@ -333,7 +341,9 @@
 					case "LID_ID" : 
 						{ 
 							$lidID = isINT($value, "LID_ID");
-							$where = $where . sprintf(" AND ((VLIEGER_ID = '%d') OR (INZITTENDE_ID = '%d'))", $lidID, $lidID);
+							$where .= " AND ((VLIEGER_ID = ?) OR (INZITTENDE_ID = ?))";
+							array_push($query_params, $lidID);
+							array_push($query_params, $lidID);
 
 							Debug(__FILE__, __LINE__, sprintf("%s: LID_ID='%s'", $functie, $lidID));
 							break;
@@ -341,7 +351,8 @@
 					case "VLIEGTUIG_ID" : 
 						{
 							$vliegtuigID = isINT($value, "VLIEGTUIG_ID");
-							$where = $where . sprintf(" AND (VLIEGTUIG_ID = '%d')", $vliegtuigID);
+							$where .= " AND (VLIEGTUIG_ID = ?)";
+							array_push($query_params, $vliegtuigID);
 
 							Debug(__FILE__, __LINE__, sprintf("%s: VLIEGTUIG_ID='%s'", $functie, $vliegtuigID));
 							break;
@@ -372,7 +383,7 @@
 			
 			$retVal = array();
 
-			$retVal['totaal'] = $this->Count($query, $query_params);		// total amount of records in the database
+			$retVal['totaal'] = $this->Count($query, $query_params);		// totaal aantal of record in de database
 			$retVal['laatste_aanpassing']=  $this->LaatsteAanpassing($query, $query_params);
 			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s", $retVal['totaal'], $retVal['laatste_aanpassing']));	
 

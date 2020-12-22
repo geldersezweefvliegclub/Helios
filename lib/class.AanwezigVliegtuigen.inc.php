@@ -168,6 +168,15 @@
 			{
 				switch ($key)
 				{
+					case "ID" : 
+						{
+							$id = isINT($value, "ID");
+							$where .= " AND ID=?";
+							array_push($query_params, $id);
+
+							Debug(__FILE__, __LINE__, sprintf("%s: ID='%s'", $functie, $id));
+							break;
+						}					
 					case "LAATSTE_AANPASSING" : 
 						{
 							$alleenLaatsteAanpassing = isBOOL($value, "LAATSTE_AANPASSING");
@@ -271,6 +280,11 @@
 						}										
 				}
 			}
+
+			// Als er geen datum is meegegeven dan alleen vandaag
+			if ((strpos($where, 'DATUM') === false) && (strpos($where, 'ID') === false)) {
+				$where .= sprintf (" AND DATUM = '%s'", date("Y-m-d"));
+			}			
 				
 			$query = "
 				SELECT 
@@ -280,7 +294,7 @@
 			
 			$retVal = array();
 
-			$retVal['totaal'] = $this->Count($query, $query_params);		// total amount of records in the database
+			$retVal['totaal'] = $this->Count($query, $query_params);		// totaal aantal of record in de database
 			$retVal['laatste_aanpassing']=  $this->LaatsteAanpassing($query, $query_params);
 			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s", $retVal['totaal'], $retVal['laatste_aanpassing']));	
 

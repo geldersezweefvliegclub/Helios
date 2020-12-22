@@ -176,12 +176,21 @@
 			$limit = -1;
 			$start = -1;
 			$velden = "*";
-			$query_params = null;
+			$query_params = array();
 
 			foreach ($params as $key => $value)
 			{
 				switch ($key)
 				{
+					case "ID" : 
+						{
+							$id = isINT($value, "ID");
+							$where .= " AND ID=?";
+							array_push($query_params, $id);
+
+							Debug(__FILE__, __LINE__, sprintf("%s: ID='%s'", $functie, $id));
+							break;
+						}
 					case "LAATSTE_AANPASSING" : 
 						{
 							$alleenLaatsteAanpassing = isBOOL($value, "LAATSTE_AANPASSING");
@@ -266,7 +275,8 @@
 							if (($zitplaatsen < 1) || ($zitplaatsen > 2))
 								throw new Exception("405;ZITPLAATSEN moet een 1 of 2 zijn;");
 							
-							$where .= sprintf(" AND ZITPLAATSEN=%d",  $zitplaatsen);	
+							$where .= " AND ZITPLAATSEN=?";
+							array_push($query_params, $zitplaatsen);
 							
 							Debug(__FILE__, __LINE__, sprintf("%s: ZITPLAATSEN='%s'", $functie, $zitplaatsen));
 							break;
@@ -274,7 +284,8 @@
 					case "CLUBKIST" : 
 						{
 							$clubkist = isBOOL($value, "CLUBKIST");
-							$where .= sprintf(" AND CLUBKIST=%d", $clubkist);
+							$where .= " AND CLUBKIST=?";
+							array_push($query_params, $clubkist);
 
 							Debug(__FILE__, __LINE__, sprintf("%s: CLUBKIST='%s'", $functie, $clubkist));
 							break;
@@ -282,7 +293,8 @@
 					case "ZELFSTART" : 
 						{
 							$zelfstart = isBOOL($value, "ZELFSTART");
-							$where .= sprintf(" AND ZELFSTART=%d", $zelfstart);
+							$where .= " AND ZELFSTART=?";
+							array_push($query_params, $zelfstart);
 
 							Debug(__FILE__, __LINE__, sprintf("%s: ZELFSTART='%s'", $functie, $zelfstart));
 							break;
@@ -290,7 +302,8 @@
 					case "SLEEPKIST" : 
 						{
 							$sleepkist = isBOOL($value, "SLEEPKIST");
-							$where .= sprintf(" AND SLEEPKIST=%d", $sleepkist);
+							$where .= " AND SLEEPKIST=?";
+							array_push($query_params, $sleepkist);
 
 							Debug(__FILE__, __LINE__, sprintf("%s: SLEEPKIST='%s'", $functie, $sleepkist));
 							break;
@@ -298,7 +311,8 @@
 					case "TMG" : 
 						{
 							$TMG = isBOOL($value, "TMG");
-							$where .= sprintf(" AND TMG=%d", $TMG);
+							$where .= " AND TMG=?";
+							array_push($query_params, $TMG);
 
 							Debug(__FILE__, __LINE__, sprintf("%s: TMG='%s'", $functie, $TMG));
 							break;
@@ -319,7 +333,7 @@
 			
 			$retVal = array();
 
-			$retVal['totaal'] = $this->Count($query, $query_params);		// total amount of records in the database
+			$retVal['totaal'] = $this->Count($query, $query_params);		// totaal aantal of record in de database
 			$retVal['laatste_aanpassing']=  $this->LaatsteAanpassing($query, $query_params);
 			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s", $retVal['totaal'], $retVal['laatste_aanpassing']));	
 

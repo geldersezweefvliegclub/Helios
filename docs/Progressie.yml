@@ -62,6 +62,14 @@ paths:
       summary: Haal een lijst met competeties op uit de database. Query parameters worden in AND conditie gebruikt
       parameters:
         - in: query
+          name: ID
+          description: Database ID van het aanwezig record
+          required: false
+          schema:
+            type: integer
+            format: int32
+            example: 27      
+        - in: query
           name: LAATSTE_AANPASSING
           description: Laatste aanpassing op basis van records in dataset. Bedoeld om data verbruik te verminderen. Dataset is daarom leeg
           required: false
