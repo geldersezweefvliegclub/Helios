@@ -277,15 +277,15 @@ components:
           description: Kan het vliegtuig op eigen kracht starten. Waarde 0..1
           type: boolean
           example: 0
-        CLUBKIST:	
+        CLUBKIST:
           description: Is het een club vliegtuig? Waarde 0..1
           type: boolean
           example: 1
-        TMG:	
+        TMG:
           description: Is het een TMG? Waarde 0..1
           type: boolean
           example: 0
-        SLEEPKIST:		
+        SLEEPKIST:
           description: Is het een sleepvliegtuig? Waarde 0..1
           type: boolean
           example: 0

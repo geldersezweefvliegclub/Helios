@@ -159,7 +159,7 @@ paths:
           description: Het lid ID. Verwijzing naar vliegtuigen tabel
           required: true
           schema:
-            type: int
+            type: integer
             example: 10408
         - in: query        
           name: TIJDSTIP
@@ -196,7 +196,7 @@ paths:
           description: Het vliegtuig ID. Verwijzing naar vliegtuigen tabel
           required: true
           schema:
-            type: int
+            type: integer
             example: 10408
         - in: query        
           name: TIJDSTIP
@@ -328,7 +328,7 @@ components:
           example: 2017-07-21     
         VLIEGTUIG_ID: 
           description: Het vliegtuig ID. Verwijzing naar vliegtuigen tabel
-          type: int
+          type: integer
           example: 215       
         AANKOMST: 
           description: Aankomsttijd van het vliegtuig. ISO8601

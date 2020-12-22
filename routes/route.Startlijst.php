@@ -192,14 +192,37 @@ $app->get('/Startlijst/GetVliegtuigLogboekTotalen', function (Request $request, 
 }); 
 
 /*
-Haal een enkel record op uit de database
+Haal de dagen op waar we starts van hebben
 */
-$app->get('/Startlijst/GetRecency', function (Request $request, Response $response, $args) {
+$app->get('/Startlijst/GetVliegDagen', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Startlijst");
     try
     {
-        $vliegerID = $request->getQueryParams()['VLIEGER_ID'];
+        $parameters = $request->getQueryParams();
+        $v = $obj->GetVliegDagen($parameters);     // Hier staat de logica voor deze functie
 
+        $response->getBody()->write(json_encode($v));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+    catch(Exception $exception)
+    {
+        Debug(__FILE__, __LINE__, "/Startlijst/GetVliegtuigLogboekTotalen: " .$exception);
+
+        list($dummy, $exceptionMsg) = explode(": ", $exception);
+        list($httpStatus, $message) = explode(";", $exceptionMsg);   // onze eigen formaat van een exceptie
+
+        header("X-Error-Message: $message", true, intval($httpStatus));
+        header("Content-Type: text/plain");
+        die;
+    }
+});
+
+
+$app->get('/Startlijst/Vliegdagen', function (Request $request, Response $response, $args) {
+    $obj = MaakObject("Startlijst");
+    try
+    {
+        $parameters = $request->getQueryParams();
         $r = $obj->GetRecency($vliegerID);  // Hier staat de logica voor deze functie
         if ($r === null)
         {

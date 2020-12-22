@@ -1206,6 +1206,131 @@
 		}
 
 		/*
+		Vliegdagen
+		*/
+		function GetVliegDagen($params)
+		{
+			Debug(__FILE__, __LINE__, sprintf("Startlijst.Vliegdagen(%s)", print_r($params, true)));
+
+			$where = ' WHERE 1=1 ';
+			$orderby = "";
+			$limit = -1;
+			$start = -1;
+			$query_params = array();
+
+			// Als ingelogde gebruiker geen bijzonder functie heeft, worden alleen zijn vliegdagen opgehaald
+			$l = MaakObject('Login');
+
+			if ($l->isBeheerderDDWV())
+			{
+				$condition .= " AND (((d.DDWV = 1) OR (r.DDWV = 1)) ";
+				$condition .= sprintf(" OR ((VLIEGER_ID = '%d') OR (INZITTENDE_ID = '%d')))", $l->getUserFromSession(), $l->getUserFromSession());				
+			}
+			else if (!$l->isBeheerder())
+			{
+				$condition .= sprintf(" AND ((VLIEGER_ID = '%d') OR (INZITTENDE_ID = '%d'))", $l->getUserFromSession(), $l->getUserFromSession());
+			}
+
+			foreach ($params as $key => $value)
+			{
+				switch ($key)
+				{
+					case "SORT" : 
+						{
+							if (strpos($value,';') !== false)
+								throw new Exception("405;SORT is onjuist;");
+							
+							// help om juiste tabel teh sorteren	
+							if (substr($value, 0, 2) != "s.")
+								$value = "s." . $value;
+
+							$orderby = sprintf(" ORDER BY %s ", $value);
+							Debug(__FILE__, __LINE__, sprintf("%s: SORT='%s'", $functie, $value));
+							break;
+						}
+					case "MAX" : 
+						{
+							$max = isINT($value, "MAX");
+
+							if ($max > 0)
+							{
+								$limit = $max;
+								Debug(__FILE__, __LINE__, sprintf("%s: LIMIT='%s'", $functie, $limit));
+							}
+							break;
+						}
+					case "BEGIN_DATUM" : 
+						{
+							$beginDatum = isDATE($value, "BEGIN_DATUM");
+
+							$where .= " AND s.DATUM >= ? ";
+							array_push($query_params, $beginDatum);
+
+							Debug(__FILE__, __LINE__, sprintf("%s: BEGIN_DATUM='%s'", $functie, $beginDatum));
+							break;
+						}
+					case "EIND_DATUM" : 
+						{
+							$eindDatum = isDATE($value, "EIND_DATUM");
+
+							$where .= " AND s.DATUM <= ? ";
+
+							array_push($query_params, $eindDatum);
+
+							Debug(__FILE__, __LINE__, sprintf("%s: EIND_DATUM='%s'", $functie, $eindDatum));
+							break;
+						}						
+					
+					case "LID_ID" : 
+						{ 
+							$lidID = isINT($value, "LID_ID");
+							$where = $where . sprintf(" AND ((VLIEGER_ID = '%d') OR (INZITTENDE_ID = '%d'))", $lidID, $lidID);
+
+							Debug(__FILE__, __LINE__, sprintf("%s: LID_ID='%s'", $functie, $lidID));
+							break;
+						}							
+					default:
+						{
+							throw new Exception(sprintf("405;%s is een onjuiste parameter;", $key));
+							break;
+						}								  																																
+				}
+			}
+				
+			$query = "
+				SELECT 
+					%s 
+				FROM
+					`oper_startlijst` AS s LEFT JOIN 
+					`oper_daginfo` AS d ON s.datum = d.datum LEFT JOIN 
+					`oper_rooster` AS r ON s.datum = r.datum" . $where . " GROUP BY s.datum " . $orderby;
+			
+			$retVal = array();
+
+			$retVal['totaal'] = $this->Count("SELECT COUNT(*) AS totaal FROM (" . $query . ") AS d", $query_params);		// wijkt af ivm de GROUP BY die opgenomen is in de query
+			$retVal['laatste_aanpassing']=  $this->LaatsteAanpassing($query, $query_params, "s.LAATSTE_AANPASSING");
+			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s", $retVal['totaal'], $retVal['laatste_aanpassing']));	
+
+			if ($alleenLaatsteAanpassing)
+			{
+				$retVal['dataset'] = null;
+				return $retVal;
+			}
+			else
+			{			
+				if ($limit > 0)
+					$query .= sprintf(" LIMIT 0 , %d ", $limit);
+							
+				$rquery = sprintf($query, "s.DATUM");
+				parent::DbOpvraag($rquery, $query_params);
+				$retVal['dataset'] = parent::DbData();
+
+				return $retVal;
+			}
+			return null;  // Hier komen we nooit :-)
+		}
+
+		/*
 		Copieer data van request naar velden van het record 
 		*/
 		function RequestToRecord($input)

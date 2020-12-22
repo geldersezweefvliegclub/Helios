@@ -261,7 +261,7 @@ components:
           items: 
             type: object
             allOf:
-              - $ref: '#/components/schemas/ref_compententies'
+              - $ref: '#/components/schemas/ref_competenties'
               - type: object
                 properties:                   
                   LEERFASE: 

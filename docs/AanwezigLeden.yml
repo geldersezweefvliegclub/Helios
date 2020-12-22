@@ -160,14 +160,15 @@ paths:
   /AanwezigLeden/Aanmelden:
     post:
       summary: Aanmelden van het lid als aanwezig. Maakt record aan als het niet bestaat of update bestaand record (ook al is het lid aanwezig)
+      requestBody:
+        description: Vliegtuig data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/oper_aanwezig_leden' 
+
       parameters:
-        - in: query        
-          name: LID_ID
-          description: Het lid ID. Verwijzing naar leden tabel
-          required: true
-          schema:
-            type: int
-            example: 10408
         - in: query        
           name: TIJDSTIP
           description: Tijdstip van de aanmelding. Indien afwezig, huidige tijd. ISO8601
@@ -203,7 +204,7 @@ paths:
           description: Het lid ID. Verwijzing naar leden tabel
           required: true
           schema:
-            type: int
+            type: integer
             example: 10408
         - in: query        
           name: TIJDSTIP
@@ -231,25 +232,25 @@ paths:
         500:
           description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)" 
 
-    /AanwezigLeden/PotentieelVliegers:
-      get:
-        summary: We weten het vliegtuig, maar wie gaat vliegen. Geeft een lijst met potentiele vliegers
-        parameters:
-        - in: query        
-          name: VLIEGTUID_ID
-          description: Het vliegtuig ID. Verwijzing naar vliegtuigen tabel
-          required: true
-          schema:
-            type: int
-            example: 12871
-        - in: query
-          name: DATUM
-          description: DATUM van de vliegdag. 
-          required: false
-          schema:
-            type: string
-            format: date
-            example: "1999-01-01"              
+  /AanwezigLeden/PotentieelVliegers:
+    get:
+      summary: We weten het vliegtuig, maar wie gaat vliegen. Geeft een lijst met potentiele vliegers
+      parameters:
+      - in: query        
+        name: VLIEGTUID_ID
+        description: Het vliegtuig ID. Verwijzing naar vliegtuigen tabel
+        required: true
+        schema:
+          type: integer
+          example: 12871
+      - in: query
+        name: DATUM
+        description: DATUM van de vliegdag. 
+        required: false
+        schema:
+          type: string
+          format: date
+          example: "1999-01-01"              
       responses:
         200:
           description: "OK, data succesvol opgehaald"
@@ -410,12 +411,12 @@ components:
           example: 2017-07-21     
         POSITIE:
           description: De positie op de startlijst. Nummer 1 is staat hoger op de startlijst als nummer 2 
-          type: int32
+          type: integer
           minimum: 1
           example: 12
         LID_ID: 
           description: Het lid ID. Verwijzing naar leden tabel
-          type: int
+          type: integer
           example: 10408
         VOORAANMELDING: 
           description: Heeft het lid zich vooraf aangemeld (bijv ingeschreven via DDWV)?  Waarde 0..1
@@ -502,7 +503,7 @@ components:
       properties:
         LID_ID: 
           description: Het lid ID. Verwijzing naar leden tabel
-          type: int
+          type: integer
           example: 10408
         VLIEGER:
           description: De volledige naam van het lid

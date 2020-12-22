@@ -126,13 +126,13 @@ paths:
           description: Startlijst voor bepaald lid, zowel als vlieger als inzittende
           required: false
           schema:
-            type: int 
+            type: integer 
         - in: query        
           name: VLIEGTUIG_ID
           description: Startlijst voor bepaald vliegtuig
           required: false
           schema:
-            type: int             
+            type: integer             
         - in: query
           name: OPEN_STARTS
           description: Wanneer 'true', toon alleen de vluchten die nog niet geland zijn, of waar gezagvoeder onbekend is
@@ -188,19 +188,19 @@ paths:
           description: Alle vluchten van het opgegven jaar
           required: false
           schema:
-            type: int         
+            type: integer         
         - in: query        
           name: LID_ID
           description: Logboek voor bepaald lid, indien niet aanwezig voor ingelogde gebruiker
           required: false
           schema:
-            type: int           
+            type: integer           
         - in: query        
           name: VLIEGTUIG_ID
           description: Logboek voor ingelogde lid op het gespecificeerde vliegtuig. Lid kan ook via LID_ID gezet worden
           required: false
           schema:
-            type: int                                       
+            type: integer                                       
       responses:
         200:
           description: "OK, data succesvol opgehaald"
@@ -312,36 +312,36 @@ paths:
           description: "OK, data succesvol opgehaald"
           content:
             application/json:
-            schema:
-              type: object
-              properties:
-                STARTS_DRIE_MND:
-                  type: string
-                  example: "2"
-                STARTS_VORIG_JAAR: 
-                  type: string
-                  example: "36"
-                STARTS_DIT_JAAR:
-                  type: string
-                  example: "2"
-                UREN_DRIE_MND: 
-                  type: string
-                  example: "1:42"
-                UREN_VORIG_JAAR: 
-                  type: string
-                  example: "1:42"
-                UREN_DIT_JAAR: 
-                  type: string
-                  example: "27:31"
-                STATUS_BAROMETER: 
-                  type: string
-                  example: "onbekend"
-                STARTS_BAROMETER: 
-                  type: string
-                  example: "38"
-                UREN_BAROMETER: 
-                  type: string
-                  example: "29:13"
+              schema:
+                type: object
+                properties:
+                  STARTS_DRIE_MND:
+                    type: string
+                    example: "2"
+                  STARTS_VORIG_JAAR: 
+                    type: string
+                    example: "36"
+                  STARTS_DIT_JAAR:
+                    type: string
+                    example: "2"
+                  UREN_DRIE_MND: 
+                    type: string
+                    example: "1:42"
+                  UREN_VORIG_JAAR: 
+                    type: string
+                    example: "1:42"
+                  UREN_DIT_JAAR: 
+                    type: string
+                    example: "27:31"
+                  STATUS_BAROMETER: 
+                    type: string
+                    example: "onbekend"
+                  STARTS_BAROMETER: 
+                    type: string
+                    example: "38"
+                  UREN_BAROMETER: 
+                    type: string
+                    example: "29:13"
                 
         404:
           description: "Data niet gevonden"
@@ -351,6 +351,66 @@ paths:
           description: "Niet aanvaardbaar, input ontbreekt"           
         500:
           description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"    
+
+  /Startlijst/GetVliegDagen:
+    get:
+      summary: Op welke dagen zijn er starts aanwezig
+      parameters:
+        - in: query
+          name: SORT
+          description: Sortering van de velden in ORDER BY formaat. Default, meerste recente vlucht eerst
+          required: false
+          schema:
+            type: string     
+        - in: query
+          name: MAX
+          description: Maximum aantal records in de dataset. Gebruikt in LIMIT query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 1    
+        - in: query
+          name: BEGIN_DATUM
+          description: Begin datum (inclusief deze dag)
+          required: false
+          schema:
+            type: string
+            format: date   
+        - in: query
+          name: EIND_DATUM
+          description: Eind datum (inclusief deze dag)
+          required: false
+          schema:
+            type: string
+            format: date                                               
+        - in: query        
+          name: LID_ID
+          description: De vliegdagen voor bepaald lid, indien niet aanwezig voor ingelogde gebruiker
+          required: false
+          schema:
+            type: integer           
+      responses:
+        200:
+          description: "OK, data succesvol opgehaald"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  DATUM:
+                    description: Datum van de start 
+                    type: string
+                    format: date
+                    example: 2017-07-21   
+        404:
+          description: "Data niet gevonden"
+        405:
+          description: "Methode niet toegestaan, input validatie error"  
+        406:
+          description: "Niet aanvaardbaar, input ontbreekt"           
+        500:
+          description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)" 
 
 components:
   securitySchemes:
@@ -375,7 +435,7 @@ components:
           example: 4       
         VLIEGTUIG_ID: 
           description: Het vliegtuig ID. Verwijzing naar vliegtuigen tabel
-          type: int
+          type: integer
           example: 215   
         DATUM:
           description: Datum van de start 
@@ -394,15 +454,15 @@ components:
           example: "12:32:15"   
         STARTMETHODE_ID: 
           description: De manier van starten (lier / sleep / zelfstart) Verwijzing naar type tabel
-          type: int
+          type: integer
           example: 506       
         VLIEGER_ID: 
           description: De vlieger van deze vlucht. Verwijzing naar leden tabel
-          type: int
+          type: integer
           example: 10825 
         INZITTENDE_ID: 
           description: Wie zit er nog meer bij. Verwijzing naar leden tabel
-          type: int
+          type: integer
           example: 10412 
         VLIEGERNAAM:
           description: De naam van de vlieger. Nodig indien de vlieger niet in de leden tabel staat 
@@ -416,15 +476,15 @@ components:
           example: "Wally Windhond"        
         SLEEPKIST_ID: 
           description: Het sleepvliegtuig ID. Verwijzing naar vliegtuigen tabel
-          type: int
+          type: integer
           example: 215  
         SLEEP_HOOGTE: 
           description: Tot welke hoogte (meters) is er gesleept
-          type: int
+          type: integer
           example: 400  
         VELD_ID: 
           description: Op welk veld is er gestart. Verwijzing naar type tabel
-          type: int
+          type: integer
           example: 901            
         OPMERKINGEN:
           description: Extra text om opmerkingen toe te voegen
