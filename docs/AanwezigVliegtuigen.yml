@@ -161,22 +161,21 @@ paths:
   /AanwezigVliegtuigen/Aanmelden:
     post:
       summary: Aanmelden van het lid als aanwezig. Maakt record aan als het niet bestaat of update bestaand record (ook al is het lid aanwezig)
-      parameters:
-        - in: query        
-          name: VLIEGTUIG_ID
-          description: Het lid ID. Verwijzing naar vliegtuigen tabel
-          required: true
-          schema:
-            type: integer
-            example: 10408
-        - in: query        
-          name: TIJDSTIP
-          description: Tijdstip van de aanmelding. Indien afwezig, huidige tijd. ISO8601
-          required: false
-          schema:
-            type: string
-            format: date-time 
-            example: 2017-07-21T09:32:28Z         
+      requestBody:
+        description: Lid data
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+              - $ref: '#/components/schemas/oper_aanwezig_vliegtuigen_in' 
+              - type: object
+                properties:
+                  TIJDSTIP:
+                    description: Tijdstip van de aanmelding. Indien afwezig, huidige tijd. ISO8601
+                    type: string
+                    format: date-time 
+                    example: "2018-03-22T10:32:28Z"        
       responses:
         200:
           description: "OK, data succesvol aangepast"
@@ -198,22 +197,21 @@ paths:
   /AanwezigVliegtuigen/Afmelden:
     post:
       summary: Afmelden van het vliegtuig als aanwezig. Update bestaand record. Vliegtuig moet aanwezig zijn
-      parameters:
-        - in: query        
-          name: VLIEGTUIG_ID
-          description: Het vliegtuig ID. Verwijzing naar vliegtuigen tabel
-          required: true
-          schema:
-            type: integer
-            example: 10408
-        - in: query        
-          name: TIJDSTIP
-          description: Tijdstip van de aanmelding. Indien afwezig, huidige tijd. ISO8601
-          required: false
-          schema:
-            type: string
-            format: date-time 
-            example: 2017-07-21T09:32:28Z         
+      requestBody:
+        description: Lid data
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+              - $ref: '#/components/schemas/oper_aanwezig_vliegtuigen_in' 
+              - type: object
+                properties:      
+                  TIJDSTIP:
+                    description: Tijdstip van de afmelding. Indien afwezig, huidige tijd. ISO8601
+                    type: string
+                    format: date-time 
+                    example: "2017-07-21T09:32:28Z"
       responses:
         200:
           description: "OK, data succesvol aangepast"
@@ -266,7 +264,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/oper_aanwezig_vliegtuigen'
+              $ref: '#/components/schemas/oper_aanwezig_vliegtuigen_in'
       responses:
         200:
           description: "OK, data succesvol toegevoegd"
@@ -292,7 +290,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/oper_aanwezig_vliegtuigen'
+              $ref: '#/components/schemas/oper_aanwezig_vliegtuigen_in'
       responses:
         200:
           description: "OK, data succesvol aangepast"
@@ -321,7 +319,7 @@ components:
       description: Eerst inloggen voordat API beschikbaar is
 
   schemas:
-    oper_aanwezig_vliegtuigen:
+    oper_aanwezig_vliegtuigen_in:
       type: object
       properties:
         ID:
@@ -333,7 +331,7 @@ components:
           description: Datum van de vliegdag 
           type: string
           format: date
-          example: 2017-07-21     
+          example: "2017-07-21"
         VLIEGTUIG_ID: 
           description: Het vliegtuig ID. Verwijzing naar vliegtuigen tabel
           type: integer
@@ -372,15 +370,23 @@ components:
           type: number
           format: int
           example: 95         
-        VERWIJDERD:
-          description: Is dit record gemarkeerd als verwijderd?  Waarde 0..1
-          type: boolean
-          example: 0            
-        LAATSTE_AANPASSING:
-          description: Tijdstempel van laaste aanpassing in de database
-          type: string
-          format: date-time   
-          example: 2019-01-04 22:34:18 
+
+    oper_aanwezig_vliegtuigen:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/oper_aanwezig_vliegtuigen_in' 
+      - type: object
+        properties:
+          VERWIJDERD:
+            description: Is dit record gemarkeerd als verwijderd?  Waarde 0..1
+            type: boolean
+            example: 0            
+          LAATSTE_AANPASSING:
+            description: Tijdstempel van laaste aanpassing in de database
+            type: string
+            format: date-time 
+            example: "2020-09-18 09:51:16" 
+
     view_aanwezig_vliegtuigen:
       type: object
       properties:
@@ -392,8 +398,8 @@ components:
         laatste_aanpassing:
           description: Tijdstempel van laaste aanpassing in de database van de records dat voldoet aan de criteria
           type: string
-          format: date-time   
-          example: 2019-01-04 22:34:18 
+          format: date-time 
+          example: "2013-04-20 08:01:00"
         dataset:
           description: De dataset met records
           type: array

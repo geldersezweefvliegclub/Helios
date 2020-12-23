@@ -145,6 +145,7 @@ paths:
           schema:
             type: string
             format: date   
+            example: "1999-01-01"
         - in: query
           name: EIND_DATUM
           description: Eind datum (inclusief deze dag)
@@ -169,22 +170,20 @@ paths:
     post:
       summary: Aanmelden van het lid als aanwezig. Maakt record aan als het niet bestaat of update bestaand record (ook al is het lid aanwezig)
       requestBody:
-        description: Vliegtuig data
+        description: Lid data
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/oper_aanwezig_leden' 
-
-      parameters:
-        - in: query        
-          name: TIJDSTIP
-          description: Tijdstip van de aanmelding. Indien afwezig, huidige tijd. ISO8601
-          required: false
-          schema:
-            type: string
-            format: date-time 
-            example: 2017-07-21T09:32:28Z         
+              allOf:
+              - $ref: '#/components/schemas/oper_aanwezig_leden_in' 
+              - type: object
+                properties:
+                  TIJDSTIP:
+                    description: Tijdstip van de aanmelding. Indien afwezig, huidige tijd. ISO8601
+                    type: string
+                    format: date-time 
+                    example: "2017-07-21T09:32:28Z"       
       responses:
         200:
           description: "OK, data succesvol aangepast"
@@ -206,22 +205,21 @@ paths:
   /AanwezigLeden/Afmelden:
     post:
       summary: Afmelden van het lid als aanwezig. Update bestaand record. Lid moet aanwezig zijn
-      parameters:
-        - in: query        
-          name: LID_ID
-          description: Het lid ID. Verwijzing naar leden tabel
-          required: true
-          schema:
-            type: integer
-            example: 10408
-        - in: query        
-          name: TIJDSTIP
-          description: Tijdstip van de aanmelding. Indien afwezig, huidige tijd. ISO8601
-          required: false
-          schema:
-            type: string
-            format: date-time 
-            example: 2017-07-21T09:32:28Z         
+      requestBody:
+        description: Lid data
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+              - $ref: '#/components/schemas/oper_aanwezig_leden_in' 
+              - type: object
+                properties:
+                  TIJDSTIP:
+                    description: Tijdstip van de afmelding. Indien afwezig, huidige tijd. ISO8601
+                    type: string
+                    format: date-time 
+                    example: "2018-07-21T17:00:32Z"          
       responses:
         200:
           description: "OK, data succesvol aangepast"
@@ -349,7 +347,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/oper_aanwezig_leden'
+              $ref: '#/components/schemas/oper_aanwezig_leden_in'
       responses:
         200:
           description: "OK, data succesvol toegevoegd"
@@ -375,7 +373,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/oper_aanwezig_leden'
+              $ref: '#/components/schemas/oper_aanwezig_leden_in'
       responses:
         200:
           description: "OK, data succesvol aangepast"
@@ -404,7 +402,7 @@ components:
       description: Eerst inloggen voordat API beschikbaar is
 
   schemas:
-    oper_aanwezig_leden:
+    oper_aanwezig_leden_in:
       type: object
       properties:
         ID:
@@ -416,7 +414,7 @@ components:
           description: Datum van de vliegdag 
           type: string
           format: date
-          example: 2017-07-21     
+          example: "2017-07-21"     
         POSITIE:
           description: De positie op de startlijst. Nummer 1 is staat hoger op de startlijst als nummer 2 
           type: integer
@@ -454,15 +452,23 @@ components:
           description: Opmerking over de vliegdag 
           type: string
           example: Heeft in de ochtend lierdienst 
-        VERWIJDERD:
-          description: Is dit record gemarkeerd als verwijderd?  Waarde 0..1
-          type: boolean
-          example: 0            
-        LAATSTE_AANPASSING:
-          description: Tijdstempel van laaste aanpassing in de database
-          type: string
-          format: date-time   
-          example: 2019-01-04 22:34:18 
+
+    oper_aanwezig_leden:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/oper_aanwezig_leden_in' 
+      - type: object
+        properties:
+          VERWIJDERD:
+            description: Is dit record gemarkeerd als verwijderd?  Waarde 0..1
+            type: boolean
+            example: 0            
+          LAATSTE_AANPASSING:
+            description: Tijdstempel van laaste aanpassing in de database
+            type: string
+            format: date-time 
+            example: "2015-01-21 11:52:22" 
+
     view_aanwezig_leden:
       type: object
       properties:
@@ -474,8 +480,8 @@ components:
         laatste_aanpassing:
           description: Tijdstempel van laaste aanpassing in de database van de records dat voldoet aan de criteria
           type: string
-          format: date-time   
-          example: 2019-01-04 22:34:18 
+          format: date-time 
+          example: "2020-05-11 09:38:00"
         dataset:
           description: De dataset met records
           type: array

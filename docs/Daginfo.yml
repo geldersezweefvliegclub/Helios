@@ -49,7 +49,7 @@ paths:
             type: string
             format: date
             
-            example: 2017-07-21   
+            example: "2017-07-21"
       responses:
         200:
           description: "OK, data succesvol opgehaald"
@@ -149,7 +149,7 @@ paths:
           schema:
             type: string
             format: date
-            example: 2017-07-21 
+            example: "2017-07-21"
       responses:
         204:
           description: "Daginfo verwijderd"
@@ -173,7 +173,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/oper_daginfo'
+              $ref: '#/components/schemas/oper_daginfo_in'
       responses:
         200:
           description: "OK, data succesvol toegevoegd"
@@ -199,7 +199,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/oper_daginfo'
+              $ref: '#/components/schemas/oper_daginfo_in'
       responses:
         200:
           description: "OK, data succesvol aangepast"
@@ -227,7 +227,7 @@ components:
       description: Eerst inloggen voordat API beschikbaar is
 
   schemas:
-    oper_daginfo:
+    oper_daginfo_in:
       type: object
       properties:
         ID:
@@ -239,7 +239,7 @@ components:
           description: Datum van de vliegdag 
           type: string
           format: date
-          example: 2017-07-21             
+          example: "2017-07-21"
         BAAN_ID:
           description: Welke baan is in gebruik. Verwijzing naar type tabel. 
           type: integer
@@ -286,15 +286,23 @@ components:
           description: Opmerkingen over de vloot
           type: string
           example: De E11 is in de werkplaats gezet ivm lekke band. Wordt maandag opgelost     
-        VERWIJDERD:
-          description: Is dit record gemarkeerd als verwijderd?  Waarde 0..1
-          type: boolean
-          example: 0          
-        LAATSTE_AANPASSING:
-          description: Tijdstempel van laaste aanpassing in de database, laat leeg bij updates
-          type: string
-          format: date-time   
-          example: 2019-01-04 22:34:18 
+
+    oper_daginfo:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/oper_daginfo_in' 
+      - type: object
+        properties:
+          VERWIJDERD:
+            description: Is dit record gemarkeerd als verwijderd?  Waarde 0..1
+            type: boolean
+            example: 0          
+          LAATSTE_AANPASSING:
+            description: Tijdstempel van laaste aanpassing in de database, laat leeg bij updates
+            type: string
+            format: date-time 
+            example: "2010-04-13 19:32:17"
+
     view_daginfo:
       type: object
       properties:
@@ -306,8 +314,8 @@ components:
         laatste_aanpassing:
           description: Tijdstempel van laaste aanpassing in de database van de records dat voldoet aan de criteria
           type: string
-          format: date-time   
-          example: 2019-01-04 22:34:18  
+          format: date-time 
+          example: "2020-09-01 06:00:05" 
         dataset:
           description: De dataset met records
           type: array

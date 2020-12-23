@@ -155,7 +155,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ref_types'
+              $ref: '#/components/schemas/ref_types_in'
       responses:
         200:
           description: "OK, data succesvol toegevoegd"
@@ -181,7 +181,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ref_types'
+              $ref: '#/components/schemas/ref_types_in'
       responses:
         200:
           description: "OK, data succesvol aangepast"
@@ -208,7 +208,7 @@ components:
       description: Eerst inloggen voordat API beschikbaar is
 
   schemas:
-    ref_types:
+    ref_types_in:
       type: object
       properties:
         ID:
@@ -244,12 +244,19 @@ components:
           description: Is dit record (met ID) hard gecodeerd in de source code. Zo ja, dan niet aanpassen. Waarde 0..1
           type: boolean
           example: 0
-        VERWIJDERD:
-          description: Is dit record gemarkeerd als verwijderd?  Waarde 0..1
-          type: boolean
-          example: 0        
-        LAATSTE_AANPASSING:
-          description: Tijdstempel van laaste aanpassing in de database
-          type: string
-          format: date-time   
-          example: 2019-01-04 22:34:18 
+
+    ref_types:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/ref_types_in' 
+      - type: object
+        properties:
+          VERWIJDERD:
+            description: Is dit record gemarkeerd als verwijderd?  Waarde 0..1
+            type: boolean
+            example: 0        
+          LAATSTE_AANPASSING:
+            description: Tijdstempel van laaste aanpassing in de database
+            type: string
+            format: date-time 
+            example: "2020-09-28 14:12:00"       

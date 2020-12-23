@@ -48,7 +48,7 @@ paths:
           schema:
             type: string
             format: date
-            example: 2017-07-21 
+            example: "2017-07-21"
       responses:
         200:
           description: "OK, data succesvol opgehaald"
@@ -149,7 +149,7 @@ paths:
           schema:
             type: string
             format: date
-            example: 2017-07-21  
+            example: "2017-07-21"
       responses:
         204:
           description: "Rooster verwijderd"
@@ -173,7 +173,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/oper_rooster'
+              $ref: '#/components/schemas/oper_rooster_in'
       responses:
         200:
           description: "OK, data succesvol toegevoegd"
@@ -199,7 +199,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/oper_rooster'
+              $ref: '#/components/schemas/oper_rooster_in'
       responses:
         200:
           description: "OK, data succesvol aangepast"
@@ -228,7 +228,7 @@ components:
       description: Eerst inloggen voordat API beschikbaar is
 
   schemas:
-    oper_rooster:
+    oper_rooster_in:
       type: object
       properties:
         ID:
@@ -240,7 +240,7 @@ components:
           description: Datum van de vliegdag 
           type: string
           format: date
-          example: 2017-07-21             
+          example: "2017-07-21"
         OCHTEND_DDI_ID:
           description: De DDI voor het ochtend bedrijf. Link naar leden tabel 
           type: integer
@@ -299,15 +299,23 @@ components:
           description: Is er een clubbedrijf Waarde 0..1
           type: boolean
           example: 1        
-        VERWIJDERD:
-          description: Is dit record gemarkeerd als verwijderd?  Waarde 0..1
-          type: boolean
-          example: 0  
-        LAATSTE_AANPASSING:
-          description: Tijdstempel van laaste aanpassing in de database
-          type: string
-          format: date-time   
-          example: 2020-01-04 12:06:22 
+
+    oper_rooster:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/oper_rooster_in' 
+      - type: object
+        properties:
+          VERWIJDERD:
+            description: Is dit record gemarkeerd als verwijderd?  Waarde 0..1
+            type: boolean
+            example: 0  
+          LAATSTE_AANPASSING:
+            description: Tijdstempel van laaste aanpassing in de database
+            type: string
+            format: date-time 
+            example: "2020-04-17 07:29:01" 
+
     view_rooster:
       type: object
       properties:
@@ -319,8 +327,8 @@ components:
         laatste_aanpassing:
           description: Tijdstempel van laaste aanpassing in de database van de records dat voldoet aan de criteria
           type: string
-          format: date-time   
-          example: 2020-01-04 12:06:22 
+          format: date-time 
+          example: "2020-07-022 16:39:25" 
         dataset:
           description: De dataset met records
           type: array

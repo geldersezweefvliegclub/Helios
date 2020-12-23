@@ -571,46 +571,52 @@
 		}
 
 		/*
-		Afmelden van een lid
+		Afmelden van een vliegtuig
 		*/
-		function Afmelden($AanmeldenVliegtuigData)
+		function Afmelden($AfmeldenVliegtuigData)
 		{
-			Debug(__FILE__, __LINE__, sprintf("AanwezigVliegtuigen.Afmelden(%s)", print_r($AanmeldenVliegtuigData, true)));
+			Debug(__FILE__, __LINE__, sprintf("AfmeldenVliegtuigData.Afmelden(%s)", print_r($AfmeldenVliegtuigData, true)));
 
 			$l = MaakObject('Login');
 			if ($l->magSchrijven() == false)	
 				throw new Exception("401;Geen schrijfrechten;");
 
-			if ($AanmeldenVliegtuigData == null)
-				throw new Exception("406;AanmeldenVliegtuigData data moet ingevuld zijn;");	
+			if ($AfmeldenVliegtuigData == null)
+				throw new Exception("406;AfmeldenVliegtuigData data moet ingevuld zijn;");	
 
-			if (!array_key_exists('VLIEGTUIG_ID', $AanmeldenVliegtuigData))
+			if (!array_key_exists('VLIEGTUIG_ID', $AfmeldenVliegtuigData))
 				throw new Exception("406;VLIEGTUIG_ID moet ingevuld zijn;");
 
-			$vliegtuigID = isINT($AanmeldenVliegtuigData['VLIEGTUIG_ID'], "VLIEGTUIG_ID");
+			$vliegtuigID = isINT($AfmeldenVliegtuigData['VLIEGTUIG_ID'], "VLIEGTUIG_ID");
 		   
 			$datetime = new DateTime();
 			$datetime->setTimeZone(new DateTimeZone('Europe/Amsterdam')); 
 
-			if (array_key_exists('TIJDSTIP', $AanmeldenVliegtuigData))
-				$datetime = isDATETIME($AanmeldenVliegtuigData['TIJDSTIP'], "TIJDSTIP");
+			if (array_key_exists('TIJDSTIP', $AfmeldenVliegtuigData))
+				$datetime = isDATETIME($AfmeldenVliegtuigData['TIJDSTIP'], "TIJDSTIP");
 	
-			$db_record = null;
+			
 			try
 			{
-				$db_record = $this->GetObject(null, $vliegtuigID, $datetime->format('Y-m-d'), false);
+				$db_data = $this->GetObject(null, $vliegtuigID, $datetime->format('Y-m-d'), false);
+				$AfmeldenVliegtuigData['ID'] = $db_data['ID'];
 			}
 			catch (Exception $e) 
 			{
 				throw new Exception("409;Kan een vliegtuig alleen afmelden als het eerst aangemeld is;");
 			}		
 
-			// Neem data over uit aanvraag
-			$db_record['VERTREK'] = $datetime->format('H:i:00');
-			parent::DbAanpassen($db_record['ID'], $db_record);	
+			// Aankomst was al gezet, mag niet overschreven worden
+			unset($AfmeldenVliegtuigData['AANKOMST']);
 
-			Debug(__FILE__, __LINE__, sprintf("AanwezigLeden aangepast id=%s", $db_record['ID']));		
-			return  $this->GetObject($db_record['ID']);
+			// Neem data over uit aanvraag
+			if (!array_key_exists('VERTREK', $AfmeldenVliegtuigData))	
+				$AfmeldenVliegtuigData['VERTREK'] = $datetime->format('H:i:00');
+				
+			$this->UpdateObject($AfmeldenVliegtuigData);
+
+			Debug(__FILE__, __LINE__, sprintf("AanwezigVliegtuigen aangepast id=%s", $AfmeldenVliegtuigData['ID']));		
+			return  $this->GetObject($AfmeldenVliegtuigData['ID']);
 		}		
 	}
 ?>

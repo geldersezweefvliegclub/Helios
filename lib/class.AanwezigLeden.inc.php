@@ -677,11 +677,11 @@
 			{
 				throw new Exception("409;Kan een lid alleen afmelden als het eerst aangemeld is;");
 			}		
+
+			// Aankomst was al gezet, mag niet overschreven worden
+			unset($AanmeldenLedenData['AANKOMST']);
 	
 			// Zetten van de velden indien dit niet gedaan is	
-			if (!array_key_exists('DATUM', $AfmeldenLedenData))
-				$AfmeldenLedenData['DATUM'] = $datetime->format('Y-m-d');
-
 			if (!array_key_exists('VERTREK', $AfmeldenLedenData))	
 				$AfmeldenLedenData['VERTREK'] = $datetime->format('H:i:00');			
 

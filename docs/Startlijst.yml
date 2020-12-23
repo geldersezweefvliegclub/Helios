@@ -257,7 +257,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/oper_startlijst'
+              $ref: '#/components/schemas/oper_startlijst_in'
       responses:
         200:
           description: "OK, data succesvol toegevoegd"
@@ -283,7 +283,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/oper_startlijst'
+              $ref: '#/components/schemas/oper_startlijst_in'
       responses:
         200:
           description: "OK, data succesvol aangepast"
@@ -410,7 +410,7 @@ paths:
                     description: Datum van de start 
                     type: string
                     format: date
-                    example: 2017-07-21   
+                    example: "2017-07-21"
         404:
           description: "Data niet gevonden"
         405:
@@ -428,7 +428,7 @@ components:
       description: Eerst inloggen voordat API beschikbaar is
 
   schemas:
-    oper_startlijst:
+    oper_startlijst_in:
       type: object
       properties:
         ID:
@@ -449,7 +449,7 @@ components:
           description: Datum van de start 
           type: string
           format: date
-          example: 2017-07-21            
+          example: "2017-07-21"
         STARTTIJD: 
           description: Starttijd (hh:mm:ss)
           type: string
@@ -499,15 +499,23 @@ components:
           type: string
           maxLength: 255
           example: Buitenlanding   
-        VERWIJDERD:
-          description: Is dit record gemarkeerd als verwijderd?  Waarde 0..1
-          type: boolean
-          example: 0            
-        LAATSTE_AANPASSING:
-          description: Tijdstempel van laaste aanpassing in de database
-          type: string
-          format: date-time   
-          example: 2019-01-04 22:34:18 
+
+    oper_startlijst:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/oper_startlijst_in' 
+      - type: object
+        properties:
+          VERWIJDERD:
+            description: Is dit record gemarkeerd als verwijderd?  Waarde 0..1
+            type: boolean
+            example: 0            
+          LAATSTE_AANPASSING:
+            description: Tijdstempel van laaste aanpassing in de database
+            type: string
+            format: date-time 
+            example: "2006-01-05 22:11:43" 
+
     view_startlijst:
       type: object
       properties:
@@ -519,8 +527,8 @@ components:
         laatste_aanpassing:
           description: Tijdstempel van laaste aanpassing in de database van de records dat voldoet aan de criteria
           type: string
-          format: date-time   
-          example: 2019-01-04 22:34:18 
+          format: date-time 
+          example: "2009-12-02 10:19:00" 
         dataset:
           description: De dataset met records
           type: array

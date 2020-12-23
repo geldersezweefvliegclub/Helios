@@ -155,7 +155,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ref_competenties'
+              $ref: '#/components/schemas/ref_competenties_in'
       responses:
         200:
           description: "OK, data succesvol toegevoegd"
@@ -181,7 +181,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ref_competenties'
+              $ref: '#/components/schemas/ref_competenties_in'
       responses:
         200:
           description: "OK, data succesvol aangepast"
@@ -208,7 +208,7 @@ components:
       description: Eerst inloggen voordat API beschikbaar is
 
   schemas:
-    ref_competenties:
+    ref_competenties_in:
       type: object
       properties:
         ID:
@@ -241,15 +241,23 @@ components:
           type: string
           maxLength: 75
           example: "VVO1.14"
-        VERWIJDERD:
-          description: Is dit record gemarkeerd als verwijderd?  Waarde 0..1
-          type: boolean
-          example: 0        
-        LAATSTE_AANPASSING:
-          description: Tijdstempel van laaste aanpassing in de database
-          type: string
-          format: date-time   
-          example: 2019-01-04 22:34:18 
+
+    ref_competenties:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/ref_competenties_in' 
+      - type: object
+        properties:
+          VERWIJDERD:
+            description: Is dit record gemarkeerd als verwijderd?  Waarde 0..1
+            type: boolean
+            example: 0        
+          LAATSTE_AANPASSING:
+            description: Tijdstempel van laaste aanpassing in de database
+            type: string
+            format: date-time 
+            example: "2019-05-01 16:42:00"
+
     view_competenties:
       type: object
       properties:
@@ -261,8 +269,8 @@ components:
         laatste_aanpassing:
           description: Tijdstempel van laaste aanpassing in de database van de records dat voldoet aan de criteria
           type: string
-          format: date-time   
-          example: 2019-01-04 22:34:18 
+          format: date-time 
+          example: "2020-06-06 13:02:02"
         dataset:
           description: De dataset met records
           type: array
