@@ -112,6 +112,33 @@ abstract class StartAdmin
 			}		
 		}
 		$this->DbUitvoeren(sprintf("UPDATE `%s` SET `VERWIJDERD`= 1 WHERE ID IN (%s);", $this->dbTable, $IDs));
+	}		
+		
+
+	/*
+	Markeer een record in de database als verwijderd. Het record wordt niet fysiek verwijderd om er een link kan zijn naar andere tabellen.
+	Het veld VERWIJDERD wordt op "1" gezet.
+	*/
+	function HerstelVerwijderd($IDs)
+	{
+		Debug(__FILE__, __LINE__, sprintf("StartAdmin.HerstelVerwijderd('%s')", $IDs));	
+	
+		if (strpos($IDs, ',') !== false)
+		{
+			$list = explode(",", $ID);
+			foreach($list as $i)
+			{
+				if ($this->bestaatID($i) == false)
+					throw new Exception(sprintf("404;Record met ID=%s niet gevonden;", $i));	 	
+			}
+		}	
+		else
+		{
+			if ($this->bestaatID($IDs) == false)
+				throw new Exception(sprintf("404;Record met ID=%s niet gevonden;", $IDs));	
+		}		
+		
+		$this->DbUitvoeren(sprintf("UPDATE `%s` SET `VERWIJDERD`= 0 WHERE ID IN (%s);", $this->dbTable, $IDs));
 	}			
 	
 	// Functie voor slim laden van datastores in web applicatie

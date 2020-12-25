@@ -275,6 +275,32 @@ $app->delete('/Startlijst/DeleteObject', function (Request $request, Response $r
 });  
 
 /*
+Haal een record terug dat verwijderd is . Het record was gelukkig niet fysiek verwijderd om er een link kan zijn naar andere tabellen.
+Het veld VERWIJDERD wordt terug op "0" gezet.
+*/
+$app->patch('/Startlijst/RestoreObject', function (Request $request, Response $response, $args) {
+    $obj = MaakObject("Startlijst");
+    try
+    {
+        $id = $request->getQueryParams()['ID'];
+
+        $record = $obj->HerstelObject($id);     // Hier staat de logica voor deze functie
+        return $response->withStatus(intval(202));
+    }
+    catch(Exception $exception)
+    {
+        Debug(__FILE__, __LINE__, "/Startlijst/RestoreObject: " .$exception);
+
+        list($dummy, $exceptionMsg) = explode(": ", $exception);
+        list($httpStatus, $message) = explode(";", $exceptionMsg);  // onze eigen formaat van een exceptie
+
+        header("X-Error-Message: $message", true, intval($httpStatus));
+        header("Content-Type: text/plain");
+        die;
+    }  
+});
+
+/*
 Aanmaken van een record. Het is niet noodzakelijk om alle velden op te nemen in het verzoek
 */
 $app->post('/Startlijst/SaveObject', function (Request $request, Response $response, $args) {

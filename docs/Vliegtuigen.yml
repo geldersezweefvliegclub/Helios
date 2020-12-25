@@ -68,7 +68,13 @@ paths:
           schema:
             type: integer
             format: int32
-            example: 10400      
+            example: 10400    
+        - in: query
+          name: VERWIJDERD
+          description: Toon welke records verwijderd zijn. Default = false
+          required: false
+          schema:
+            type: boolean              
         - in: query
           name: LAATSTE_AANPASSING
           description: Laatste aanpassing op basis van records in dataset. Bedoeld om data verbruik te verminderen. Dataset is daarom leeg
@@ -170,11 +176,10 @@ paths:
       parameters:
         - in: query
           name: ID
-          description: Database ID van het vliegtuig record
+          description: Database ID van het vliegtuig record. Meerdere ID's in CSV formaat
           required: true
           schema:
-            type: integer
-            format: int32
+            type: string
         - in: query
           name: VERIFICATIE
           description: Controleer of record bestaat voordat het verwijderd wordt. Default = true
@@ -192,6 +197,30 @@ paths:
           description: "Methode niet toegestaan, input validatie error"  
         406:
           description: "Niet aanvaardbaar, input ontbreekt"        
+        500:
+          description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)" 
+
+  /Vliegtuigen/RestoreObject:
+    patch:
+      summary: Record dat verwijderd is terug halen. VERWIJDERD marker kijrgt reset
+      parameters:
+        - in: query
+          name: ID
+          description: Database ID van het record. Meerdere ID's in CSV formaat
+          required: true
+          schema:
+            type: string           
+      responses:
+        202:
+          description: "Record(s) hersteld" 
+        401:
+          description: "Niet geautoriseerd, geen schrijfrechten"  
+        404:
+          description: "Data niet gevonden"        
+        405:
+          description: "Methode niet toegestaan, input validatie error"  
+        406:
+          description: "Niet aanvaardbaar, input ontbreekt"            
         500:
           description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)" 
 

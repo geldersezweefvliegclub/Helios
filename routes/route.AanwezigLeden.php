@@ -144,6 +144,32 @@ $app->delete('/AanwezigLeden/DeleteObject', function (Request $request, Response
 });  
 
 /*
+Haal een record terug dat verwijderd is . Het record was gelukkig niet fysiek verwijderd om er een link kan zijn naar andere tabellen.
+Het veld VERWIJDERD wordt terug op "0" gezet.
+*/
+$app->patch('/AanwezigLeden/RestoreObject', function (Request $request, Response $response, $args) {
+    $obj = MaakObject("AanwezigLeden");
+    try
+    {
+        $id = $request->getQueryParams()['ID'];
+
+        $record = $obj->HerstelObject($id);     // Hier staat de logica voor deze functie
+        return $response->withStatus(intval(202));
+    }
+    catch(Exception $exception)
+    {
+        Debug(__FILE__, __LINE__, "/AanwezigLeden/RestoreObject: " .$exception);
+
+        list($dummy, $exceptionMsg) = explode(": ", $exception);
+        list($httpStatus, $message) = explode(";", $exceptionMsg);  // onze eigen formaat van een exceptie
+
+        header("X-Error-Message: $message", true, intval($httpStatus));
+        header("Content-Type: text/plain");
+        die;
+    }  
+}); 
+
+/*
 Aanamken van een record. Het is niet noodzakelijk om alle velden op te nemen in het verzoek
 */
 $app->post('/AanwezigLeden/SaveObject', function (Request $request, Response $response, $args) {

@@ -203,6 +203,7 @@
 			$limit = -1;
 			$start = -1;
 			$velden = "*";
+			$alleenVerwijderd = false;
 			$query_params = array();
 
 			foreach ($params as $key => $value)
@@ -217,7 +218,13 @@
 
 							Debug(__FILE__, __LINE__, sprintf("%s: ID='%s'", $functie, $id));
 							break;
-						}					
+						}	
+					case "VERWIJDERD" :
+						{
+							$alleenVerwijderd = isBOOL($value, "VERWIJDERD");
+							Debug(__FILE__, __LINE__, sprintf("%s: VERWIJDERD='%s'", $functie, $alleenVerwijderd));
+							break;
+						}						
 					case "LAATSTE_AANPASSING" : 
 						{
 							$alleenLaatsteAanpassing = isBOOL($value, "LAATSTE_AANPASSING");
@@ -296,7 +303,8 @@
 				SELECT 
 					%s
 				FROM
-					`tracks_view`" . $where . $orderby;
+					`####tracks_view`" . $where . $orderby;
+			$query = str_replace("####", ($alleenVerwijderd ? "verwijderd_" : "") , $query);		
 			
 			$retVal = array();
 
@@ -343,6 +351,24 @@
 			
 			isCSV($id, "ID");					
 			parent::MarkeerAlsVerwijderd($id, $verificatie);
+		}
+		
+		/*
+		Herstel van een verwijderd record
+		*/
+		function HerstelObject($id)
+		{
+			Debug(__FILE__, __LINE__, sprintf("Tracks.HerstelObject('%s')", $id));
+
+			$l = MaakObject('Login');
+			if ($l->magSchrijven() == false)
+				throw new Exception("401;Geen schrijfrechten;");
+
+			if ($id == null)
+				throw new Exception("406;Geen ID in aanroep;");
+			
+			isCSV($id, "ID");
+			parent::HerstelVerwijderd($id);
 		}		
 		
 		/*
