@@ -59,35 +59,88 @@
 			if (isset($FillData))
 			{
 				$inject = array(
+					"'1',  	 '@@@@+0', '1', '200', '10:12:00', '10:27:00', '550', '10858',  NULL  , NULL,NULL,NULL",
+					"'2',  	 '@@@@+0', '2', '218', '11:59:00', '13:07:00', '550', '10858',  NULL  , NULL,NULL,NULL",
+					"'3',  	 '@@@@+0', '3', '211', '14:21:00', '14:30:00', '550', '10858',  NULL  , NULL,NULL,NULL",
 
-                    "'1',   '####-05-01', '1', '200', '10:02:00', '10:09:00', '550', '10265', '10115', NULL,NULL,NULL",
-                    "'2',   '####-05-01', '2', '201', '10:29:00', '10:40:00', '550', '10265',  NULL  , NULL,NULL,NULL",
-                    "'3',   '####-05-01', '3', '200', '10:25:00', '10:35:00', '550', '10115', '10265', NULL,NULL,NULL",
-                    "'4',   '####-05-01', '4', '200', '10:59:00', '11:12:00', '550', '10855', '10115', NULL,NULL,NULL",
-                    "'5',   '####-05-01', '5', '208', '12:02:00', '12:22:00', '550', '10855', '10265', NULL,NULL,NULL",
-                    "'6',   '####-05-01', '6', '211', '16:00:00', '17:30:00', '550', '10855',  NULL  , NULL,NULL,NULL",
-                    "'7',   '####-05-01', '7', '200', '19:04:00',  NULL     , '550', '10265', '10855', NULL,NULL,NULL",
-                    "'8',   '####-05-01', '8', '211', '11:45:00', '19:20:00', '550', '10115',  NULL  , NULL,NULL,NULL",
+					"'4',  	 '@@@@+2', '1', '201', '14:59:00', '15:12:00', '550', '10858',  NULL  , NULL,NULL,NULL",
+					"'5',  	 '@@@@+2', '2', '200', '17:02:00', '17:53:00', '550', '10858',  NULL  , NULL,NULL,NULL",
 
-                    "'9',   '####-05-02', '1', '211', '13:22:00', '14:00:00', '550', '10001',  NULL  , NULL,NULL,NULL",
-                    "'10',  '####-05-02', '2', '218', '10:27:00', '11:35:00', '550', '10001', '10470', NULL,NULL,NULL",
-                    "'11',  '####-05-02', '3', '218', '13:33:00', '17:42:00', '550', '10470',  NULL  , NULL,NULL,NULL",
-                    "'12',  '####-05-02', '4', '211', '11:30:00', '11:39:00', '550',  NULL  ,  NULL  , NULL,NULL,NULL",
+					"'6',  	 '@@@@+3', '1', '211', '12:07:00', '12:34:00', '550', '10858',  NULL  , NULL,NULL,NULL",
+					"'7',  	 '@@@@+3', '2', '200', '14:50:00', '18:15:00', '550', '10858',  NULL  , NULL,NULL,NULL",
 
-                    "'13',  '####-05-03', '1', '217', '11:58:00', '12:04:00', '550', '10213',  NULL  , NULL,NULL, 'chute ging open vlieger ontkoppeld'",
-                    "'14',  '####-05-03', '2', '215', '11:45:00', '17:46:00', '550', '10213',  NULL  , NULL,NULL, NULL",
+					"'8',  	 '@@@@+4', '1', '217', '10:12:00', '18:45:00', '550', '10858',  NULL  , NULL,NULL,NULL",
+
+					"'9',  	 '@@@@+5', '1', '200', '10:42:00', '11:27:00', '550', '10858',  NULL  , NULL,NULL,NULL",
+					"'10', 	 '@@@@+5', '2', '200', '11:32:00', '11:36:00', '550', '10858',  NULL  , NULL,NULL,NULL",
+					"'11',   '@@@@+5', '3', '200', '12:21:00', '12:45:00', '550', '10858',  NULL  , NULL,NULL,NULL",
+					"'12',   '@@@@+5', '4', '200', '13:59:00', '14:54:00', '550', '10858',  NULL  , NULL,NULL,NULL",
+
+					"'13',   '@@@@+6', '1', '200', '13:07:00', '18:01:00', '550', '10858',  NULL  , NULL,NULL,NULL",
+
+					"'14',   '@@@@+7', '1', '200', '10:22:00', '11:27:00', '550', '10858',  NULL  , NULL,NULL,NULL",
+					"'15', 	 '@@@@+7', '2', '200', '12:31:00', '14:38:00', '550', '10858',  NULL  , NULL,NULL,NULL",
+					"'16',   '@@@@+7', '3', '200', '15:41:00', '15:55:00', '550', '10858',  NULL  , NULL,NULL,NULL",
+					"'17',   '@@@@+7', '4', '200', '16:59:00', '17:04:00', '550', '10858',  NULL  , NULL,NULL,NULL",
+
+					"'20',   '****', '1', '200', '08:22:00', '09:27:00', '550', '10858',  NULL  , NULL,NULL,NULL",
+					"'21', 	 '****', '2', '200', '10:51:00', '14:38:00', '550', '10858',  NULL  , NULL,NULL,NULL",
+					"'22',   '****', '3', '200', '14:48:00', '15:55:00', '550', '10858',  NULL  , NULL,NULL,NULL",
+					"'23',   '****', '4', '200', '16:59:00', '17:04:00', '550', '10858',  NULL  , NULL,NULL,NULL",					
+
+                    "'30',   '####-05-01', '1', '200', '10:02:00', '10:09:00', '550', '10265', '10115', NULL,NULL,NULL",
+                    "'31',   '####-05-01', '2', '201', '10:29:00', '10:40:00', '550', '10265',  NULL  , NULL,NULL,NULL",
+                    "'32',   '####-05-01', '3', '200', '10:25:00', '10:35:00', '550', '10115', '10265', NULL,NULL,NULL",
+                    "'33',   '####-05-01', '4', '200', '10:59:00', '11:12:00', '550', '10855', '10115', NULL,NULL,NULL",
+                    "'34',   '####-05-01', '5', '208', '12:02:00', '12:22:00', '550', '10855', '10265', NULL,NULL,NULL",
+                    "'35',   '####-05-01', '6', '211', '16:00:00', '17:30:00', '550', '10855',  NULL  , NULL,NULL,NULL",
+                    "'36',   '####-05-01', '7', '200', '19:04:00',  NULL     , '550', '10265', '10855', NULL,NULL,NULL",
+                    "'37',   '####-05-01', '8', '211', '11:45:00', '19:20:00', '550', '10115',  NULL  , NULL,NULL,NULL",
+
+                    "'40',  '####-05-02', '1', '211', '13:22:00', '14:00:00', '550', '10001',  NULL  , NULL,NULL,NULL",
+                    "'41',  '####-05-02', '2', '218', '10:27:00', '11:35:00', '550', '10001', '10470', NULL,NULL,NULL",
+                    "'42',  '####-05-02', '3', '218', '13:33:00', '17:42:00', '550', '10470',  NULL  , NULL,NULL,NULL",
+                    "'43',  '####-05-02', '4', '211', '11:30:00', '11:39:00', '550',  NULL  ,  NULL  , NULL,NULL,NULL",
+
+                    "'50',  '####-05-03', '1', '217', '11:58:00', '12:04:00', '550', '10213',  NULL  , NULL,NULL, 'chute ging open vlieger ontkoppeld'",
+                    "'51',  '####-05-03', '2', '215', '11:45:00', '17:46:00', '550', '10213',  NULL  , NULL,NULL, NULL",
                     
-                    "'15',  '####-05-04', '1', '201', '10:00:00', '11:10:00', '550', '10063',  NULL  , NULL,NULL,NULL",
-                    "'16',  '####-05-04', '2', '201', '12:02:00', '12:08:00', '550', '10063',  NULL  , NULL,NULL,NULL",
-                    "'17',  '####-05-04', '3', '200', '12:16:00', '14:27:00', '550', '10858',  NULL  , NULL,NULL,NULL",
-                    "'18',  '####-05-04', '4', '216', '12:28:00', '12:32:00', '550', '10632',  NULL  , NULL,NULL,NULL",
-                    "'19',  '####-05-04', '5', '201', '14:22:00', '14:30:00', '550', '10063',  NULL  , NULL,NULL,NULL",
-                    "'20',  '####-05-04', '6', '201', '15:25:00', '15:42:00', '550', '10063',  NULL  , NULL,NULL,NULL",
-                    "'21',  '####-05-04', '7', '200',  NULL     ,  NULL     , '550',  NULL  , '10858', 'Marius de Bok' ,NULL,NULL",
-                    "'22',  '####-05-04', '8', '200',  NULL     ,  NULL     , '550',  NULL  ,  NULL  , 'Orm de Aap', 'Mister Maraboe',NULL");
+                    "'60',  '####-05-04', '1', '201', '10:00:00', '11:10:00', '550', '10063',  NULL  , NULL,NULL,NULL",
+                    "'61',  '####-05-04', '2', '201', '12:02:00', '12:08:00', '550', '10063',  NULL  , NULL,NULL,NULL",
+                    "'62',  '####-05-04', '3', '200', '12:16:00', '14:27:00', '550', '10858',  NULL  , NULL,NULL,NULL",
+                    "'63',  '####-05-04', '4', '216', '12:28:00', '12:32:00', '550', '10632',  NULL  , NULL,NULL,NULL",
+                    "'64',  '####-05-04', '5', '201', '14:22:00', '14:30:00', '550', '10063',  NULL  , NULL,NULL,NULL",
+                    "'65',  '####-05-04', '6', '201', '15:25:00', '15:42:00', '550', '10063',  NULL  , NULL,NULL,NULL",
+                    "'66',  '####-05-04', '7', '200',  NULL     ,  NULL     , '550',  NULL  , '10858', 'Marius de Bok' ,NULL,NULL",
+                    "'67',  '####-05-04', '8', '200',  NULL     ,  NULL     , '550',  NULL  ,  NULL  , 'Orm de Aap', 'Mister Maraboe',NULL");
 
 
-				$inject = str_replace("####", strval(date("Y")), $inject);		// Starts in dit jaar
+				// Starts in vorig jaar (niet fool proof, gaat niet lekker eind december)
+				$date = new DateTime();			// vandaag
+				$date->modify('-364 day');		// 1 jaar geleden (52*7)
+				$inject = str_replace("@@@@+0", date_format($date, 'Y-m-d'), $inject);	
+				$date->modify('+1 day');		// 1 jaar geleden + 1 dag
+				$inject = str_replace("@@@@+1", date_format($date, 'Y-m-d'), $inject);		
+				$date->modify('+1 day');		// 1 jaar geleden + 2 dagen
+				$inject = str_replace("@@@@+2", date_format($date, 'Y-m-d'), $inject);			
+				$date->modify('+1 day');		// 1 jaar geleden + 3 dagen
+				$inject = str_replace("@@@@+3", date_format($date, 'Y-m-d'), $inject);		
+				$date->modify('+1 day');		// 1 jaar geleden + 4 dagen
+				$inject = str_replace("@@@@+4", date_format($date, 'Y-m-d'), $inject);		
+				$date->modify('+1 day');		// 1 jaar geleden + 5 dagen
+				$inject = str_replace("@@@@+5", date_format($date, 'Y-m-d'), $inject);		
+				$date->modify('+1 day');		// 1 jaar geleden + 6 dagen
+				$inject = str_replace("@@@@+6", date_format($date, 'Y-m-d'), $inject);		
+				$date->modify('+1 day');		// 1 jaar geleden + 7 dagen
+				$inject = str_replace("@@@@+7", date_format($date, 'Y-m-d'), $inject);												
+				
+				// Starts in laatste 3 maanden (niet fool proof, data integriteit, dagnummers, klopt niet begin mei)
+				$date = new DateTime();		// vandaag
+				$date->modify('-42 day');	// 1,5 maand geleden (6*7)
+				$inject = str_replace("****", date_format($date, 'Y-m-d'), $inject);	
+
+				// Starts in dit jaar
+				$inject = str_replace("####", strval(date("Y")), $inject);		
 					
 				$i = 0;    
 				foreach ($inject as $record)
@@ -829,7 +882,7 @@
 					case "JAAR" : 
 						{
 							$jaar = isINT($value, "JAAR");
-							$where .= sprintf ("AND YEAR(DATUM)=%d ",$jaar);	
+							$where .= sprintf ("AND YEAR(DATUM)=%d ", $jaar);	
 							break;
 						}												
 					case "ID" : 
@@ -1009,28 +1062,23 @@
 			return $retVal;
 		}	
 
-
 		/*
 		Markeer een record in de database als verwijderd. Het record wordt niet fysiek verwijderd om er een link kan zijn naar andere tabellen.
 		Het veld VERWIJDERD wordt op "1" gezet.
 		*/
-		function VerwijderObject($ID)
+		function VerwijderObject($id, $verificatie = true)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Startlijst.VerwijderObject(%s, %s)", $ID, $DATUM));								
+			Debug(__FILE__, __LINE__, sprintf("Startlijst.VerwijderObject(%s, %s)", $id, ($verificatie ? "true" : "false") ));								
 			$l = MaakObject('Login');
 			if ($l->magSchrijven() == false)
 				throw new Exception("401;Geen schrijfrechten;");
 
-			if ($ID == null)
+			if ($id == null)
 				throw new Exception("406;Geen ID in aanroep;");
 			
-            isINT($ID, "ID");
-
-			parent::MarkeerAlsVerwijderd($ID);
-			if (parent::NumRows() === 0)
-				throw new Exception("404;Record niet gevonden;");				
+			isCSV($id, "ID");
+			parent::MarkeerAlsVerwijderd($id, $verificatie);			
 		}		
-
 
 		/*
 		Toevoegen van een record. Het is niet noodzakelijk om alle velden op te nemen in het verzoek
@@ -1168,7 +1216,7 @@
 					$retVal['UREN_DRIE_MND'] += intval(substr($vlucht['DUUR'],0,2)) * 60 + intval(substr($vlucht['DUUR'],3,2));
 				}
 
-				if ($diff < (52*7)) // laaste jaar = 52 weken
+				if ($diff <= (52*7)) // laaste jaar = 52 weken
 				{
 					$retVal['STARTS_BAROMETER']++;				
 					$retVal['UREN_BAROMETER'] += intval(substr($vlucht['DUUR'],0,2)) * 60 + intval(substr($vlucht['DUUR'],3,2));
@@ -1208,10 +1256,10 @@
 
 
 			// tijden staan in minuten, moet naar hh:mm
-			$retVal['UREN_DRIE_MND']   = intval($retVal['UREN_DRIE_MND']   / 60) . ":" . sprintf("%02d",$retVal['UREN_DRIE_MND'] %60);
-			$retVal['UREN_DIT_JAAR']   = intval($retVal['UREN_DIT_JAAR']   / 60) . ":" . sprintf("%02d",$retVal['UREN_DIT_JAAR'] %60);
-			$retVal['UREN_VORIG_JAAR'] = intval($retVal['UREN_VORIG_JAAR'] / 60) . ":" . sprintf("%02d",$retVal['UREN_VORIG_JAAR'] %60);
-			$retVal['UREN_BAROMETER']  = intval($retVal['UREN_BAROMETER']  / 60) . ":" . sprintf("%02d",$retVal['UREN_BAROMETER'] %60);
+			$retVal['UREN_DRIE_MND']   = intval($retVal['UREN_DRIE_MND']   / 60) . ":" . sprintf("%02d", $retVal['UREN_DRIE_MND'] %60);
+			$retVal['UREN_DIT_JAAR']   = intval($retVal['UREN_DIT_JAAR']   / 60) . ":" . sprintf("%02d", $retVal['UREN_DIT_JAAR'] %60);
+			$retVal['UREN_VORIG_JAAR'] = intval($retVal['UREN_VORIG_JAAR'] / 60) . ":" . sprintf("%02d", $retVal['UREN_VORIG_JAAR'] %60);
+			$retVal['UREN_BAROMETER']  = intval($retVal['UREN_BAROMETER']  / 60) . ":" . sprintf("%02d", $retVal['UREN_BAROMETER'] %60);
 
 			return $retVal;
 		}

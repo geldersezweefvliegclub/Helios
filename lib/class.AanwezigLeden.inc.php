@@ -343,35 +343,35 @@
 		Markeer een record in de database als verwijderd. Het record wordt niet fysiek verwijderd om er een link kan zijn naar andere tabellen.
 		Het veld VERWIJDERD wordt op "1" gezet.
 		*/
-		function VerwijderObject($ID = null, $LID_ID = null, $DATUM = null)
+		function VerwijderObject($id = null, $lid_id = null, $datum = null, $verificatie = true)
 		{
-			Debug(__FILE__, __LINE__, sprintf("AanwezigLeden.VerwijderObject(%s, %s)", $ID, $DATUM));					
+			Debug(__FILE__, __LINE__, sprintf("AanwezigLeden.VerwijderObject(%s, %s, %s, %s)", $id, $lid_id, $datum, ($verificatie ? "true" : "false") ));					
 			$l = MaakObject('Login');
 			if ($l->magSchrijven() == false)
 				throw new Exception("401;Geen schrijfrechten;");
 
-			if ($ID !== null)
+			if ($id !== null)
 			{
-				isINT($ID, "ID");
+				isCSV($id, "ID");
 			}
 			else
 			{
-				if (($DATUM == null) || ($LID_ID == null))
+				if (($datum == null) || ($lid_id == null))
 					throw new Exception("406;Geen ID en LID_ID/DATUM in aanroep;");
 
-				isINT($LID_ID, "LID_ID");
-				isDATE($DATUM. "DATUM");	
+				isINT($lid_id, "LID_ID");
+				isDATE($datum, "DATUM");	
 			}
 
 			if ($ID == null)
 			{
-				$vObj = $this->GetObject(null, $LID_ID, $DATUM);
-				$ID = $vObj["ID"];
+				$vObj = $this->GetObject(null, $lid_id, $datum);
+				$id = $vObj["ID"];
+				
+				$verificatie = false;	// we weten zeker dat record bestaat
 			}
 			
-			parent::MarkeerAlsVerwijderd($ID);
-			if (parent::NumRows() === 0)
-				throw new Exception("404;Record niet gevonden;");			
+			parent::MarkeerAlsVerwijderd($id, $verificatie);		
 		}		
 
 		/*

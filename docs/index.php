@@ -69,9 +69,9 @@
                             $parsed = yaml_parse_file ($file);
                             $object = substr($file, 2, strlen($file)-6);
 
-                            $output = str_replace ("#title#", $object,$html);
-                            $output = str_replace ("#yml#", $file ,$output);
-                            $output = str_replace ("#descr#", $parsed["info"]["description"] ,$output);
+                            $output = str_replace ("#title#", $object, $html);
+                            $output = str_replace ("#yml#", $file , $output);
+                            $output = str_replace ("#descr#", $parsed["info"]["description"] , $output);
 
                             echo $output;
                         }

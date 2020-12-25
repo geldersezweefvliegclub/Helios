@@ -161,7 +161,7 @@ define('phpTab', "\t");
 			return false;				
 		}		
 		
-		if (!preg_match("/^[1-2][0-9]{3}-([1-9]|0[1-9]|1[0-2])-([1-9]|0[1-9]|[1-2][0-9]|3[0-1])$/",$value))
+		if (!preg_match("/^[1-2][0-9]{3}-([1-9]|0[1-9]|1[0-2])-([1-9]|0[1-9]|[1-2][0-9]|3[0-1])$/", $value))
 		{
 			if ($veld !== false)
 				throw new Exception(sprintf("405;%s moet een datum (yyyy-mm-dd) zijn;", $veld));
@@ -195,9 +195,9 @@ define('phpTab', "\t");
 			return false;				
 		}			
 
-		if (!preg_match("/^([0-9]|[01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$/",$value))
+		if (!preg_match("/^([0-9]|[01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$/", $value))
 		{
-			if (!preg_match("/^([0-9]|[01][0-9]|2[0-3]):([0-5][0-9])$/",$value))
+			if (!preg_match("/^([0-9]|[01][0-9]|2[0-3]):([0-5][0-9])$/", $value))
 			{
 				if ($veld !== false)
 					throw new Exception(sprintf("405;%s moet een tijd (hh:mm of hh:mm:ss) zijn;", $veld));
@@ -225,7 +225,7 @@ define('phpTab', "\t");
 			return false;				
 		}		
 
-		if (($value != "0") && ($value != "1") && ($value != "false") && ($value != "true"))
+		if (($value != "0") && ($value != "1") && ($value != "false") && ($value != "true") && ($value !== false) && ($value != true))
 		{
 			if ($veld !== false)
 				throw new Exception(sprintf("405;%s moet een boolean zijn;", $veld));
@@ -233,7 +233,7 @@ define('phpTab', "\t");
 			return false;
 		}
 
-		if (($value == "0") || ($value == "false"))
+		if (($value == "0") || ($value == "false") || ($value === false))
 			return 0; 
 		else
 			return 1; 

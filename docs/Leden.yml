@@ -174,6 +174,12 @@ paths:
           schema:
             type: integer
             format: int32
+        - in: query
+          name: VERIFICATIE
+          description: Controleer of record bestaat voordat het verwijderd wordt. Default = true
+          required: false
+          schema:
+            type: boolean            
       responses:
         204:
           description: "Lid verwijderd"
@@ -361,7 +367,12 @@ components:
           description: Het soort lid (jeugdlid, lid, donateur). Verwijzing naar type tabel
           type: integer
           format: int32
-          example: 603        
+          example: 603      
+        ZUSTERCLUB_ID: 
+          description: Zusterclub lidmaatschap van lid. Nodig voor DDWV.
+          type: integer
+          format: int32
+          example: 603              
         LIERIST:
           description: Mag dit lid lieren? Waarde 0..1
           type: boolean
@@ -385,39 +396,43 @@ components:
         BEHEERDER:
           description: Is dit lid de beheerder van deze omgeving, heeft toegang tot alles   Waarde 0..1
           type: boolean
-          example: 0                
+          example: 0 
+        STARTTOREN:
+          description: Dit account wordt gebruikt om starts in de start toren in te voeren    Waarde 0..1
+          type: boolean
+          example: 0                               
         ROOSTER:
           description: Is dit lid  belast met het maken van roosters    Waarde 0..1
           type: boolean
           example: 0       
-        STARTTOREN:
-          description: Dit account wordt gebruikt om starts in de start toren in te voeren    Waarde 0..1
+        CLUBBLAD_POST:
+          description: Moet clubblad per post verstuurd worden    Waarde 0..1
           type: boolean
-          example: 0                                        
+          example: 0                                      
         MEDICAL:
           description: Verloopdatum van het medical 
           type: string
           format: date
           example: "2022-01-16"
+        GEBOORTE_DATUM:
+          description: Geboorte datum van het lid 
+          type: string
+          format: date
+          example: "1932-01-16"          
         INLOGNAAM: 
           description: De inlognaam van het lid
           type: string
           maxLength: 45
           example: mpaard        
         WACHTWOORD: 
-          description: Het geheime password
+          description: Het geheime password, bij ophalen van data altijd "****"
           type: string
           maxLength: 255
-          example: 123456     
-        SECRET: 
-          description: Readonly, **** voor gewone gebruikers, URL om QRcode op te halen voor beheerders 
-          type: string
-          maxLength: 255
-          example: 123456               
+          example: 123456      
         AUTH: 
           description: 2Factor authenticatie voor deze gebruiker  Waarde 0..1
           type: boolean
-          example: 0                
+          example: 0    
         HEEFT_BETAALD: 
           description: Heef het lid de factuur van dit jaar betaald?  Waarde 0..1
           type: boolean
@@ -443,6 +458,16 @@ components:
       - $ref: '#/components/schemas/ref_leden_in' 
       - type: object
         properties:
+          AVATAR: 
+            description: Readonly, URL om image op te halen. Zetten via UploadAvatar functie
+            type: string
+            maxLength: 255
+            example: 123456  
+          SECRET: 
+            description: Readonly, **** voor gewone gebruikers, URL om QRcode op te halen voor beheerders 
+            type: string
+            maxLength: 255
+            example: 123456 
           VERWIJDERD:
             description: Is dit record gemarkeerd als verwijderd?  Waarde 0..1
             type: boolean
@@ -479,3 +504,7 @@ components:
                     description: Lidtype in text
                     type: string
                     example: Jeugdlid
+                  ZUSTERCLUB_ID: 
+                    description: Naam van de zusterclub
+                    type: string
+                    example: "De buren"                    

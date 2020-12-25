@@ -150,6 +150,12 @@ paths:
             type: string
             format: date
             example: "2017-07-21"
+        - in: query
+          name: VERIFICATIE
+          description: Controleer of record bestaat voordat het verwijderd wordt. Default = true
+          required: false
+          schema:
+            type: boolean            
       responses:
         204:
           description: "Rooster verwijderd"

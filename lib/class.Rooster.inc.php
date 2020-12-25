@@ -294,32 +294,31 @@
 		Markeer een record in de database als verwijderd. Het record wordt niet fysiek verwijderd om er een link kan zijn naar andere tabellen.
 		Het veld VERWIJDERD wordt op "1" gezet.
 		*/
-		function VerwijderObject($ID = null, $DATUM = null)
+		function VerwijderObject($FillData = null, $datum = null, $verificatie = true)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Rooster.VerwijderObject(%s, %s)", $ID, $DATUM));								
+			Debug(__FILE__, __LINE__, sprintf("Rooster.VerwijderObject(%s, %s, %s)", $id, $datum, ($verificatie ? "true" : "false")));								
 			$l = MaakObject('Login');
 			if ($l->magSchrijven() == false)
 				throw new Exception("401;Geen schrijfrechten;");
 
-			if (($ID == null) && ($DATUM == null))
+			if (($id == null) && ($datum == null))
 				throw new Exception("406;Geen ID en DATUM in aanroep;");
 			
-			if ($ID != null)
+			if ($id != null)
 			{
-				isINT($ID, "ID");
+				isCSV($id, "ID");
 			}
 			else
 			{
-				isDATE($DATUM, "DATUM");
-				$vObj = $this->GetObject(null, $DATUM);
-				$ID = $vObj["ID"];
+				isDATE($datum, "DATUM");
+				$vObj = $this->GetObject(null, $datum);
+				$id = $vObj["ID"];
+
+				$verificatie = false;	// we weten zeker dat record bestaat
 			}
 			
-			parent::MarkeerAlsVerwijderd($ID);
-			if (parent::NumRows() === 0)
-				throw new Exception("404;Record niet gevonden;");				
+			parent::MarkeerAlsVerwijderd($id, $verificatie);			
 		}		
-
 
 		/*
 		Toevoegen van een record. Het is niet noodzakelijk om alle velden op te nemen in het verzoek

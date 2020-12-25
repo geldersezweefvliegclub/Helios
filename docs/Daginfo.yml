@@ -149,7 +149,13 @@ paths:
           schema:
             type: string
             format: date
-            example: "2017-07-21"
+            example: "2017-07-21"  
+        - in: query
+          name: VERIFICATIE
+          description: Controleer of record bestaat voordat het verwijderd wordt. Default = true
+          required: false
+          schema:
+            type: boolean                   
       responses:
         204:
           description: "Daginfo verwijderd"
@@ -240,6 +246,11 @@ components:
           type: string
           format: date
           example: "2017-07-21"
+        VELD_ID:
+          description: Welke vliegveld vliegen we vandaag. Kan afwijken voor vliegkamp. Verwijzing naar type tabel.
+          type: integer
+          format: int32
+          example: 901               
         BAAN_ID:
           description: Welke baan is in gebruik. Verwijzing naar type tabel. 
           type: integer

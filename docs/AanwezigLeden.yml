@@ -320,10 +320,29 @@ paths:
         - in: query
           name: ID
           description: Database ID van het aanwezig record
-          required: true
+          required: false
           schema:
             type: integer
             format: int32
+        - in: query
+          name: DATUM
+          description: Datum van de vliegdag 
+          schema:
+            type: string
+            format: date
+            example: "2017-07-21" 
+        - in: query              
+          name: LID_ID
+          description: Het lid ID. Verwijzing naar leden tabel
+          schema:
+            type: integer
+            example: 10408            
+        - in: query
+          name: VERIFICATIE
+          description: Controleer of record bestaat voordat het verwijderd wordt. Default = true
+          required: false
+          schema:
+            type: boolean
       responses:
         204:
           description: "Aanwezig record verwijderd"

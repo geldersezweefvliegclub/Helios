@@ -225,7 +225,7 @@ if (!IsSet($GLOBALS['DATABASE_INCLUDED']))
 					elseif ($value == null)
 						$values = sprintf("%s,NULL", $values, $value);
 					else
-						$values = sprintf("%s,'%s'", $values, str_replace("'","\'",$value));
+						$values = sprintf("%s,'%s'", $values, str_replace("'","\'", $value));
 				}
 			}
 			$query = sprintf("INSERT INTO %s (%s) VALUES (%s);", $table, $fields, $values);
@@ -318,7 +318,7 @@ if (!IsSet($GLOBALS['DATABASE_INCLUDED']))
 					elseif (is_numeric($value))
 						$fields = sprintf("%s=%s", $field, $value);
 					else
-						$fields = sprintf("%s='%s'", $field, str_replace("'","\'",$value));
+						$fields = sprintf("%s='%s'", $field, str_replace("'","\'", $value));
 				}
 				else
 				{
@@ -327,7 +327,7 @@ if (!IsSet($GLOBALS['DATABASE_INCLUDED']))
 					elseif ($value == null)
 						$fields = sprintf("%s,%s=NULL", $fields, $field);
 					else
-						$fields = sprintf("%s,%s='%s'", $fields, $field, str_replace("'","\'",$value));
+						$fields = sprintf("%s,%s='%s'", $fields, $field, str_replace("'","\'", $value));
 				}
 				
 			}

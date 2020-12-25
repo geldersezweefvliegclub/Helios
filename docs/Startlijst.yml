@@ -215,7 +215,53 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/view_startlijst'
+                type: object
+                properties:
+                  ID:
+                    description: Database ID van de vlucht
+                    type: integer
+                    format: int32
+                    example: 3570
+                  DATUM:
+                    description: Datum van de start 
+                    type: string
+                    format: date
+                    example: "2012-01-24"          
+                  REG_CALL: 
+                    description: Combinatie van registratie en callsign van het vliegtuig waarop gevlogen is
+                    type: string
+                    example: PH-1292 (E6)   
+                  STARTTIJD: 
+                    description: Starttijd (hh:mm:ss)
+                    type: string
+                    pattern: '^([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$'
+                    example: "12:32:44"                      
+                  LANDINGSTIJD: 
+                    description: Starttijd (hh:mm:ss)
+                    type: string
+                    pattern: '^([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$'
+                    example: "12:32:15"   
+                  DUUR:
+                    description: Hoe lang is er gevlogen. Indien landingstijd niet is ingevuld, op de dag zelf vliegtijd to nu toe, op alle andere dagen null
+                    type: string
+                    example: 02:11
+                  VLIEGERNAAM:
+                    description: De naam van de vlieger
+                    type: string
+                    example: "Lowieke de Vos"                    
+                  INZITTENDENAAM:
+                    description: De naam van de inzittende 
+                    type: string
+                    example: "Momfer de Mol"                          
+                  STARTMETHODE:
+                    description: De manier van de start
+                    type: string
+                    example: Lierstart GeZC
+                  OPMERKINGEN:
+                    description: De opmerkingen die ingevoerd zijn
+                    type: string
+                    maxLength: 255
+                    example: Buitenlanding                    
         401:
           description: "Niet geautoriseerd, geen rechten om data op te halen"                 
         405:
@@ -234,6 +280,12 @@ paths:
           schema:
             type: integer
             format: int32
+        - in: query
+          name: VERIFICATIE
+          description: Controleer of record bestaat voordat het verwijderd wordt. Default = true
+          required: false
+          schema:
+            type: boolean            
       responses:
         204:
           description: "Record verwijderd"
@@ -436,6 +488,11 @@ components:
           type: integer
           format: int32
           example: 12871
+        DATUM:
+          description: Datum van de start 
+          type: string
+          format: date
+          example: "2017-07-21"          
         DAGNUMMER:
           description: Dagnummer, start iedere dag op 1
           type: integer
@@ -445,11 +502,6 @@ components:
           description: Het vliegtuig ID. Verwijzing naar vliegtuigen tabel
           type: integer
           example: 215   
-        DATUM:
-          description: Datum van de start 
-          type: string
-          format: date
-          example: "2017-07-21"
         STARTTIJD: 
           description: Starttijd (hh:mm:ss)
           type: string
@@ -499,6 +551,11 @@ components:
           type: string
           maxLength: 255
           example: Buitenlanding   
+        EXTERNAL_ID:
+          description: Extra text om ID van extern systeem op te slaan
+          type: string
+          maxLength: 255
+          example: 2012-06-03:TQ:219            
 
     oper_startlijst:
       type: object
@@ -545,7 +602,11 @@ components:
                   CALLSIGN:
                     description: Callsign van het vliegtuig waarop gevlogen is
                     type: string
-                    example: 7U                    
+                    example: 7U
+                  CLUBKIST:
+                    description: Is het een club vliegtuig? Waarde 0..1
+                    type: boolean
+                    example: 1                                   
                   REG_CALL: 
                     description: Combinatie van registratie en callsign van het vliegtuig waarop gevlogen is
                     type: string

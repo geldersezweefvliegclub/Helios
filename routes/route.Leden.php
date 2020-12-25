@@ -121,8 +121,9 @@ $app->delete('/Leden/DeleteObject', function (Request $request, Response $respon
     try
     {
         $id = $request->getQueryParams()['ID'];
+        $verificatie = $request->getQueryParams()['VERIFICATIE'];
 
-        $obj->VerwijderObject($id);     // Hier staat de logica voor deze functie
+        $obj->VerwijderObject($id, $verificatie);     // Hier staat de logica voor deze functie
         return $response->withStatus(intval(204));
     }
     catch(Exception $exception)

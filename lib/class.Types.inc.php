@@ -82,6 +82,7 @@
 					(406, 4, 'ASK21',   'ASK 21', 1, 0),
 					(407, 4, 'ASK23',   'ASK 23 B', 2, 1),
 					(408, 4, 'ASG29',   'ASG-29', 6, 0),
+					(409, 4, 'ARC',   	'Arcus', 6, 0),
 					(501, 5, 'slp',     'Slepen', NULL, 0),
 					(502, 5, 'slm',     'Slepen (sleepkist)', NULL, 1),
 					(506, 5, 'zel',     'Zelfstart (zweefkist)', NULL, 0),
@@ -356,21 +357,18 @@
 		Markeer een record in de database als verwijderd. Het record wordt niet fysiek verwijderd om er een link kan zijn naar andere tabellen.
 		Het veld VERWIJDERD wordt op "1" gezet.
 		*/
-		function VerwijderObject($ID = null)
+		function VerwijderObject($id = null, $verificatie = true)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Types.VerwijderObject(%s)", $ID));
+			Debug(__FILE__, __LINE__, sprintf("Types.VerwijderObject(%s, %s)", $id, ($verificatie ? "true" : "false") ));
 			$l = MaakObject('Login');
 			if ($l->magSchrijven() == false)
 				throw new Exception("401;Geen schrijfrechten;");
 
-			if ($ID === null)
+			if ($id === null)
 				throw new Exception("406;Geen ID in aanroep;");
 			
-			isINT($ID, "ID");
-															
-			parent::MarkeerAlsVerwijderd($ID);
-			if (parent::NumRows() === 0)
-				throw new Exception("404;Record niet gevonden;");	
+			isCSV($ID, "id");										
+			parent::MarkeerAlsVerwijderd($ID, $verificatie);
 		}		
 
 		/*

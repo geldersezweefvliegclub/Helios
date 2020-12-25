@@ -84,14 +84,20 @@ abstract class StartAdmin
 	Markeer een record in de database als verwijderd. Het record wordt niet fysiek verwijderd om er een link kan zijn naar andere tabellen.
 	Het veld VERWIJDERD wordt op "1" gezet.
 	*/
-	function MarkeerAlsVerwijderd($ID)
+	function MarkeerAlsVerwijderd($IDs, $verificatie = true)
 	{
-		Debug(__FILE__, __LINE__, sprintf("StartAdmin.MarkeerAlsVerwijderd(%s)", $ID));					
+		Debug(__FILE__, __LINE__, sprintf("StartAdmin.MarkeerAlsVerwijderd(%s)", $IDs));	
 		
-		$d['VERWIJDERD'] = 1;		
-		$id = intval($ID);
-
-		$this->DbAanpassen($id, $d);
+		if (isBOOL($verificatie, "VERIFICATIE") === 1)
+		{
+			$list = explode(",", $ID);
+			foreach($list as $i)
+			{
+				if ($this->bestaatID($i) == false)
+					throw new Exception(sprintf("404;Record met ID=%s niet gevonden;", $i));	 	
+			}					
+		}
+		$this->DbUitvoeren(sprintf("UPDATE `%s` SET `VERWIJDERD`= 1 WHERE ID IN (%s);", $this->dbTable, $IDs));
 	}			
 	
 	// Functie voor slim laden van datastores in web applicatie

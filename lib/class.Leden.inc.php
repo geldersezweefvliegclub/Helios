@@ -35,7 +35,7 @@
                     `EMAIL` varchar(45) DEFAULT NULL,
                     `LIDNR` varchar(10) DEFAULT NULL,
 					`LIDTYPE_ID` mediumint UNSIGNED NOT NULL,
-					`ZUSTERCLUB` mediumint UNSIGNED DEFAULT NULL,
+					`ZUSTERCLUB_ID` mediumint UNSIGNED DEFAULT NULL,
                     `LIERIST` tinyint UNSIGNED NOT NULL DEFAULT 0,
                     `STARTLEIDER` tinyint UNSIGNED NOT NULL DEFAULT 0,
 					`INSTRUCTEUR` tinyint UNSIGNED NOT NULL DEFAULT 0,
@@ -69,7 +69,7 @@
 						INDEX (`VERWIJDERD`),
 
 						FOREIGN KEY (LIDTYPE_ID) REFERENCES ref_types(ID),
-						FOREIGN KEY (ZUSTERCLUB) REFERENCES ref_leden(ID) 				
+						FOREIGN KEY (ZUSTERCLUB_ID) REFERENCES ref_leden(ID) 				
 				)", $this->dbTable);
 			parent::DbUitvoeren($query);
 
@@ -99,6 +99,7 @@
                             `LIERIST`) 
 						VALUES
 							('1','Beheerder', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 600 ,NULL, NULL, NULL, NULL, '0', '0','0','0','0'),
+							('2','Zusterclub', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 607 ,NULL, NULL, NULL, NULL, '0', '0','0','0','0'),
                             ('10855','Truus de Mier', 'Truus', 'de', 'Mier', 'Boompje 72', '2211 AA', 'Puthoek', '12091', 625,NULL,'mier@fabeltje.com', NULL, NULL, '0', '0','0','1','0'),
                             ('10213','Teun Stier', 'Teun', NULL, 'Stier', 'Weide 1', '7311 AA', 'De Veenen', '10022', 602, NULL, '06-1256770','stier@fabeltje.com','06-1256770', '0','1','1','1','0'),
                             ('10858','Meneer de Uil', 'Meneer', NULL, 'Uil', 'Kerkstraat 42', '1299 AA', 'Heuven', '41382', 601,'06-5112006', NULL, '0882-10111','0310-430210', '0','0','0','1','1'),
@@ -115,7 +116,11 @@
 				parent::DbUitvoeren($query);	
 				
 				// maak gebruiker beheerder beheerder
-				$query = sprintf("UPDATE `%s` SET `BEHEERDER` = 1 WHERE ID = 1",$this->dbTable);
+				$query = sprintf("UPDATE `%s` SET `BEHEERDER` = 1 WHERE ID = 1", $this->dbTable);
+				parent::DbUitvoeren($query);
+
+				// toevoegen zusterclub
+				$query = sprintf("UPDATE `%s` SET `ZUSTERCLUB_ID` = 2 WHERE ID = 10115", $this->dbTable);
 				parent::DbUitvoeren($query);
 
 				// voeg login informatie toe om te kunnen testen
@@ -128,11 +133,11 @@
 
 				foreach ($login_info as $ID => $credentials) 
 				{
-					$query = sprintf("UPDATE `%s` SET `INLOGNAAM` = '%s', `WACHTWOORD` = '%s'  WHERE ID = %s", $this->dbTable ,$credentials->INLOGNAAM, $credentials->WACHTWOORD, $ID);
+					$query = sprintf("UPDATE `%s` SET `INLOGNAAM` = '%s', `WACHTWOORD` = '%s'  WHERE ID = %s", $this->dbTable, $credentials->INLOGNAAM, $credentials->WACHTWOORD, $ID);
 					parent::DbUitvoeren($query);	
 				}
 
-				$query = sprintf("UPDATE `%s` SET `OPMERKINGEN` = 'DEMO Account' WHERE ID >= 0",$this->dbTable);
+				$query = sprintf("UPDATE `%s` SET `OPMERKINGEN` = 'DEMO Account' WHERE ID >= 0", $this->dbTable);
 				parent::DbUitvoeren($query);
 			}
 		}
@@ -150,10 +155,12 @@
 			$query =  sprintf("CREATE VIEW `leden_view` AS
 				SELECT 
 					l.*,
-					`t`.`OMSCHRIJVING` AS `LIDTYPE`
+					`t`.`OMSCHRIJVING` AS `LIDTYPE`,
+					`z`.`NAAM` AS `ZUSTERCLUB`
 				FROM
 					`%s` `l`    
 					LEFT JOIN `ref_types` `t` ON (`l`.`LIDTYPE_ID` = `t`.`ID`)
+					LEFT JOIN `ref_leden` `z` ON (`l`.`ZUSTERCLUB_ID` = `z`.`ID`)
 				WHERE
 					`l`.`VERWIJDERD` = 0  
 				ORDER BY 
@@ -454,22 +461,19 @@
 		Markeer een record in de database als verwijderd. Het record wordt niet fysiek verwijderd om er een link kan zijn naar andere tabellen.
 		Het veld VERWIJDERD wordt op "1" gezet.
 		*/
-		function VerwijderObject($ID)
+		function VerwijderObject($id, $verificatie = true)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Leden.VerwijderObject(%s)", $ID));
+			Debug(__FILE__, __LINE__, sprintf("Leden.VerwijderObject(%s, %s)", $id, ($verificatie ? "true" : "false") ));
 
 			$l = MaakObject('Login');
 			if ($l->magSchrijven() == false)
 				throw new Exception("401;Geen schrijfrechten;");
 
-			if ($ID == null)
+			if ($id == null)
 				throw new Exception("406;Geen ID in aanroep;");
 			
-			isINT($ID, "ID");
-										
-			parent::MarkeerAlsVerwijderd($ID);
-			if (parent::NumRows() === 0)
-				throw new Exception("404;Record niet gevonden;");	
+			isCSV($id, "ID");
+			parent::MarkeerAlsVerwijderd($id, $verificatie);
 		}		
 		
 		/*
@@ -688,7 +692,7 @@
 			$ga = new PHPGangsta_GoogleAuthenticator();
 			$secret = $ga->createSecret();
 
-			$query = sprintf("UPDATE `%s` SET `SECRET` = '%s'  WHERE ID = %s", $this->dbTable ,$secret, $id);
+			$query = sprintf("UPDATE `%s` SET `SECRET` = '%s'  WHERE ID = %s", $this->dbTable , $secret, $id);
 			parent::DbUitvoeren($query);	
 		}
 
@@ -789,7 +793,7 @@
 				if (array_key_exists($field, $input))
 					$record[$field] = isBOOL($input[$field], $field);		
 
-				$field = 'ZUSTERCLUB';
+				$field = 'ZUSTERCLUB_ID';
 				if (array_key_exists($field, $input))
 					$record[$field] = isINT($input[$field], $field, true, 'Leden');
 			}

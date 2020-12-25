@@ -324,27 +324,22 @@
 			return null;  // Hier komen we nooit :-)
 		}	
 			
-		
-
 		/*
 		Markeer een record in de database als verwijderd. Het record wordt niet fysiek verwijderd om er een link kan zijn naar andere tabellen.
 		Het veld VERWIJDERD wordt op "1" gezet.
 		*/
-		function VerwijderObject($ID)
+		function VerwijderObject($id, $verificatie = true)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Tracks.VerwijderObject(%s)", $ID));	
+			Debug(__FILE__, __LINE__, sprintf("Tracks.VerwijderObject(%s, %s)", $id, ($verificatie ? "true" : "false") ));	
 			$l = MaakObject('Login');
 			if ($l->magSchrijven() == false)
 				throw new Exception("401;Geen schrijfrechten;");
 
-			if ($ID == null)
+			if ($id == null)
 				throw new Exception("406;Geen ID in aanroep;");
 			
-			isINT($ID, "ID");
-										
-			parent::MarkeerAlsVerwijderd($ID);
-			if (parent::NumRows() === 0)
-				throw new Exception("404;Record niet gevonden;");	
+			isCSV($id, "ID");					
+			parent::MarkeerAlsVerwijderd($id, $verificatie);
 		}		
 		
 		/*
@@ -412,7 +407,7 @@
             // Markeer record als verwijderd
             // Maak een nieuw track record en verwijs via LINK_ID naar het verwijderde record 
             $track = $this->GetObject($TrackData['ID']);
-            parent::MarkeerAlsVerwijderd($track['ID']);
+            parent::MarkeerAlsVerwijderd($track['ID'], false);
 
             $track = array_merge($track, $this->RequestToRecord($TrackData));  // samenvoegen bestaande en nieuwe data
 

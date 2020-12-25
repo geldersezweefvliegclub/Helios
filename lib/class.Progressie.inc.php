@@ -69,8 +69,7 @@
 							%s;", $this->dbTable, $inject);
 				$i++;
 				parent::DbUitvoeren($query);
-			}
-            
+			}        
 		}
 
 		/*
@@ -262,7 +261,6 @@
 
 				return $retVal;
 			}
-			
 			return null;  // Hier komen we nooit :-)
 		}	
 
@@ -274,7 +272,6 @@
 			if (!array_key_exists('LID_ID', $params))
 				throw new Exception("406;LID_ID ontbreekt in aanroep;");
 
-			
 			$alleenLaatsteAanpassing = false;
 			$lid_id = -1;
 			$velden = "							
@@ -305,8 +302,7 @@
 							$velden = $value;
 							Debug(__FILE__, __LINE__, sprintf("%s: VELDEN='%s'", $functie, $velden));
 							break;
-						}											
-								
+						}														
 					case "LID_ID" : 
 						{							
 							$lid_id = isINT($value, "LID_ID");
@@ -358,7 +354,6 @@
 		Haal de progressie kaart op, maar bouw meteen eem boom structuur, dat scheelt werk voor de client. 
 		De data is gelijk aan ProgressieKaart
 		*/
-
 		function ProgressieBoom($params)
 		{
 			$functie = "Progressie.ProgressieBoom";
@@ -368,16 +363,15 @@
 			$this->hoofdGroepen = $t->GetObjects(array("GROEP" => 10));
 			$this->progressieKaart = $this->ProgressieKaart($params);		// Hier halen we de data op
 			return $this->bouwBoom();
-
 		}
 
 		/*
 		Markeer een record in de database als verwijderd. Het record wordt niet fysiek verwijderd om er een link kan zijn naar andere tabellen.
 		Het veld VERWIJDERD wordt op "1" gezet.
 		*/
-		function VerwijderObject($ID = null)
+		function VerwijderObject($id = null, $verificatie = true)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Progressie.VerwijderObject(%s)", $ID));
+			Debug(__FILE__, __LINE__, sprintf("Progressie.VerwijderObject(%s, %s)", $id, ($verificatie ? "true" : "false") ));
 			$l = MaakObject('Login');
 			if ($l->magSchrijven() == false)
 				throw new Exception("401;Geen schrijfrechten;");
@@ -385,11 +379,8 @@
 			if ($ID === null)
 				throw new Exception("406;Geen ID in aanroep;");
 			
-			isINT($ID, "ID");
-															
-			parent::MarkeerAlsVerwijderd($ID);
-			if (parent::NumRows() === 0)
-				throw new Exception("404;Record niet gevonden;");	
+			isINT($id, "ID");								
+			parent::MarkeerAlsVerwijderd($id, $verificatie);	
 		}		
 
 		/*
@@ -459,7 +450,7 @@
             // Markeer record als verwijderd
             // Maak een nieuw progressie record en verwijs via LINK_ID naar het verwijderde record 
             $progressie = $this->GetObject($id);
-            parent::MarkeerAlsVerwijderd($id);
+            parent::MarkeerAlsVerwijderd($id, false);
 
             $progressie = array_merge($progressie, $this->RequestToRecord($ProgressieData));  // samenvoegen bestaande en nieuwe data
 
@@ -531,7 +522,7 @@
 			foreach ($this->hoofdGroepen['dataset'] as $leerfase)
 			{
 				$children = $this->bouwStam($leerfase["ID"]);
-				$onderwerp = ($leerfase["CODE"] != null) ? sprintf("%s: %s", $leerfase['CODE'],$leerfase['OMSCHRIJVING']) : $leerfase['OMSCHRIJVING'];
+				$onderwerp = ($leerfase["CODE"] != null) ? sprintf("%s: %s", $leerfase['CODE'], $leerfase['OMSCHRIJVING']) : $leerfase['OMSCHRIJVING'];
 
 				$c = new EnkeleCompetentie(
 					$leerfase["ID"],                // leerfase ID

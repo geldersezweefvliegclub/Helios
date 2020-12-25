@@ -175,6 +175,12 @@ paths:
           schema:
             type: integer
             format: int32
+        - in: query
+          name: VERIFICATIE
+          description: Controleer of record bestaat voordat het verwijderd wordt. Default = true
+          required: false
+          schema:
+            type: boolean            
       responses:
         204:
           description: "Vliegtuig verwijderd"

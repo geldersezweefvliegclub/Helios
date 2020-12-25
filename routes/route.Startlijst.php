@@ -218,11 +218,11 @@ $app->get('/Startlijst/GetVliegDagen', function (Request $request, Response $res
 });
 
 
-$app->get('/Startlijst/Vliegdagen', function (Request $request, Response $response, $args) {
+$app->get('/Startlijst/GetRecency', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Startlijst");
     try
     {
-        $parameters = $request->getQueryParams();
+        $vliegerID = $request->getQueryParams()['VLIEGER_ID'];
         $r = $obj->GetRecency($vliegerID);  // Hier staat de logica voor deze functie
         if ($r === null)
         {
@@ -256,9 +256,9 @@ $app->delete('/Startlijst/DeleteObject', function (Request $request, Response $r
     try
     {
         $id = $request->getQueryParams()['ID'];
-        $datum = $request->getQueryParams()['DATUM'];
+        $verificatie = $request->getQueryParams()['VERIFICATIE'];
 
-        $obj->VerwijderObject($id, $datum);     // Hier staat de logica voor deze functie
+        $obj->VerwijderObject($id, $verificatie);     // Hier staat de logica voor deze functie
         return $response->withStatus(intval(204));
     }
     catch(Exception $exception)

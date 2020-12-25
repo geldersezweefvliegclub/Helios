@@ -325,35 +325,35 @@
 		Markeer een record in de database als verwijderd. Het record wordt niet fysiek verwijderd om er een link kan zijn naar andere tabellen.
 		Het veld VERWIJDERD wordt op "1" gezet.
 		*/
-		function VerwijderObject($ID = null, $VLIEGTUIG_ID = null, $DATUM = null)
+		function VerwijderObject($id = null, $vliegtuig_id = null, $datum = null, $verificatie = true)
 		{
-			Debug(__FILE__, __LINE__, sprintf("AanwezigVliegtuigen.VerwijderObject(%s, %s)", $ID, $DATUM));					
+			Debug(__FILE__, __LINE__, sprintf("AanwezigVliegtuigen.VerwijderObject(%s, %s, %s, %s)", $id, $vliegtuig_id, $datum, ($verificatie ? "true" : "false") ));					
 			$l = MaakObject('Login');
 			if ($l->magSchrijven() == false)
 				throw new Exception("401;Geen schrijfrechten;");
 
 			if ($ID !== null)
 			{
-				isINT($ID, "ID");
+				isCSV($id, "ID");
 			}
 			else
 			{
-				if (($DATUM == null) || ($VLIEGTUIG_ID == null))
+				if (($datum == null) || ($vliegtuig_id == null))
 					throw new Exception("406;Geen ID en VLIEGTUIG_ID/DATUM in aanroep;");
 
-				isINT($VLIEGTUIG_ID, "VLIEGTUIG_ID");
-				isDATE($DATUM. "DATUM");	
+				isINT($vliegtuig_id, "VLIEGTUIG_ID");
+				isDATE($datum. "DATUM");	
 			}
 			
-			if ($ID == null)
+			if ($id == null)
 			{
-				$vObj = $this->GetObject(null, $VLIEGTUIG_ID, $DATUM);
-				$ID = $vObj["ID"];
+				$vObj = $this->GetObject(null, $vliegtuig_id, $datum);
+				$id = $vObj["ID"];
+				
+				$verificatie = false;	// we weten zeker dat record bestaat
 			}
 			
-			parent::MarkeerAlsVerwijderd($ID);
-			if (parent::NumRows() === 0)
-				throw new Exception("404;Record niet gevonden;");			
+			parent::MarkeerAlsVerwijderd($id, $verificatie);			
 		}		
 
 		/*

@@ -123,8 +123,9 @@ $app->delete('/Daginfo/DeleteObject', function (Request $request, Response $resp
     {
         $id = $request->getQueryParams()['ID'];
         $datum = $request->getQueryParams()['DATUM'];
+        $verificatie = $request->getQueryParams()['VERIFICATIE'];
 
-        $obj->VerwijderObject($id, $datum);     // Hier staat de logica voor deze functie
+        $obj->VerwijderObject($id, $datum, $verificatie);     // Hier staat de logica voor deze functie
         return $response->withStatus(intval(204));
     }
     catch(Exception $exception)
