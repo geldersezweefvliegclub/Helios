@@ -40,9 +40,10 @@ abstract class StartAdmin
 	*/
 	function bestaatID($id) 
 	{
-		$query = sprintf("SELECT ID FROM `%s` WHERE ID=%d;", $this->dbTable, $id);
+		$query = sprintf("SELECT ID FROM `%s` WHERE ID=?;", $this->dbTable);
+		$query_params = [ $id ];
 		
-		$this->DbOpvraag($query);
+		$this->DbOpvraag($query, $query_params);
 		if ($this->NumRows() == 0)
 			return false;
 
@@ -86,16 +87,29 @@ abstract class StartAdmin
 	*/
 	function MarkeerAlsVerwijderd($IDs, $verificatie = true)
 	{
-		Debug(__FILE__, __LINE__, sprintf("StartAdmin.MarkeerAlsVerwijderd(%s)", $IDs));	
+		Debug(__FILE__, __LINE__, sprintf("StartAdmin.MarkeerAlsVerwijderd(%s, %s)", $IDs, $verificatie));	
 		
-		if (isBOOL($verificatie, "VERIFICATIE") === 1)
+		if (is_null($verificatie))
+			$verificatie = true;
+
+		$verify = isBOOL($verificatie, "VERIFICATIE");
+
+		if ($verify !== 0)
 		{
-			$list = explode(",", $ID);
-			foreach($list as $i)
+			if (strpos($IDs, ',') !== false)
 			{
-				if ($this->bestaatID($i) == false)
-					throw new Exception(sprintf("404;Record met ID=%s niet gevonden;", $i));	 	
-			}					
+				$list = explode(",", $ID);
+				foreach($list as $i)
+				{
+					if ($this->bestaatID($i) == false)
+						throw new Exception(sprintf("404;Record met ID=%s niet gevonden;", $i));	 	
+				}
+			}	
+			else
+			{
+				if ($this->bestaatID($IDs) == false)
+					throw new Exception(sprintf("404;Record met ID=%s niet gevonden;", $IDs));	
+			}		
 		}
 		$this->DbUitvoeren(sprintf("UPDATE `%s` SET `VERWIJDERD`= 1 WHERE ID IN (%s);", $this->dbTable, $IDs));
 	}			

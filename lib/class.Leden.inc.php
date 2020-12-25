@@ -463,7 +463,7 @@
 		*/
 		function VerwijderObject($id, $verificatie = true)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Leden.VerwijderObject(%s, %s)", $id, ($verificatie ? "true" : "false") ));
+			Debug(__FILE__, __LINE__, sprintf("Leden.VerwijderObject(%s, %s)", $id, $verificatie));
 
 			$l = MaakObject('Login');
 			if ($l->magSchrijven() == false)

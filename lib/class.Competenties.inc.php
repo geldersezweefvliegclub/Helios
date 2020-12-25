@@ -404,7 +404,7 @@
 		*/
 		function VerwijderObject($id = null, $verificatie = true)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Competenties.VerwijderObject(%s, %s)", $ID, ($verificatie ? "true" : "false") ));
+			Debug(__FILE__, __LINE__, sprintf("Competenties.VerwijderObject(%s, %s)", $ID, $verificatie));
 			$l = MaakObject('Login');
 			if ($l->magSchrijven() == false)
 				throw new Exception("401;Geen schrijfrechten;");

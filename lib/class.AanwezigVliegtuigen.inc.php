@@ -327,7 +327,7 @@
 		*/
 		function VerwijderObject($id = null, $vliegtuig_id = null, $datum = null, $verificatie = true)
 		{
-			Debug(__FILE__, __LINE__, sprintf("AanwezigVliegtuigen.VerwijderObject(%s, %s, %s, %s)", $id, $vliegtuig_id, $datum, ($verificatie ? "true" : "false") ));					
+			Debug(__FILE__, __LINE__, sprintf("AanwezigVliegtuigen.VerwijderObject(%s, %s, %s, %s)", $id, $vliegtuig_id, $datum, $verificatie));					
 			$l = MaakObject('Login');
 			if ($l->magSchrijven() == false)
 				throw new Exception("401;Geen schrijfrechten;");

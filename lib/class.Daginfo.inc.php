@@ -290,7 +290,7 @@
 		*/
 		function VerwijderObject($id = null, $datum = null, $verificatie = true)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Daginfo.VerwijderObject(%s, %s, %s)", $id, $datum, ($verificatie ? "true" : "false") ));					
+			Debug(__FILE__, __LINE__, sprintf("Daginfo.VerwijderObject(%s, %s, %s)", $id, $datum, $verificatie));					
 			$l = MaakObject('Login');
 			if ($l->magSchrijven() == false)
 				throw new Exception("401;Geen schrijfrechten;");

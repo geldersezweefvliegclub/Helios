@@ -359,7 +359,7 @@
 		*/
 		function VerwijderObject($id = null, $verificatie = true)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Types.VerwijderObject(%s, %s)", $id, ($verificatie ? "true" : "false") ));
+			Debug(__FILE__, __LINE__, sprintf("Types.VerwijderObject(%s, %s)", $id, $verificatie));
 			$l = MaakObject('Login');
 			if ($l->magSchrijven() == false)
 				throw new Exception("401;Geen schrijfrechten;");
@@ -368,7 +368,7 @@
 				throw new Exception("406;Geen ID in aanroep;");
 			
 			isCSV($ID, "id");										
-			parent::MarkeerAlsVerwijderd($ID, $verificatie);
+			parent::MarkeerAlsVerwijderd($id, $verificatie);
 		}		
 
 		/*

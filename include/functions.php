@@ -233,7 +233,7 @@ define('phpTab', "\t");
 			return false;
 		}
 
-		if (($value == "0") || ($value == "false") || ($value === false))
+		if (($value === "0") || ($value === "false") || ($value === false))
 			return 0; 
 		else
 			return 1; 
