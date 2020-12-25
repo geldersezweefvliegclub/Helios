@@ -133,12 +133,14 @@
 
 				$conditie['VLIEGTUIG_ID'] = isINT($VLIEGTUIG_ID, "VLIEGTUIG_ID", false, "Vliegtuigen");
 				$conditie['DATUM'] = isDATE($DATUM, "DATUM");	
+
+				if ($heeftVerwijderd == false)
+					$conditie['VERWIJDERD'] = 0;		// Dus geen verwijderd record
 			}
 
-			if ($heeftVerwijderd == false)
-				$conditie['VERWIJDERD'] = 0;		// Dus geen verwijderd record
-
 			$obj = parent::GetSingleObject($conditie);
+			Debug(__FILE__, __LINE__, print_r($obj, true));
+			
 			if ($obj == null)
 				throw new Exception("404;Record niet gevonden;");
 				

@@ -175,7 +175,7 @@
 		/*
 		Haal een enkel record op uit de database
 		*/
-		function GetObject($ID,  $heeftVerwijderd = true)
+		function GetObject($ID)
 		{
 			Debug(__FILE__, __LINE__, sprintf("Leden.GetObject(%s)", $ID));	
 
@@ -193,10 +193,9 @@
 					throw new Exception("401;Geen leesrechten;");
 			}
 
-			if ($heeftVerwijderd == false)
-				$conditie['VERWIJDERD'] = 0;		// Dus geen verwijderd record
-
 			$obj = parent::GetSingleObject($conditie);
+			Debug(__FILE__, __LINE__, print_r($obj, true));
+
 			if ($obj == null)
 				throw new Exception("404;Record niet gevonden;");
 			

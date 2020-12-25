@@ -109,7 +109,7 @@
 		/*
 		Haal een enkel record op uit de database
 		*/		
-		function GetObject($ID, $heeftVerwijderd = true)
+		function GetObject($ID)
 		{
 			Debug(__FILE__, __LINE__, sprintf("Progressie.GetObject(%s)", $ID));	
 
@@ -119,10 +119,9 @@
 			$conditie = array();
 			$conditie['ID'] = isINT($ID, "ID");
 
-			if ($heeftVerwijderd == false)
-				$conditie['VERWIJDERD'] = 0;		// Dus geen verwijderd record
-
 			$obj = parent::GetSingleObject($conditie);
+			Debug(__FILE__, __LINE__, print_r($obj, true));
+			
 			if ($obj == null)
 				throw new Exception("404;Record niet gevonden;");
 			
