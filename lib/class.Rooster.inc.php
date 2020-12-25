@@ -69,8 +69,7 @@
 				$i = 0;    
 
 				foreach ($inject as $record)
-				{    
-									
+				{    				
 					$query = sprintf("
 							INSERT INTO `%s` (
 								`ID`, 
@@ -104,8 +103,7 @@
 			if ($l->isInstaller() == false)
 				throw new Exception("401;Geen installer;");
 				
-			parent::DbUitvoeren("DROP VIEW IF EXISTS rooster_view");
-			$query =  sprintf("CREATE VIEW `rooster_view` AS
+			$query = "CREATE VIEW `%s` AS
 				SELECT 
 					rooster.*,
 					ref_leden.NAAM AS OCHTEND_DDI,
@@ -131,11 +129,15 @@
 					LEFT JOIN ref_leden AS ref_leden_8      ON (rooster.MIDDAG_HULPLIERIST_ID = ref_leden_8.ID)
 					LEFT JOIN ref_leden AS ref_leden_9      ON (rooster.MIDDAG_STARTLEIDER_ID = ref_leden_9.ID)				
 				WHERE
-					`rooster`.`VERWIJDERD` = 0  
+					`rooster`.`VERWIJDERD` = %d  
 				ORDER BY 
-					DATUM DESC;", $this->dbTable);	
+					DATUM DESC;";	
 						
-			parent::DbUitvoeren($query);
+			parent::DbUitvoeren("DROP VIEW IF EXISTS rooster_view");							
+			parent::DbUitvoeren(sprintf($query, "rooster_view", $this->dbTable, 0));
+
+			parent::DbUitvoeren("DROP VIEW IF EXISTS verwijderd_rooster_view");
+			parent::DbUitvoeren(sprintf($query, "verwijderd_rooster_view", $this->dbTable, 1));	
 		}
 
 		/*
@@ -296,7 +298,7 @@
 		*/
 		function VerwijderObject($FillData = null, $datum = null, $verificatie = true)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Rooster.VerwijderObject(%s, %s, %s)", $id, $datum, ($verificatie ? "true" : "false")));								
+			Debug(__FILE__, __LINE__, sprintf("Rooster.VerwijderObject('%s', %s, %s)", $id, $datum, ($verificatie ? "true" : "false")));								
 			$l = MaakObject('Login');
 			if ($l->magSchrijven() == false)
 				throw new Exception("401;Geen schrijfrechten;");

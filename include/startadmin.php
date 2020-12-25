@@ -87,7 +87,7 @@ abstract class StartAdmin
 	*/
 	function MarkeerAlsVerwijderd($IDs, $verificatie = true)
 	{
-		Debug(__FILE__, __LINE__, sprintf("StartAdmin.MarkeerAlsVerwijderd(%s, %s)", $IDs, $verificatie));	
+		Debug(__FILE__, __LINE__, sprintf("StartAdmin.MarkeerAlsVerwijderd('%s', %s)", $IDs, (($verificatie === false) ? "False" :  $verificatie)));	
 		
 		if (is_null($verificatie))
 			$verificatie = true;

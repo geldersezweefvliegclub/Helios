@@ -151,8 +151,7 @@
 			if ($l->isInstaller() == false)
 				throw new Exception("401;Geen installer;");
 
-			parent::DbUitvoeren("DROP VIEW IF EXISTS leden_view");
-			$query =  sprintf("CREATE VIEW `leden_view` AS
+			$query = "CREATE VIEW `%s` AS
 				SELECT 
 					l.*,
 					`t`.`OMSCHRIJVING` AS `LIDTYPE`,
@@ -162,11 +161,15 @@
 					LEFT JOIN `ref_types` `t` ON (`l`.`LIDTYPE_ID` = `t`.`ID`)
 					LEFT JOIN `ref_leden` `z` ON (`l`.`ZUSTERCLUB_ID` = `z`.`ID`)
 				WHERE
-					`l`.`VERWIJDERD` = 0  
+					`l`.`VERWIJDERD` = %d
 				ORDER BY 
-					ACHTERNAAM, VOORNAAM;", $this->dbTable);
+					ACHTERNAAM, VOORNAAM;";
 								
-			parent::DbUitvoeren($query);
+			parent::DbUitvoeren("DROP VIEW IF EXISTS leden_view");							
+			parent::DbUitvoeren(sprintf($query, "leden_view", $this->dbTable, 0));
+
+			parent::DbUitvoeren("DROP VIEW IF EXISTS verwijderd_leden_view");
+			parent::DbUitvoeren(sprintf($query, "verwijderd_leden_view", $this->dbTable, 1));	
 		}
 
 		/*
@@ -463,7 +466,7 @@
 		*/
 		function VerwijderObject($id, $verificatie = true)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Leden.VerwijderObject(%s, %s)", $id, $verificatie));
+			Debug(__FILE__, __LINE__, sprintf("Leden.VerwijderObject('%s', %s)", $id, (($verificatie === false) ? "False" :  $verificatie)));
 
 			$l = MaakObject('Login');
 			if ($l->magSchrijven() == false)

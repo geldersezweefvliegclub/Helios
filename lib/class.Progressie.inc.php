@@ -81,8 +81,7 @@
 			if ($l->isInstaller() == false)
 				throw new Exception("401;Geen installer;");
 				
-			parent::DbUitvoeren("DROP VIEW IF EXISTS progressie_view");
-			$query =  sprintf("CREATE VIEW `progressie_view` AS
+			$query = "CREATE VIEW `%s` AS
 				SELECT 
 					p.*,
 					`t`.`OMSCHRIJVING` AS `LEERFASE`,
@@ -96,11 +95,15 @@
                     LEFT JOIN `ref_leden` `i` ON (`p`.`INSTRUCTEUR_ID` = `i`.`ID`)  
 					LEFT JOIN `ref_types` `t` ON (`c`.`LEERFASE_ID` = `t`.`ID`)
 				WHERE
-					`p`.`VERWIJDERD` = 0 
+					`p`.`VERWIJDERD` = %d
                 ORDER BY 
-                    LID_ID, LAATSTE_AANPASSING DESC, c.ID;", $this->dbTable);
+                    LID_ID, LAATSTE_AANPASSING DESC, c.ID;";
                     				
-			parent::DbUitvoeren($query);
+			parent::DbUitvoeren("DROP VIEW IF EXISTS progressie_view");							
+			parent::DbUitvoeren(sprintf($query, "progressie_view", $this->dbTable, 0));
+
+			parent::DbUitvoeren("DROP VIEW IF EXISTS verwijderd_progressie_view");
+			parent::DbUitvoeren(sprintf($query, "verwijderd_progressie_view", $this->dbTable, 1));	
 		}
 
 		/*
@@ -371,7 +374,7 @@
 		*/
 		function VerwijderObject($id = null, $verificatie = true)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Progressie.VerwijderObject(%s, %s)", $id, $verificatie));
+			Debug(__FILE__, __LINE__, sprintf("Progressie.VerwijderObject('%s', %s)", $id, (($verificatie === false) ? "False" :  $verificatie)));
 			$l = MaakObject('Login');
 			if ($l->magSchrijven() == false)
 				throw new Exception("401;Geen schrijfrechten;");

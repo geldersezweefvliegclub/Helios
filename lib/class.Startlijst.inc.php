@@ -176,8 +176,7 @@
 			if ($l->isInstaller() == false)
 				throw new Exception("401;Geen installer;");
 				
-			parent::DbUitvoeren("DROP VIEW IF EXISTS startlijst_view");
-			$query =  sprintf("CREATE VIEW `startlijst_view` AS
+			$query = "CREATE VIEW `%s` AS
                 SELECT 
 					`sl`.`ID`,
 					`sl`.`DATUM`,
@@ -225,11 +224,15 @@
                     LEFT JOIN `ref_types`       `veld`  ON `sl`.`VELD_ID` = `veld`.`ID` 
                     LEFT JOIN `ref_types`       `sm`    ON `sl`.`STARTMETHODE_ID` = `sm`.`ID` 
 				WHERE
-					`sl`.`VERWIJDERD` = 0  
+					`sl`.`VERWIJDERD` = %d
 				ORDER BY 
-					DATUM DESC, DAGNUMMER;", $this->dbTable);	
+					DATUM DESC, DAGNUMMER;";	
 						
-			parent::DbUitvoeren($query);
+			parent::DbUitvoeren("DROP VIEW IF EXISTS startlijst_view");							
+			parent::DbUitvoeren(sprintf($query, "startlijst_view", $this->dbTable, 0));
+
+			parent::DbUitvoeren("DROP VIEW IF EXISTS verwijderd_startlijst_view");
+			parent::DbUitvoeren(sprintf($query, "verwijderd_startlijst_view", $this->dbTable, 1));	
 		}
 
 		/*
@@ -1068,7 +1071,7 @@
 		*/
 		function VerwijderObject($id, $verificatie = true)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Startlijst.VerwijderObject(%s, %s)", $id, $verificatie));								
+			Debug(__FILE__, __LINE__, sprintf("Startlijst.VerwijderObject('%s', %s)", $id, (($verificatie === false) ? "False" :  $verificatie)));								
 			$l = MaakObject('Login');
 			if ($l->magSchrijven() == false)
 				throw new Exception("401;Geen schrijfrechten;");

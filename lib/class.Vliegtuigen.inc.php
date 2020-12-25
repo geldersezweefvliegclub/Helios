@@ -92,8 +92,7 @@
 			if ($l->isInstaller() == false)
 				throw new Exception("401;Geen installer;");
 				
-			parent::DbUitvoeren("DROP VIEW IF EXISTS vliegtuigen_view");
-			$query =  sprintf("CREATE VIEW `vliegtuigen_view` AS
+			$query = "CREATE VIEW `%s` AS
 				SELECT 
 					v.*,
 					CONCAT(IFNULL(`v`.`REGISTRATIE`,''),' (',IFNULL(`v`.`CALLSIGN`,''),')') AS `REG_CALL`,
@@ -102,11 +101,15 @@
 					`%s` `v`    
 					LEFT JOIN `ref_types` `t` ON (`v`.`TYPE_ID` = `t`.`ID`)
 				WHERE
-					`v`.`VERWIJDERD` = 0  
+					`v`.`VERWIJDERD` = %s
 				ORDER BY 
-					CLUBKIST DESC, VOLGORDE, REGISTRATIE;", $this->dbTable);	
+					CLUBKIST DESC, VOLGORDE, REGISTRATIE;";	
 							
-			parent::DbUitvoeren($query);
+			parent::DbUitvoeren("DROP VIEW IF EXISTS vliegtuigen_view");							
+			parent::DbUitvoeren(sprintf($query, "vliegtuigen_view", $this->dbTable, 0));
+
+			parent::DbUitvoeren("DROP VIEW IF EXISTS verwijderd_vliegtuigen_view");
+			parent::DbUitvoeren(sprintf($query, "verwijderd_vliegtuigen_view", $this->dbTable, 1));
 		}
 
 		/*
@@ -366,7 +369,7 @@
 		*/
 		function VerwijderObject($id, $verificatie = true)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Vliegtuigen.VerwijderObject(%s, %s)", $id, $verificatie));				
+			Debug(__FILE__, __LINE__, sprintf("Vliegtuigen.VerwijderObject('%s', %s)", $id, (($verificatie === false) ? "False" :  $verificatie)));				
 			$l = MaakObject('Login');
 			if ($l->magSchrijven() == false)
 				throw new Exception("401;Geen schrijfrechten;");

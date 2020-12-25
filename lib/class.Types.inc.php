@@ -181,18 +181,21 @@
 			if ($l->isInstaller() == false)
 				throw new Exception("401;Geen installer;");
 				
-			parent::DbUitvoeren("DROP VIEW IF EXISTS types_view");
-			$query =  sprintf("CREATE VIEW `types_view` AS
+			$query = "CREATE VIEW `%s` AS
 				SELECT 
 					types.*
 				FROM
 					`%s` `types`
 				WHERE
-					`types`.`VERWIJDERD` = 0  
+					`types`.`VERWIJDERD` = %d
 				ORDER BY 
-					SORTEER_VOLGORDE, ID;", $this->dbTable);		
+					SORTEER_VOLGORDE, ID;";		
 							
-			parent::DbUitvoeren($query);
+			parent::DbUitvoeren("DROP VIEW IF EXISTS types_view");							
+			parent::DbUitvoeren(sprintf($query, "types_view", $this->dbTable, 0));
+
+			parent::DbUitvoeren("DROP VIEW IF EXISTS verwijderd_types_view");
+			parent::DbUitvoeren(sprintf($query, "verwijderd_types_view", $this->dbTable, 1));
 		}
 
 		/*
@@ -359,7 +362,7 @@
 		*/
 		function VerwijderObject($id = null, $verificatie = true)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Types.VerwijderObject(%s, %s)", $id, $verificatie));
+			Debug(__FILE__, __LINE__, sprintf("Types.VerwijderObject('%s', %s)", $id, (($verificatie === false) ? "False" :  $verificatie)));
 			$l = MaakObject('Login');
 			if ($l->magSchrijven() == false)
 				throw new Exception("401;Geen schrijfrechten;");

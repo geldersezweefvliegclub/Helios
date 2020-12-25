@@ -224,8 +224,7 @@
 			if ($l->isInstaller() == false)
 				throw new Exception("401;Geen installer;");
 				
-			parent::DbUitvoeren("DROP VIEW IF EXISTS competenties_view");
-			$query =  sprintf("CREATE VIEW `competenties_view` AS
+			$query = "CREATE VIEW `%s` AS
 				SELECT 
 					c.*,
 					`t`.`OMSCHRIJVING` AS `LEERFASE`
@@ -233,11 +232,15 @@
 					`%s` `c`    
 					LEFT JOIN `ref_types` `t` ON (`c`.`LEERFASE_ID` = `t`.`ID`)
 				WHERE
-					`c`.`VERWIJDERD` = 0
+					`c`.`VERWIJDERD` = %d
 				ORDER BY 
-					LEERFASE_ID, VOLGORDE, ID;", $this->dbTable);				
+					LEERFASE_ID, VOLGORDE, ID;";				
 			
-			parent::DbUitvoeren($query);
+			parent::DbUitvoeren("DROP VIEW IF EXISTS competenties_view");							
+			parent::DbUitvoeren(sprintf($query, "competenties_view", $this->dbTable, 0));
+
+			parent::DbUitvoeren("DROP VIEW IF EXISTS verwijderd_competenties_view");
+			parent::DbUitvoeren(sprintf($query, "verwijderd_competenties_view", $this->dbTable, 1));	
 		}
 
 		/*
@@ -404,7 +407,7 @@
 		*/
 		function VerwijderObject($id = null, $verificatie = true)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Competenties.VerwijderObject(%s, %s)", $ID, $verificatie));
+			Debug(__FILE__, __LINE__, sprintf("Competenties.VerwijderObject('%s', %s)", $id, (($verificatie === false) ? "False" :  $verificatie)));
 			$l = MaakObject('Login');
 			if ($l->magSchrijven() == false)
 				throw new Exception("401;Geen schrijfrechten;");

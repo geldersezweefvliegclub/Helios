@@ -110,29 +110,32 @@
 			if ($l->isInstaller() == false)
 				throw new Exception("401;Geen installer;");
 				
-			parent::DbUitvoeren("DROP VIEW IF EXISTS daginfo_view");
-			$query =  sprintf("CREATE VIEW `daginfo_view` AS
-				SELECT 
-					di.*,
-					`T_Veld`.`CODE` AS `VELD_CODE`,
-					`T_Veld`.`OMSCHRIJVING` AS  `VELD_OMS`,        
-					`T_Baan`.`CODE` AS `BAAN_CODE`,
-					`T_Baan`.`OMSCHRIJVING` AS  `BAAN_OMS`,
-					`T_Bedrijf`.`CODE` AS `BEDRIJF_CODE`,
-					`T_Bedrijf`.`OMSCHRIJVING` AS  `BEDRIJF_OMS`,
-					`T_Startmethode`.`CODE` AS `STARTMETHODE_CODE`,
-					`T_Startmethode`.`OMSCHRIJVING` AS  `STARTMETHODE_OMS`
-				FROM
-					`%s` `di`
-					LEFT JOIN `ref_types` `T_Veld` ON (`di`.`VELD_ID` = `T_Veld`.`ID`)
-					LEFT JOIN `ref_types` `T_Baan` ON (`di`.`BAAN_ID` = `T_Baan`.`ID`)
-					LEFT JOIN `ref_types` `T_Bedrijf` ON (`di`.`BEDRIJF_ID` = `T_Bedrijf`.`ID`)
-					LEFT JOIN `ref_types` `T_Startmethode` ON (`di`.`STARTMETHODE_ID` = `T_Startmethode`.`ID`)
-				WHERE
-					`di`.`VERWIJDERD` = 0  
-				ORDER BY DATUM DESC;", $this->dbTable);	
-							
-			parent::DbUitvoeren($query);
+			$query = "CREATE VIEW `%s` AS
+			SELECT 
+				di.*,
+				`T_Veld`.`CODE` AS `VELD_CODE`,
+				`T_Veld`.`OMSCHRIJVING` AS  `VELD_OMS`,        
+				`T_Baan`.`CODE` AS `BAAN_CODE`,
+				`T_Baan`.`OMSCHRIJVING` AS  `BAAN_OMS`,
+				`T_Bedrijf`.`CODE` AS `BEDRIJF_CODE`,
+				`T_Bedrijf`.`OMSCHRIJVING` AS  `BEDRIJF_OMS`,
+				`T_Startmethode`.`CODE` AS `STARTMETHODE_CODE`,
+				`T_Startmethode`.`OMSCHRIJVING` AS  `STARTMETHODE_OMS`
+			FROM
+				`%s` `di`
+				LEFT JOIN `ref_types` `T_Veld` ON (`di`.`VELD_ID` = `T_Veld`.`ID`)
+				LEFT JOIN `ref_types` `T_Baan` ON (`di`.`BAAN_ID` = `T_Baan`.`ID`)
+				LEFT JOIN `ref_types` `T_Bedrijf` ON (`di`.`BEDRIJF_ID` = `T_Bedrijf`.`ID`)
+				LEFT JOIN `ref_types` `T_Startmethode` ON (`di`.`STARTMETHODE_ID` = `T_Startmethode`.`ID`)
+			WHERE
+				`di`.`VERWIJDERD` = %d
+			ORDER BY DATUM DESC;";	
+
+			parent::DbUitvoeren("DROP VIEW IF EXISTS daginfo_view");							
+			parent::DbUitvoeren(sprintf($query, "daginfo_view", $this->dbTable, 0));
+
+			parent::DbUitvoeren("DROP VIEW IF EXISTS verwijderd_daginfo_view");
+			parent::DbUitvoeren(sprintf($query, "verwijderd_daginfo_view", $this->dbTable, 1));
 		}
 
 		/*
@@ -290,7 +293,7 @@
 		*/
 		function VerwijderObject($id = null, $datum = null, $verificatie = true)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Daginfo.VerwijderObject(%s, %s, %s)", $id, $datum, $verificatie));					
+			Debug(__FILE__, __LINE__, sprintf("Daginfo.VerwijderObject('%s', %s, %s)", $id, $datum, (($verificatie === false) ? "False" :  $verificatie)));					
 			$l = MaakObject('Login');
 			if ($l->magSchrijven() == false)
 				throw new Exception("401;Geen schrijfrechten;");
