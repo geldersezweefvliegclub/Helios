@@ -1,0 +1,7 @@
+# Jetbrains files
+.idea
+
+# Visual Studio Code files
+.vscode
+
+install/sourcecode/node_modules
