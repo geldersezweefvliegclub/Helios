@@ -4,9 +4,6 @@
       color="primary"
       light
   >
-    <v-app-bar-title>
-      <router-link to="/" class="white--text">Installatie</router-link>
-    </v-app-bar-title>
     <v-spacer></v-spacer>
 
     <v-btn text>
