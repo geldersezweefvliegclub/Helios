@@ -1,5 +1,5 @@
 <?php
-	class AanwezigVliegtuigen extends StartAdmin
+	class AanwezigVliegtuigen extends Helios
 	{
 		function __construct() 
 		{
@@ -259,7 +259,7 @@
 						{
 							$beginDatum = isDATE($value, "BEGIN_DATUM");
 
-							$where .= " AND DATUM >= ? ";
+							$where .= " AND DATE(DATUM) >= ? ";
 							array_push($query_params, $beginDatum);
 
 							Debug(__FILE__, __LINE__, sprintf("%s: BEGIN_DATUM='%s'", $functie, $beginDatum));
@@ -269,7 +269,7 @@
 						{
 							$eindDatum = isDATE($value, "EIND_DATUM");
 
-							$where .= " AND DATUM <= ? ";
+							$where .= " AND DATE(DATUM) <= ? ";
 							array_push($query_params, $eindDatum);
 
 							Debug(__FILE__, __LINE__, sprintf("%s: EIND_DATUM='%s'", $functie, $eindDatum));
@@ -345,7 +345,7 @@
 			if ($l->magSchrijven() == false)
 				throw new Exception("401;Geen schrijfrechten;");
 
-			if ($ID !== null)
+			if ($id !== null)
 			{
 				isCSV($id, "ID");
 			}
@@ -476,8 +476,8 @@
             // De vliegtuig_id kan niet aangepast worden. 
 			if (array_key_exists('VLIEGTUIG_ID', $AanwezigVliegtuigData))
 			{
-				if ($AanwezigVliegtuigData['VLIEGTUIG_ID'] !== $db_record['VLIEGTUIG_ID'])
-					throw new Exception("409;Vliegtuig ID kan niet gewijzigd worden;");
+				if ($AanwezigVliegtuigData['VLIEGTUIG_ID'] != $db_record['VLIEGTUIG_ID'])
+					throw new Exception(sprintf("409;Vliegtuig ID (%s, %s) kan niet gewijzigd worden;",$AanwezigVliegtuigData['VLIEGTUIG_ID'], $db_record['VLIEGTUIG_ID']));
 			}
 
 			// Neem data over uit aanvraag
@@ -626,7 +626,6 @@
 			if (array_key_exists('TIJDSTIP', $AfmeldenVliegtuigData))
 				$datetime = isDATETIME($AfmeldenVliegtuigData['TIJDSTIP'], "TIJDSTIP");
 	
-			
 			try
 			{
 				$db_data = $this->GetObject(null, $vliegtuigID, $datetime->format('Y-m-d'), false);

@@ -1,5 +1,5 @@
 <?php
-	class Competenties extends StartAdmin
+	class Competenties extends Helios
 	{
 		function __construct() 
 		{
@@ -377,12 +377,6 @@
 			$retVal['laatste_aanpassing']=  $this->LaatsteAanpassing($query, $query_params);
 			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s", $retVal['totaal'], $retVal['laatste_aanpassing']));
 
-			$query = "
-				SELECT 
-					%s
-				FROM
-					`competenties_view` " . $where . $orderby;
-
 			if ($alleenLaatsteAanpassing)
 			{
 				$retVal['dataset'] = null;
@@ -417,7 +411,7 @@
 			if ($l->magSchrijven() == false)
 				throw new Exception("401;Geen schrijfrechten;");
 
-			if ($ID === null)
+			if ($id === null)
 				throw new Exception("406;Geen ID in aanroep;");
 			
 			isCSV($id, "ID");										

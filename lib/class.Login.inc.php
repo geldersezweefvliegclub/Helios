@@ -1,7 +1,7 @@
 <?php
 require ("include/PasswordHash.php");
 
-	class Login extends StartAdmin
+	class Login extends Helios
 	{
 		private $_userID = null;			// Wie is er ingelogd
 		
@@ -59,6 +59,8 @@ require ("include/PasswordHash.php");
 
 			$_SESSION['login']= $id;
 			$_SESSION['userInfo'] = json_encode($this->getUserInfo());
+
+			Debug(__FILE__, __LINE__, sprintf("setSessionUser = %s", $_SESSION['userInfo'] ));
 			//session_write_close();
 		}
 
@@ -83,6 +85,8 @@ require ("include/PasswordHash.php");
 
 			$UserID = $this->getUserFromSession();
 			$LidData = null;
+
+			Debug(__FILE__, __LINE__, sprintf("getUserInfo: %s, %s", $UserID, ($this->isInstaller() == true ? "true" : "false") ));
 
 			$l = MaakObject('Leden');
 			//TODO			$a = MaakObject('Aanwezig');
@@ -116,10 +120,12 @@ require ("include/PasswordHash.php");
 		function heeftToegang($token = null)
 		{
 			global $NoPasswordIP;
-		
+			Debug(__FILE__, __LINE__, sprintf("heeftToegang(%s)", $token));
+
 			// Indien username en wachtwword gezet zijn, via basic authenticatie. Gaan we opnieuw authoriseren
 			if (isset($_SERVER['PHP_AUTH_USER']) && isset($_SERVER['PHP_AUTH_PW']))
-			{ 					
+			{ 	
+								
 				$this->verkrijgToegang ($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW'], $token);
 				return;
 			}
@@ -131,51 +137,115 @@ require ("include/PasswordHash.php");
 				Debug(__FILE__, __LINE__, sprintf("heeftToegang: UserID=%s ", $UserID));
 				return;
 			}
+			$this->toegangGeweigerd();		
+		}
+
+		function verkrijgToegang($username=null, $password=null, $token=null)
+		{		
+			global $app_settings;
+			global $installer_account;
 			
-			if (!isset($NoPasswordIP))
-			{
-				Debug(__FILE__, __LINE__, sprintf("NoPasswordIP not set "));
-			}
-			else
-			{
-				if (is_array($NoPasswordIP))
-					$ClientsWithoutPassword = $NoPasswordIP;
-				else
-					$ClientsWithoutPassword = array ($NoPasswordIP);
-					
-				foreach ($ClientsWithoutPassword as $client)
+			Debug(__FILE__, __LINE__, sprintf("verkrijgToegang(%s, %s, %s)", $username, "??", $token)); 
+			
+			// Als username & wachtwoord niet zijn meegegevne, dan ophalen uit de aanvraag
+			if (($username == null) || ($password == null))
+			{				
+				if ((array_key_exists('USERNAME', $this->Data)) && (array_key_exists('PASSWORD', $this->Data)))
 				{
-					Debug(__FILE__, __LINE__, sprintf("heeftToegang: Allow=%s  RemoteIP=%s", $client, $_SERVER['REMOTE_ADDR']));
+					$username = $this->Data['USERNAME'];
+					$password = $this->Data['PASSWORD'];
 					
-					$network = explode('/', $client);
-					
-					if (count($network) == 1)
+					Debug(__FILE__, __LINE__, sprintf("username = %s", $username));
+				}
+				else
+				{
+					Debug(__FILE__, __LINE__, sprintf("Toegang geweigerd, geen username bekend", $username));
+					$this->toegangGeweigerd();
+				}
+			}
+
+			// De toegang voor de installer
+			if (isset($installer_account))
+			{
+				if (($username == $installer_account['username']) && (sha1($password) == $installer_account['password']))
+				{	
+					Debug(__FILE__, __LINE__, sprintf("helios installer account = true", $username));
+
+					$this->setSessionUser($installer_account['id']);
+					$_SESSION['isInstaller']= true;
+					return;
+				}
+				Debug(__FILE__, __LINE__, "helios account = false");
+			}			
+
+			// Kijken of we toegang kunnen geven
+			$l = MaakObject('Leden');
+
+			try 
+			{ 
+				$lObj = $l->GetObjectByLoginNaam($username); 
+				Debug(__FILE__, __LINE__, sprintf("Login(%s) = %s, LIDTYPE_ID=%s", $username, $lObj["NAAM"], $lObj['LIDTYPE_ID']));
+			}
+			catch(Exception $exception) 
+			{
+				Debug(__FILE__, __LINE__, "Login: " .$exception);
+				$this->toegangGeweigerd();	
+			}
+
+			if (($lObj['AUTH'] == "1") && (empty($token)))
+				throw new Exception("401;Sleutel moet ingevoerd worden;");
+				
+			$key = sha1(strtolower ($username) . $password);
+			Debug(__FILE__, __LINE__, sprintf("Login(%s)[%s] = %s, %s %s %s", 	$username, 
+																				$lObj["AUTH"], 
+																				$lObj["NAAM"], 
+																				$lObj['WACHTWOORD'], 
+																				$key, 
+																				$lObj['SECRET']));
+			if ($lObj['WACHTWOORD'] == $key)	
+			{		
+				Debug(__FILE__, __LINE__, sprintf("Toegang toegestaan (%s)", $username));	
+
+				if ($lObj['AUTH'] == "1")		// 2 factor authenticatie
+				{
+					$ga = new PHPGangsta_GoogleAuthenticator();
+					$checkResult = $ga->verifyCode($lObj['SECRET'], $token, 2);    // 2 = 2*30sec clock tolerance
+
+					if ($checkResult) 
 					{
-						if ($_SERVER['REMOTE_ADDR'] == $client)
-						{
-							$this->setSessionUser('strip');
-							Debug(__FILE__, __LINE__, "strip");						
-							return;
-						}		
-					}
-					elseif (count($network) == 2)
-					{
-						if (CheckCIDR($_SERVER['REMOTE_ADDR'], $client))
-						{
-							$this->setSessionUser('strip');	
-							Debug(__FILE__, __LINE__, "2/strip");	
-							return;						
-						}						
+						Debug(__FILE__, __LINE__, sprintf("2 Factor succesvol"));	
+						$this->setSessionUser($lObj['ID']);	
+						return;
 					}
 					else
 					{
-						Debug(__FILE__, __LINE__, "Config error, NoPasswordIP");
-						error_log("Config error, NoPasswordIP");
+						Debug(__FILE__, __LINE__, sprintf("2 Factor gefaalt"));	
 					}
+
+				}
+				else
+				{
+					$this->setSessionUser($lObj['ID']);	
+					return;
 				}
 			}
-			$this->toegangGeweigerd();		
-		}
+			else if ($lObj['LIDTYPE_ID'] == "625")			// 625 = DDWV
+			{
+				$phpass = new PasswordHash(10, true);
+				$ok= $phpass->CheckPassword($password, $lObj['WACHTWOORD']);
+				
+				if ($ok == true) 
+				{
+					Debug(__FILE__, __LINE__, sprintf("Toegang toegestaan DDWV (%s)", $username));	
+					$this->setSessionUser($lObj['ID']);	
+					return;							
+				}
+			}
+			
+			// Heeft geen toegang, dus einde
+			Debug(__FILE__, __LINE__, sprintf("Toegang geweigerd (%s)", $username));
+			$this->toegangGeweigerd();				
+		}		
 		
 		function magSchrijven()
 		{			
@@ -224,11 +294,18 @@ require ("include/PasswordHash.php");
 
 			// als er userInfo niet gezet is, gaan we opnieuw voor de veilige oplossing
 			if (property_exists($ui, 'Userinfo') === false)
+			{
+				Debug(__FILE__, __LINE__, sprintf("sessiePermissie(%s) UserInfo BESTAAT NIET", $key)); 
 				return false;
+			}
 			
+			// De key die we zoeken bestaat niet, dus helaas	
 			if (property_exists($ui->Userinfo, $key) === false)
+			{
+				Debug(__FILE__, __LINE__, sprintf("sessiePermissie(%s) BESTAAT NIET IN UserInfo", $key)); 
 				return false;	
-
+			}
+	
 			if (($ui->Userinfo->$key) || ($ui->Userinfo->$key == 1))
 				return true;
 
@@ -289,7 +366,7 @@ require ("include/PasswordHash.php");
 		{				
 			if (array_key_exists('isInstaller', $_SESSION) === false)
 				return false;
-
+	
 			return $_SESSION['isInstaller'];
 		}		
 			
@@ -297,103 +374,5 @@ require ("include/PasswordHash.php");
 		{
 			throw new Exception("401;Toegang geweigerd;");
 		}
-		
-		function verkrijgToegang($username=null, $password=null, $token=null)
-		{		
-			global $app_settings;
-			global $installer_account;
-			
-			Debug(__FILE__, __LINE__, sprintf("verkrijgToegang(%s, %s, %s)", $username, "??", $token)); 
-			
-			if (($username == null) || ($password == null))
-			{				
-				if ((array_key_exists('USERNAME', $this->Data)) && (array_key_exists('PASSWORD', $this->Data)))
-				{
-					$username = $this->Data['USERNAME'];
-					$password = $this->Data['PASSWORD'];
-					
-					Debug(__FILE__, __LINE__, sprintf("username = %s", $username));
-				}
-				else
-				{
-					Debug(__FILE__, __LINE__, sprintf("Toegang geweigerd, geen username bekend", $username));
-					$this->toegangGeweigerd();
-				}
-			}
-
-			if (isset($installer_account))
-			{
-				if (($username == $installer_account['username']) && (sha1($password) == $installer_account['password']))
-				{	
-					Debug(__FILE__, __LINE__, sprintf("helios installer account = true", $username));
-
-					$this->setSessionUser($installer_account['id']);
-					$_SESSION['isInstaller']= true;
-					return;
-				}
-				Debug(__FILE__, __LINE__, "helios account = false");
-			}
-						
-			$l = MaakObject('Leden');
-
-			try 
-			{ 
-				$lObj = $l->GetObjectByLoginNaam($username); 
-				Debug(__FILE__, __LINE__, sprintf("Login(%s) = %s, LIDTYPE_ID=%s", $username, $lObj["NAAM"], $lObj['LIDTYPE_ID']));
-			}
-			catch(Exception $exception) 
-			{
-				Debug(__FILE__, __LINE__, "Login: " .$exception);
-				$this->toegangGeweigerd();	
-			}
-
-			if (($lObj['AUTH'] == "1") && (empty($token)))
-				throw new Exception("401;Sleutel moet ingevoerd worden;");
-				
-			$key = sha1(strtolower ($username) . $password);
-			Debug(__FILE__, __LINE__, sprintf("Login(%s)[%s] = %s, %s %s %s", $username, $lObj["AUTH"], $lObj["NAAM"], $lObj['WACHTWOORD'], $key, $lObj['SECRET']));
-			if ($lObj['WACHTWOORD'] == $key)	
-			{		
-				Debug(__FILE__, __LINE__, sprintf("Toegang toegestaan (%s)", $username));	
-
-				if ($lObj['AUTH'] == "1")		// 2 factor authenticatie
-				{
-					$ga = new PHPGangsta_GoogleAuthenticator();
-					$checkResult = $ga->verifyCode($lObj['SECRET'], $token, 2);    // 2 = 2*30sec clock tolerance
-
-					if ($checkResult) 
-					{
-						Debug(__FILE__, __LINE__, sprintf("2 Factor succesvol"));	
-						$this->setSessionUser($lObj['ID']);	
-						return;
-					}
-					else
-					{
-						Debug(__FILE__, __LINE__, sprintf("2 Factor gefaalt"));	
-					}
-
-				}
-				else
-				{
-					$this->setSessionUser($lObj['ID']);	
-					return;
-				}
-			}
-			else if ($lObj['LIDTYPE_ID'] == "625")			// 625 = DDWV
-			{
-				$phpass = new PasswordHash(10, true);
-				$ok= $phpass->CheckPassword($password, $lObj['WACHTWOORD']);
-				
-				if ($ok == true) 
-				{
-					Debug(__FILE__, __LINE__, sprintf("Toegang toegestaan DDWV (%s)", $username));	
-					$this->setSessionUser($lObj['ID']);	
-					return;							
-				}
-			}
-			
-			Debug(__FILE__, __LINE__, sprintf("Toegang geweigerd (%s)", $username));
-			$this->toegangGeweigerd();				
-		}	
 	}
 ?>

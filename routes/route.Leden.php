@@ -5,6 +5,8 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
 
+use Slim\Http\UploadedFile;
+
 /*
 Aanmaken van de database tabel. Indien FILLDATA == true, dan worden er ook voorbeeld records toegevoegd 
 */
@@ -227,7 +229,12 @@ $app->post('/Leden/UploadAvatar', function (Request $request, Response $response
         $params = $request->getParsedBody();
         $uploadedFiles = $request->getUploadedFiles();
 
-        $avatar_url = $obj->UploadAvatar($params['ID'], $uploadedFiles['FILE']);    // Hier staat de logica voor deze functie
+        $file = $uploadedFiles['FILE'];
+        if ($file->getError() !== UPLOAD_ERR_OK) {
+            Debug(__FILE__, __LINE__, "Leden.UploadAvatar upload mislukt");
+            throw new Exception("500;Upload mislukt;");		
+        }
+        $avatar_url = $obj->UploadAvatar($params['ID'], $file);    // Hier staat de logica voor deze functie
         $response->getBody()->write(json_encode($avatar_url));
         return $response->withHeader('Content-Type', 'application/json');
     }

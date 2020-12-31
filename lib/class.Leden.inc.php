@@ -1,5 +1,5 @@
 <?php
-	class Leden extends StartAdmin
+	class Leden extends Helios
 	{
 		function __construct() 
 		{
@@ -120,7 +120,7 @@
 				parent::DbUitvoeren($query);
 
 				// toevoegen zusterclub
-				$query = sprintf("UPDATE `%s` SET `ZUSTERCLUB_ID` = 2 WHERE ID = 10115", $this->dbTable);
+				$query = sprintf("UPDATE `%s` SET `ZUSTERCLUB_ID` = 2 WHERE ID IN (10115, 10855)", $this->dbTable);
 				parent::DbUitvoeren($query);
 
 				// voeg login informatie toe om te kunnen testen
@@ -457,7 +457,7 @@
 				parent::DbOpvraag($rquery, $query_params);
 				$retVal['dataset'] = parent::DbData();
 
-				for ($i = 0; $i < count($retVal['dataset']) ; $i++) 
+				for ($i=0; $i < count($retVal['dataset']) ; $i++) 
 				{
 					// privacy maskering
 					$retVal['dataset'][$i] = $this->privacyMask($retVal['dataset'][$i]);	
@@ -685,11 +685,6 @@
 			
 			// geeft een exceptie als id niet bestaat
 			$lid = $this->GetObject($id);
-
-			if ($file->getError() !== UPLOAD_ERR_OK) {
-				Debug(__FILE__, __LINE__, "Leden.UploadAvatar upload mislukt");
-				throw new Exception("500;Upload mislukt;");		
-			}
 
 			$upload_dir = "avatars";
 			$ext_type = array('gif','jpg','jpe','jpeg','png');

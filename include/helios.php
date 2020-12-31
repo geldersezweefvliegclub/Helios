@@ -1,7 +1,7 @@
 <?php
 
 // Dit is de base class waar alles van afgeleid wordt
-abstract class StartAdmin
+abstract class Helios
 {
 	public $qParams = array();
 	public $Data = array();
@@ -98,9 +98,9 @@ abstract class StartAdmin
 		{
 			if (strpos($IDs, ',') !== false)
 			{
-				$list = explode(",", $ID);
 				foreach($list as $i)
 				{
+					Debug(__FILE__, __LINE__, sprintf(">>'%s'<<", $i));	
 					if ($this->bestaatID($i) == false)
 						throw new Exception(sprintf("404;Record met ID=%s niet gevonden;", $i));	 	
 				}
@@ -125,7 +125,7 @@ abstract class StartAdmin
 	
 		if (strpos($IDs, ',') !== false)
 		{
-			$list = explode(",", $ID);
+			$list = explode(",", $IDs);
 			foreach($list as $i)
 			{
 				if ($this->bestaatID($i) == false)
@@ -197,28 +197,24 @@ abstract class StartAdmin
 	function DbUitvoeren($query)
 	{
 		global $db;
-		
 		return $db->DbUitvoeren($query);
 	}
 	
 	function DbData()
 	{
 		global $db;
-		
 		return $db->data_retrieved;
 	}
 	
 	function DbOpvraag($query, $params = null)
 	{
 		global $db;	
-		
 		return $db->DbOpvraag($query, $params);
 	}
 	
 	function NumRows()
 	{
 		global $db;	
-		
 		return $db->rows;
 	}
 

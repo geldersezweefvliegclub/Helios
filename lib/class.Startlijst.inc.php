@@ -1,5 +1,5 @@
 <?php
-	class Startlijst extends StartAdmin
+	class Startlijst extends Helios
 	{
 		function __construct() 
 		{
@@ -59,63 +59,63 @@
 			if (isset($FillData))
 			{
 				$inject = array(
-					"'1',  	 '@@@@+0', '1', '200', '10:12:00', '10:27:00', '550', '10858',  NULL  , NULL,NULL,NULL",
-					"'2',  	 '@@@@+0', '2', '218', '11:59:00', '13:07:00', '550', '10858',  NULL  , NULL,NULL,NULL",
-					"'3',  	 '@@@@+0', '3', '211', '14:21:00', '14:30:00', '550', '10858',  NULL  , NULL,NULL,NULL",
+					"'1',  	 '@@@@+0', '1', '200', '10:12:00', '10:27:00', '550', '10858',  NULL  , NULL,NULL,'Vorig jaar'",
+					"'2',  	 '@@@@+0', '2', '218', '11:59:00', '13:07:00', '550', '10858',  NULL  , NULL,NULL,'Vorig jaar'",
+					"'3',  	 '@@@@+0', '3', '211', '14:21:00', '14:30:00', '550', '10858',  NULL  , NULL,NULL,'Vorig jaar'",
 
-					"'4',  	 '@@@@+2', '1', '201', '14:59:00', '15:12:00', '550', '10858',  NULL  , NULL,NULL,NULL",
-					"'5',  	 '@@@@+2', '2', '200', '17:02:00', '17:53:00', '550', '10858',  NULL  , NULL,NULL,NULL",
+					"'4',  	 '@@@@+2', '1', '201', '14:59:00', '15:12:00', '550', '10858',  NULL  , NULL,NULL,'Vorig jaar'",
+					"'5',  	 '@@@@+2', '2', '200', '17:02:00', '17:53:00', '550', '10858',  NULL  , NULL,NULL,'Vorig jaar'",
 
-					"'6',  	 '@@@@+3', '1', '211', '12:07:00', '12:34:00', '550', '10858',  NULL  , NULL,NULL,NULL",
-					"'7',  	 '@@@@+3', '2', '200', '14:50:00', '18:15:00', '550', '10858',  NULL  , NULL,NULL,NULL",
+					"'6',  	 '@@@@+3', '1', '211', '12:07:00', '12:34:00', '550', '10858',  NULL  , NULL,NULL,'Vorig jaar'",
+					"'7',  	 '@@@@+3', '2', '200', '14:50:00', '18:15:00', '550', '10858',  NULL  , NULL,NULL,'Vorig jaar'",
 
-					"'8',  	 '@@@@+4', '1', '217', '10:12:00', '18:45:00', '550', '10858',  NULL  , NULL,NULL,NULL",
+					"'8',  	 '@@@@+4', '1', '217', '10:12:00', '18:45:00', '550', '10858',  NULL  , NULL,NULL,'Vorig jaar'",
 
-					"'9',  	 '@@@@+5', '1', '200', '10:42:00', '11:27:00', '550', '10858',  NULL  , NULL,NULL,NULL",
-					"'10', 	 '@@@@+5', '2', '200', '11:32:00', '11:36:00', '550', '10858',  NULL  , NULL,NULL,NULL",
-					"'11',   '@@@@+5', '3', '200', '12:21:00', '12:45:00', '550', '10858',  NULL  , NULL,NULL,NULL",
-					"'12',   '@@@@+5', '4', '200', '13:59:00', '14:54:00', '550', '10858',  NULL  , NULL,NULL,NULL",
+					"'9',  	 '@@@@+5', '1', '200', '10:42:00', '11:27:00', '550', '10858',  NULL  , NULL,NULL,'Vorig jaar'",
+					"'10', 	 '@@@@+5', '2', '200', '11:32:00', '11:36:00', '550', '10858',  NULL  , NULL,NULL,'Vorig jaar'",
+					"'11',   '@@@@+5', '3', '200', '12:21:00', '12:45:00', '550', '10858',  NULL  , NULL,NULL,'Vorig jaar'",
+					"'12',   '@@@@+5', '4', '200', '13:59:00', '14:54:00', '550', '10858',  NULL  , NULL,NULL,'Vorig jaar'",
 
-					"'13',   '@@@@+6', '1', '200', '13:07:00', '18:01:00', '550', '10858',  NULL  , NULL,NULL,NULL",
+					"'13',   '@@@@+6', '1', '200', '13:07:00', '18:01:00', '550', '10858',  NULL  , NULL,NULL,'Vorig jaar'",
 
-					"'14',   '@@@@+7', '1', '200', '10:22:00', '11:27:00', '550', '10858',  NULL  , NULL,NULL,NULL",
-					"'15', 	 '@@@@+7', '2', '200', '12:31:00', '14:38:00', '550', '10858',  NULL  , NULL,NULL,NULL",
-					"'16',   '@@@@+7', '3', '200', '15:41:00', '15:55:00', '550', '10858',  NULL  , NULL,NULL,NULL",
-					"'17',   '@@@@+7', '4', '200', '16:59:00', '17:04:00', '550', '10858',  NULL  , NULL,NULL,NULL",
+					"'14',   '@@@@+7', '1', '200', '10:22:00', '11:27:00', '550', '10858',  NULL  , NULL,NULL,'Vorig jaar'",
+					"'15', 	 '@@@@+7', '2', '200', '12:31:00', '14:38:00', '550', '10858',  NULL  , NULL,NULL,'Vorig jaar'",
+					"'16',   '@@@@+7', '3', '200', '15:41:00', '15:55:00', '550', '10858',  NULL  , NULL,NULL,'Vorig jaar'",
+					"'17',   '@@@@+7', '4', '200', '16:59:00', '17:04:00', '550', '10858',  NULL  , NULL,NULL,'Vorig jaar'",
 
-					"'20',   '****', '1', '200', '08:22:00', '09:27:00', '550', '10858',  NULL  , NULL,NULL,NULL",
-					"'21', 	 '****', '2', '200', '10:51:00', '14:38:00', '550', '10858',  NULL  , NULL,NULL,NULL",
-					"'22',   '****', '3', '200', '14:48:00', '15:55:00', '550', '10858',  NULL  , NULL,NULL,NULL",
-					"'23',   '****', '4', '200', '16:59:00', '17:04:00', '550', '10858',  NULL  , NULL,NULL,NULL",					
+					"'20',   '****', '1', '200', '08:22:00', '09:27:00', '550', '10858',  NULL  , NULL,NULL,'< 3 maanden geleden'",
+					"'21', 	 '****', '2', '200', '10:51:00', '14:38:00', '550', '10858',  NULL  , NULL,NULL,'< 3 maanden geleden'",
+					"'22',   '****', '3', '200', '14:48:00', '15:55:00', '550', '10858',  NULL  , NULL,NULL,'< 3 maanden geleden'",
+					"'23',   '****', '4', '200', '16:59:00', '17:04:00', '550', '10858',  NULL  , NULL,NULL,'< 3 maanden geleden'",					
 
-                    "'30',   '####-05-01', '1', '200', '10:02:00', '10:09:00', '550', '10265', '10115', NULL,NULL,NULL",
-                    "'31',   '####-05-01', '2', '201', '10:29:00', '10:40:00', '550', '10265',  NULL  , NULL,NULL,NULL",
-                    "'32',   '####-05-01', '3', '200', '10:25:00', '10:35:00', '550', '10115', '10265', NULL,NULL,NULL",
-                    "'33',   '####-05-01', '4', '200', '10:59:00', '11:12:00', '550', '10855', '10115', NULL,NULL,NULL",
-                    "'34',   '####-05-01', '5', '208', '12:02:00', '12:22:00', '550', '10855', '10265', NULL,NULL,NULL",
-                    "'35',   '####-05-01', '6', '211', '16:00:00', '17:30:00', '550', '10855',  NULL  , NULL,NULL,NULL",
-                    "'36',   '####-05-01', '7', '200', '19:04:00',  NULL     , '550', '10265', '10855', NULL,NULL,NULL",
-                    "'37',   '####-05-01', '8', '211', '11:45:00', '19:20:00', '550', '10115',  NULL  , NULL,NULL,NULL",
+                    "'30',   '####-05-01', '1', '200', '10:02:00', '10:09:00', '550', '10265', '10115', NULL,NULL,'####-05'",
+                    "'31',   '####-05-01', '2', '201', '10:29:00', '10:40:00', '550', '10265',  NULL  , NULL,NULL,'####-05'",
+                    "'32',   '####-05-01', '3', '200', '10:25:00', '10:35:00', '550', '10115', '10265', NULL,NULL,'####-05'",
+                    "'33',   '####-05-01', '4', '200', '10:59:00', '11:12:00', '550', '10855', '10115', NULL,NULL,'####-05'",
+                    "'34',   '####-05-01', '5', '208', '12:02:00', '12:22:00', '550', '10855', '10265', NULL,NULL,'####-05'",
+                    "'35',   '####-05-01', '6', '211', '16:00:00', '17:30:00', '550', '10855',  NULL  , NULL,NULL,'####-05'",
+                    "'36',   '####-05-01', '7', '200', '19:04:00',  NULL     , '550', '10265', '10855', NULL,NULL,'####-05'",
+                    "'37',   '####-05-01', '8', '211', '11:45:00', '19:20:00', '550', '10115',  NULL  , NULL,NULL,'####-05'",
 
-                    "'40',  '####-05-02', '1', '211', '13:22:00', '14:00:00', '550', '10001',  NULL  , NULL,NULL,NULL",
-                    "'41',  '####-05-02', '2', '218', '10:27:00', '11:35:00', '550', '10001', '10470', NULL,NULL,NULL",
-                    "'42',  '####-05-02', '3', '218', '13:33:00', '17:42:00', '550', '10470',  NULL  , NULL,NULL,NULL",
-                    "'43',  '####-05-02', '4', '211', '11:30:00', '11:39:00', '550',  NULL  ,  NULL  , NULL,NULL,NULL",
+                    "'40',  '####-05-02', '1', '211', '13:22:00', '14:00:00', '550', '10001',  NULL  , NULL,NULL,'####-05'",
+                    "'41',  '####-05-02', '2', '218', '10:27:00', '11:35:00', '550', '10001', '10470', NULL,NULL,'####-05'",
+                    "'42',  '####-05-02', '3', '218', '13:33:00', '17:42:00', '550', '10470',  NULL  , NULL,NULL,'####-05'",
+                    "'43',  '####-05-02', '4', '211', '11:30:00', '11:39:00', '550',  NULL  ,  NULL  , NULL,NULL,'####-05'",
 
-                    "'50',  '####-05-03', '1', '217', '11:58:00', '12:04:00', '550', '10213',  NULL  , NULL,NULL, 'chute ging open vlieger ontkoppeld'",
-                    "'51',  '####-05-03', '2', '215', '11:45:00', '17:46:00', '550', '10213',  NULL  , NULL,NULL, NULL",
+                    "'50',  '####-05-03', '1', '217', '11:58:00', '12:04:00', '550', '10213',  NULL  , NULL,NULL, '####-05 chute ging open vlieger ontkoppeld'",
+                    "'51',  '####-05-03', '2', '215', '11:45:00', '17:46:00', '550', '10213',  NULL  , NULL,NULL, '####-05'",
                     
-                    "'60',  '####-05-04', '1', '201', '10:00:00', '11:10:00', '550', '10063',  NULL  , NULL,NULL,NULL",
-                    "'61',  '####-05-04', '2', '201', '12:02:00', '12:08:00', '550', '10063',  NULL  , NULL,NULL,NULL",
-                    "'62',  '####-05-04', '3', '200', '12:16:00', '14:27:00', '550', '10858',  NULL  , NULL,NULL,NULL",
-                    "'63',  '####-05-04', '4', '216', '12:28:00', '12:32:00', '550', '10632',  NULL  , NULL,NULL,NULL",
-                    "'64',  '####-05-04', '5', '201', '14:22:00', '14:30:00', '550', '10063',  NULL  , NULL,NULL,NULL",
+                    "'60',  '####-05-04', '1', '201', '10:00:00', '11:10:00', '550', '10063',  NULL  , NULL,NULL,'####-05'",
+                    "'61',  '####-05-04', '2', '201', '12:02:00', '12:08:00', '550', '10063',  NULL  , NULL,NULL,'####-05'",
+                    "'62',  '####-05-04', '3', '200', '12:16:00', '14:27:00', '550', '10858',  NULL  , NULL,NULL,'####-05'",
+                    "'63',  '####-05-04', '4', '216', '12:28:00', '12:32:00', '550', '10632',  NULL  , NULL,NULL,'####-05'",
+                    "'64',  '####-05-04', '5', '201', '14:22:00', '14:30:00', '550', '10063',  NULL  , NULL,NULL,'####-05'",
                     "'65',  '####-05-04', '6', '201', '15:25:00', '15:42:00', '550', '10063',  NULL  , NULL,NULL,NULL",
-                    "'66',  '####-05-04', '7', '200',  NULL     ,  NULL     , '550',  NULL  , '10858', 'Marius de Bok' ,NULL,NULL",
-                    "'67',  '####-05-04', '8', '200',  NULL     ,  NULL     , '550',  NULL  ,  NULL  , 'Orm de Aap', 'Mister Maraboe',NULL");
+                    "'66',  '####-05-04', '7', '200',  NULL     ,  NULL     , '550',  NULL  , '10858', 'Marius de Bok' ,NULL,'####-05'",
+                    "'67',  '####-05-04', '8', '200',  NULL     ,  NULL     , '550',  NULL  ,  NULL  , 'Orm de Aap', 'Mister Maraboe','####-05'");
 
 
-				// Starts in vorig jaar (niet fool proof, gaat niet lekker eind december)
+				
 				$date = new DateTime();			// vandaag
 				$date->modify('-364 day');		// 1 jaar geleden (52*7)
 				$inject = str_replace("@@@@+0", date_format($date, 'Y-m-d'), $inject);	
@@ -134,9 +134,10 @@
 				$date->modify('+1 day');		// 1 jaar geleden + 7 dagen
 				$inject = str_replace("@@@@+7", date_format($date, 'Y-m-d'), $inject);												
 				
-				// Starts in laatste 3 maanden (niet fool proof, data integriteit, dagnummers, klopt niet begin mei)
-				$date = new DateTime();		// vandaag
-				$date->modify('-42 day');	// 1,5 maand geleden (6*7)
+				$date = new DateTime();			// vandaag
+				if ($date->format("m") == "5")	// Mei is ongelukkige maand, we hebben dan namelijk al test data
+					$date->modify('-42 day');	// 1,5 maand geleden (6*7), zitten nog binnen de 3 maanden (recency) van huidige datum
+				
 				$inject = str_replace("****", date_format($date, 'Y-m-d'), $inject);	
 
 				// Starts in dit jaar
@@ -357,7 +358,7 @@
 						{
 							$beginDatum = isDATE($value, "BEGIN_DATUM");
 
-							$where .= " AND DATUM >= ? ";
+							$where .= " AND DATE(DATUM) >= ? ";
 							array_push($query_params, $beginDatum);
 
 							Debug(__FILE__, __LINE__, sprintf("%s: BEGIN_DATUM='%s'", $functie, $beginDatum));
@@ -367,7 +368,7 @@
 						{
 							$eindDatum = isDATE($value, "EIND_DATUM");
 
-							$where .= " AND DATUM <= ? ";
+							$where .= " AND DATE(DATUM) <= ? ";
 							array_push($query_params, $eindDatum);
 
 							Debug(__FILE__, __LINE__, sprintf("%s: EIND_DATUM='%s'", $functie, $eindDatum));
@@ -537,7 +538,7 @@
 						{
 							$beginDatum = isDATE($value, "BEGIN_DATUM");
 
-							$where .= " AND DATUM >= ? ";
+							$where .= " AND DATE(DATUM) >= ? ";
 							array_push($query_params, $beginDatum);
 
 							Debug(__FILE__, __LINE__, sprintf("%s: BEGIN_DATUM='%s'", $functie, $beginDatum));
@@ -547,7 +548,7 @@
 						{
 							$eindDatum = isDATE($value, "EIND_DATUM");
 
-							$where .= " AND DATUM <= ? ";
+							$where .= " AND DATE(DATUM) <= ? ";
 							array_push($query_params, $eindDatum);
 
 							Debug(__FILE__, __LINE__, sprintf("%s: EIND_DATUM='%s'", $functie, $eindDatum));
@@ -586,9 +587,9 @@
 						{
 							$jaar = isINT($value, "JAAR");
 							
-							$where .= " AND DATUM >= ? ";
+							$where .= " AND DATE(DATUM) >= ? ";
 							array_push($query_params, "$jaar-01-01");
-							$where .= " AND DATUM <= ? ";
+							$where .= " AND DATE(DATUM) <= ? ";
 							array_push($query_params, "$jaar-12-31");
 							
 							Debug(__FILE__, __LINE__, sprintf("%s: JAAR='%s'", $functie, $jaar));
@@ -717,7 +718,7 @@
 						{
 							$beginDatum = isDATE($value, "BEGIN_DATUM");
 
-							$where .= " AND DATUM >= ? ";
+							$where .= " AND DATE(DATUM) >= ? ";
 							array_push($query_params, $beginDatum);
 
 							Debug(__FILE__, __LINE__, sprintf("%s: BEGIN_DATUM='%s'", $functie, $beginDatum));
@@ -727,7 +728,7 @@
 						{
 							$eindDatum = isDATE($value, "EIND_DATUM");
 
-							$where .= " AND DATUM <= ? ";
+							$where .= " AND DATE(DATUM) <= ? ";
 							array_push($query_params, $eindDatum);
 
 							Debug(__FILE__, __LINE__, sprintf("%s: EIND_DATUM='%s'", $functie, $eindDatum));
@@ -856,6 +857,12 @@
 				// $rquery = sprintf($query, $velden);
 				parent::DbOpvraag($query, $query_params);
 				$retVal['dataset'] = parent::DbData();
+
+				for ($i=0; $i < count($retVal['dataset']); $i++)
+				{
+					if (!is_null($retVal['dataset'][$i]['VLIEGTIJD']))
+						$retVal['dataset'][$i]['VLIEGTIJD'] = substr($retVal['dataset'][$i]['VLIEGTIJD'] , 0, 5);	// alleen hh:mm
+				}
 			}
 			return $retVal;
 		}	
@@ -944,7 +951,7 @@
 							STARTTIJD IS NOT NULL	AND						
 							VLIEGTUIG_ID = %s 		AND 
 							VLIEGER_ID = %s 		AND 
-							STR_TO_DATE(DATUM, '%%Y-%%m-%%d'), NOW()- INTERVAL 6 MONTH", $vliegtuigID, $l->getUserFromSession());
+							STR_TO_DATE(DATUM, '%%Y-%%m-%%d') > NOW()- INTERVAL 6 MONTH", $vliegtuigID, $l->getUserFromSession());
 			
 				parent::DbOpvraag($query);
 				$vluchten = parent::DbData();
@@ -1067,7 +1074,9 @@
 					$totalen['VLIEGTIJD'] = sprintf("%02d:%02d:%02d", $uren, $min, $sec);
 				}
 				$retVal['dataset'] = array_values($maanden);
+				$retVal['totaal'] = count($maanden);
 				$retVal['totalen'] = $totalen;
+				
 			}
 			return $retVal;
 		}	
@@ -1222,7 +1231,7 @@
 			$retVal['UREN_BAROMETER'] = 0; 	
 
 			$where = sprintf("DATUM > '%d-01-01' AND STARTTIJD IS NOT NULL AND LANDINGSTIJD IS NOT NULL AND ", Date("Y")-1);
-			$where .= sprintf("(VLIEGER_ID = %s OR INZITTENDE_ID = %s)", $vliegerID, $vliegerID);
+			$where .= sprintf("(VLIEGER_ID = %s)", $vliegerID);
 
 			$query = "
 				SELECT
@@ -1300,9 +1309,12 @@
 			Debug(__FILE__, __LINE__, sprintf("Startlijst.Vliegdagen(%s)", print_r($params, true)));
 
 			$where = ' WHERE 1=1 ';
-			$orderby = "";
-			$limit = 10;
+			$orderby = "ORDER BY DATUM";
+			$beginDatum = null;
+			$eindDatum = null;
+			$limit = -1;
 			$start = -1;
+			$lidID = null;
 			$query_params = array();
 
 			// Als ingelogde gebruiker geen bijzonder functie heeft, worden alleen zijn vliegdagen opgehaald
@@ -1310,10 +1322,10 @@
 
 			if ($l->isBeheerderDDWV())
 			{
-				$condition .= " AND (((d.DDWV = 1) OR (r.DDWV = 1)) ";
+				$condition .= " AND ((DDWV = 1)";
 				$condition .= sprintf(" OR ((VLIEGER_ID = '%d') OR (INZITTENDE_ID = '%d')))", $l->getUserFromSession(), $l->getUserFromSession());				
 			}
-			else if (!$l->isBeheerder())
+			else if ((!$l->isBeheerder()) && (!$l->isInstructeur()))
 			{
 				$condition .= sprintf(" AND ((VLIEGER_ID = '%d') OR (INZITTENDE_ID = '%d'))", $l->getUserFromSession(), $l->getUserFromSession());
 			}
@@ -1326,12 +1338,9 @@
 						{
 							if (strpos($value,';') !== false)
 								throw new Exception("405;SORT is onjuist;");
-							
-							// help om juiste tabel teh sorteren	
-							if (substr($value, 0, 2) != "s.")
-								$value = "s." . $value;
-
+						
 							$orderby = sprintf(" ORDER BY %s ", $value);
+							
 							Debug(__FILE__, __LINE__, sprintf("%s: SORT='%s'", $functie, $value));
 							break;
 						}
@@ -1350,7 +1359,7 @@
 						{
 							$beginDatum = isDATE($value, "BEGIN_DATUM");
 
-							$where .= " AND s.DATUM >= ? ";
+							$where .= " AND DATE(DATUM) >= ? ";
 							array_push($query_params, $beginDatum);
 
 							Debug(__FILE__, __LINE__, sprintf("%s: BEGIN_DATUM='%s'", $functie, $beginDatum));
@@ -1360,8 +1369,7 @@
 						{
 							$eindDatum = isDATE($value, "EIND_DATUM");
 
-							$where .= " AND s.DATUM <= ? ";
-
+							$where .= " AND DATE(DATUM) <= ? ";
 							array_push($query_params, $eindDatum);
 
 							Debug(__FILE__, __LINE__, sprintf("%s: EIND_DATUM='%s'", $functie, $eindDatum));
@@ -1383,19 +1391,28 @@
 						}								  																																
 				}
 			}
-				
+			
+
+			if ((is_null($beginDatum)) && (is_null($eindDatum)))
+			{
+				$where .= " AND DATE(DATUM) >= ? ";
+				array_push($query_params, date("Y") . "-01-01");
+				$where .= " AND DATE(DATUM) <= ? ";
+				array_push($query_params, date("Y") . "-12-31");
+			}
+
 			$query = "
 				SELECT 
 					%s 
 				FROM
-					`oper_startlijst` AS s LEFT JOIN 
-					`oper_daginfo` AS d ON s.datum = d.datum LEFT JOIN 
-					`oper_rooster` AS r ON s.datum = r.datum" . $where . " GROUP BY s.datum " . $orderby;
-			
+					`startlijst_view` " . $where . " GROUP BY DATUM " . $orderby;
+
+			$velden = "DATUM, COUNT(*) AS STARTS, SEC_TO_TIME(SUM(TIME_TO_SEC(STR_TO_DATE(DUUR, '%H:%i') ))) AS VLIEGTIJD";		
+
 			$retVal = array();
 
 			$retVal['totaal'] = $this->Count("SELECT COUNT(*) AS totaal FROM (" . $query . ") AS d", $query_params);		// wijkt af ivm de GROUP BY die opgenomen is in de query
-			$retVal['laatste_aanpassing']=  $this->LaatsteAanpassing($query, $query_params, "s.LAATSTE_AANPASSING");
+			$retVal['laatste_aanpassing']=  $this->LaatsteAanpassing($query, $query_params);
 			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s", $retVal['totaal'], $retVal['laatste_aanpassing']));	
 
 			if ($alleenLaatsteAanpassing)
@@ -1408,10 +1425,15 @@
 				if ($limit > 0)
 					$query .= sprintf(" LIMIT 0 , %d ", $limit);
 							
-				$rquery = sprintf($query, "s.DATUM");
+				$rquery = sprintf($query, $velden);
 				parent::DbOpvraag($rquery, $query_params);
 				$retVal['dataset'] = parent::DbData();
 
+				for ($i=0; $i < count($retVal['dataset']); $i++)
+				{
+					if (!is_null($retVal['dataset'][$i]['VLIEGTIJD']))
+						$retVal['dataset'][$i]['VLIEGTIJD'] = substr($retVal['dataset'][$i]['VLIEGTIJD'] , 0, 5);	// alleen hh:mm
+				}
 				return $retVal;
 			}
 			return null;  // Hier komen we nooit :-)

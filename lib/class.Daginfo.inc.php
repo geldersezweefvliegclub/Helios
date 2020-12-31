@@ -1,5 +1,5 @@
 <?php
-	class Daginfo extends StartAdmin
+	class Daginfo extends Helios
 	{
 		function __construct() 
 		{
@@ -314,7 +314,7 @@
 			
 			if ($id != null)
 			{
-				isCSV($ID, "ID");
+				isCSV($id, "ID");
 			}
 			else
 			{

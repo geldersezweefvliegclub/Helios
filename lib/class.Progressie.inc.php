@@ -1,5 +1,5 @@
 <?php
-	class Progressie extends StartAdmin
+	class Progressie extends Helios
 	{
 		function __construct() 
 		{
@@ -386,10 +386,10 @@
 			if ($l->magSchrijven() == false)
 				throw new Exception("401;Geen schrijfrechten;");
 
-			if ($ID === null)
+			if ($id === null)
 				throw new Exception("406;Geen ID in aanroep;");
 			
-			isINT($id, "ID");								
+			isCSV($id, "ID");								
 			parent::MarkeerAlsVerwijderd($id, $verificatie);	
 		}		
 

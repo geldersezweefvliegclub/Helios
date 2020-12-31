@@ -8,7 +8,7 @@ $db_info = array(
 	'dbPassword' => 'rootroot'
 );
 
-
+/* Voor de toekomst
 $smtp_settings = array (
 	 'smtpuser' => 'user@gmail.com', 
 	 'smtppass' => '<<password >>',
@@ -17,11 +17,12 @@ $smtp_settings = array (
 	 'smtpport' => '587',
 	 'from' => 'from@gmail.com'
 );
+*/
 
 $app_settings = array(
-	'DbLogging' => true,			// Log database queries naar logfile
-	'DbError' => true,				// Log errors naar logfile
-	'Debug' => true,				// Debug informatie naar logfile, uitzetten voor productie
+	'DbLogging' => false,			// Log database queries naar logfile
+	'DbError' => false,				// Log errors naar logfile
+	'Debug' => false,				// Debug informatie naar logfile, uitzetten voor productie
 	'LogDir' => '/tmp/log/helios/',	// Locatie waar log bestanden geschreven worden
 	'Vereniging' => "GeZC"	
 );

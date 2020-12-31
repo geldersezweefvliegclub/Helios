@@ -1,5 +1,5 @@
 <?php
-	class Types extends StartAdmin
+	class Types extends Helios
 	{
 		function __construct() 
 		{
@@ -334,12 +334,6 @@
 			$retVal['laatste_aanpassing']=  $this->LaatsteAanpassing($query, $query_params);
 			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s", $retVal['totaal'], $retVal['laatste_aanpassing']));
 
-			$query = "
-				SELECT 
-					%s
-				FROM
-					`types_view` " . $where . $orderby;
-
 			if ($alleenLaatsteAanpassing)
 			{
 				$retVal['dataset'] = null;
@@ -374,10 +368,10 @@
 			if ($l->magSchrijven() == false)
 				throw new Exception("401;Geen schrijfrechten;");
 
-			if ($id === null)
+			if ($id == null)
 				throw new Exception("406;Geen ID in aanroep;");
 			
-			isCSV($ID, "id");										
+			isCSV($id, "ID");										
 			parent::MarkeerAlsVerwijderd($id, $verificatie);
 		}	
 		

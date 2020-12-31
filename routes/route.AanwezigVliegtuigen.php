@@ -123,10 +123,10 @@ $app->delete('/AanwezigVliegtuigen/DeleteObject', function (Request $request, Re
     try
     {
         $id = $request->getQueryParams()['ID'];
-        $vliegtuig_id= $request->getQueryParams()['LID_ID'];
+        $vliegtuig_id= $request->getQueryParams()['VLIEGTUIG_ID'];
         $datum = $request->getQueryParams()['DATUM'];
 
-        $d = $obj->GetObject($id, $vliegtuig_id, $datum);  // Hier staat de logica voor deze functie
+        $d = $obj->VerwijderObject($id, $vliegtuig_id, $datum);  // Hier staat de logica voor deze functie
         return $response->withStatus(intval(204));
     }
     catch(Exception $exception)

@@ -56,24 +56,7 @@ if (!IsSet($GLOBALS['DATABASE_INCLUDED']))
 		function DbOpvraag($query, $params = null)
 		{
 			global $app_settings;
-			
-			if ($app_settings['DbLogging'])
-			{
-				if ($app_settings['LogDir'] == "syslog")
-				{
-					error_log($query);
-					if ($params != null)
-						error_log(print_r($params, true), 3);				
-				}
-				else
-				{
-					error_log($query  . "\n", 3, $app_settings['LogDir'] . "sql.txt");	
-					if ($params != null)
-						error_log(print_r($params, true), 3, $app_settings['LogDir'] . "sql.txt");
-					
-				}
-			}
-
+		
 			$this->Record = array();
 
 			if (!$this->conn)
@@ -81,16 +64,28 @@ if (!IsSet($GLOBALS['DATABASE_INCLUDED']))
 			
 			if ($this->conn)
 			{
+				$sth = $this->conn->prepare($query);
 				try
 				{
-					$sth = $this->conn->prepare($query);
 					if ($params == null)
 						$sth->execute();
 					else
 					{
 						$sth->execute($params);
 					}
-						
+					
+					if ($app_settings['DbLogging'])
+					{
+						ob_start(); 
+						$sth->debugDumpParams();
+						$q = ob_get_clean();
+
+						if ($app_settings['LogDir'] == "syslog")
+							error_log($q);
+						else
+							error_log($q  . "\n", 3, $app_settings['LogDir'] . "sql.txt");								
+					}					
+	
 					$this->data_retrieved = $sth->fetchAll(PDO::FETCH_ASSOC);
 					$this->rows = $sth->rowCount();
 					$this->row = -1;
@@ -112,14 +107,14 @@ if (!IsSet($GLOBALS['DATABASE_INCLUDED']))
 					
 					if ($app_settings['DbError'])
 					{
+						ob_start(); 
+						$sth->debugDumpParams();
+						$q = ob_get_clean();
+
 						if ($app_settings['LogDir'] == "syslog")
-						{
-							error_log(date("Y-m-d H:i:s") . ":" . $query  . "\n" . $e->getMessage());
-						}
+							error_log(date("Y-m-d H:i:s") . ":" . $q  . "\n" . $e->getMessage());
 						else
-						{
-							error_log(date("Y-m-d H:i:s") . ":" . $query  . "\n" . $e->getMessage() . "\n", 3, $app_settings['LogDir'] . "error.txt");
-						}
+							error_log(date("Y-m-d H:i:s") . ":" . $q  . "\n" . $e->getMessage() . "\n", 3, $app_settings['LogDir'] . "error.txt");
 					}
 					die;
 				}

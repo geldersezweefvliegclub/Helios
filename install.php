@@ -34,7 +34,7 @@ if(!file_exists('installer_account.php'))
 
 include('include/config.php');
 include('include/functions.php');
-include('include/startadmin.php');
+include('include/helios.php');
 
 $maak_database = isset($_POST['maak_database']) ? $_POST['maak_database'] : "true";
 

@@ -1,5 +1,5 @@
 <?php
-	class Rooster extends StartAdmin
+	class Rooster extends Helios
 	{
 		function __construct() 
 		{
@@ -310,7 +310,7 @@
 		Markeer een record in de database als verwijderd. Het record wordt niet fysiek verwijderd om er een link kan zijn naar andere tabellen.
 		Het veld VERWIJDERD wordt op "1" gezet.
 		*/
-		function VerwijderObject($FillData = null, $datum = null, $verificatie = true)
+		function VerwijderObject($id = null, $datum = null, $verificatie = true)
 		{
 			Debug(__FILE__, __LINE__, sprintf("Rooster.VerwijderObject('%s', %s, %s)", $id, $datum, ($verificatie ? "true" : "false")));								
 			$l = MaakObject('Login');

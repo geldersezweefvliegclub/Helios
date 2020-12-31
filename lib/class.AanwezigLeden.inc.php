@@ -1,5 +1,5 @@
 <?php
-	class AanwezigLeden extends StartAdmin
+	class AanwezigLeden extends Helios
 	{
 		function __construct() 
 		{
@@ -287,7 +287,7 @@
 						{
 							$beginDatum = isDATE($value, "BEGIN_DATUM");
 
-							$where .= " AND DATUM >= ? ";
+							$where .= " AND DATE(DATUM) >= ? ";
 							array_push($query_params, $beginDatum);
 
 							Debug(__FILE__, __LINE__, sprintf("%s: BEGIN_DATUM='%s'", $functie, $beginDatum));
@@ -297,7 +297,7 @@
 						{
 							$eindDatum = isDATE($value, "EIND_DATUM");
 
-							$where .= " AND DATUM <= ? ";
+							$where .= " AND DATE(DATUM) <= ? ";
 							array_push($query_params, $eindDatum);
 
 							Debug(__FILE__, __LINE__, sprintf("%s: EIND_DATUM='%s'", $functie, $eindDatum));
@@ -347,6 +347,14 @@
 				parent::DbOpvraag($rquery, $query_params);
 				$retVal['dataset'] = parent::DbData();
 
+				for ($i=0; $i < count($retVal['dataset']) ; $i++) 
+				{
+					if (array_key_exists('REG_CALL', $retVal['dataset'][$i]))
+					{
+						if (isINT($retVal['dataset'][$i]['OVERLAND_VLIEGTUIG_ID']) == false)
+							$retVal['dataset'][$i]['REG_CALL'] = null;		// view geeft "()" als vliegtuig null is. Dit is workarround
+					}
+				}
 				return $retVal;
 			}
 			return null;  // Hier komen we nooit :-)
@@ -376,7 +384,7 @@
 				isDATE($datum, "DATUM");	
 			}
 
-			if ($ID == null)
+			if ($id == null)
 			{
 				$vObj = $this->GetObject(null, $lid_id, $datum);
 				$id = $vObj["ID"];
@@ -495,7 +503,7 @@
 			if (array_key_exists('LID_ID', $AanwezigLedenData))
 			{
 				if ($AanwezigLedenData['LID_ID'] != $db_record['LID_ID'])
-					throw new Exception("409;Lid ID kan niet gewijzigd worden;");
+				throw new Exception(sprintf("409;Lid ID (%s, %s) kan niet gewijzigd worden;",$AanwezigLedenData['LID_ID'], $db_record['LID_ID']));
 			}
 
 			// Neem data over uit aanvraag

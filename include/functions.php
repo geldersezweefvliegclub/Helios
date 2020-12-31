@@ -223,17 +223,20 @@ define('phpTab', "\t");
 				throw new Exception(sprintf("406;%s is een verplicht veld;", $veld));
 
 			return false;				
-		}		
+		}
 
-		if (($value != "0") && ($value != "1") && ($value != "false") && ($value != "true") && ($value !== false) && ($value != true))
+		if (($value !== 0) && ($value !== 1) && 				// integer
+			($value !== "0") && ($value !== "1") &&				// string
+			($value !== "false") && ($value !== "true") && 		// string
+			($value !== false) && ($value !== true))			// boolean
 		{
 			if ($veld !== false)
 				throw new Exception(sprintf("405;%s moet een boolean zijn;", $veld));
 
 			return false;
 		}
-
-		if (($value === "0") || ($value === "false") || ($value === false))
+		
+		if (($value === 0) || ($value === "0") || ($value === "false") || ($value === false))
 			return 0; 
 		else
 			return 1; 
