@@ -189,6 +189,7 @@
 			$where = ' WHERE 1=1 ';
 			$orderby = "";
 			$alleenLaatsteAanpassing = false;
+			$hash = null;
 			$limit = -1;
 			$start = -1;
 			$velden = "*";
@@ -220,7 +221,13 @@
 
 							Debug(__FILE__, __LINE__, sprintf("%s: LAATSTE_AANPASSING='%s'", $functie, $alleenLaatsteAanpassing));
 							break;
-						}	
+						}
+					case "HASH" :
+						{
+							$hash = $value;
+							Debug(__FILE__, __LINE__, sprintf("%s: HASH='%s'", $functie, $hash));
+							break;
+						}								
 					case "VELDEN" : 	
 						{
 							if (strpos($value,';') !== false)
@@ -281,7 +288,11 @@
 
 			$retVal['totaal'] = $this->Count($query, $query_params);		// totaal aantal of record in de database
 			$retVal['laatste_aanpassing']=  $this->LaatsteAanpassing($query, $query_params);
-			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s", $retVal['totaal'], $retVal['laatste_aanpassing']));	
+			$retVal['hash'] = dechex((str_replace(":", "", substr($retVal['laatste_aanpassing'], -8)) * 1000) + ($retVal['totaal'] * 1));
+			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s, HASH=%s", $retVal['totaal'], $retVal['laatste_aanpassing'], $retVal['hash']));	
+
+			if ($retVal['hash'] == $hash)
+				throw new Exception("304;Dataset ongewijzigd;");
 
 			if ($alleenLaatsteAanpassing)
 			{

@@ -32,6 +32,8 @@ $app_settings = array(
 if(file_exists('installer_account.php'))
 	include 'installer_account.php';
 
+// In include/database.inc.php staat de MariaDB / MySQL implementatie
+// Bij gebruik van een andere database moet deze implementatie aangepast worden
 if (!IsSet($GLOBALS['DBCONFIG_PHP_INCLUDED']))
 {
 	include('include/database.inc.php');

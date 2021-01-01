@@ -82,6 +82,12 @@ paths:
           schema:
             type: boolean
         - in: query
+          name: HASH
+          description: HASH van laatste GetObjects aanroep. Indien bij nieuwe aanroep dezelfde data bevat, dan volgt http status code 304. In geval dataset niet hetzelfde is, dan komt de nieuwe dataset terug. Ook bedoeld om dataverbruik te vermindereren. Er wordt alleen data verzonden als het nodig is.
+          required: false
+          schema:
+            type: string                
+        - in: query
           name: SORT
           description: Sortering van de velden in ORDER BY formaat. Default = NAAM
           required: false
@@ -164,6 +170,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/view_leden'
+        304:
+          description: "Data niet gemodificeerd, HASH in aanroep == hash in dataset"                     
         405:
           description: "Methode niet toegestaan, input validatie error"  
         500:

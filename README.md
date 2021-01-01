@@ -151,9 +151,12 @@ Ieder record heeft een veld LAATSTE_AANPASSING. Dit is een tijdstempel wanneer d
 Bij het opvragen van data via GetObjects worden 3 elementen aangeleverd door de API. De velden "totaal", "laatste_aanpassing" en "dataset".  
 - totaal, aantal records dat voldoet aan de query. Dat kan dus meer zijn dan aantal records in dataset. Bijvoorbeeld waneer we aantal records maximeren met de MAX parameter. Stel http://mijn.helios.org/Leden/GetObjects?MAX=20  Het aantal records in dataset in dan maximaal 20, terwijl totaal 80 kan bevattem omdat er 80 leden zijn.
 - laatste_aanpassing, het tijdstempel van de laatste aanpassing in de uitgevoerde query (kan dus afwijken van laaste_aanpassing in dataset, zie bovenstaande logica)
+- hash, een checksum van de dataset. Bewaar de dataset en de hash waarde op de client. De hash waarde kan worden meegegeven met GetObject functies. Indien de data niet gewijzigd is, komt een HTTP code 304 terug, anders de dataset met een HTTP code 200. Hiermee kan je een aanzienlijke besparing realiseren op (mobiele) dataverbindingen. 
 - dataset, de werkelijke data
 
 Om een beeld te krijgen hoe Helios werkt, kan er gebruik gemaakt worden van postman (https://www.postman.com) Postman is gebruikt voor automatische testen en geven een prima inzicht hoe e.e.a. werkt. /postman/Helios.postman_collection.json kan geimporteerd worden om alle testen beschikbaar te krijgen. 
+
+Via postman kun je ook code snippets van diverse programmeertalen opvragen. Hiermee heb je snel een werkende oplossing.
 
 
 ## Configuratie
