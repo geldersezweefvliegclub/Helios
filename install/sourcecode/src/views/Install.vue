@@ -6,7 +6,7 @@
             :complete="step > 0"
             step="0"
         >
-          Installatie-account aanmaken
+          Database account
         </v-stepper-step>
 
         <v-divider></v-divider>
@@ -15,7 +15,7 @@
             :complete="step > 1"
             step="1"
         >
-          Database account aanmaken
+          Installatie-account aanmaken
         </v-stepper-step>
 
         <v-divider></v-divider>
@@ -43,111 +43,121 @@
       >
         <v-stepper-items>
           <v-stepper-content step="0">
-            <v-card
-                class="mb-12"
-            >
+            <v-card class="mb-12" >
               <v-card-text>
                 <v-row class="d-flex justify-center">
-                  <v-col
-                      cols="3">
-
+                  <v-col cols="4">
                     <v-text-field
-                        v-model="databaseAccountGegevens.databaseHost"
-                        type="text"
-                        label="Database server"
-                        required
-                        :rules="[rules.required]"
+                      ref="databaseHost"
+                      v-model="databaseAccountGegevens.databaseHost"
+                      type="text"
+                      label="Database server"
+                      required
+                      :rules="[rules.required]"
                     ></v-text-field>
                     <v-text-field
-                        v-model="databaseAccountGegevens.databaseNaam"
-                        type="text"
-                        label="Databasenaam"
-                        :rules="[rules.required]"
+                      ref="databaseNaam"
+                      v-model="databaseAccountGegevens.databaseNaam"
+                      type="text"
+                      label="Databasenaam"
+                      :rules="[rules.required]"
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="4">
+                    <v-text-field
+                      ref="databaseGebruiker"
+                      v-model="databaseAccountGegevens.databaseGebruiker"
+                      type="text"
+                      label="Gebruikersnaam"
+                      :rules="[rules.required]"
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="4">  
+                    <v-text-field
+                      ref="databaseWachtwoord"
+                      prepend-icon="mdi-lock"
+                      label="Wachtwoord herhalen"
+                      v-model="databaseAccountGegevens.databaseWachtwoord"
+                      :rules="[rules.required, rules.min, rules.sterk]"
+                      :type="verbergWachtwoord ? 'password' : 'text'"
+                      :append-icon="verbergWachtwoord ? 'mdi-eye' : 'mdi-eye-off'"
+                      @click:append="() => (verbergWachtwoord = !verbergWachtwoord)"
                     ></v-text-field>
                     <v-text-field
-                        v-model="databaseAccountGegevens.databaseGebruiker"
-                        type="text"
-                        label="Gebruikersnaam"
-                        :rules="[rules.required]"
+                      ref="databaseWachtwoord2"
+                      prepend-icon="mdi-lock"
+                      label="Wachtwoord herhalen"
+                      v-model="databaseAccountGegevens.databaseWachtwoord2"
+                      :rules="[rules.required, rules.min, rules.sterk, rules.matchDbPassword]"
+                      :type="verbergWachtwoord ? 'password' : 'text'"
+                      :append-icon="verbergWachtwoord ? 'mdi-eye' : 'mdi-eye-off'"
+                      @click:append="() => (verbergWachtwoord = !verbergWachtwoord)"
                     ></v-text-field>
-                    <v-text-field
-                        v-model="databaseAccountGegevens.databaseWachtwoord"
-                        type="password"
-                        label="Wachtwoord"
-                        :rules="[rules.required]"
-                        @change="this.$refs.form.validate();"
-                    ></v-text-field>
-                    <v-text-field
-                        :rules="[rules.required, rules.matchPassword]"
-                        v-model="databaseAccountGegevens.databaseWachtwoord2"
-                        type="password"
-                        label="Wachtwoord herhalen"
-
-                    ></v-text-field>
+                    <password v-model="databaseAccountGegevens.databaseWachtwoord" :strength-meter-only="true"/>
                   </v-col>
                 </v-row>
               </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn 
+                  color="primary" 
+                  :disabled="!dbDataValid()"
+                  @click="testVerbinding()">Test</v-btn>
+              </v-card-actions>              
             </v-card>
 
-            <v-btn color="primary" @click="volgendeStap()">Volgende</v-btn>
-            <v-btn text @click="vorigeStap()">Vorige</v-btn>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="primary" :hidden="!databaseVerbonden" @click="volgendeStap()">Volgende</v-btn>
+            </v-card-actions>    
           </v-stepper-content>
 
           <v-stepper-content step="1">
-            <v-card
-                class="mb-12"
-            >
+            <v-card class="mb-12" >
               <v-card-text>
                 <v-row class="d-flex justify-center">
-                  <v-col
-                      cols="3">
-
+                  <v-col cols="6">
                     <v-text-field
-                        v-model="databaseAccountGegevens.databaseHost"
-                        type="text"
-                        label="Database server"
-                        required
-                        :rules="[rules.required]"
-                    ></v-text-field>
-                    <v-text-field
-                        v-model="databaseAccountGegevens.databaseNaam"
-                        type="text"
-                        label="Databasenaam"
-                        :rules="[rules.required]"
-                    ></v-text-field>
-                    <v-text-field
-                        v-model="databaseAccountGegevens.databaseGebruiker"
+                        value="helios"
                         type="text"
                         label="Gebruikersnaam"
-                        :rules="[rules.required]"
+                        disabled
                     ></v-text-field>
+                  </v-col>
+                  <v-col cols="6">
                     <v-text-field
-                        v-model="databaseAccountGegevens.databaseWachtwoord"
-                        type="password"
-                        label="Wachtwoord"
-                        :rules="[rules.required]"
-                        @change="this.$refs.form.validate();"
-                    ></v-text-field>
-                    <v-text-field
-                        :rules="[rules.required, rules.matchPassword]"
-                        v-model="databaseAccountGegevens.databaseWachtwoord2"
-                        type="password"
+                        prepend-icon="mdi-lock"
                         label="Wachtwoord herhalen"
-
+                        v-model="helios.Wachtwoord"
+                        :rules="[rules.required, rules.min, rules.sterk]"
+                        :type="verbergWachtwoord ? 'password' : 'text'"
+                        :append-icon="verbergWachtwoord ? 'mdi-eye' : 'mdi-eye-off'"
+                        @click:append="() => (verbergWachtwoord = !verbergWachtwoord)"
                     ></v-text-field>
+                    <v-text-field
+                        prepend-icon="mdi-lock"
+                        label="Wachtwoord herhalen"
+                        v-model="helios.Wachtwoord2"
+                        :rules="[rules.required, rules.min, rules.sterk, rules.matchPassword]"
+                        :type="verbergWachtwoord ? 'password' : 'text'"
+                        :append-icon="verbergWachtwoord ? 'mdi-eye' : 'mdi-eye-off'"
+                        @click:append="() => (verbergWachtwoord = !verbergWachtwoord)"
+                    ></v-text-field>
+                    <password v-model="helios.Wachtwoord" :strength-meter-only="true"/>
                   </v-col>
                 </v-row>
               </v-card-text>
             </v-card>
 
-            <v-btn color="primary" @click="volgendeStap()">Volgende</v-btn>
-            <v-btn text @click="vorigeStap()">Vorige</v-btn>
-          </v-stepper-content>
+            <v-card-actions>
+              <v-btn text @click="vorigeStap()">Vorige</v-btn>
+              <v-spacer></v-spacer>
+              <v-btn color="primary" @click="volgendeStap()">Volgende</v-btn>
+            </v-card-actions>   
+          </v-stepper-content>          
 
           <v-stepper-content step="2">
-            <v-card
-                class="mb-12"
-            >
+            <v-card class="mb-12" >
               <v-card-text>
                 <v-checkbox
                     v-model="databaseAanmaken"
@@ -156,20 +166,23 @@
               </v-card-text>
             </v-card>
 
-            <v-btn color="primary" @click="volgendeStap()">Volgende</v-btn>
-            <v-btn text @click="vorigeStap()">Vorige</v-btn>
+            <v-card-actions>
+              <v-btn text @click="vorigeStap()">Vorige</v-btn>
+              <v-spacer></v-spacer>
+              <v-btn color="primary" @click="volgendeStap()">Volgende</v-btn>
+            </v-card-actions>   
           </v-stepper-content>
 
           <v-stepper-content step="3">
-            <v-card
-                class="mb-12"
-                color="grey lighten-1"
-            >
+            <v-card class="mb-12" >
               <v-card-text>Aangeven welke tabellen en dan knop voor aanmaken</v-card-text>
             </v-card>
 
-            <v-btn color="primary" @click="volgendeStap()">Volgende</v-btn>
-            <v-btn text @click="vorigeStap()">Vorige</v-btn>
+            <v-card-actions>
+              <v-btn text @click="vorigeStap()">Vorige</v-btn>
+              <v-spacer></v-spacer>
+              <v-btn color="primary" @click="volgendeStap()">Volgende</v-btn>
+            </v-card-actions>   
           </v-stepper-content>
         </v-stepper-items>
       </v-form>
@@ -178,23 +191,41 @@
 </template>
 
 <script>
-export default {
+  import zxcvbn from 'zxcvbn'
+  import Password from 'vue-password-strength-meter'
+
+  export default {
+    components: { Password },
   data() {
     return {
+      databaseVerbonden: false,
+
+      verbergWachtwoord: true,
       valid: false,
       step: 0,
-      databaseAccountGegevens: {
-        databaseHost: undefined,
-        databaseNaam: undefined,
-        databaseGebruiker: undefined,
-        databaseWachtwoord: undefined,
-        databaseWachtwoord2: undefined,
+      helios: {
+        Wachtwoord: "",
+        Wachtwoord2: "",
       },
-      databaseAanmaken: undefined,
+
+      databaseAccountGegevens: {
+        databaseHost: "",
+        databaseNaam: "",
+        databaseGebruiker: "",
+        databaseWachtwoord: "",
+        databaseWachtwoord2: "",
+      },
+      databaseAanmaken: true,
+
       rules: {
         required: value => !!value || 'Dit veld is verplicht',
+        min: v => v.length >= 8 || 'Minimaal 6 characters or more for your password',
+        sterk: v => zxcvbn(v).score >= 3 || 'Kies een sterker wachtwoord. Kies een mix van letters, cijfers en karakters',        
         matchPassword: () => {
-          return this.databaseAccountGegevens.databaseWachtwoord === this.databaseAccountGegevens.databaseWachtwoord2 || 'Wachtwoorden komen niet overeen!';
+          return this.helios.Wachtwoord=== this.helios.Wachtwoord2 || 'Wachtwoorden komen niet overeen!';
+        },
+        matchDbPassword: () => {
+          return this.databaseAccountGegevens.databaseWachtwoord === this.databaseAccountGegevens.databaseWachtwoord2 || 'Database wachtwoorden komen niet overeen!';
         }
       }
     }
@@ -202,13 +233,23 @@ export default {
   mounted() {
     this.validateForm();
   },
+
   watch: {
     immediate: true,
     async handler() {
       await this.$nextTick();
       this.validateForm();
     }
+  },  
+
+  computed: {
+    dbDataValid() {
+      console.log(this.$form);
+      return true;
+      //return this.$refs['databaseHost'].hasError;
+    }
   },
+    
   methods: {
     validateForm() {
       this.$refs.form.validate();

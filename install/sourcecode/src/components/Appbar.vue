@@ -4,6 +4,11 @@
       color="primary"
       light
   >
+    <v-btn text>
+        <router-link to="/#" class="white--text">
+          <v-icon>mdi-home</v-icon>
+        </router-link>
+    </v-btn>
     <v-spacer></v-spacer>
 
     <v-btn text>
