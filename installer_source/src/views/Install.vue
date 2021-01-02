@@ -101,14 +101,13 @@
                 <v-spacer></v-spacer>
                 <v-btn 
                   color="primary" 
-                  :disabled="!dbDataValid()"
                   @click="testVerbinding()">Test</v-btn>
               </v-card-actions>              
             </v-card>
 
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="primary" :hidden="!databaseVerbonden" @click="volgendeStap()">Volgende</v-btn>
+              <v-btn color="primary" :disabled="!this.databaseVerbonden" @click="volgendeStap()">Volgende</v-btn>
             </v-card-actions>    
           </v-stepper-content>
 
@@ -191,6 +190,7 @@
 </template>
 
 <script>
+  import axios from 'axios'
   import zxcvbn from 'zxcvbn'
   import Password from 'vue-password-strength-meter'
 
@@ -244,7 +244,7 @@
 
   computed: {
     dbDataValid() {
-      console.log(this.$form);
+      console.log(this.$refs);
       return true;
       //return this.$refs['databaseHost'].hasError;
     }
@@ -260,6 +260,41 @@
     },
     vorigeStap() {
       (this.step - 1 > 0) ? this.step-- : this.step = 0;
+    },
+
+    testVerbinding()
+    {
+      if (!this.$refs.databaseHost.valid)
+      {
+        alert("Database server niet ingevuld");
+        return;
+      }
+      if (!this.$refs.databaseNaam.valid)
+      {
+        alert("Databasenaam niet ingevuld");
+        return;
+      }      
+      if (!this.$refs.databaseGebruiker.valid)
+      {
+        alert("Gebruikersnaam niet ingevuld");
+        return;
+      }  
+      if (!this.$refs.databaseWachtwoord.valid)
+      {
+        alert("Database wachtwoord niet juist");
+        return;
+      }  
+      if (!this.$refs.databaseWachtwoord2.valid)
+      {
+        alert("Database wachtwoord niet juist");
+        return;
+      }        
+      axios.post("/install/test_db.php", JSON.stringify(this.databaseAccountGegevens))
+        .then(response => {
+console.log(response)
+      }).catch(e => {
+        console.log(e)
+      });
     }
   }
 }
