@@ -178,7 +178,8 @@
 					(263, 04,  1004,  260,  NULL,  'Discus',  NULL),
 					(264, 05,  1004,  260,  NULL,  'LS8',  NULL),
 					(265, 06,  1004,  260,  NULL,  'Duo Discus',  NULL),
-					(266, 07,  1004,  260,  NULL,  'ASG-29',  NULL),		
+					(266, 07,  1004,  260,  NULL,  'ASG-29',  NULL),	
+					(267, 07,  1004,  260,  NULL,  'Arcus',  NULL),		
 					
 					(270, 01,  1004,  NULL, NULL,  'Passagiers',  NULL),
 					(271, 01,  1004,  270,  NULL,  'Passagiers vliegen',  NULL),
@@ -196,7 +197,11 @@
 					(300, 01,  1004,  NULL, NULL,  'Jaarchecks',  NULL),
 					(301, 02,  1004,  300,  NULL,  '2020',  NULL),
 					(302, 02,  1004,  301,  NULL,  'Checkvlucht',  NULL),
-					(303, 02,  1004,  301,  NULL,  'XLT vragenlijst',  NULL)";
+					(303, 02,  1004,  301,  NULL,  'XLT vragenlijst',  NULL),
+					(304, 02,  1004,  300,  NULL,  '2021',  NULL),
+					(305, 02,  1004,  304,  NULL,  'Checkvlucht',  NULL),
+					(306, 02,  1004,  304,  NULL,  'XLT vragenlijst',  NULL),
+					(307, 02,  1004,  304,  NULL,  'Arcus vragenlijst',  NULL)";
 
 				$query = sprintf("
 						INSERT INTO `%s` (

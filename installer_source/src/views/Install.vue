@@ -108,7 +108,7 @@
 
   export default 
   {
-    components: { Password, DbInfo },
+    components: { Paasowrd, DbInfo },
 
     data() {
       return {
