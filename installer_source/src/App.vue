@@ -1,20 +1,20 @@
 <template>
   <v-app>
-    <Appbar></Appbar>
+    <appbar />
 
     <v-main>
-      <router-view/>
+      <router-view />
     </v-main>
   </v-app>
 </template>
 
 <script>
-import Appbar from "@/components/Appbar";
+  import Appbar from '@/components/Appbar'
 
-export default {
-  components: {
-    Appbar
-  },
+  export default {
+    components: {
+      Appbar,
+    },
   // ...
-}
+  }
 </script>
