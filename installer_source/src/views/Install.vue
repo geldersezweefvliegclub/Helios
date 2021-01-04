@@ -45,74 +45,11 @@
         </v-stepper-step>
       </v-stepper-header>
 
-      <v-form
-          ref="form"
-          v-model="valid"
-      >
-        <v-stepper-items>
+
+      <v-stepper-items>
+
           <v-stepper-content step="1">
-            <v-card class="mb-12" v-if="initGedaan == false">
-              <v-card-text>
-                <v-row class="d-flex justify-center">
-                  <v-col cols="4">
-                    <v-text-field
-                      ref="databaseHost"
-                      v-model="databaseAccountGegevens.databaseHost"
-                      type="text"
-                      label="Database server"
-                      required
-                      :rules="[rules.required]"
-                    ></v-text-field>
-                    <v-text-field
-                      ref="databaseNaam"
-                      v-model="databaseAccountGegevens.databaseNaam"
-                      type="text"
-                      label="Databasenaam"
-                      :rules="[rules.required]"
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="4">
-                    <v-text-field
-                      ref="databaseGebruiker"
-                      v-model="databaseAccountGegevens.databaseGebruiker"
-                      type="text"
-                      label="Gebruikersnaam"
-                      :rules="[rules.required]"
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="4">  
-                    <v-text-field
-                      ref="databaseWachtwoord"
-                      prepend-icon="mdi-lock"
-                      label="Wachtwoord herhalen"
-                      v-model="databaseAccountGegevens.databaseWachtwoord"
-                      :rules="[rules.required]"
-                      :type="verbergWachtwoord ? 'password' : 'text'"
-                      :append-icon="verbergWachtwoord ? 'mdi-eye' : 'mdi-eye-off'"
-                      @click:append="() => (verbergWachtwoord = !verbergWachtwoord)"
-                    ></v-text-field>
-                    <v-text-field
-                      ref="databaseWachtwoord2"
-                      prepend-icon="mdi-lock"
-                      label="Wachtwoord herhalen"
-                      v-model="databaseAccountGegevens.databaseWachtwoord2"
-                      :rules="[rules.required, rules.matchDbPassword]"
-                      :type="verbergWachtwoord ? 'password' : 'text'"
-                      :append-icon="verbergWachtwoord ? 'mdi-eye' : 'mdi-eye-off'"
-                      @click:append="() => (verbergWachtwoord = !verbergWachtwoord)"
-                    ></v-text-field>
-                    <password v-model="databaseAccountGegevens.databaseWachtwoord" :strength-meter-only="true"/>
-                  </v-col>
-                </v-row>
-              </v-card-text>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn 
-                  :disabled="testDisabled"
-                  color="primary" 
-                  @click="testVerbinding()">Test</v-btn>
-              </v-card-actions>              
-            </v-card>
+            <db-info></db-info>
 
             <v-card-actions>
               <v-spacer></v-spacer>
@@ -121,41 +58,7 @@
           </v-stepper-content>
 
           <v-stepper-content step="2">
-            <v-card class="mb-12" >
-              <v-card-text>
-                <v-row class="d-flex justify-center">
-                  <v-col cols="6">
-                    <v-text-field
-                        value="helios"
-                        type="text"
-                        label="Gebruikersnaam"
-                        disabled
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="6">
-                    <v-text-field
-                        prepend-icon="mdi-lock"
-                        label="Wachtwoord herhalen"
-                        v-model="helios.Wachtwoord"
-                        :rules="[rules.required, rules.min, rules.sterk]"
-                        :type="verbergWachtwoord ? 'password' : 'text'"
-                        :append-icon="verbergWachtwoord ? 'mdi-eye' : 'mdi-eye-off'"
-                        @click:append="() => (verbergWachtwoord = !verbergWachtwoord)"
-                    ></v-text-field>
-                    <v-text-field
-                        prepend-icon="mdi-lock"
-                        label="Wachtwoord herhalen"
-                        v-model="helios.Wachtwoord2"
-                        :rules="[rules.required, rules.min, rules.sterk, rules.matchPassword]"
-                        :type="verbergWachtwoord ? 'password' : 'text'"
-                        :append-icon="verbergWachtwoord ? 'mdi-eye' : 'mdi-eye-off'"
-                        @click:append="() => (verbergWachtwoord = !verbergWachtwoord)"
-                    ></v-text-field>
-                    <password v-model="helios.Wachtwoord" :strength-meter-only="true"/>
-                  </v-col>
-                </v-row>
-              </v-card-text>
-            </v-card>
+<!---- -->
 
             <v-card-actions>
               <v-btn text @click="vorigeStap()">Vorige</v-btn>
@@ -193,33 +96,23 @@
             </v-card-actions>   
           </v-stepper-content>
         </v-stepper-items>
-      </v-form>
+
     </v-stepper>
   </v-container>
 </template>
 
 <script>
   import axios from 'axios'
-  import zxcvbn from 'zxcvbn'
-  import Password from 'vue-password-strength-meter'
+  import DbInfo from '@/components/DbInfo.vue';
+
 
   export default 
   {
-    components: { Password },
+    components: { Password, DbInfo },
 
     data() {
       return {
-        databaseVerbonden: false,
-        databaseBestaat: true,
-        databaseAanmaken: false,
-
-        initGedaan: true,
-        heliosObjecten: null,
-
-        verbergWachtwoord: true,
-        testDisabled: false,
-        timeout: null,
-        valid: false,
+        databaseBestaat: true,        
         busy: false,
         step: 1,
 
@@ -227,38 +120,16 @@
           Wachtwoord: "",
           Wachtwoord2: "",
         },
-
-        databaseAccountGegevens: {
-          databaseHost: "",
-          databaseNaam: "",
-          databaseGebruiker: "",
-          databaseWachtwoord: "",
-          databaseWachtwoord2: "",
-        },
-        
-
-        rules: {
-          required: value => !!value || 'Dit veld is verplicht',
-          min: v => v.length >= 8 || 'Minimaal 6 characters or more for your password',
-          sterk: v => zxcvbn(v).score >= 3 || 'Kies een sterker wachtwoord. Kies een mix van letters, cijfers en karakters',        
-          matchPassword: () => {
-            return this.helios.Wachtwoord=== this.helios.Wachtwoord2 || 'Wachtwoorden komen niet overeen!';
-          },
-          matchDbPassword: () => {
-            return this.databaseAccountGegevens.databaseWachtwoord === this.databaseAccountGegevens.databaseWachtwoord2 || 'Database wachtwoorden komen niet overeen!';
-          }
-        }
       }
     },
     mounted() {
-      this.validateForm();
       this.busy = true
       axios.get("/install_php/helios_info.php")
       .then(response => {
         if (response.data.initGedaan == true)
         {
           // De database gegevens zijn al geconfigureerd
-          this.step = 2
+         // this.step = 2
           this.databaseVerbonden = true // anders kom je nooit naar step 2 (wanneer gebruiker terug naar step 1 gaat)
           this.databseBestaat = true
         }
@@ -274,32 +145,9 @@
         alert('Backend werkt niet. Controleer of de php functies werken')
       });
     },
-    beforeDestroy () {
-     // clear the timeout before the component is destroyed
-     clearTimeout(this.timeout)
-    },
-
-    watch: {
-      immediate: true,
-      async handler() {
-        await this.$nextTick();
-        this.validateForm();
-      }
-    },  
-
-    computed: {
-      dbDataValid() {
-        console.log(this.$refs);
-        return true;
-        //return this.$refs['databaseHost'].hasError;
-      }
-    },
       
     methods: 
     {
-      validateForm() {
-        this.$refs.form.validate();
-      },
       volgendeStap() {
         (this.step + 1 <= 3) ? this.step++ : this.step = 4;
         console.log(this.step)
