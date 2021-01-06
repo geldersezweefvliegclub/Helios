@@ -2,10 +2,10 @@
 
 $db_info = array(
 	'dbType' => 'mysql',
-	'dbHost' => 'mariadb',
-	'dbName' => 'helios', 
-	'dbUser' => 'root',
-	'dbPassword' => 'rootroot'
+	'dbHost' => null,
+	'dbName' => null, 
+	'dbUser' => null,
+	'dbPassword' => null
 );
 
 /* Voor de toekomst

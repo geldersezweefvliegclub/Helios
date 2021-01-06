@@ -7,7 +7,7 @@ include('include/helios.php');
 
 $retValue = array();
 
-$retValue['initGedaan'] = false; //InitGedaan();
+$retValue['db_info'] = InitGedaan();
 $retValue['installer_account'] = file_exists("installer_account.php");
 
 echo json_encode($retValue);
