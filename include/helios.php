@@ -24,9 +24,11 @@ abstract class Helios
 	/*
 	Bestaat de database tabel 
 	*/
-	function bestaatTabel() 
+	function bestaatTabel($tabel = null) 
 	{
 		$query = sprintf("SHOW TABLES LIKE '%s';", $this->dbTable);
+		if (!is_null($tabel))
+			$query = sprintf("SHOW TABLES LIKE '%s';", $tabel);
 		
 		$this->DbOpvraag($query);
 		if ($this->NumRows() == 0)

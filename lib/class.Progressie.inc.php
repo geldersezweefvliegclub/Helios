@@ -38,8 +38,9 @@
 
                         FOREIGN KEY (LID_ID) REFERENCES ref_leden(ID),
                         FOREIGN KEY (INSTRUCTEUR_ID) REFERENCES ref_leden(ID),
-                        FOREIGN KEY (COMPETENTIE_ID) REFERENCES ref_competenties(ID)
-					)", $this->dbTable);
+						FOREIGN KEY (COMPETENTIE_ID) REFERENCES ref_competenties(ID),
+						FOREIGN KEY (LINK_ID) REFERENCES %s(ID)
+					)", $this->dbTable, $this->dbTable);
 			parent::DbUitvoeren($query);
 
 			if (isset($FillData))

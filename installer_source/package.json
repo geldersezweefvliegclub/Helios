@@ -14,6 +14,7 @@
     "vue-password-strength-meter": "^1.7.2",
     "vue-router": "^3.2.0",
     "vuetify": "^2.2.11",
+    "vuex": "^3.6.0",
     "zxcvbn": "^4.4.2"
   },
   "devDependencies": {

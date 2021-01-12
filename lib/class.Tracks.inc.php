@@ -39,8 +39,8 @@
                         FOREIGN KEY (LID_ID) REFERENCES ref_leden(ID),		
                         FOREIGN KEY (INSTRUCTEUR_ID) REFERENCES ref_leden(ID),
                         FOREIGN KEY (START_ID) REFERENCES oper_startlijst(ID),
-                        FOREIGN KEY (LINK_ID) REFERENCES oper_tracks(ID)				
-				)", $this->dbTable);
+                        FOREIGN KEY (LINK_ID) REFERENCES %s(ID)				
+				)", $this->dbTable, $this->dbTable);
 			parent::DbUitvoeren($query);
 
 			if (isset($FillData))

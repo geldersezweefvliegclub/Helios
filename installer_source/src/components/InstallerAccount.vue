@@ -32,10 +32,9 @@
           <v-row class="d-flex justify-center">
             <v-col cols="6">
               <v-text-field
-                value="helios"
+                v-model="helios.GebruikersNaam"
                 type="text"
                 label="Gebruikersnaam"
-                disabled
               />
             </v-col>
             <v-col cols="6">
@@ -109,9 +108,11 @@
         busy: false,
         valid: false,
 
+        dataBeschikbaarTimer: null,
         installer_account: null,
 
         helios: {
+          GebruikersNaam: '',
           Wachtwoord: '',
           Wachtwoord2: '',
         },
@@ -130,12 +131,13 @@
       }
     },
 
-    async mounted () {
-      this.busy = true
-      this.helios_info().then((response) => {
-        this.installer_account = response.data.installer_account
-        this.busy = false
-      })
+    mounted () {
+      this.DataBeschikbaar()
+    },
+
+    beforeDestroy () {
+      // clear the timeout before the component is destroyed
+      clearTimeout(this.dataBeschikbaarTimer)
     },
 
     methods: {
@@ -161,12 +163,18 @@
 
         axios.get('/install_php/create_account.php', {
           auth: {
-            username: 'helios',
+            username: this.helios.GebruikersNaam,
             password: this.helios.Wachtwoord,
           },
         })
           .then(response => {
             this.busy = false
+
+            if (response.data != null) {
+              this.$store.commit('HeliosGebruikersNaam', this.helios.GebruikersNaam)
+              this.$store.commit('HeliosWachtwoord', this.helios.Wachtwoord)
+              this.$emit('isIngelogd', this.helios)
+            }
           }).catch(e => {
             console.log(e)
             this.busy = false
@@ -174,7 +182,7 @@
           })
       },
 
-      async login () {
+      login () {
         this.validateForm()
         if (!this.valid) {
           alert('Zorg dat alle velden correct zijn ingevoerd')
@@ -182,22 +190,38 @@
         }
         this.busy = true
 
-        const response = await axios.get('/Login/GetUserInfo', {
+        axios.get('/install_php/login.php', {
           auth: {
-            username: 'helios',
+            username: this.helios.GebruikersNaam,
             password: this.helios.Wachtwoord,
           },
-        }).catch(error => {
-          switch (error.response.status) {
-            case 401:
-              alert('Niet geautoriseerd')
-              break
-
-            default: alert('Backend werkt niet. Controleer of de php functies werken')
-          }
+        }).then(response => {
+          this.busy = false
+          this.$store.commit('HeliosGebruikersNaam', this.helios.GebruikersNaam)
+          this.$store.commit('HeliosWachtwoord', this.helios.Wachtwoord)
+          this.$emit('isIngelogd', this.helios)
         })
-        this.busy = false
-        if (response.data != null) { this.$emit('isIngelogd', this.helios) }
+          .catch(error => {
+            this.busy = false
+            switch (error.response.status) {
+              case 401:
+                alert('Niet geautoriseerd')
+                break
+
+              default: alert('Backend werkt niet. Controleer of de php functies werken')
+            }
+          })
+      },
+
+      DataBeschikbaar () {
+        if (this.$store.state.heliosInfo != null) {
+          this.installer_account = this.$store.state.heliosInfo.installer_account
+          console.log('installer_account=' + this.installer_account)
+        } else {
+          this.dataBeschikbaarTimer = setTimeout(() => {
+            this.DataBeschikbaar()
+          }, 1000)
+        }
       },
     },
   }

@@ -160,7 +160,7 @@ Via postman kun je ook code snippets van diverse programmeertalen opvragen. Hier
 
 
 ## Configuratie
-De Helios configuratie is samngevat in /include/config. 
+De Helios configuratie is samengevat in /include/config. 
 
 ```
 $db_info = array(
@@ -172,7 +172,7 @@ $db_info = array(
 );
 ```
 
-Dit zijn de parameter die ingevoerd zijn, tijdens initeele configuratie. Deze configuratie kan handmatig aangepast worden.
+Dit zijn de parameters die ingevoerd zijn, tijdens initeele configuratie. Deze configuratie kan handmatig aangepast worden.
 
 ```
 $app_settings = array(
@@ -183,5 +183,5 @@ $app_settings = array(
 	'Vereniging' => "GeZC"	
 );
 ```
-Om een analyse te kunnen doen van Helios logica, kunnen de logging parameters op true gezet worden. De logfiles worden dan naar de LogDir geschreven. Ander alternatief is LogDir => 'syslog' De loggings gaan dan naar de sys log deamon. Bedenk dat logfiles erg snel groeien. DbLogging en Debug moeten voor productie systemen ALTIJD op false staan.
+Om een analyse te kunnen doen van Helios logica, kunnen de logging parameters op true gezet worden. De logfiles worden dan naar de LogDir geschreven. Ander alternatief is LogDir => 'syslog' De loggings gaan dan naar de syslog deamon. Bedenk dat logfiles erg snel groeien. DbLogging en Debug moeten voor productie systemen ALTIJD op false staan.
 

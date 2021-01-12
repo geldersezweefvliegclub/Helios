@@ -150,6 +150,7 @@
         busy: false,
         valid: false,
 
+        dataBeschikbaarTimer: null,
         db_info: null,
 
         databaseAccountGegevens: {
@@ -175,12 +176,13 @@
       }
     },
 
-    async mounted () {
-      this.busy = true
-      this.helios_info().then((response) => {
-        this.db_info = response.data.db_info
-        this.busy = false
-      })
+    mounted () {
+      this.DataBeschikbaar()
+    },
+
+    beforeDestroy () {
+      // clear the timeout before the component is destroyed
+      clearTimeout(this.dataBeschikbaarTimer)
     },
 
     methods: {
@@ -188,12 +190,15 @@
         this.$refs.form.validate()
       },
 
-      async helios_info () {
-        const response = await axios.get('/install_php/helios_info.php').catch(e => {
-          console.log(e)
-          alert('Backend werkt niet. Controleer of de php functies werken')
-        })
-        return response
+      DataBeschikbaar () {
+        if (this.$store.state.heliosInfo != null) {
+          this.db_info = this.$store.state.heliosInfo.db_info
+          console.log('db_info=' + this.db_info)
+        } else {
+          this.timdataBeschikbaareout = setTimeout(() => {
+            this.DataBeschikbaar()
+          }, 1000)
+        }
       },
 
       testVerbinding () {
@@ -223,9 +228,32 @@
       uitvoeren () {
         const r = confirm('Zeker weten? Deze actie kan maar 1 keer uitgevoerd worden')
         if (r === true) {
-          console.log('You pressed OK!')
-          this.$emit('dbAangemaakt', 'done')
+          this.create_db()
         }
+      },
+
+      async create_db () {
+        this.validateForm()
+        if (!this.valid) {
+          alert('Zorg dat alle velden correct zijn ingevoerd')
+          return
+        }
+        this.busy = true
+
+        axios.post('/install_php/create_db.php', this.databaseAccountGegevens, {
+          auth: {
+            username: this.$store.state.heliosGebruikersNaam,
+            password: this.$store.state.heliosWachtwoord,
+          },
+        })
+          .then(response => {
+            this.busy = false
+            this.$emit('dbAangemaakt', 'done')
+          }).catch(e => {
+            console.log(e)
+            this.busy = false
+            alert('Fout in backend')
+          })
       },
     },
   }

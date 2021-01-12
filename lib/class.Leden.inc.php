@@ -69,8 +69,8 @@
 						INDEX (`VERWIJDERD`),
 
 						FOREIGN KEY (LIDTYPE_ID) REFERENCES ref_types(ID),
-						FOREIGN KEY (ZUSTERCLUB_ID) REFERENCES ref_leden(ID) 				
-				)", $this->dbTable);
+						FOREIGN KEY (ZUSTERCLUB_ID) REFERENCES %s(ID) 				
+				)", $this->dbTable, $this->dbTable);
 			parent::DbUitvoeren($query);
 
 			if (isset($FillData))
