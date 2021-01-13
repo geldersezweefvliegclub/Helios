@@ -102,7 +102,7 @@
           },
         }).then(response => {
           this.busy = false
-          this.records = response.data
+          if (response.data !== undefined) { this.records = response.data }
         })
           .catch(e => {
             this.busy = false

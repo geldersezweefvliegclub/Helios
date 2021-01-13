@@ -51,27 +51,35 @@
 
                    
                     <?php
+                        $extensions = get_loaded_extensions();
+                        $use_yaml = in_array("yaml", $extensions);
 
                         $html = "
                             <div style='height: auto; border: none; margin: 0px; padding: 0px;'>
-                                <div class='opblock opblock-list'>
+                                <div class='opblock opblock-list' 
+                                    style=' border-color: #868537;
+                                            background: rgb(230 211 138);
+                                            padding: 7px;'>
+
                                     <div class='opblock-summary opblock-summary-get'>
                                         <a class='nostyle' style='margin-right: 10px; font-weight:600;' href='../swagger/index.html?url=/docs/#yml#'>
                                             <span>​#title#</span>
                                         </a>
-                                        <div class='opblock-summary-description'>#descr#</div>
                                     </div>
                                 </div>
                             </div>";
 
-                        $files = glob("./*.yml");
-                        foreach($files as $file) {
-                            $parsed = yaml_parse_file ($file);
-                            $object = substr($file, 2, strlen($file)-6);
+                        if ($use_yaml)
+                            $files = glob("./*.yml");
+                        else
+                            $files = glob("./json/*.json");
 
-                            $output = str_replace ("#title#", $object, $html);
+                        foreach($files as $file) {
+                          //  $parsed = yaml_parse_file ($file);
+                          //  $object = substr($file, 2, strlen($file)-6);
+
+                            $output = str_replace ("#title#", $file, $html);
                             $output = str_replace ("#yml#", $file , $output);
-                            $output = str_replace ("#descr#", $parsed["info"]["description"] , $output);
 
                             echo $output;
                         }

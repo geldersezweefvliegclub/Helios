@@ -285,8 +285,15 @@
 			// Als ingelogde gebruiker geen bijzonder functie heeft, worden alleen zijn vluchten opgehaald
 			$l = MaakObject('Login');
 
-			if (($l->isBeheerder() == false) && ($l->isBeheerderDDWV() == false) && ($l->isInstructeur() == false))
+			if ($l->isInstaller())
+			{
+				// als installer mogen we alleen laatste aanpassing ophalen
+				$alleenLaatsteAanpassing = true;		
+			}
+			elseif (($l->isBeheerder() == false) && ($l->isBeheerderDDWV() == false) && ($l->isInstructeur() == false))
 				$where = $where . sprintf(" AND ((VLIEGER_ID = '%d') OR (INZITTENDE_ID = '%d'))", $l->getUserFromSession(), $l->getUserFromSession());
+			
+
 
 			foreach ($params as $key => $value)
 			{

@@ -43,8 +43,21 @@ for ($i = 0 ; $i < count($db_tables) ; $i++)
 {      
     $table = $db_tables[$i]['class'];          
 
+    $args = array('LAATSTE_AANPASSING' => true);
+    switch(strtoupper($table))
+    {
+        case "AANWEZIGLEDEN" :
+        case "AANWEZIGVLIEGTUIGEN" :
+        case "STARTLIJST" :
+        {
+            $args['BEGIN_DATUM'] = "1990-01-01";
+            $args['EIND_DATUM'] = "2090-01-01";
+            break;
+        }
+    }
+
     $obj = MaakObject($table);
-    $gobjects = $obj->GetObjects(array('LAATSTE_AANPASSING' => true));   
+    $gobjects = $obj->GetObjects($args);   
     
     $obj_info = array();
     $obj_info['class'] = $table;
