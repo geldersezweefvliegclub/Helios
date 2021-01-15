@@ -57,6 +57,7 @@ while ($r < 150) // binnen 150 cycles moet het echt wel klaar zijn
             $source_code = file_get_contents("lib/class." . $table . ".inc.php", "r");
             preg_match_all("/FOREIGN.*/", $source_code, $class_matches);
 
+            Debug(__FILE__, __LINE__, sprintf("tabel:%s ", $table));
             if (count($class_matches) > 0)
             {
                 foreach ($class_matches[0] as $fk_regel)
@@ -68,6 +69,7 @@ while ($r < 150) // binnen 150 cycles moet het echt wel klaar zijn
                     {
                         if ($l->bestaatTabel($fk) == false)
                         {   
+                            Debug(__FILE__, __LINE__, sprintf("tabel:%s FK=%s bestaat niet", $table ,$fk));
                             $overslaan = true;
                             break;
                         }
@@ -89,23 +91,26 @@ while ($r < 150) // binnen 150 cycles moet het echt wel klaar zijn
                     }
                     default: $obj->CreateTable($filldata); 
                 }
-                $obj->CreateTable($filldata); 
+                Debug(__FILE__, __LINE__, sprintf("tabel=%s AANGEMAAKT", $table));
                 
                 $db_tables[$i]['bestaat'] = true;
             }
         }
     }
+    Debug(__FILE__, __LINE__, "--------------------");
 
     // kijk of we klaar zijn, zo ja die(), want we zitten in een erg lange while loop
     $klaar = true;
     foreach ($db_tables as $db_table)
     {
+        Debug(__FILE__, __LINE__, sprintf("tabel=%s bestaat %s", $db_table['class'], ($db_table['bestaat'] == true) ? "WEL" : "niet"));
         if ($db_table['bestaat'] == false)
         {
             $klaar = false;
             break;
         }
     }
+    Debug(__FILE__, __LINE__, "--------------------");
 
     if ($klaar)
     {

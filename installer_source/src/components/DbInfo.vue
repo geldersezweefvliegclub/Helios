@@ -9,7 +9,7 @@
     </v-overlay>
 
     <v-col
-      v-if="db_info == true"
+      v-if="dbBestaat == true"
       class="fill-height"
     >
       <div class="text-center">
@@ -24,7 +24,7 @@
       </div>
     </v-col>
     <v-form
-      v-if="db_info == false"
+      v-if="dbBestaat == false"
       ref="form"
       v-model="valid"
     >
@@ -139,7 +139,7 @@
     components: { Password },
 
     props: {
-
+      dbBestaat: Boolean,
     },
 
     data () {
@@ -149,9 +149,6 @@
 
         busy: false,
         valid: false,
-
-        dataBeschikbaarTimer: null,
-        db_info: null,
 
         databaseAccountGegevens: {
           databaseHost: '',
@@ -176,29 +173,9 @@
       }
     },
 
-    mounted () {
-      this.DataBeschikbaar()
-    },
-
-    beforeDestroy () {
-      // clear the timeout before the component is destroyed
-      clearTimeout(this.dataBeschikbaarTimer)
-    },
-
     methods: {
       validateForm () {
         this.$refs.form.validate()
-      },
-
-      DataBeschikbaar () {
-        if (this.$store.state.heliosInfo != null) {
-          this.db_info = this.$store.state.heliosInfo.db_info
-          console.log('db_info=' + this.db_info)
-        } else {
-          this.timdataBeschikbaareout = setTimeout(() => {
-            this.DataBeschikbaar()
-          }, 1000)
-        }
       },
 
       testVerbinding () {

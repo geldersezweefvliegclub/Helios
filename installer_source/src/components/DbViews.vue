@@ -13,7 +13,7 @@
         <v-card-text>
           <v-data-table
             :headers="headers"
-            :items="db_tables"
+            :items="dbViews"
             :hide-default-footer="true"
             fixed-header
             disable-pagination
@@ -42,12 +42,27 @@
                 </td>
                 <td
                   align="left"
+                  class="d-none d-lg-table-cell"
+                >
+                  <template v-if="item.verwijderd == 1">
+                    <v-icon>
+                      mdi-check
+                    </v-icon>
+                  </template>
+                  <template v-else>
+                    <v-icon>
+                      mdi-checkbox-blank-outline
+                    </v-icon>
+                  </template>
+                </td>
+                <td
+                  align="left"
                 >
                   {{ item.class }}
                 </td>
                 <td
                   align="left"
-                  width="70%"
+                  width="50%"
                 >
                   <v-btn
                     color="primary"
@@ -63,7 +78,7 @@
         <v-card-actions>
           <v-spacer />
           <v-btn
-            v-if="(db_tables.length > 0)"
+            v-if="(dbViews.length > 0)"
 
             color="primary"
             @click="create_views()"
@@ -81,18 +96,17 @@
 
   export default {
     props: {
-
+      dbViews: Array,
     },
 
     data () {
       return {
         busy: false,
-        isIngelogdTimer: null,
-        db_tables: [],
         filldata: true,
 
         headers: [
           { text: 'Bestaat', value: 'bestaat' },
+          { text: 'Verwijderd', value: 'verwijderd' },
           { text: 'Naam', value: 'class' },
           { text: '', value: '' },
 
@@ -100,49 +114,11 @@
       }
     },
 
-    mounted () {
-      this.isIngelogd()
-    },
-
-    beforeDestroy () {
-      // clear the timeout before the component is destroyed
-      clearTimeout(this.isIngelogdTimer)
-    },
-
     methods: {
-      async tables_info () {
-        this.busy = true
-        axios.get('/install_php/tables_info.php', {
-          auth: {
-            username: this.$store.state.heliosGebruikersNaam,
-            password: this.$store.state.heliosWachtwoord,
-          },
-        }).then(response => {
-          this.busy = false
-          this.db_tables = response.data
-          this.$store.commit('DbTables', this.db_tables)
-        })
-          .catch(e => {
-            this.busy = false
-            console.log(e)
-            alert('Backend werkt niet. Controleer of de php functies werken')
-          })
-      },
-
-      async isIngelogd () {
-        if ((this.$store.state.heliosGebruikersNaam != null) && (this.$store.state.heliosWachtwoord != null) && (this.$store.state.heliosInfo.db_info === true)) {
-          this.tables_info()
-        } else {
-          this.isIngelogdTimer = setTimeout(() => {
-            this.isIngelogd()
-          }, 1000)
-        }
-      },
-
       async create_views (tabel) {
         this.busy = true
 
-        axios.post('/install_php/create_views.php', (tabel === undefined) ? this.db_tables : tabel, {
+        axios.post('/install_php/create_views.php', (tabel === undefined) ? this.dbViews : tabel, {
           auth: {
             username: this.$store.state.heliosGebruikersNaam,
             password: this.$store.state.heliosWachtwoord,

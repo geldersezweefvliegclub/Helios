@@ -7,8 +7,6 @@ export default new Vuex.Store({
  state: {
      heliosWachtwoord: null,
      heliosGebruikersNaam: null,
-     heliosInfo: null,
-     dbTables: null,
  },
 
  getters: {},
@@ -19,12 +17,6 @@ export default new Vuex.Store({
     },
     HeliosGebruikersNaam (state, payload) {
         state.heliosGebruikersNaam = payload
-    },
-    HeliosInfo (state, payload) {
-        state.heliosInfo = payload
-    },
-    DbTables (state, payload) {
-        state.dbTables = payload
     },
  },
 

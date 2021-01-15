@@ -13,7 +13,7 @@
         <v-card-text>
           <v-data-table
             :headers="headers"
-            :items="db_tables"
+            :items="dbTables"
             :hide-default-footer="true"
             fixed-header
             disable-pagination
@@ -52,13 +52,13 @@
         </v-card-text>
         <v-card-actions>
           <v-checkbox
-            v-if="allesIngevuld == false"
+            v-if="dbTables.length > 0 && allesIngevuld == false"
             v-model="filldata"
             label="Vullen tabellen met data"
           />
           <v-spacer />
           <v-btn
-            v-if="(db_tables.length > 0) && (allesIngevuld == false)"
+            v-if="dbTables.length > 0 && allesIngevuld == false"
 
             color="primary"
             @click="create_tabellen()"
@@ -76,14 +76,13 @@
 
   export default {
     props: {
-
+      dbTables: Array,
     },
 
     data () {
       return {
         busy: false,
         isIngelogdTimer: null,
-        db_tables: [],
         filldata: true,
 
         headers: [
@@ -96,56 +95,22 @@
 
     computed: {
       allesIngevuld: function () {
-        this.db_tables.forEach(function (table) {
-          if (table.bestaat === false) { return false }
+        let retValue = true
+
+        this.dbTables.forEach(function (table) {
+          if (table.bestaat === false) {
+            retValue = false
+          }
         })
-        return true
+        return retValue
       },
-    },
-
-    mounted () {
-      this.isIngelogd()
-    },
-
-    beforeDestroy () {
-      // clear the timeout before the component is destroyed
-      clearTimeout(this.isIngelogdTimer)
     },
 
     methods: {
-      async tables_info () {
-        this.busy = true
-        axios.get('/install_php/tables_info.php', {
-          auth: {
-            username: this.$store.state.heliosGebruikersNaam,
-            password: this.$store.state.heliosWachtwoord,
-          },
-        }).then(response => {
-          this.busy = false
-          this.db_tables = response.data
-          this.$store.commit('DbTables', this.db_tables)
-        })
-          .catch(e => {
-            this.busy = false
-            console.log(e)
-            alert('Backend werkt niet. Controleer of de php functies werken')
-          })
-      },
-
-      async isIngelogd () {
-        if ((this.$store.state.heliosGebruikersNaam != null) && (this.$store.state.heliosWachtwoord != null) && (this.$store.state.heliosInfo.db_info === true)) {
-          this.tables_info()
-        } else {
-          this.isIngelogdTimer = setTimeout(() => {
-            this.isIngelogd()
-          }, 1000)
-        }
-      },
-
       async create_tabellen () {
         this.busy = true
 
-        axios.post('/install_php/create_tables.php?filldata=' + (this.filldata ? 'true' : 'false'), this.db_tables, {
+        axios.post('/install_php/create_tables.php?filldata=' + (this.filldata ? 'true' : 'false'), this.dbTables, {
           auth: {
             username: this.$store.state.heliosGebruikersNaam,
             password: this.$store.state.heliosWachtwoord,
@@ -153,8 +118,6 @@
         })
           .then(response => {
             this.busy = false
-            this.db_tables = response.data
-            this.$store.commit('DbTables', this.db_tables)
             this.$emit('tabellenAangemaakt', 'done')
           }).catch(e => {
             console.log(e)

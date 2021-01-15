@@ -9,7 +9,7 @@
     </v-overlay>
 
     <v-col
-      v-if="installer_account == true"
+      v-if="installerAccount == true"
       class="fill-height"
     >
       <div class="text-center">
@@ -48,7 +48,7 @@
                 @click:append="() => (verbergWachtwoord = !verbergWachtwoord)"
               />
               <v-text-field
-                v-if="installer_account == false"
+                v-if="installerAccount == false"
                 v-model="helios.Wachtwoord2"
                 prepend-icon="mdi-lock"
                 label="Wachtwoord herhalen"
@@ -59,7 +59,7 @@
               />
 
               <password
-                v-if="installer_account == false"
+                v-if="installerAccount == false"
                 v-model="helios.Wachtwoord"
                 :strength-meter-only="true"
               />
@@ -69,7 +69,7 @@
         <v-card-actions>
           <v-spacer />
           <v-btn
-            v-if="installer_account == true"
+            v-if="installerAccount == true"
             color="primary"
             @click="login()"
           >
@@ -97,7 +97,7 @@
     components: { Password },
 
     props: {
-
+      installerAccount: Boolean,
     },
 
     data () {
@@ -107,9 +107,6 @@
 
         busy: false,
         valid: false,
-
-        dataBeschikbaarTimer: null,
-        installer_account: null,
 
         helios: {
           GebruikersNaam: '',
@@ -129,15 +126,6 @@
           },
         },
       }
-    },
-
-    mounted () {
-      this.DataBeschikbaar()
-    },
-
-    beforeDestroy () {
-      // clear the timeout before the component is destroyed
-      clearTimeout(this.dataBeschikbaarTimer)
     },
 
     methods: {
@@ -211,17 +199,6 @@
               default: alert('Backend werkt niet. Controleer of de php functies werken')
             }
           })
-      },
-
-      DataBeschikbaar () {
-        if (this.$store.state.heliosInfo != null) {
-          this.installer_account = this.$store.state.heliosInfo.installer_account
-          console.log('installer_account=' + this.installer_account)
-        } else {
-          this.dataBeschikbaarTimer = setTimeout(() => {
-            this.DataBeschikbaar()
-          }, 1000)
-        }
       },
     },
   }

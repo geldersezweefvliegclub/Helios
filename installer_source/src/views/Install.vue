@@ -52,11 +52,15 @@
 
       <v-stepper-items>
         <v-stepper-content step="0">
-          <installer-account @isIngelogd="isIngelogd" />
+          <installer-account
+            :installer-account="heliosInfo.installer_account"
+            @isIngelogd="isIngelogd"
+          />
         </v-stepper-content>
 
         <v-stepper-content step="1">
           <db-info
+            :db-bestaat="heliosInfo.db_bestaat"
             @dbAangemaakt="dbAangemaakt"
           />
 
@@ -78,7 +82,7 @@
         </v-stepper-content>
 
         <v-stepper-content step="2">
-          <db-tables />
+          <db-tables :db-tables="db_tables" />
 
           <v-card-actions>
             <v-btn
@@ -98,7 +102,10 @@
         </v-stepper-content>
 
         <v-stepper-content step="3">
-          <db-views @viewsAangemaakt="viewsAangemaakt" />
+          <db-views
+            :db-views="db_views"
+            @viewsAangemaakt="viewsAangemaakt"
+          />
 
           <v-card-actions>
             <v-btn
@@ -118,7 +125,10 @@
         </v-stepper-content>
 
         <v-stepper-content step="4">
-          <db-records />
+          <db-records
+            :db-records="db_records"
+            @refreshRecords="records_info"
+          />
 
           <v-card-actions>
             <v-btn
@@ -150,6 +160,13 @@
       data () {
         return {
           busy: false,
+          heliosInfo: {
+            installer_account: false,
+            db_bestaat: false,
+          },
+          db_tables: [],
+          db_views: [],
+          db_records: [],
           step: 0,
 
         }
@@ -160,26 +177,44 @@
       },
 
       async mounted () {
-        this.busy = true
-        this.helios_info().then((response) => {
-          this.$store.commit('HeliosInfo', response.data)
-          this.busy = false
-        })
+        this.helios_info()
       },
 
       methods:
         {
           volgendeStap () {
             this.step = (this.step + 1) % 5
+            this.laden()
           },
           vorigeStap () {
             this.step = (this.step + 4) % 5
+            this.laden()
+          },
+
+          laden () {
+            switch (this.step) {
+              case 0: this.helios_info()
+                      break
+              case 1: this.helios_info()
+                      break
+              case 2: this.tables_info()
+                      break
+              case 3: this.views_info()
+                      break
+              case 4: this.records_info()
+                      break
+            }
+          },
+
+          isIngelogd (arg) {
+            this.volgendeStap()
           },
 
           dbAangemaakt (arg) {
-            this.helios_info().then((response) => {
-              this.$store.commit('HeliosInfo', response.data)
-            })
+            this.volgendeStap()
+          },
+
+          tabellenAangemaakt (arg) {
             this.volgendeStap()
           },
 
@@ -187,19 +222,71 @@
             this.volgendeStap()
           },
 
-          isIngelogd (arg) {
-            this.helios_info().then((response) => {
-              this.$store.commit('HeliosInfo', response.data)
+          async helios_info () {
+            this.busy = true
+            axios.get('/install_php/info_helios.php').then(response => {
+              this.busy = false
+              this.heliosInfo = response.data
             })
-            this.volgendeStap()
+              .catch(e => {
+                this.busy = false
+                console.log(e)
+                alert('Backend werkt niet. Controleer of de php functies werken')
+              })
           },
 
-          async helios_info () {
-            const response = await axios.get('/install_php/helios_info.php').catch(e => {
-              console.log(e)
-              alert('Backend werkt niet. Controleer of de php functies werken')
+          async tables_info () {
+            this.busy = true
+            axios.get('/install_php/info_tables.php', {
+              auth: {
+                username: this.$store.state.heliosGebruikersNaam,
+                password: this.$store.state.heliosWachtwoord,
+              },
+            }).then(response => {
+              this.busy = false
+              this.db_tables = response.data
             })
-            return response
+              .catch(e => {
+                this.busy = false
+                console.log(e)
+                alert('Backend werkt niet. Controleer of de php functies werken')
+              })
+          },
+
+          async views_info () {
+            this.busy = true
+            axios.post('/install_php/info_views.php', this.db_tables, {
+              auth: {
+                username: this.$store.state.heliosGebruikersNaam,
+                password: this.$store.state.heliosWachtwoord,
+              },
+            }).then(response => {
+              this.busy = false
+              this.db_views = response.data
+            })
+              .catch(e => {
+                this.busy = false
+                console.log(e)
+                alert('Backend werkt niet. Controleer of de php functies werken')
+              })
+          },
+
+          async records_info () {
+            this.busy = true
+            axios.post('/install_php/info_records.php', this.db_tables, {
+              auth: {
+                username: this.$store.state.heliosGebruikersNaam,
+                password: this.$store.state.heliosWachtwoord,
+              },
+            }).then(response => {
+              this.busy = false
+              this.db_records = response.data
+            })
+              .catch(e => {
+                this.busy = false
+                console.log(e)
+                alert('Backend werkt niet. Controleer of de php functies werken')
+              })
           },
         },
     }

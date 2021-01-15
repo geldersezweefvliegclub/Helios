@@ -36,7 +36,6 @@ $l = MaakObject('Login');
 $l->verkrijgToegang($username, $password); // nodig om sessie data te zetten
 
 
-// aanmaken tabellen
 $retValue = array();
 
 for ($i = 0 ; $i < count($db_tables) ; $i++)
