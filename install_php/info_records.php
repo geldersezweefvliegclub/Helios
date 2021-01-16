@@ -32,6 +32,12 @@ if (($username != $installer_account['username']) || (sha1($password) != $instal
 $postdata = file_get_contents("php://input");
 $db_tables = json_decode($postdata, true);
 
+if (!is_array($db_tables))
+{
+    header('HTTP/1.0 406 Not Acceptable');
+    die();    
+}
+
 $l = MaakObject('Login');
 $l->verkrijgToegang($username, $password); // nodig om sessie data te zetten
 

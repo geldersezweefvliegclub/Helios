@@ -115,12 +115,12 @@ De voorbeeld data geeft inzicht in het gebruik en wordt gebruikt voor testen.
 LET OP: Deze installer werkt maar 1 keer, zorg dat de configuratie correct wordt ingevoerd. 
 
 Als de configuratie wizard afgerond is dan is het volgende gebeurd
-- de $db_info configuratie file is gevuld in /include/config.php
+- de database configuratie file is gevuld in /include/config.php
 - installer_account.php, om onderhoud te kunnen doen op de database
 
 De database heeft de volgende tabellen
 - oper_aanwezig_leden	  	
-- oper_aanwezig_vliegtuigen-
+- oper_aanwezig_vliegtuigen
 - oper_daginfo
 - oper_progressie
 - oper_rooster
