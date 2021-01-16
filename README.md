@@ -109,7 +109,7 @@ Er zijn nu twee opties:
 - U heeft beheer rechten op de database server, maar er is nog geen database
 
 Het wordt nu tijd om de database te creeren als dat nog niet gedaan is, en de database tabellen aan te maken. Dit is een voudig te realiseren door
-http://mijn.helios.org/install te open in de browser. Volg de stappen in de wizard. Voor een eerste gebruikt is het aan te raden om voorbeeld data te installeren.
+http://mijn.helios.org/install/index.html te open in de browser. Volg de stappen in de wizard. Voor een eerste gebruikt is het aan te raden om voorbeeld data te installeren.
 De voorbeeld data geeft inzicht in het gebruik en wordt gebruikt voor testen. 
 
 LET OP: Deze installer werkt maar 1 keer, zorg dat de configuratie correct wordt ingevoerd. 
