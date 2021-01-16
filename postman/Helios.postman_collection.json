@@ -9,892 +9,150 @@
 			"name": "Install",
 			"item": [
 				{
-					"name": "Types",
-					"item": [
-						{
-							"name": "Create table",
-							"event": [
-								{
-									"listen": "prerequest",
-									"script": {
-										"exec": [
-											""
-										],
-										"type": "text/javascript"
-									}
-								},
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											""
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [],
-								"url": {
-									"raw": "{{create_database_url}}?FILLDATA=true",
-									"host": [
-										"{{create_database_url}}"
-									],
-									"query": [
-										{
-											"key": "FILLDATA",
-											"value": "true"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Create view",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Status code should not 500\", function () {",
-											"    pm.response.to.not.have.status(500);",
-											"});"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [],
-								"url": {
-									"raw": "{{create_view_url}}",
-									"host": [
-										"{{create_view_url}}"
-									]
-								}
-							},
-							"response": []
-						}
-					],
+					"name": "helios_info",
 					"event": [
 						{
 							"listen": "prerequest",
 							"script": {
-								"type": "text/javascript",
 								"exec": [
-									"let omgeving = eval(pm.globals.get(\"zetOmgeving\"));",
-									"omgeving(\"Types\");"
-								]
+									""
+								],
+								"type": "text/javascript"
 							}
 						},
 						{
 							"listen": "test",
 							"script": {
-								"type": "text/javascript",
 								"exec": [
-									""
-								]
-							}
-						}
-					]
-				},
-				{
-					"name": "Competenties",
-					"item": [
-						{
-							"name": "Create table",
-							"event": [
-								{
-									"listen": "prerequest",
-									"script": {
-										"exec": [
-											""
-										],
-										"type": "text/javascript"
-									}
-								},
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											""
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [],
-								"url": {
-									"raw": "{{create_database_url}}?FILLDATA=true",
-									"host": [
-										"{{create_database_url}}"
-									],
-									"query": [
-										{
-											"key": "FILLDATA",
-											"value": "true"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Create view",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Status code should not 500\", function () {",
-											"    pm.response.to.not.have.status(500);",
-											"});"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [],
-								"url": {
-									"raw": "{{create_view_url}}",
-									"host": [
-										"{{create_view_url}}"
-									]
-								}
-							},
-							"response": []
-						}
-					],
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"let omgeving = eval(pm.globals.get(\"zetOmgeving\"));",
-									"omgeving(\"Competenties\");"
-								]
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									""
-								]
-							}
-						}
-					]
-				},
-				{
-					"name": "Daginfo",
-					"item": [
-						{
-							"name": "Create table",
-							"event": [
-								{
-									"listen": "prerequest",
-									"script": {
-										"exec": [
-											""
-										],
-										"type": "text/javascript"
-									}
-								},
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											""
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [],
-								"url": {
-									"raw": "{{create_database_url}}?FILLDATA=true",
-									"host": [
-										"{{create_database_url}}"
-									],
-									"query": [
-										{
-											"key": "FILLDATA",
-											"value": "true"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Create view",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Status code should not 500\", function () {",
-											"    pm.response.to.not.have.status(500);",
-											"});"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [],
-								"url": {
-									"raw": "{{create_view_url}}",
-									"host": [
-										"{{create_view_url}}"
-									]
-								}
-							},
-							"response": []
-						}
-					],
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"let omgeving = eval(pm.globals.get(\"zetOmgeving\"));",
-									"omgeving(\"Daginfo\");"
-								]
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									""
-								]
-							}
-						}
-					]
-				},
-				{
-					"name": "Vliegtuigen",
-					"item": [
-						{
-							"name": "Create table",
-							"request": {
-								"method": "POST",
-								"header": [],
-								"url": {
-									"raw": "{{create_database_url}}?FILLDATA=true",
-									"host": [
-										"{{create_database_url}}"
-									],
-									"query": [
-										{
-											"key": "FILLDATA",
-											"value": "true"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Create view",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Status code should not 500\", function () {",
-											"    pm.response.to.not.have.status(500);",
-											"});"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [],
-								"url": {
-									"raw": "{{create_view_url}}",
-									"host": [
-										"{{create_view_url}}"
-									]
-								}
-							},
-							"response": []
-						}
-					],
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"let omgeving = eval(pm.globals.get(\"zetOmgeving\"));",
-									"omgeving(\"Types\");"
-								]
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									""
-								]
-							}
-						}
-					]
-				},
-				{
-					"name": "Leden",
-					"item": [
-						{
-							"name": "Create table",
-							"request": {
-								"method": "POST",
-								"header": [],
-								"url": {
-									"raw": "{{create_database_url}}?FILLDATA=true",
-									"host": [
-										"{{create_database_url}}"
-									],
-									"query": [
-										{
-											"key": "FILLDATA",
-											"value": "true"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Create view",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Status code should not 500\", function () {",
-											"    pm.response.to.not.have.status(500);",
-											"});"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [],
-								"url": {
-									"raw": "{{create_view_url}}",
-									"host": [
-										"{{create_view_url}}"
-									]
-								}
-							},
-							"response": []
-						}
-					],
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"console.log(\"-----> \" + pm.info.requestName);",
+									"let jsonData = pm.response.json();",
 									"",
-									"let omgeving = eval(pm.globals.get(\"zetOmgeving\"));",
-									"omgeving(\"Leden\");"
-								]
-							}
-						}
-					]
-				},
-				{
-					"name": "Rooster",
-					"item": [
-						{
-							"name": "Create table",
-							"request": {
-								"method": "POST",
-								"header": [],
-								"url": {
-									"raw": "{{create_database_url}}?FILLDATA=true",
-									"host": [
-										"{{create_database_url}}"
-									],
-									"query": [
-										{
-											"key": "FILLDATA",
-											"value": "true"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Create view",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Status code should not 500\", function () {",
-											"    pm.response.to.not.have.status(500);",
-											"});"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [],
-								"url": {
-									"raw": "{{create_view_url}}",
-									"host": [
-										"{{create_view_url}}"
-									]
-								}
-							},
-							"response": []
-						}
-					],
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"let omgeving = eval(pm.globals.get(\"zetOmgeving\"));",
-									"omgeving(\"Rooster\");"
-								]
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									""
-								]
-							}
-						}
-					]
-				},
-				{
-					"name": "Aanmelding Leden",
-					"item": [
-						{
-							"name": "Create table",
-							"request": {
-								"method": "POST",
-								"header": [],
-								"url": {
-									"raw": "{{create_database_url}}?FILLDATA=true",
-									"host": [
-										"{{create_database_url}}"
-									],
-									"query": [
-										{
-											"key": "FILLDATA",
-											"value": "true"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Create view",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Status code should not 500\", function () {",
-											"    pm.response.to.not.have.status(500);",
-											"});"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [],
-								"url": {
-									"raw": "{{create_view_url}}",
-									"host": [
-										"{{create_view_url}}"
-									]
-								}
-							},
-							"response": []
-						}
-					],
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"let omgeving = eval(pm.globals.get(\"zetOmgeving\"));",
-									"omgeving(\"AanwezigLeden\");"
-								]
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									""
-								]
-							}
-						}
-					]
-				},
-				{
-					"name": "Aanmelding vliegtuigen",
-					"item": [
-						{
-							"name": "Create table",
-							"request": {
-								"method": "POST",
-								"header": [],
-								"url": {
-									"raw": "{{create_database_url}}?FILLDATA=true",
-									"host": [
-										"{{create_database_url}}"
-									],
-									"query": [
-										{
-											"key": "FILLDATA",
-											"value": "true"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Create view",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Status code should not 500\", function () {",
-											"    pm.response.to.not.have.status(500);",
-											"});"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [],
-								"url": {
-									"raw": "{{create_view_url}}",
-									"host": [
-										"{{create_view_url}}"
-									]
-								}
-							},
-							"response": []
-						}
-					],
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"let omgeving = eval(pm.globals.get(\"zetOmgeving\"));",
-									"omgeving(\"AanwezigVliegtuigen\");"
-								]
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									""
-								]
-							}
-						}
-					]
-				},
-				{
-					"name": "Startlijst",
-					"item": [
-						{
-							"name": "Create table",
-							"request": {
-								"method": "POST",
-								"header": [],
-								"url": {
-									"raw": "{{create_database_url}}?FILLDATA=true",
-									"host": [
-										"{{create_database_url}}"
-									],
-									"query": [
-										{
-											"key": "FILLDATA",
-											"value": "true"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Create view",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Status code should not 500\", function () {",
-											"    pm.response.to.not.have.status(500);",
-											"});"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [],
-								"url": {
-									"raw": "{{create_view_url}}",
-									"host": [
-										"{{create_view_url}}"
-									]
-								}
-							},
-							"response": []
-						}
-					],
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"let omgeving = eval(pm.globals.get(\"zetOmgeving\"));",
-									"omgeving(\"Startlijst\");"
-								]
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									""
-								]
-							}
-						}
-					]
-				},
-				{
-					"name": "Tracks",
-					"item": [
-						{
-							"name": "Create table",
-							"event": [
-								{
-									"listen": "prerequest",
-									"script": {
-										"exec": [
-											""
-										],
-										"type": "text/javascript"
-									}
-								},
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											""
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [],
-								"url": {
-									"raw": "{{create_database_url}}?FILLDATA=true",
-									"host": [
-										"{{create_database_url}}"
-									],
-									"query": [
-										{
-											"key": "FILLDATA",
-											"value": "true"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Create view",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Status code should not 500\", function () {",
-											"    pm.response.to.not.have.status(500);",
-											"});"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [],
-								"url": {
-									"raw": "{{create_view_url}}",
-									"host": [
-										"{{create_view_url}}"
-									]
-								}
-							},
-							"response": []
-						}
-					],
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"let omgeving = eval(pm.globals.get(\"zetOmgeving\"));",
-									"omgeving(\"Tracks\");"
-								]
-							}
-						}
-					]
-				},
-				{
-					"name": "Progressie",
-					"item": [
-						{
-							"name": "Create table",
-							"event": [
-								{
-									"listen": "prerequest",
-									"script": {
-										"exec": [
-											""
-										],
-										"type": "text/javascript"
-									}
-								},
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											""
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [],
-								"url": {
-									"raw": "{{create_database_url}}?FILLDATA=true",
-									"host": [
-										"{{create_database_url}}"
-									],
-									"query": [
-										{
-											"key": "FILLDATA",
-											"value": "true"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Create view",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Status code should not 500\", function () {",
-											"    pm.response.to.not.have.status(500);",
-											"});"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [],
-								"url": {
-									"raw": "{{create_view_url}}",
-									"host": [
-										"{{create_view_url}}"
-									]
-								}
-							},
-							"response": []
-						}
-					],
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"let omgeving = eval(pm.globals.get(\"zetOmgeving\"));",
-									"omgeving(\"Progressie\");"
-								]
-							}
-						}
-					]
-				},
-				{
-					"name": "Create helios  als niet bestaat",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"let helios_password = pm.environment.get(\"helios_password\");",
 									"",
+									"pm.test('Heeft db_bestaat', function() {",
+									"    pm.expect(jsonData).to.have.property('db_bestaat')",
+									"});",
+									"",
+									"pm.test('Heeft installer_account', function() {",
+									"    pm.expect(jsonData).to.have.property('installer_account')",
+									"});",
+									"",
+									"pm.test('db_bestaat == bool', function() {",
+									"    pm.expect(typeof jsonData.db_bestaat).to.eql(\"boolean\")",
+									"});",
+									"",
+									"pm.test('installer_account == bool', function() {",
+									"    pm.expect(typeof jsonData.installer_account).to.eql(\"boolean\")",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{base_url}}/install_php/info_helios.php",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"install_php",
+								"info_helios.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "test_db",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let db_info = {};",
+									"",
+									"db_info.databaseHost = pm.environment.get(\"databaseHost\");",
+									"db_info.databaseNaam = pm.environment.get(\"databaseNaam\");",
+									"db_info.databaseGebruiker = pm.environment.get(\"databaseGebruiker\");",
+									"db_info.databaseWachtwoord = pm.environment.get(\"databaseWachtwoord\");",
+									"",
+									"var body = JSON.stringify(db_info); ",
+									"pm.variables.set('request_body', body);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json();",
+									"",
+									"",
+									"pm.test('Heeft dbError', function() {",
+									"    pm.expect(jsonData).to.have.property('dbError')",
+									"});",
+									"",
+									"pm.test('Heeft dbBestaat', function() {",
+									"    pm.expect(jsonData).to.have.property('dbBestaat')",
+									"});",
+									"",
+									"pm.test('dbError == bool', function() {",
+									"    pm.expect(typeof jsonData.dbError).to.eql(\"boolean\")",
+									"});",
+									"",
+									"pm.test('dbBestaat == bool', function() {",
+									"    pm.expect(typeof jsonData.dbBestaat).to.eql(\"boolean\")",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{{request_body}}"
+						},
+						"url": {
+							"raw": "{{base_url}}/install_php/test_db.php",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"install_php",
+								"test_db.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create_account",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
 									""
 								],
 								"type": "text/javascript"
@@ -915,30 +173,369 @@
 						"header": [],
 						"body": {
 							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "password",
-									"value": "{{helios_password}}",
-									"type": "text"
-								},
-								{
-									"key": "maak_database",
-									"value": "true",
-									"type": "text"
-								}
-							]
+							"formdata": []
 						},
 						"url": {
-							"raw": "{{base_url}}/install.php",
+							"raw": "{{base_url}}/install_php/create_account.php",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
-								"install.php"
+								"install_php",
+								"create_account.php"
 							]
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "create_db",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let db_info = {};",
+									"",
+									"db_info.databaseHost = pm.environment.get(\"databaseHost\");",
+									"db_info.databaseNaam = pm.environment.get(\"databaseNaam\");",
+									"db_info.databaseGebruiker = pm.environment.get(\"databaseGebruiker\");",
+									"db_info.databaseWachtwoord = pm.environment.get(\"databaseWachtwoord\");",
+									"",
+									"var body = JSON.stringify(db_info); ",
+									"pm.variables.set('request_body', body);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{{request_body}}"
+						},
+						"url": {
+							"raw": "{{base_url}}/install_php/create_db.php",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"install_php",
+								"create_db.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "tables_info",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json();",
+									"",
+									"for (index = 0; index < jsonData.length; ++index) ",
+									"{",
+									"    pm.test('Heeft class index=' + index, function() {",
+									"        pm.expect(jsonData[index]).to.have.property('class')",
+									"    });",
+									"",
+									"    pm.test('Heeft bestaat index='+index, function() {",
+									"        pm.expect(jsonData[index]).to.have.property('bestaat')",
+									"    });    ",
+									"",
+									"    pm.test('bestaat == bool index='+index, function() {",
+									"        pm.expect(typeof jsonData[index].bestaat).to.eql(\"boolean\")",
+									"    });",
+									"}",
+									"",
+									"var body = JSON.stringify(jsonData); ",
+									"pm.globals.set('db_info', body);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{base_url}}/install_php/info_tables.php",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"install_php",
+								"info_tables.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create_tables",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{{db_info}}"
+						},
+						"url": {
+							"raw": "{{base_url}}/install_php/create_tables.php?filldata=true",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"install_php",
+								"create_tables.php"
+							],
+							"query": [
+								{
+									"key": "filldata",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "views_info",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json();",
+									"",
+									"for (index = 0; index < jsonData.length; ++index) ",
+									"{",
+									"    pm.test('Heeft class index=' + index, function() {",
+									"        pm.expect(jsonData[index]).to.have.property('class')",
+									"    });",
+									"",
+									"    pm.test('Heeft bestaat index='+index, function() {",
+									"        pm.expect(jsonData[index]).to.have.property('bestaat')",
+									"    });    ",
+									"",
+									"    pm.test('bestaat == bool index='+index, function() {",
+									"        pm.expect(typeof jsonData[index].bestaat).to.eql(\"boolean\")",
+									"    });",
+									"}",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{{db_info}}"
+						},
+						"url": {
+							"raw": "{{base_url}}/install_php/info_views.php",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"install_php",
+								"info_views.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create_views",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"console.log(pm.variables.get('db_info'));"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{{db_info}}"
+						},
+						"url": {
+							"raw": "{{base_url}}/install_php/create_views.php",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"install_php",
+								"create_views.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "records_info",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json();",
+									"",
+									"for (index = 0; index < jsonData.length; ++index) ",
+									"{",
+									"    pm.test('Heeft class index=' + index, function() {",
+									"        pm.expect(jsonData[index]).to.have.property('class')",
+									"    });",
+									"",
+									"    pm.test('Heeft totaal index='+index, function() {",
+									"        pm.expect(jsonData[index]).to.have.property('totaal')",
+									"    });    ",
+									"",
+									"    pm.test('Heeft laatste_aanpassing index='+index, function() {",
+									"        pm.expect(jsonData[index]).to.have.property('laatste_aanpassing')",
+									"    }); ",
+									"",
+									"}",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{{db_info}}"
+						},
+						"url": {
+							"raw": "{{base_url}}/install_php/info_records.php",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"install_php",
+								"info_records.php"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"STATUS == 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});  "
+						]
+					}
 				}
 			]
 		},
@@ -11645,19 +11242,19 @@
 							"        let jsonData = pm.response.json();",
 							"",
 							"        pm.test('Heeft totaal', function() {",
-							"        pm.expect(jsonData).to.have.property('totaal');",
+							"            pm.expect(jsonData).to.have.property('totaal');",
 							"        });",
 							"",
 							"        pm.test('Heeft laatste aanpassing', function() {",
-							"        pm.expect(jsonData).to.have.property('laatste_aanpassing');",
+							"            pm.expect(jsonData).to.have.property('laatste_aanpassing');",
 							"        });",
 							"",
 							"        pm.test('Heeft hash', function() {",
-							"        pm.expect(jsonData).to.have.property('hash');",
+							"            pm.expect(jsonData).to.have.property('hash');",
 							"        });",
 							"",
 							"        pm.test('Heeft dataset', function() {",
-							"        pm.expect(jsonData).to.have.property('dataset');",
+							"            pm.expect(jsonData).to.have.property('dataset');",
 							"        });",
 							"    }",
 							"}"
