@@ -82,7 +82,10 @@
         </v-stepper-content>
 
         <v-stepper-content step="2">
-          <db-tables :db-tables="db_tables" />
+          <db-tables
+            :db-tables="db_tables"
+            @tabellenAangemaakt="tabellenAangemaakt"
+          />
 
           <v-card-actions>
             <v-btn

@@ -25,7 +25,7 @@
 
       computed: {
         url: function () {
-          return window.location.host + '/docs/index.php'
+          return '../docs/index.php'
         },
       },
 
