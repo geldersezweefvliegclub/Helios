@@ -7,6 +7,8 @@ info:
 paths:
   /AanwezigLeden/CreateTable:
     post:
+      security:
+        - basicAuth: []
       summary: Creeer database objecten
       parameters:
         - in: query
@@ -23,6 +25,8 @@ paths:
 
   /AanwezigLeden/CreateViews:
     post:
+      security:
+        - basicAuth: []     
       summary: Creeer database views
       responses:
         201:
@@ -32,6 +36,8 @@ paths:
 
   /AanwezigLeden/GetObject:
     get:
+      security:
+        - basicAuth: []    
       summary: Haal een enkel record op uit de database
       parameters:
         - in: query
@@ -76,6 +82,8 @@ paths:
 
   /AanwezigLeden/GetObjects:
     get:
+      security:
+        - basicAuth: []    
       summary: Haal de aanwezigheidslijst op uit de database. Query parameters worden in AND conditie gebruikt
       parameters:
         - in: query
@@ -182,6 +190,8 @@ paths:
 
   /AanwezigLeden/Aanmelden:
     post:
+      security:
+        - basicAuth: []
       summary: Aanmelden van het lid als aanwezig. Maakt record aan als het niet bestaat of update bestaand record (ook al is het lid aanwezig)
       requestBody:
         description: Lid data
@@ -218,6 +228,8 @@ paths:
 
   /AanwezigLeden/Afmelden:
     post:
+      security:
+        - basicAuth: []
       summary: Afmelden van het lid als aanwezig. Update bestaand record. Lid moet aanwezig zijn
       requestBody:
         description: Lid data
@@ -254,6 +266,8 @@ paths:
 
   /AanwezigLeden/PotentieelVliegers:
     get:
+      security:
+        - basicAuth: []  
       summary: We weten het vliegtuig, maar wie gaat vliegen. Geeft een lijst met potentiele vliegers
       parameters:
       - in: query        
@@ -329,6 +343,8 @@ paths:
 
   /AanwezigLeden/DeleteObject:
     delete:
+      security:
+        - basicAuth: []    
       summary: Markeer record als verwijderd.
       parameters:
         - in: query
@@ -372,6 +388,8 @@ paths:
 
   /AanwezigLeden/RestoreObject:
     patch:
+      security:
+        - basicAuth: []    
       summary: Record dat verwijderd is terug halen. VERWIJDERD marker kijrgt reset
       parameters:
         - in: query
@@ -396,6 +414,8 @@ paths:
 
   /AanwezigLeden/SaveObject:
     post:
+      security:
+        - basicAuth: []    
       summary: Voeg nieuwe aanmelding toe
       requestBody:
         description: Aanmelding data
@@ -422,6 +442,8 @@ paths:
         500:
           description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"                      
     put:
+      security:
+        - basicAuth: []    
       summary: Update bestaande aanmelding. DATUM / LID_ID kunnen niet aangepast worden. Indien deze velden onjuist onjuist zijn, verwijder record en maak nieuw record.
       requestBody:
         description: Aanmelding data

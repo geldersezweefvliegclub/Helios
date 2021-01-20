@@ -1,12 +1,14 @@
 openapi: 3.0.2
 info:
-  title: RefLeden
-  description: Ledenlijst
+  title: Login
+  description: Inloggen en userinfo
   version: '1.0'
     
 paths: 
   /Login/GetUserInfo:
     get:
+      security:
+        - basicAuth: []    
       summary: Haal informatie van de ingelogde gebruiker
       parameters:
         - in: query

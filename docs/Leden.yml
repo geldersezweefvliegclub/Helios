@@ -7,6 +7,8 @@ info:
 paths:
   /Leden/CreateTable:
     post:
+      security:
+        - basicAuth: []    
       summary: Creeer database objecten
       parameters:
         - in: query
@@ -23,6 +25,8 @@ paths:
 
   /Leden/CreateViews:
     post:
+      security:
+        - basicAuth: []    
       summary: Creeer database views
       responses:
         201:
@@ -32,6 +36,8 @@ paths:
 
   /Leden/GetObject:
     get:
+      security:
+        - basicAuth: []    
       summary: Haal een enkel lid op uit de database
       parameters:
         - in: query
@@ -59,6 +65,8 @@ paths:
 
   /Leden/GetObjects:
     get:
+      security:
+        - basicAuth: []    
       summary: Haal de ledenlijst op uit de database. Query parameters worden in AND conditie gebruikt
       parameters:
         - in: query
@@ -179,6 +187,8 @@ paths:
 
   /Leden/DeleteObject:
     delete:
+      security:
+        - basicAuth: []    
       summary: Markeer record als verwijderd.
       parameters:
         - in: query
@@ -209,6 +219,8 @@ paths:
 
   /Leden/RestoreObject:
     patch:
+      security:
+        - basicAuth: []    
       summary: Record dat verwijderd is terug halen. VERWIJDERD marker kijrgt reset
       parameters:
         - in: query
@@ -233,6 +245,8 @@ paths:
 
   /Leden/UploadAvatar:
     post:
+      security:
+        - basicAuth: []    
       summary: Avatar dat bij het lid hoort
       parameters:
         - in: query
@@ -270,6 +284,8 @@ paths:
 
   /Leden/SaveObject:
     post:
+      security:
+        - basicAuth: []    
       summary: Voeg nieuw lid toe
       requestBody:
         description: lid data
@@ -296,6 +312,8 @@ paths:
         500:
           description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"                      
     put:
+      security:
+        - basicAuth: []    
       summary: Update bestaand lid
       requestBody:
         description: lid data

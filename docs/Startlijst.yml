@@ -7,6 +7,8 @@ info:
 paths:
   /Startlijst/CreateTable:
     post:
+      security:
+        - basicAuth: []    
       summary: Creeer database objecten
       parameters:
         - in: query
@@ -23,6 +25,8 @@ paths:
 
   /Startlijst/CreateViews:
     post:
+      security:
+        - basicAuth: []    
       summary: Creeer database views
       responses:
         201:
@@ -32,6 +36,8 @@ paths:
 
   /Startlijst/GetObject:
     get:
+      security:
+        - basicAuth: []    
       summary: Haal een enkele vlucht op uit de database
       parameters:
         - in: query
@@ -59,6 +65,8 @@ paths:
 
   /Startlijst/GetObjects:
     get:
+      security:
+        - basicAuth: []    
       summary: Haal de startlijst op uit de database. Query parameters worden in AND conditie gebruikt
       parameters:
         - in: query
@@ -175,6 +183,8 @@ paths:
 
   /Startlijst/GetLogboek:
     get:
+      security:
+        - basicAuth: []    
       summary: Haal logboek van gebruiker op. Query parameters worden in AND conditie gebruikt
       parameters:
         - in: query
@@ -293,6 +303,8 @@ paths:
 
   /Startlijst/DeleteObject:
     delete:
+      security:
+        - basicAuth: []    
       summary: Markeer record als verwijderd.
       parameters:
         - in: query
@@ -323,6 +335,8 @@ paths:
 
   /Startkijst/RestoreObject:
     patch:
+      security:
+        - basicAuth: []    
       summary: Record dat verwijderd is terug halen. VERWIJDERD marker kijrgt reset
       parameters:
         - in: query
@@ -347,6 +361,8 @@ paths:
 
   /Startlijst/SaveObject:
     post:
+      security:
+        - basicAuth: []    
       summary: Voeg nieuwe vlucht toe
       requestBody:
         description: start data
@@ -373,6 +389,8 @@ paths:
         500:
           description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"                      
     put:
+      security:
+        - basicAuth: []    
       summary: Update bestaande start
       requestBody:
         description: start data
@@ -403,6 +421,8 @@ paths:
 
   /Startlijst/GetRecency:
     get:
+      security:
+        - basicAuth: []    
       summary: Hoeveel heeft de vlieger de afgelopen periode gevlogen en hoe is zijn barometer status
       parameters:
         - in: query
@@ -459,6 +479,8 @@ paths:
 
   /Startlijst/GetVliegDagen:
     get:
+      security:
+        - basicAuth: []    
       summary: Op welke dagen zijn er starts aanwezig
       parameters:
         - in: query
@@ -676,6 +698,3 @@ components:
                     description: Naam van het vliegveld waarop gestart is
                     type: string
                     example: Terlet                    
-
-
-

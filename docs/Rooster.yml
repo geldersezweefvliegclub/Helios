@@ -7,6 +7,8 @@ info:
 paths:
   /Rooster/CreateTable:
     post:
+      security:
+        - basicAuth: []    
       summary: Creeer database objecten
       parameters:
         - in: query
@@ -23,6 +25,8 @@ paths:
 
   /Rooster/CreateViews:
     post:
+      security:
+        - basicAuth: []    
       summary: Creeer database views
       responses:
         201:
@@ -32,6 +36,8 @@ paths:
           
   /Rooster/GetObject:
     get:
+      security:
+        - basicAuth: []    
       summary: 'Haal een enkele dag op uit de database. Query parameters worden in AND conditie gebruikt'
       parameters:
         - in: query
@@ -67,6 +73,8 @@ paths:
 
   /Rooster/GetObjects:
     get:
+      security:
+        - basicAuth: []    
       summary: Haal een lijst met roosters op uit de database. Query parameters worden in AND conditie gebruikt
       parameters:
         - in: query
@@ -147,6 +155,8 @@ paths:
 
   /Rooster/DeleteObject:
     delete:
+      security:
+        - basicAuth: []    
       summary: Markeer record als verwijderd. Query parameters worden in AND conditie gebruikt
       parameters:
         - in: query
@@ -185,6 +195,8 @@ paths:
 
   /Rooster/RestoreObject:
     patch:
+      security:
+        - basicAuth: []    
       summary: Record dat verwijderd is terug halen. VERWIJDERD marker kijrgt reset
       parameters:
         - in: query
@@ -209,6 +221,8 @@ paths:
 
   /Rooster/SaveObject:
     post:
+      security:
+        - basicAuth: []    
       summary: Voeg nieuw rooster toe
       requestBody:
         description: Rooster data
@@ -235,6 +249,8 @@ paths:
         500:
           description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"                       
     put:
+      security:
+        - basicAuth: []    
       summary: Update bestaand rooster
       requestBody:
         description: Rooster data

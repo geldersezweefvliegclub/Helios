@@ -1,1 +1,529 @@
-{"openapi":"3.0.2","info":{"title":"Type data","description":"Verzameling van compententie die de vlieger moet leren bij de vlieg opleiding","version":"1.0"},"paths":{"/Competenties/CreateTable":{"post":{"summary":"Creeer database objecten","parameters":[{"in":"query","name":"FILLDATA","description":"Dummy records aanmaken","required":true,"schema":{"type":"boolean"}}],"responses":{"201":{"description":"Aangemaakt, Tabel toegevoegd"},"500":{"description":"Data verwerkingsfout, bijv omdat de tabel al bestaat"}}}},"/Competenties/CreateViews":{"post":{"summary":"Creeer database views","responses":{"201":{"description":"Aangemaakt, View toegevoegd"},"500":{"description":"Data verwerkingsfout, view niet aangemaak"}}}},"/Competenties/GetObject":{"get":{"summary":"Haal een enkel record op uit de database","parameters":[{"in":"query","name":"ID","description":"Database ID van het type record","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"OK, data succesvol opgehaald","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ref_competenties"}}}},"404":{"description":"Data niet gevonden"},"405":{"description":"Methode niet toegestaan, input validatie error"},"406":{"description":"Niet aanvaardbaar, input ontbreekt"},"500":{"description":"Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"}}}},"/Competenties/GetObjects":{"get":{"summary":"Haal een lijst met competeties op uit de database. Query parameters worden in AND conditie gebruikt","parameters":[{"in":"query","name":"ID","description":"Database ID van het aanwezig record","required":false,"schema":{"type":"integer","format":"int32","example":31}},{"in":"query","name":"VERWIJDERD","description":"Toon welke records verwijderd zijn. Default = false","required":false,"schema":{"type":"boolean"}},{"in":"query","name":"LAATSTE_AANPASSING","description":"Laatste aanpassing op basis van records in dataset. Bedoeld om data verbruik te verminderen. Dataset is daarom leeg","required":false,"schema":{"type":"boolean"}},{"in":"query","name":"HASH","description":"HASH van laatste GetObjects aanroep. Indien bij nieuwe aanroep dezelfde data bevat, dan volgt http status code 304. In geval dataset niet hetzelfde is, dan komt de nieuwe dataset terug. Ook bedoeld om dataverbruik te vermindereren. Er wordt alleen data verzonden als het nodig is.","required":false,"schema":{"type":"string"}},{"in":"query","name":"SORT","description":"Sortering van de velden in ORDER BY formaat. Default = CLUBKIST DESC, VOLGORDE, REGISTRATIE","required":false,"schema":{"type":"string"}},{"in":"query","name":"MAX","description":"Maximum aantal records in de dataset. Gebruikt in LIMIT query","required":false,"schema":{"type":"integer","format":"int32","minimum":1}},{"in":"query","name":"START","description":"Eerste record in de dataset. Gebruikt in LIMIT query","required":false,"schema":{"type":"integer","format":"int32","minimum":1}},{"in":"query","name":"VELDEN","description":"Welke velden moet opgenomen worden in de dataset","required":false,"schema":{"type":"string"}},{"in":"query","name":"LEERFASE_ID","description":"Haal alle types op van een specieke leerfase","required":false,"schema":{"type":"string"}}],"responses":{"200":{"description":"OK, data succesvol opgehaald","content":{"application/json":{"schema":{"$ref":"#/components/schemas/view_competenties"}}}},"304":{"description":"Data niet gemodificeerd, HASH in aanroep == hash in dataset"},"405":{"description":"Methode niet toegestaan, input validatie error"},"500":{"description":"Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"}}}},"/Competenties/DeleteObject":{"delete":{"summary":"Markeer record als verwijderd.","parameters":[{"in":"query","name":"ID","description":"Database ID van het record. Meerdere ID's in CSV formaat","required":true,"schema":{"type":"string"}},{"in":"query","name":"VERIFICATIE","description":"Controleer of record bestaat voordat het verwijderd wordt. Default = true","required":false,"schema":{"type":"boolean"}}],"responses":{"204":{"description":"Type verwijderd"},"401":{"description":"Niet geautoriseerd, geen schrijfrechten"},"404":{"description":"Data niet gevonden"},"405":{"description":"Methode niet toegestaan, input validatie error"},"406":{"description":"Niet aanvaardbaar, input ontbreekt"},"500":{"description":"Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"}}}},"/Competenties/RestoreObject":{"patch":{"summary":"Record dat verwijderd is terug halen. VERWIJDERD marker kijrgt reset","parameters":[{"in":"query","name":"ID","description":"Database ID van het record. Meerdere ID's in CSV formaat","required":true,"schema":{"type":"string"}}],"responses":{"202":{"description":"Record(s) hersteld"},"401":{"description":"Niet geautoriseerd, geen schrijfrechten"},"404":{"description":"Data niet gevonden"},"405":{"description":"Methode niet toegestaan, input validatie error"},"406":{"description":"Niet aanvaardbaar, input ontbreekt"},"500":{"description":"Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"}}}},"/Competenties/SaveObject":{"post":{"summary":"Voeg nieuw type record toe","requestBody":{"description":"type data","required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ref_competenties_in"}}}},"responses":{"200":{"description":"OK, data succesvol toegevoegd","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ref_competenties"}}}},"401":{"description":"Niet geautoriseerd, geen schrijfrechten"},"405":{"description":"Methode niet toegestaan, input validatie error"},"406":{"description":"Niet aanvaardbaar, input ontbreekt"},"409":{"description":"Conflict, record bestaat al"},"500":{"description":"Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"}}},"put":{"summary":"Update bestaand type record","requestBody":{"description":"type data","required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ref_competenties_in"}}}},"responses":{"200":{"description":"OK, data succesvol aangepast","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ref_competenties"}}}},"401":{"description":"Niet geautoriseerd, geen schrijfrechten"},"404":{"description":"Data niet gevonden"},"405":{"description":"Methode niet toegestaan, input validatie error"},"406":{"description":"Niet aanvaardbaar, input ontbreekt"},"500":{"description":"Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"}}}}},"components":{"securitySchemes":{"basicAuth":{"type":"http","scheme":"basic","description":"Eerst inloggen voordat API beschikbaar is"}},"schemas":{"ref_competenties_in":{"type":"object","properties":{"ID":{"description":"Database ID van het record","type":"integer","format":"int32","example":12871},"VOLGORDE":{"description":"Volgorde van weergave","type":"integer","format":"int16","example":1},"LEERFASE_ID":{"description":"In welke leerfase zit deze competentie. Verwijzing naar ref_types","type":"integer","format":"int32","example":1},"BLOK":{"description":"Volgnummer","type":"string","maxLength":7,"example":"3.4"},"BLOK_ID":{"description":"Verwijzing naar bovenliggend record van boom structuur","type":"integer","format":"int32","example":300},"ONDERWERP":{"description":"Volledige omschrijving van de compententie","type":"string","maxLength":75,"example":"Uitstap procedure"},"DOCUMENTATIE":{"description":"Verwijzing naar de volledige documentie","type":"string","maxLength":75,"example":"VVO1.14"}}},"ref_competenties":{"type":"object","allOf":[{"$ref":"#/components/schemas/ref_competenties_in"},{"type":"object","properties":{"VERWIJDERD":{"description":"Is dit record gemarkeerd als verwijderd?  Waarde 0..1","type":"boolean","example":0},"LAATSTE_AANPASSING":{"description":"Tijdstempel van laaste aanpassing in de database","type":"string","format":"date-time","example":"2019-05-01 16:42:00"}}}]},"view_competenties":{"type":"object","properties":{"totaal":{"description":"Aantal records dat voldoet aan de criteria in de database","type":"integer","format":"int32","example":287},"laatste_aanpassing":{"description":"Tijdstempel van laaste aanpassing in de database van de records dat voldoet aan de criteria","type":"string","format":"date-time","example":"2020-06-06 13:02:02"},"dataset":{"description":"De dataset met records","type":"array","items":{"type":"object","allOf":[{"$ref":"#/components/schemas/ref_competenties"},{"type":"object","properties":{"LEERFASE":{"description":"Fase van de vliegopleiding","type":"string","example":"Voortgezette vliegopleiding 1"}}}]}}}}}}}
+{
+    "openapi": "3.0.2",
+    "info": {
+      "title": "Type data",
+      "description": "Verzameling van compententie die de vlieger moet leren bij de vlieg opleiding",
+      "version": "1.0"
+    },
+    "paths": {
+      "/Competenties/CreateTable": {
+        "post": {
+          "security": [
+            {
+              "basicAuth": []
+            }
+          ],
+          "summary": "Creeer database objecten",
+          "parameters": [
+            {
+              "in": "query",
+              "name": "FILLDATA",
+              "description": "Dummy records aanmaken",
+              "required": true,
+              "schema": {
+                "type": "boolean"
+              }
+            }
+          ],
+          "responses": {
+            "201": {
+              "description": "Aangemaakt, Tabel toegevoegd"
+            },
+            "500": {
+              "description": "Data verwerkingsfout, bijv omdat de tabel al bestaat"
+            }
+          }
+        }
+      },
+      "/Competenties/CreateViews": {
+        "post": {
+          "security": [
+            {
+              "basicAuth": []
+            }
+          ],
+          "summary": "Creeer database views",
+          "responses": {
+            "201": {
+              "description": "Aangemaakt, View toegevoegd"
+            },
+            "500": {
+              "description": "Data verwerkingsfout, view niet aangemaak"
+            }
+          }
+        }
+      },
+      "/Competenties/GetObject": {
+        "get": {
+          "security": [
+            {
+              "basicAuth": []
+            }
+          ],
+          "summary": "Haal een enkel record op uit de database",
+          "parameters": [
+            {
+              "in": "query",
+              "name": "ID",
+              "description": "Database ID van het type record",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK, data succesvol opgehaald",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ref_competenties"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Data niet gevonden"
+            },
+            "405": {
+              "description": "Methode niet toegestaan, input validatie error"
+            },
+            "406": {
+              "description": "Niet aanvaardbaar, input ontbreekt"
+            },
+            "500": {
+              "description": "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"
+            }
+          }
+        }
+      },
+      "/Competenties/GetObjects": {
+        "get": {
+          "security": [
+            {
+              "basicAuth": []
+            }
+          ],
+          "summary": "Haal een lijst met competeties op uit de database. Query parameters worden in AND conditie gebruikt",
+          "parameters": [
+            {
+              "in": "query",
+              "name": "ID",
+              "description": "Database ID van het aanwezig record",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "example": 31
+              }
+            },
+            {
+              "in": "query",
+              "name": "VERWIJDERD",
+              "description": "Toon welke records verwijderd zijn. Default = false",
+              "required": false,
+              "schema": {
+                "type": "boolean"
+              }
+            },
+            {
+              "in": "query",
+              "name": "LAATSTE_AANPASSING",
+              "description": "Laatste aanpassing op basis van records in dataset. Bedoeld om data verbruik te verminderen. Dataset is daarom leeg",
+              "required": false,
+              "schema": {
+                "type": "boolean"
+              }
+            },
+            {
+              "in": "query",
+              "name": "HASH",
+              "description": "HASH van laatste GetObjects aanroep. Indien bij nieuwe aanroep dezelfde data bevat, dan volgt http status code 304. In geval dataset niet hetzelfde is, dan komt de nieuwe dataset terug. Ook bedoeld om dataverbruik te vermindereren. Er wordt alleen data verzonden als het nodig is.",
+              "required": false,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "in": "query",
+              "name": "SORT",
+              "description": "Sortering van de velden in ORDER BY formaat. Default = CLUBKIST DESC, VOLGORDE, REGISTRATIE",
+              "required": false,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "in": "query",
+              "name": "MAX",
+              "description": "Maximum aantal records in de dataset. Gebruikt in LIMIT query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "minimum": 1
+              }
+            },
+            {
+              "in": "query",
+              "name": "START",
+              "description": "Eerste record in de dataset. Gebruikt in LIMIT query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "minimum": 1
+              }
+            },
+            {
+              "in": "query",
+              "name": "VELDEN",
+              "description": "Welke velden moet opgenomen worden in de dataset",
+              "required": false,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "in": "query",
+              "name": "LEERFASE_ID",
+              "description": "Haal alle types op van een specieke leerfase",
+              "required": false,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK, data succesvol opgehaald",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/view_competenties"
+                  }
+                }
+              }
+            },
+            "304": {
+              "description": "Data niet gemodificeerd, HASH in aanroep == hash in dataset"
+            },
+            "405": {
+              "description": "Methode niet toegestaan, input validatie error"
+            },
+            "500": {
+              "description": "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"
+            }
+          }
+        }
+      },
+      "/Competenties/DeleteObject": {
+        "delete": {
+          "security": [
+            {
+              "basicAuth": []
+            }
+          ],
+          "summary": "Markeer record als verwijderd.",
+          "parameters": [
+            {
+              "in": "query",
+              "name": "ID",
+              "description": "Database ID van het record. Meerdere ID's in CSV formaat",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "in": "query",
+              "name": "VERIFICATIE",
+              "description": "Controleer of record bestaat voordat het verwijderd wordt. Default = true",
+              "required": false,
+              "schema": {
+                "type": "boolean"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "Type verwijderd"
+            },
+            "401": {
+              "description": "Niet geautoriseerd, geen schrijfrechten"
+            },
+            "404": {
+              "description": "Data niet gevonden"
+            },
+            "405": {
+              "description": "Methode niet toegestaan, input validatie error"
+            },
+            "406": {
+              "description": "Niet aanvaardbaar, input ontbreekt"
+            },
+            "500": {
+              "description": "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"
+            }
+          }
+        }
+      },
+      "/Competenties/RestoreObject": {
+        "patch": {
+          "security": [
+            {
+              "basicAuth": []
+            }
+          ],
+          "summary": "Record dat verwijderd is terug halen. VERWIJDERD marker kijrgt reset",
+          "parameters": [
+            {
+              "in": "query",
+              "name": "ID",
+              "description": "Database ID van het record. Meerdere ID's in CSV formaat",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "202": {
+              "description": "Record(s) hersteld"
+            },
+            "401": {
+              "description": "Niet geautoriseerd, geen schrijfrechten"
+            },
+            "404": {
+              "description": "Data niet gevonden"
+            },
+            "405": {
+              "description": "Methode niet toegestaan, input validatie error"
+            },
+            "406": {
+              "description": "Niet aanvaardbaar, input ontbreekt"
+            },
+            "500": {
+              "description": "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"
+            }
+          }
+        }
+      },
+      "/Competenties/SaveObject": {
+        "post": {
+          "security": [
+            {
+              "basicAuth": []
+            }
+          ],
+          "summary": "Voeg nieuw type record toe",
+          "requestBody": {
+            "description": "type data",
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ref_competenties_in"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "OK, data succesvol toegevoegd",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ref_competenties"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Niet geautoriseerd, geen schrijfrechten"
+            },
+            "405": {
+              "description": "Methode niet toegestaan, input validatie error"
+            },
+            "406": {
+              "description": "Niet aanvaardbaar, input ontbreekt"
+            },
+            "409": {
+              "description": "Conflict, record bestaat al"
+            },
+            "500": {
+              "description": "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"
+            }
+          }
+        },
+        "put": {
+          "security": [
+            {
+              "basicAuth": []
+            }
+          ],
+          "summary": "Update bestaand type record",
+          "requestBody": {
+            "description": "type data",
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ref_competenties_in"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "OK, data succesvol aangepast",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ref_competenties"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Niet geautoriseerd, geen schrijfrechten"
+            },
+            "404": {
+              "description": "Data niet gevonden"
+            },
+            "405": {
+              "description": "Methode niet toegestaan, input validatie error"
+            },
+            "406": {
+              "description": "Niet aanvaardbaar, input ontbreekt"
+            },
+            "500": {
+              "description": "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "securitySchemes": {
+        "basicAuth": {
+          "type": "http",
+          "scheme": "basic",
+          "description": "Eerst inloggen voordat API beschikbaar is"
+        }
+      },
+      "schemas": {
+        "ref_competenties_in": {
+          "type": "object",
+          "properties": {
+            "ID": {
+              "description": "Database ID van het record",
+              "type": "integer",
+              "format": "int32",
+              "example": 12871
+            },
+            "VOLGORDE": {
+              "description": "Volgorde van weergave",
+              "type": "integer",
+              "format": "int16",
+              "example": 1
+            },
+            "LEERFASE_ID": {
+              "description": "In welke leerfase zit deze competentie. Verwijzing naar ref_types",
+              "type": "integer",
+              "format": "int32",
+              "example": 1
+            },
+            "BLOK": {
+              "description": "Volgnummer",
+              "type": "string",
+              "maxLength": 7,
+              "example": "3.4"
+            },
+            "BLOK_ID": {
+              "description": "Verwijzing naar bovenliggend record van boom structuur",
+              "type": "integer",
+              "format": "int32",
+              "example": 300
+            },
+            "ONDERWERP": {
+              "description": "Volledige omschrijving van de compententie",
+              "type": "string",
+              "maxLength": 75,
+              "example": "Uitstap procedure"
+            },
+            "DOCUMENTATIE": {
+              "description": "Verwijzing naar de volledige documentie",
+              "type": "string",
+              "maxLength": 75,
+              "example": "VVO1.14"
+            }
+          }
+        },
+        "ref_competenties": {
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/ref_competenties_in"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "VERWIJDERD": {
+                  "description": "Is dit record gemarkeerd als verwijderd?  Waarde 0..1",
+                  "type": "boolean",
+                  "example": 0
+                },
+                "LAATSTE_AANPASSING": {
+                  "description": "Tijdstempel van laaste aanpassing in de database",
+                  "type": "string",
+                  "format": "date-time",
+                  "example": "2019-05-01 16:42:00"
+                }
+              }
+            }
+          ]
+        },
+        "view_competenties": {
+          "type": "object",
+          "properties": {
+            "totaal": {
+              "description": "Aantal records dat voldoet aan de criteria in de database",
+              "type": "integer",
+              "format": "int32",
+              "example": 287
+            },
+            "laatste_aanpassing": {
+              "description": "Tijdstempel van laaste aanpassing in de database van de records dat voldoet aan de criteria",
+              "type": "string",
+              "format": "date-time",
+              "example": "2020-06-06 13:02:02"
+            },
+            "dataset": {
+              "description": "De dataset met records",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/ref_competenties"
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "LEERFASE": {
+                        "description": "Fase van de vliegopleiding",
+                        "type": "string",
+                        "example": "Voortgezette vliegopleiding 1"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  }
