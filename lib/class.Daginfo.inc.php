@@ -166,7 +166,18 @@
 			
 			if ($obj == null)
 				throw new Exception("404;Record niet gevonden;");
-			
+
+			// Controle of de gebruiker deze data wel mag ophalen
+			if ($l->isStarttoren() == true)
+			{
+				if ($obj['DATUM'] !== date("Y-m-d"))		// starttoren mag alleen vandaag opvragen
+					throw new Exception("401;Geen leesrechten;");
+			}
+			elseif (($l->isBeheerder() == false) && ($l->isBeheerderDDWV() == false) && ($l->isInstructeur() == false) && ($l->isStarttoren() == false))
+			{
+				throw new Exception("401;Geen leesrechten;");
+			}
+
 			return $obj;	
 		}
 	
@@ -187,6 +198,18 @@
 			$velden = "*";
 			$alleenVerwijderd = false;
 			$query_params = array();
+
+			// Als ingelogde gebruiker geen bijzonder functie heeft, worden beperkte dataset opgehaald
+			$l = MaakObject('Login');
+			if (($l->isBeheerder() == false) && 
+				($l->isBeheerderDDWV() == false) && 
+				($l->isInstructeur() == false) && 
+				($l->isRooster() == false) && 
+				($l->isStarttoren() == false))
+				throw new Exception("401;Gebruiker mag daginfo opvragen;");
+			
+			if ($l->isStarttoren() == true)
+				$where .= sprintf (" AND DATUM = '%s'", date("Y-m-d"));		// starttoren mag alleen vandaag opvragen
 
 			foreach ($params as $key => $value)
 			{

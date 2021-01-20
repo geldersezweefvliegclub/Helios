@@ -8,3 +8,5 @@ install/sourcecode/node_modules
 installer_account.php
 install_error_db.txt
 include/config.php
+log/sql.txt
+log/debug.txt

@@ -172,6 +172,8 @@
 					(254, 05,  1004,  250,  NULL,  'LS8',  NULL),
 					(255, 06,  1004,  250,  NULL,  'Duo Discus',  NULL),
 					(256, 07,  1004,  250,  NULL,  'ASG-29',  NULL),
+					(257, 08,  1004,  250,  NULL,  'Arcus',  NULL),	
+
 					(260, 01,  1004,  NULL, NULL,  'Kruisjeslijst - overland',  NULL),
 					(261, 02,  1004,  260,  NULL,  'ASK21',  NULL),
 					(262, 03,  1004,  260,  NULL,  'LS4',  NULL),
@@ -179,7 +181,7 @@
 					(264, 05,  1004,  260,  NULL,  'LS8',  NULL),
 					(265, 06,  1004,  260,  NULL,  'Duo Discus',  NULL),
 					(266, 07,  1004,  260,  NULL,  'ASG-29',  NULL),	
-					(267, 07,  1004,  260,  NULL,  'Arcus',  NULL),		
+					(267, 08,  1004,  260,  NULL,  'Arcus',  NULL),		
 					
 					(270, 01,  1004,  NULL, NULL,  'Passagiers',  NULL),
 					(271, 01,  1004,  270,  NULL,  'Passagiers vliegen',  NULL),

@@ -147,6 +147,11 @@
 			$alleenVerwijderd = false;
 			$query_params = array();
 
+			// Als ingelogde gebruiker geen bijzonder functie heeft, worden beperkte dataset opgehaald
+			$l = MaakObject('Login');
+			if (($l->isBeheerder() == false) && ($l->isInstructeur() == false))
+				$where .= sprintf(" AND (LID_ID = '%d') ", $l->getUserFromSession());
+
 			foreach ($params as $key => $value)
 			{
 				switch ($key)

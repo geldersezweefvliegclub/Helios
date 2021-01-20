@@ -189,7 +189,7 @@
 			$l = MaakObject('Login');
 			if ($l->getUserFromSession() != $ID)
 			{
-				if (($l->isBeheerder() == false) && ($l->isBeheerderDDWV() == false))
+				if (($l->isBeheerder() == false) && ($l->isBeheerderDDWV() == false) && ($l->isStarttoren() == false))
 					throw new Exception("401;Geen leesrechten;");
 			}
 
@@ -199,6 +199,14 @@
 			if ($obj == null)
 				throw new Exception("404;Record niet gevonden;");
 			
+			// Controle of de gebruiker deze data wel mag ophalen
+			if (($l->isBeheerder() == false) && ($l->isBeheerderDDWV() == false) && ($l->isInstructeur() == false) && ($l->isStarttoren() == false))
+			{
+				// is ingelogde gebruiker de persoon zelf? Nee, dan geen toegang
+				if (($obj['ID'] !== $l->getUserFromSession()))
+					throw new Exception("401;Geen leesrechten;");
+			}
+
 			// privacy maskering
 			$obj = $this->privacyMask($obj);
 			return $obj;				
@@ -244,7 +252,7 @@
 
 			if ($obj == null)
 				throw new Exception("404;Record niet gevonden;");
-							
+						
 			return $obj;				
 		}
 

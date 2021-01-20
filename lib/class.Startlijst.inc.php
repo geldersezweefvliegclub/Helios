@@ -261,6 +261,20 @@
 			if (!is_null($obj['LANDINGSTIJD']))
 				$obj['LANDINGSTIJD'] = substr($obj['LANDINGSTIJD'] , 0, 5);	// alleen hh:mm
 
+
+			// Controle of de gebruiker deze data wel mag ophalen
+			if ($l->isStarttoren() == true)
+			{
+				if ($obj['DATUM'] !== date("Y-m-d"))		// starttoren mag alleen vandaag opvragen
+					throw new Exception("401;Geen leesrechten;");
+			}
+			elseif (($l->isBeheerder() == false) && ($l->isBeheerderDDWV() == false) && ($l->isInstructeur() == false) && ($l->isStarttoren() == false))
+			{
+				// is ingelogde gebruiker de vlieger of inzittende? Nee, dan geen toegang
+				if (($obj['VLIEGER_ID'] !== $l->getUserFromSession()) && ($obj['INZITTENDE_ID'] !== $l->getUserFromSession()))
+					throw new Exception("401;Geen leesrechten;");
+			}
+
 			return $obj;	
 		}
 	
@@ -290,10 +304,11 @@
 				// als installer mogen we alleen laatste aanpassing ophalen
 				$alleenLaatsteAanpassing = true;		
 			}
-			elseif (($l->isBeheerder() == false) && ($l->isBeheerderDDWV() == false) && ($l->isInstructeur() == false))
-				$where = $where . sprintf(" AND ((VLIEGER_ID = '%d') OR (INZITTENDE_ID = '%d'))", $l->getUserFromSession(), $l->getUserFromSession());
+			elseif (($l->isBeheerder() == false) && ($l->isBeheerderDDWV() == false) && ($l->isInstructeur() == false) && ($l->isStarttoren() == false))
+				$where .= sprintf(" AND ((VLIEGER_ID = '%d') OR (INZITTENDE_ID = '%d'))", $l->getUserFromSession(), $l->getUserFromSession());
 			
-
+			if ($l->isStarttoren() == true)
+				$where .= sprintf (" AND DATUM = '%s'", date("Y-m-d"));		// starttoren mag alleen vandaag opvragen
 
 			foreach ($params as $key => $value)
 			{
@@ -1206,11 +1221,17 @@
 
 			if (!array_key_exists('DATUM', $StartlijstData))
 				throw new Exception("406;DATUM is verplicht;");			
-			
+
 			// Neem data over uit aanvraag
             $d = $this->RequestToRecord($StartlijstData);
             $d['DAGNUMMER'] = $this->NieuwDagNummer($d['DATUM']);
-								
+				
+			if ($l->isStarttoren() == true)
+			{
+				if ($d['DATUM'] !== date("Y-m-d"))		// starttoren mag alleen vandaag invoeren
+					throw new Exception("401;Geen schrijfrechten;");
+			}
+
 			$id = parent::DbToevoegen($d);
 			Debug(__FILE__, __LINE__, sprintf("Daginfo toegevoegd id=%d", $id));
 
@@ -1240,6 +1261,12 @@
 
 			// Neem data over uit aanvraag
 			$d = $this->RequestToRecord($StartlijstData);            
+
+			if (($l->isStarttoren() == true) && (!array_key_exists('DATUM', $d)))
+			{
+				if ($d['DATUM'] !== date("Y-m-d"))		// starttoren mag alleen vandaag invoeren
+					throw new Exception("401;Geen schrijfrechten;");
+			}
 
 			parent::DbAanpassen($id, $d);
 			if (parent::NumRows() === 0)

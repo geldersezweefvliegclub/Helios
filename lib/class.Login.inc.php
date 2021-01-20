@@ -260,6 +260,9 @@ require ("include/PasswordHash.php");
 		
 			if ($this->isInstructeur())
 				return true;
+
+			if ($this->isStarttoren())
+				return true;				
 			
 			Debug(__FILE__, __LINE__, sprintf("%d is gewone gebruiker, return false", $this->getUserFromSession()));			
 			return false;

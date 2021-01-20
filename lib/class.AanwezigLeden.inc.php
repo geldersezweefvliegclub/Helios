@@ -170,6 +170,19 @@
 			if (!is_null($obj['VERTREK']))
 				$obj['VERTREK'] = substr($obj['VERTREK'] , 0, 5);	// alleen hh:mm
 
+			// Controle of de gebruiker deze data wel mag ophalen
+			if ($l->isStarttoren() == true)
+			{
+				if ($obj['DATUM'] !== date("Y-m-d"))		// starttoren mag alleen vandaag opvragen
+					throw new Exception("401;Geen leesrechten;");
+			}
+			elseif (($l->isBeheerder() == false) && ($l->isBeheerderDDWV() == false) && ($l->isInstructeur() == false) && ($l->isStarttoren() == false))
+			{
+				// is ingelogde gebruiker de persoon zelf? Nee, dan geen toegang
+				if (($obj['LID_ID'] !== $l->getUserFromSession()))
+					throw new Exception("401;Geen leesrechten;");
+			}
+
 			return $obj;	
 		}
 	
@@ -188,7 +201,15 @@
 			$limit = -1;
 			$start = -1;
 			$velden = "*";
+
+			// Als ingelogde gebruiker geen bijzonder functie heeft, worden beperkte dataset opgehaald
+			$l = MaakObject('Login');
+			if (($l->isBeheerder() == false) && ($l->isBeheerderDDWV() == false) && ($l->isInstructeur() == false) && ($l->isStarttoren() == false))
+				$where .= sprintf(" AND (LID_ID = '%d') ", $l->getUserFromSession());
 			
+			if ($l->isStarttoren() == true)
+				$where .= sprintf (" AND DATUM = '%s'", date("Y-m-d"));		// starttoren mag alleen vandaag opvragen
+
 			$query_params = array();
 
 			foreach ($params as $key => $value)
