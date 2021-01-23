@@ -263,6 +263,7 @@
 
 
 			// Controle of de gebruiker deze data wel mag ophalen
+			$l = MaakObject('Login');
 			if ($l->isStarttoren() == true)
 			{
 				if ($obj['DATUM'] !== date("Y-m-d"))		// starttoren mag alleen vandaag opvragen
@@ -406,10 +407,10 @@
                     case "SELECTIE" : 
                         {
                             $where .= " AND ((VLIEGERNAAM_LID LIKE ?) ";
-                            $where .= " OR  ((INZITTENDENAAM_LID LIKE ?) ";
-                            $where .= " OR  ((VLIEGERNAAM LIKE ?) ";
-                            $where .= " OR  ((INZITTENDENAAM LIKE ?) ";
-                            $where .= " OR  ((REG_CALL LIKE ?))";
+                            $where .= " OR  (INZITTENDENAAM_LID LIKE ?) ";
+                            $where .= " OR  (VLIEGERNAAM LIKE ?) ";
+                            $where .= " OR  (INZITTENDENAAM LIKE ?) ";
+                            $where .= " OR  (REG_CALL LIKE ?))";
 
                             $s = "%" . trim($value) . "%";
                             array_push($query_params, $s);
@@ -1226,9 +1227,9 @@
             $d = $this->RequestToRecord($StartlijstData);
             $d['DAGNUMMER'] = $this->NieuwDagNummer($d['DATUM']);
 				
-			if ($l->isStarttoren() == true)
+			if (($l->isStarttoren() == true) && (array_key_exists('DATUM', $d)))
 			{
-				if ($d['DATUM'] !== date("Y-m-d"))		// starttoren mag alleen vandaag invoeren
+				if (isDATE($d['DATUM']) != date("Y-m-d"))		// starttoren mag alleen vandaag invoeren
 					throw new Exception("401;Geen schrijfrechten;");
 			}
 
@@ -1262,9 +1263,9 @@
 			// Neem data over uit aanvraag
 			$d = $this->RequestToRecord($StartlijstData);            
 
-			if (($l->isStarttoren() == true) && (!array_key_exists('DATUM', $d)))
+			if (($l->isStarttoren() == true) && (array_key_exists('DATUM', $d)))
 			{
-				if ($d['DATUM'] !== date("Y-m-d"))		// starttoren mag alleen vandaag invoeren
+				if (isDATE($d['DATUM']) != date("Y-m-d"))		// starttoren mag alleen vandaag invoeren
 					throw new Exception("401;Geen schrijfrechten;");
 			}
 

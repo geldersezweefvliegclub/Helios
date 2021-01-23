@@ -171,6 +171,7 @@
 				$obj['VERTREK'] = substr($obj['VERTREK'] , 0, 5);	// alleen hh:mm
 
 			// Controle of de gebruiker deze data wel mag ophalen
+			$l = MaakObject('Login');
 			if ($l->isStarttoren() == true)
 			{
 				if ($obj['DATUM'] !== date("Y-m-d"))		// starttoren mag alleen vandaag opvragen
@@ -207,7 +208,7 @@
 			if (($l->isBeheerder() == false) && ($l->isBeheerderDDWV() == false) && ($l->isInstructeur() == false) && ($l->isStarttoren() == false))
 				$where .= sprintf(" AND (LID_ID = '%d') ", $l->getUserFromSession());
 			
-			if ($l->isStarttoren() == true)
+			if (($l->isStarttoren() == true) && ($l->isBeheerder() == false))
 				$where .= sprintf (" AND DATUM = '%s'", date("Y-m-d"));		// starttoren mag alleen vandaag opvragen
 
 			$query_params = array();

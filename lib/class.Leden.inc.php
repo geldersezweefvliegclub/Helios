@@ -200,6 +200,7 @@
 				throw new Exception("404;Record niet gevonden;");
 			
 			// Controle of de gebruiker deze data wel mag ophalen
+			$l = MaakObject('Login');
 			if (($l->isBeheerder() == false) && ($l->isBeheerderDDWV() == false) && ($l->isInstructeur() == false) && ($l->isStarttoren() == false))
 			{
 				// is ingelogde gebruiker de persoon zelf? Nee, dan geen toegang

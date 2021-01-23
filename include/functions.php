@@ -182,7 +182,7 @@ function isDATE($value, $veld = false, $nullToegestaan = false)
 
 		return false;
 	}
-	return $value;
+	return sprintf("%d-%02d-%02d", $checkdate[0], $checkdate[1], $checkdate[2]);
 }
 
 // Is de waarde een time

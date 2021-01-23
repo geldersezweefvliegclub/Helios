@@ -168,6 +168,7 @@
 				throw new Exception("404;Record niet gevonden;");
 
 			// Controle of de gebruiker deze data wel mag ophalen
+			$l = MaakObject('Login');
 			if ($l->isStarttoren() == true)
 			{
 				if ($obj['DATUM'] !== date("Y-m-d"))		// starttoren mag alleen vandaag opvragen
@@ -208,7 +209,7 @@
 				($l->isStarttoren() == false))
 				throw new Exception("401;Gebruiker mag daginfo opvragen;");
 			
-			if ($l->isStarttoren() == true)
+			if (($l->isStarttoren() == true) && ($l->isBeheerder() == false))
 				$where .= sprintf (" AND DATUM = '%s'", date("Y-m-d"));		// starttoren mag alleen vandaag opvragen
 
 			foreach ($params as $key => $value)
