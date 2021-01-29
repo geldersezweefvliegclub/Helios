@@ -325,6 +325,12 @@
 						}											
 					case "SORT" : 
 						{
+							if (strpos(strtoupper($value),'UPDATE') !== false)
+								throw new Exception("405;SORT is onjuist;");
+
+							if (strpos(strtoupper($value),'DELETE') !== false)
+								throw new Exception("405;SORT is onjuist;");
+															
 							if (strpos($value,';') !== false)
 								throw new Exception("405;SORT is onjuist;");
 							
@@ -754,7 +760,8 @@
 			if (array_key_exists('NAAM', $input)) {
 				$record['NAAM'] = $input['NAAM']; 
 			}
-			else {
+			elseif ((array_key_exists('VOORNAAM', $input)) && (array_key_exists('ACHTERNAAM', $input)))
+			{
 				$record['NAAM'] = "";
 
 				if (array_key_exists('VOORNAAM', $input))

@@ -1,0 +1,2 @@
+INSERT INTO ref_leden (NAAM,VOORNAAM,TUSSENVOEGSEL,ACHTERNAAM,LIDNR,LIDTYPE_ID) VALUES ('Johan van Ravenzwaay','Johan','van','Ravenzwaay',202922,601);
+ID=21354

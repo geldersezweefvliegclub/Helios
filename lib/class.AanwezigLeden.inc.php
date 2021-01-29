@@ -256,6 +256,12 @@
 						}											
 					case "SORT" : 
 						{
+							if (strpos(strtoupper($value),'UPDATE') !== false)
+								throw new Exception("405;SORT is onjuist;");
+
+							if (strpos(strtoupper($value),'DELETE') !== false)
+								throw new Exception("405;SORT is onjuist;");	
+
 							if (strpos($value,';') !== false)
 								throw new Exception("405;SORT is onjuist;");
 							
