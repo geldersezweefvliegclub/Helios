@@ -516,6 +516,21 @@
 					"response": []
 				}
 			],
+			"auth": {
+				"type": "basic",
+				"basic": [
+					{
+						"key": "password",
+						"value": "{{installer_password}}",
+						"type": "string"
+					},
+					{
+						"key": "username",
+						"value": "{{installer_username}}",
+						"type": "string"
+					}
+				]
+			},
 			"event": [
 				{
 					"listen": "prerequest",
@@ -554,6 +569,23 @@
 							],
 							"path": [
 								"Logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/Login",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"Login"
 							]
 						}
 					},
@@ -40246,6 +40278,17 @@
 					]
 				}
 			]
+		},
+		{
+			"name": "development",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
 		}
 	],
 	"auth": {
