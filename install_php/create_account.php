@@ -13,6 +13,11 @@ if (!isset($_SERVER['PHP_AUTH_USER'])) {
     die();
 } 
 
+$username = $_SERVER['PHP_AUTH_USER'];
+$password = $_SERVER['PHP_AUTH_PW'];
+
+$key = sha1(strtolower ($username) . $password);
+
 $file_content = sprintf(
     "<?php
 
@@ -22,7 +27,7 @@ $file_content = sprintf(
         'password' => '%s'
     );
     
-    ?>", $_SERVER['PHP_AUTH_USER'], sha1($_SERVER['PHP_AUTH_PW']));
+    ?>", $username, $key);
 
 $file = fopen("installer_account.php", "w") or die("Unable to open installer_account.php file!");
 fwrite($file, $file_content);

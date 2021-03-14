@@ -1,241 +1,270 @@
 {
-    "openapi": "3.0.2",
-    "info": {
-      "title": "Login",
-      "description": "Inloggen en userinfo",
-      "version": "1.0"
-    },
-    "paths": {
-      "/Login/GetUserInfo": {
+  "openapi": "3.0.2",
+  "info": {
+     "title": "Login",
+     "description": "Inloggen en userinfo",
+     "version": "1.0"
+  },
+  "paths": {
+     "/Login/GetUserInfo": {
         "get": {
-          "security": [
-            {
-              "basicAuth": []
-            }
-          ],
-          "summary": "Haal informatie van de ingelogde gebruiker",
-          "parameters": [
-            {
-              "in": "query",
-              "name": "DATUM",
-              "description": "De datum waarop isStartleider bepaald is. Indien afwezig, dan de dag van vandaag",
-              "required": false,
-              "schema": {
-                "type": "string",
-                "format": "date"
+           "security": [
+              {
+                 "basicAuth": []
               }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "OK, data succesvol opgehaald",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/Userinfo"
-                  }
-                }
+           ],
+           "summary": "Haal informatie van de ingelogde gebruiker",
+           "parameters": [
+              {
+                 "in": "query",
+                 "name": "DATUM",
+                 "description": "De datum waarop isStartleider bepaald is. Indien afwezig, dan de dag van vandaag",
+                 "required": false,
+                 "schema": {
+                    "type": "string",
+                    "format": "date"
+                 }
               }
-            },
-            "404": {
-              "description": "Data niet gevonden"
-            }
-          }
+           ],
+           "responses": {
+              "200": {
+                 "description": "OK, data succesvol opgehaald",
+                 "content": {
+                    "application/json": {
+                       "schema": {
+                          "$ref": "#/components/schemas/Userinfo"
+                       }
+                    }
+                 }
+              },
+              "404": {
+                 "description": "Data niet gevonden"
+              }
+           }
         }
-      }
-    },
-    "components": {
-      "securitySchemes": {
+     },
+     "/Login/Login": {
+        "get": {
+           "security": [
+              {
+                 "basicAuth": []
+              }
+           ],
+           "summary": "Inloggen",
+           "parameters": [
+              {
+                 "in": "query",
+                 "name": "token",
+                 "description": "2factor token",
+                 "required": false,
+                 "schema": {
+                    "type": "string"
+                 }
+              }
+           ],
+           "responses": {
+              "200": {
+                 "description": "OK, ingelogd"
+              },
+              "401": {
+                 "description": "Mislukt"
+              }
+           }
+        }
+     }
+  },
+  "components": {
+     "securitySchemes": {
         "basicAuth": {
-          "type": "http",
-          "scheme": "basic",
-          "description": "Eerst inloggen voordat API beschikbaar is"
+           "type": "http",
+           "scheme": "basic",
+           "description": "Eerst inloggen voordat API beschikbaar is"
         }
-      },
-      "schemas": {
+     },
+     "schemas": {
         "ref_leden": {
-          "type": "object",
-          "properties": {
-            "ID": {
-              "description": "Database ID van het lid record",
-              "type": "integer",
-              "format": "int32",
-              "example": 12871
-            },
-            "NAAM": {
-              "description": "De volledige naam van het lid",
-              "type": "string",
-              "maxLength": 255,
-              "example": "Meindert het Paard"
-            },
-            "VOORNAAM": {
-              "description": "De voornaam van het lid",
-              "type": "string",
-              "maxLength": 15,
-              "example": "Meindert"
-            },
-            "ACHTERNAAM": {
-              "description": "De achternaam van het lid zonder voorvoegsels",
-              "type": "string",
-              "maxLength": 30,
-              "example": "Paard"
-            },
-            "TELEFOON": {
-              "description": "Telefoon nummer van het lid",
-              "type": "string",
-              "maxLength": 255,
-              "example": "086-1506822"
-            },
-            "MOBIEL": {
-              "description": "Mobiel telefoon nummer van het lid",
-              "type": "string",
-              "maxLength": 255,
-              "example": "06-1025500"
-            },
-            "NOODNUMMER": {
-              "description": "Het telefoonnummer van een naaste, kan gebruikt worden in noodgevallen",
-              "type": "string",
-              "maxLength": 255,
-              "example": "0112-11801"
-            },
-            "EMAIL": {
-              "description": "email adres van het lid",
-              "type": "string",
-              "maxLength": 45,
-              "example": "meindert@fabeltje.com"
-            },
-            "LIDNR": {
-              "description": "Het lidnummer zoals dat in de leden administratie bekend is",
-              "type": "string",
-              "maxLength": 10,
-              "example": 11139
-            },
-            "LIDTYPE_ID": {
-              "description": "Het soort lid (jeugdlid, lid, donateur). Verwijzing naar type tabel",
-              "type": "integer",
-              "format": "int32",
-              "example": 603
-            },
-            "LIERIST": {
-              "description": "Mag dit lid lieren? Waarde 0..1",
-              "type": "boolean",
-              "example": 0
-            },
-            "STARTLEIDER": {
-              "description": "Kan dit lid het startbedrijf leiden?  Waarde 0..1",
-              "type": "boolean",
-              "example": 0
-            },
-            "INSTRUCTEUR": {
-              "description": "Heeft dit lid een instructie bevoegdheid?  Waarde 0..1",
-              "type": "boolean",
-              "example": 0
-            },
-            "INLOGNAAM": {
-              "description": "De inlognaam van het lid",
-              "type": "string",
-              "maxLength": 45,
-              "example": "mpaard"
-            },
-            "WACHTWOORD": {
-              "description": "Het geheime password",
-              "type": "string",
-              "maxLength": 255,
-              "example": 123456
-            },
-            "HEEFT_BETAALD": {
-              "description": "Heef het lid de factuur van dit jaar betaald?  Waarde 0..1",
-              "type": "boolean",
-              "example": 0
-            },
-            "PRIVACY": {
-              "description": "Staat privacy mode (AVG / GDPR) uit/aan Waarde 0..1",
-              "type": "boolean",
-              "example": 0
-            },
-            "VERWIJDERD": {
-              "description": "Is dit record gemarkeerd als verwijderd?  Waarde 0..1",
-              "type": "boolean",
-              "example": 0
-            },
-            "LAATSTE_AANPASSING": {
-              "description": "Tijdstempel van laaste aanpassing in de database",
-              "type": "string",
-              "format": "date-time",
-              "example": "2002-01-14 17:20:05"
-            }
-          }
+           "type": "object",
+           "properties": {
+              "ID": {
+                 "description": "Database ID van het lid record",
+                 "type": "integer",
+                 "format": "int32",
+                 "example": 12871
+              },
+              "NAAM": {
+                 "description": "De volledige naam van het lid",
+                 "type": "string",
+                 "maxLength": 255,
+                 "example": "Meindert het Paard"
+              },
+              "VOORNAAM": {
+                 "description": "De voornaam van het lid",
+                 "type": "string",
+                 "maxLength": 15,
+                 "example": "Meindert"
+              },
+              "ACHTERNAAM": {
+                 "description": "De achternaam van het lid zonder voorvoegsels",
+                 "type": "string",
+                 "maxLength": 30,
+                 "example": "Paard"
+              },
+              "TELEFOON": {
+                 "description": "Telefoon nummer van het lid",
+                 "type": "string",
+                 "maxLength": 255,
+                 "example": "086-1506822"
+              },
+              "MOBIEL": {
+                 "description": "Mobiel telefoon nummer van het lid",
+                 "type": "string",
+                 "maxLength": 255,
+                 "example": "06-1025500"
+              },
+              "NOODNUMMER": {
+                 "description": "Het telefoonnummer van een naaste, kan gebruikt worden in noodgevallen",
+                 "type": "string",
+                 "maxLength": 255,
+                 "example": "0112-11801"
+              },
+              "EMAIL": {
+                 "description": "email adres van het lid",
+                 "type": "string",
+                 "maxLength": 45,
+                 "example": "meindert@fabeltje.com"
+              },
+              "LIDNR": {
+                 "description": "Het lidnummer zoals dat in de leden administratie bekend is",
+                 "type": "string",
+                 "maxLength": 10,
+                 "example": 11139
+              },
+              "LIDTYPE_ID": {
+                 "description": "Het soort lid (jeugdlid, lid, donateur). Verwijzing naar type tabel",
+                 "type": "integer",
+                 "format": "int32",
+                 "example": 603
+              },
+              "LIERIST": {
+                 "description": "Mag dit lid lieren? Waarde 0..1",
+                 "type": "boolean",
+                 "example": 0
+              },
+              "STARTLEIDER": {
+                 "description": "Kan dit lid het startbedrijf leiden?  Waarde 0..1",
+                 "type": "boolean",
+                 "example": 0
+              },
+              "INSTRUCTEUR": {
+                 "description": "Heeft dit lid een instructie bevoegdheid?  Waarde 0..1",
+                 "type": "boolean",
+                 "example": 0
+              },
+              "INLOGNAAM": {
+                 "description": "De inlognaam van het lid",
+                 "type": "string",
+                 "maxLength": 45,
+                 "example": "mpaard"
+              },
+              "WACHTWOORD": {
+                 "description": "Het geheime password",
+                 "type": "string",
+                 "maxLength": 255,
+                 "example": 123456
+              },
+              "HEEFT_BETAALD": {
+                 "description": "Heef het lid de factuur van dit jaar betaald?  Waarde 0..1",
+                 "type": "boolean",
+                 "example": 0
+              },
+              "PRIVACY": {
+                 "description": "Staat privacy mode (AVG / GDPR) uit/aan Waarde 0..1",
+                 "type": "boolean",
+                 "example": 0
+              },
+              "VERWIJDERD": {
+                 "description": "Is dit record gemarkeerd als verwijderd?  Waarde 0..1",
+                 "type": "boolean",
+                 "example": 0
+              },
+              "LAATSTE_AANPASSING": {
+                 "description": "Tijdstempel van laaste aanpassing in de database",
+                 "type": "string",
+                 "format": "date-time",
+                 "example": "2002-01-14 17:20:05"
+              }
+           }
         },
         "Userinfo": {
-          "type": "object",
-          "properties": {
-            "LidData": {
-              "description": "Aantal records dat voldoet aan de criteria in de database",
-              "$ref": "#/components/schemas/ref_leden"
-            },
-            "Userinfo": {
-              "type": "object",
-              "properties": {
-                "DATUM": {
-                  "description": "Datum, isStartleider ben je namelijk alleen op de dag dat je dienst hebt",
-                  "type": "string",
-                  "format": "date",
-                  "example": "2017-07-21"
-                },
-                "magSchrijven": {
-                  "description": "Mag de ingelode gebruiker schrijven in de database",
-                  "type": "boolean",
-                  "example": true
-                },
-                "isLocal": {
-                  "description": "Is de gebruiker de locale start administratie (in de toren)",
-                  "type": "boolean",
-                  "example": false
-                },
-                "isSync": {
-                  "description": "Is dit het sync proces",
-                  "type": "boolean",
-                  "example": true
-                },
-                "isBeheerderDDWV": {
-                  "description": "Is de ingelogde gebruiker de DDWV beheerder",
-                  "type": "boolean",
-                  "example": false
-                },
-                "isBeheerder": {
-                  "description": "Is de ingelogde gebruiker de applicatie beheerder",
-                  "type": "boolean",
-                  "example": true
-                },
-                "isStartleider": {
-                  "description": "Is de ingelogde gebruiker een startleider (alleen op de dag zelf)",
-                  "type": "boolean",
-                  "example": false
-                },
-                "isInstructeur": {
-                  "description": "Is de ingelogde gebruiker een instructeur",
-                  "type": "boolean",
-                  "example": false
-                },
-                "isAangemeld": {
-                  "description": "Is de ingelogde gebruiker aangemeld voor vandaag",
-                  "type": "boolean",
-                  "example": true
-                },
-                "isClubVlieger": {
-                  "description": "Is de ingelogde gebruiker een lid van de club",
-                  "type": "boolean",
-                  "example": true
-                },
-                "isDDWV": {
-                  "description": "Is de ingelogde gebruiker een DDWV vlieger (dus geen club lid)",
-                  "type": "boolean",
-                  "example": false
-                }
+           "type": "object",
+           "properties": {
+              "LidData": {
+                 "description": "Aantal records dat voldoet aan de criteria in de database",
+                 "$ref": "#/components/schemas/ref_leden"
+              },
+              "Userinfo": {
+                 "type": "object",
+                 "properties": {
+                    "DATUM": {
+                       "description": "Datum, isStartleider ben je namelijk alleen op de dag dat je dienst hebt",
+                       "type": "string",
+                       "format": "date",
+                       "example": "2017-07-21"
+                    },
+                    "magSchrijven": {
+                       "description": "Mag de ingelode gebruiker schrijven in de database",
+                       "type": "boolean",
+                       "example": true
+                    },
+                    "isLocal": {
+                       "description": "Is de gebruiker de locale start administratie (in de toren)",
+                       "type": "boolean",
+                       "example": false
+                    },
+                    "isSync": {
+                       "description": "Is dit het sync proces",
+                       "type": "boolean",
+                       "example": true
+                    },
+                    "isBeheerderDDWV": {
+                       "description": "Is de ingelogde gebruiker de DDWV beheerder",
+                       "type": "boolean",
+                       "example": false
+                    },
+                    "isBeheerder": {
+                       "description": "Is de ingelogde gebruiker de applicatie beheerder",
+                       "type": "boolean",
+                       "example": true
+                    },
+                    "isStartleider": {
+                       "description": "Is de ingelogde gebruiker een startleider (alleen op de dag zelf)",
+                       "type": "boolean",
+                       "example": false
+                    },
+                    "isInstructeur": {
+                       "description": "Is de ingelogde gebruiker een instructeur",
+                       "type": "boolean",
+                       "example": false
+                    },
+                    "isAangemeld": {
+                       "description": "Is de ingelogde gebruiker aangemeld voor vandaag",
+                       "type": "boolean",
+                       "example": true
+                    },
+                    "isClubVlieger": {
+                       "description": "Is de ingelogde gebruiker een lid van de club",
+                       "type": "boolean",
+                       "example": true
+                    },
+                    "isDDWV": {
+                       "description": "Is de ingelogde gebruiker een DDWV vlieger (dus geen club lid)",
+                       "type": "boolean",
+                       "example": false
+                    }
+                 }
               }
-            }
-          }
+           }
         }
-      }
-    }
+     }
   }
+}

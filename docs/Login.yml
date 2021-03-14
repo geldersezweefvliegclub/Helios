@@ -26,7 +26,25 @@ paths:
               schema:
                 $ref: '#/components/schemas/Userinfo'
         404:
-          description: "Data niet gevonden"       
+          description: "Data niet gevonden"    
+
+  /Login/Login:
+    get:
+      security:
+        - basicAuth: []    
+      summary: Inloggen
+      parameters:
+        - in: query
+          name: token
+          description: 2factor token
+          required: false
+          schema:
+            type: string
+      responses:
+        200:
+          description: "OK, ingelogd"
+        401:
+          description: "Mislukt"              
 
 components:
   securitySchemes:

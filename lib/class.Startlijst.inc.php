@@ -305,7 +305,7 @@
 				// als installer mogen we alleen laatste aanpassing ophalen
 				$alleenLaatsteAanpassing = true;		
 			}
-			elseif (($l->isBeheerder() == false) && ($l->isBeheerderDDWV() == false) && ($l->isInstructeur() == false) && ($l->isStarttoren() == false))
+			elseif (($l->isBeheerder() == false) && ($l->isBeheerderDDWV() == false) && ($l->isInstaller() == false) && ($l->isInstructeur() == false) && ($l->isStarttoren() == false))
 				$where .= sprintf(" AND ((VLIEGER_ID = '%d') OR (INZITTENDE_ID = '%d'))", $l->getUserFromSession(), $l->getUserFromSession());
 			
 			if ($l->isStarttoren() == true)
@@ -702,6 +702,8 @@
 					DUUR,
 					coalesce(`VLIEGERNAAM_LID`,`VLIEGERNAAM`) AS `VLIEGERNAAM`,
 					coalesce(`INZITTENDENAAM_LID`,`INZITTENDENAAM`) AS `INZITTENDENAAM`,
+					VLIEGER_ID AS  VLIEGER_ID,
+					INZITTENDE_ID AS INZITTENDE_ID,
 					STARTMETHODE, OPMERKINGEN AS OPMERKINGEN";	
 					
 				$rquery = sprintf($query, $velden);

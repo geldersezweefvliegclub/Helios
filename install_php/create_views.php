@@ -23,7 +23,9 @@ if (!isset($_SERVER['PHP_AUTH_USER'])) {
 $username = $_SERVER['PHP_AUTH_USER'];
 $password = $_SERVER['PHP_AUTH_PW'];
 
-if (($username != $installer_account['username']) || (sha1($password) != $installer_account['password']))
+$key = sha1(strtolower ($username) . $password);
+
+if (($username != $installer_account['username']) || ($key != $installer_account['password']))
 {	
     header('HTTP/1.0 401 Unauthorized');
     die();    

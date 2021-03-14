@@ -206,8 +206,9 @@
 				($l->isBeheerderDDWV() == false) && 
 				($l->isInstructeur() == false) && 
 				($l->isRooster() == false) && 
-				($l->isStarttoren() == false))
-				throw new Exception("401;Gebruiker mag daginfo opvragen;");
+				($l->isStarttoren() == false) && 
+				($l->isInstaller() == false))
+				throw new Exception("401;Gebruiker mag daginfo niet opvragen;");
 			
 			if (($l->isStarttoren() == true) && ($l->isBeheerder() == false))
 				$where .= sprintf (" AND DATUM = '%s'", date("Y-m-d"));		// starttoren mag alleen vandaag opvragen

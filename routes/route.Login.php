@@ -42,11 +42,14 @@ $app->get('/Login/GetUserInfo', function (Request $request, Response $response, 
 /*
 Heeft deze gebruiker toegang tot het systeem. Doordat eerder sessie is opgebouwd, of dat hij op een toegstane computer werky
 */
-$app->get('/Login/HeeftToegang', function (Request $request, Response $response, $args) {
+$app->get('/Login/Login', function (Request $request, Response $response, $args) {
+
+    $datum = $request->getQueryParams()['token'];
+
     $obj = MaakObject("Login");
     try
     {
-        $obj->heeftToegang();  // Hier staat de logica voor deze functie
+        $obj->heeftToegang($token);  // Hier staat de logica voor deze functie
         return $response;
     }
     catch(Exception $exception)

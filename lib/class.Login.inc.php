@@ -86,13 +86,14 @@ require ("include/PasswordHash.php");
 			$UserID = $this->getUserFromSession();
 			$LidData = null;
 
-			Debug(__FILE__, __LINE__, sprintf("getUserInfo: %s, %s", $UserID, ($this->isInstaller() == true ? "true" : "false") ));
+			Debug(__FILE__, __LINE__, sprintf("getUserInfo: %s, isInstaller:%s", $UserID, ($this->isInstaller() == true ? "true" : "false") ));
 
-			$l = MaakObject('Leden');
+
 			//TODO			$a = MaakObject('Aanwezig');
 
 			if ((is_numeric($UserID)) && (!$this->isInstaller()))
 			{	
+				$l = MaakObject('Leden');
 				try
 				{
 					$LidData = $l->getObject($UserID);
@@ -167,17 +168,19 @@ require ("include/PasswordHash.php");
 			// De toegang voor de installer
 			if (isset($installer_account))
 			{
-				if (($username == $installer_account['username']) && (sha1($password) == $installer_account['password']))
+				$key = sha1(strtolower ($username) . $password);
+				if (($username == $installer_account['username']) && ($key == $installer_account['password']))
 				{	
 					Debug(__FILE__, __LINE__, sprintf("helios installer account = true", $username));
 
 					$this->setSessionUser($installer_account['id']);
 					$_SESSION['isInstaller']= true;
 					return;
-				}
-				Debug(__FILE__, __LINE__, "helios account = false");
-			}			
-
+				}	
+			}
+			Debug(__FILE__, __LINE__, "helios account = false");
+			unset($_SESSION['isInstaller']); 	// gebruiker is zeker geen installer				
+				
 			// Kijken of we toegang kunnen geven
 			$l = MaakObject('Leden');
 
@@ -193,7 +196,7 @@ require ("include/PasswordHash.php");
 			}
 
 			if (($lObj['AUTH'] == "1") && (empty($token)))
-				throw new Exception("401;Sleutel moet ingevoerd worden;");
+				throw new Exception("401;Token moet ingevoerd worden;");
 				
 			$key = sha1(strtolower ($username) . $password);
 			Debug(__FILE__, __LINE__, sprintf("Login(%s)[%s] = %s, %s %s %s", 	$username, 
@@ -259,10 +262,16 @@ require ("include/PasswordHash.php");
 			}
 		
 			if ($this->isInstructeur())
+			{
+				Debug(__FILE__, __LINE__, sprintf("%d is instructeur, return true", $this->getUserFromSession()));
 				return true;
+			}
 
 			if ($this->isStarttoren())
-				return true;				
+			{
+				Debug(__FILE__, __LINE__, sprintf("%d is starttoren, return true", $this->getUserFromSession()));
+				return true;		
+			}		
 			
 			Debug(__FILE__, __LINE__, sprintf("%d is gewone gebruiker, return false", $this->getUserFromSession()));			
 			return false;
@@ -290,7 +299,10 @@ require ("include/PasswordHash.php");
 		{	
 			// als er session niet gezet is, gaan we voor de veilige oplossing
 			if (isset($_SESSION['userInfo']) === false)
+			{
+				Debug(__FILE__, __LINE__, sprintf("sessiePermissie userInfo BESTAAT NIET", $key)); 
 				return false;
+			}
 
 			// ophalen van de gebruikers info als en decodeer JSON data
 			$ui = json_decode($_SESSION['userInfo']);

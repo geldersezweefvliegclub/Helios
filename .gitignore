@@ -11,4 +11,5 @@ include/config.php
 log/sql.txt
 log/debug.txt
 log/exec.txt
+log/insert.txt
 .gitignore
