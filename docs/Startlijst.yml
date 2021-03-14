@@ -282,7 +282,15 @@ paths:
                   INZITTENDENAAM:
                     description: De naam van de inzittende 
                     type: string
-                    example: "Momfer de Mol"                          
+                    example: "Momfer de Mol"    
+                  VLIEGER_ID: 
+                    description: De vlieger van deze vlucht. Verwijzing naar leden tabel. LET OP; kan verwijzing zijn naar zusterclub of vergelijkbaar, de naam is dan handmatig ingevoerd.
+                    type: integer
+                    example: 10825 
+                  INZITTENDE_ID: 
+                    description: Wie zit er nog meer bij. Verwijzing naar leden tabel, kan null zijn als inzittende als tekst is ingevoerd
+                    type: integer
+                    example: 10412                                           
                   STARTMETHODE:
                     description: De manier van de start
                     type: string
