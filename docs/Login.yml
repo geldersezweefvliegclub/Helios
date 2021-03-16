@@ -46,6 +46,15 @@ paths:
         401:
           description: "Mislukt"              
 
+  /Login/Logout:
+    get:
+      security:
+        - basicAuth: []    
+      summary: Uitloggen en beeindigen van de sessie
+      responses:
+        200:
+          description: "OK, tot de volgende keer"
+
 components:
   securitySchemes:
     basicAuth:
