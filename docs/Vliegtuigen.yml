@@ -396,6 +396,10 @@ components:
           type: string
           format: date-time 
           example: "2020-02-12 21:15:16" 
+        hash: 
+          description: hash van de dataset
+          type: string
+          example: "400000f"            
         dataset:
           description: De dataset met records
           type: array

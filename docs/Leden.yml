@@ -480,10 +480,15 @@ components:
           maxLength: 45
           example: mpaard        
         WACHTWOORD: 
-          description: Het geheime password, bij ophalen van data altijd "****"
+          description: Het geheime password, bij ophalen van data altijd "****". Wachtwoord wordt als hash opgeslagen in de database
           type: string
           maxLength: 255
           example: 123456      
+        WACHTWOORD_HASH: 
+          description: Wachtwoord in Helios hash formaat. Data wordt direct in database opgeslagen zonder encryptie, dat is namelijk al gebeurd. 
+          type: string
+          maxLength: 255
+          example: 123456                
         AUTH: 
           description: 2Factor authenticatie voor deze gebruiker  Waarde 0..1
           type: boolean
@@ -546,6 +551,10 @@ components:
           type: string
           format: date-time 
           example: "2016-08-30 17:04:07" 
+        hash: 
+          description: hash van de dataset
+          type: string
+          example: "1190732"    
         dataset:
           description: De dataset met records
           type: array

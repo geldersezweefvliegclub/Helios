@@ -341,6 +341,10 @@ components:
           type: string
           format: date-time 
           example: "2019-01-05 10:09:53" 
+        hash: 
+          description: hash van de dataset
+          type: string
+          example: "dd00bff"            
         dataset:
           description: De dataset met records
           type: array

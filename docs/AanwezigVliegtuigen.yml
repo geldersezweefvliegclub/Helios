@@ -476,6 +476,10 @@ components:
           type: string
           format: date-time 
           example: "2013-04-20 08:01:00"
+        hash: 
+          description: hash van de dataset
+          type: string
+          example: "4d00b3f"  
         dataset:
           description: De dataset met records
           type: array

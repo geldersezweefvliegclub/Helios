@@ -334,6 +334,10 @@ components:
           type: string
           format: date-time 
           example: "2021-05-29T13:44:05Z" 
+        hash: 
+          description: hash van de dataset
+          type: string
+          example: "4440baa"    
         dataset:
           description: De dataset met records
           type: array
@@ -373,6 +377,10 @@ components:
           type: string
           format: date-time   
           example: "2019-01-04 22:34:18"
+        hash: 
+          description: hash van de dataset
+          type: string
+          example: "bdabbcf"    
         dataset:
           description: De dataset met records
           type: array

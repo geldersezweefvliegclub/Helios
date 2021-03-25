@@ -828,6 +828,11 @@
 					$record['WACHTWOORD'] = sha1(strtolower ($loginnaam) . $input['WACHTWOORD']);
 				}
 			}
+			if (array_key_exists('WACHTWOORD_HASH', $input))
+			{
+				if (strlen($input['WACHTWOORD_HASH']) > 0)
+					$record['WACHTWOORD'] = $input['WACHTWOORD_HASH'];
+			}			
 
 			$field = 'PRIVACY';
 			if (array_key_exists($field, $input))
@@ -1078,7 +1083,12 @@
 
 			$l = MaakObject('Login');
 			if (array_key_exists("WACHTWOORD", $lid))
-				$lid['WACHTWOORD'] 	= "****";
+			{
+				if (($l->isBeheerder() === true))
+					$lid['WACHTWOORD'] 	= dechex(crc32($lid['WACHTWOORD']));
+				else
+					$lid['WACHTWOORD'] 	= "****";
+			}
 
 			if ($lid['SECRET'] != null) {
 				if (($l->isBeheerder() === true) ||
