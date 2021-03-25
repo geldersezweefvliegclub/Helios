@@ -485,7 +485,7 @@ components:
           maxLength: 255
           example: 123456      
         WACHTWOORD_HASH: 
-          description: Wachtwoord in Helios hash formaat. Data wordt direct in database opgeslagen zonder encryptie, dat is namelijk al gebeurd. 
+          description: Wachtwoord in Helios hash formaat. Data wordt direct in database opgeslagen zonder encryptie, dat is namelijk al gebeurd. Alleen van toepassing voor SaveObject, komt dus niet terug in GetObject of GetObjects
           type: string
           maxLength: 255
           example: 123456                
