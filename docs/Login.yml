@@ -163,6 +163,7 @@ components:
           $ref: '#/components/schemas/ref_leden'
         Userinfo:
           type: object
+          description: Gebruik dit object voor applicatie permissies
           properties:
             DATUM:
               description: Datum, isStartleider ben je namelijk alleen op de dag dat je dienst hebt 
@@ -171,14 +172,6 @@ components:
               example: "2017-07-21"
             magSchrijven:
               description: Mag de ingelode gebruiker schrijven in de database
-              type: boolean
-              example: true
-            isLocal:
-              description: Is de gebruiker de locale start administratie (in de toren)
-              type: boolean
-              example: false
-            isSync:
-              description: Is dit het sync proces
               type: boolean
               example: true
             isBeheerderDDWV:
@@ -193,10 +186,22 @@ components:
               description: Is de ingelogde gebruiker een startleider (alleen op de dag zelf)
               type: boolean
               example: false
+            isRooster:
+              description: Is de ingelogde gebruiker de rooster maker
+              type: boolean
+              example: false              
             isInstructeur:
               description: Is de ingelogde gebruiker een instructeur
               type: boolean
               example: false
+            isCIMT:
+              description: Is de ingelogde gebruiker chef instructeur
+              type: boolean
+              example: false              
+            isStarttoren:
+              description: Is de ingelogde gebruiker de starttoren?
+              type: boolean
+              example: true                
             isAangemeld:
               description: Is de ingelogde gebruiker aangemeld voor vandaag
               type: boolean
@@ -204,7 +209,7 @@ components:
             isClubVlieger:
               description: Is de ingelogde gebruiker een lid van de club
               type: boolean
-              example: true
+              example: true            
             isDDWV:
               description: Is de ingelogde gebruiker een DDWV vlieger (dus geen club lid)
               type: boolean

@@ -223,7 +223,8 @@ $app->get('/Startlijst/GetRecency', function (Request $request, Response $respon
     try
     {
         $vliegerID = $request->getQueryParams()['VLIEGER_ID'];
-        $r = $obj->GetRecency($vliegerID);  // Hier staat de logica voor deze functie
+        $datum = $request->getQueryParams()['DATUM'];
+        $r = $obj->GetRecency($vliegerID, $datum);  // Hier staat de logica voor deze functie
         if ($r === null)
         {
             header("X-Error-Message: Geen data", true, 404);

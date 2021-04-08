@@ -1305,12 +1305,18 @@
 		//  UREN_BAROMETER: "29:13"
 		//	}
 		
-		function GetRecency($vliegerID)
+		function GetRecency($vliegerID, $datum = null)
 		{
 			Debug(__FILE__, __LINE__, sprintf("Startlijst.VliegerRecencyJSON(%s)", $vliegerID));	
 
 			if ($vliegerID == null)
 				throw new Exception("406;VLIEGER_ID moet ingevuld zijn;");
+
+			$dateTime = new DateTime();
+			if ($datum !== null) {
+				$dateTime = new DateTime($datum);
+			}
+
 
 			$vliegerID = isINT($vliegerID, "VLIEGER_ID");
 
@@ -1325,7 +1331,7 @@
 			$retVal['STARTS_BAROMETER'] = 0; 	
 			$retVal['UREN_BAROMETER'] = 0; 	
 
-			$where = sprintf("DATUM > '%d-01-01' AND STARTTIJD IS NOT NULL AND LANDINGSTIJD IS NOT NULL AND ", Date("Y")-1);
+			$where = sprintf("DATUM > '%d-01-01' AND DATUM <= '%s' AND STARTTIJD IS NOT NULL AND LANDINGSTIJD IS NOT NULL AND ", 				    $dateTime->format("Y")-1, $dateTime->format("Y-m-d"));
 			$where .= sprintf("(VLIEGER_ID = %s)", $vliegerID);
 
 			$query = "
@@ -1348,7 +1354,7 @@
 					$retVal['UREN_DRIE_MND'] += intval(substr($vlucht['DUUR'],0,2)) * 60 + intval(substr($vlucht['DUUR'],3,2));
 				}
 
-				if ($diff <= (52*7)) // laaste jaar = 52 weken
+				if ($diff <= (21*7)) // laaste 6 maanden = 21 weken
 				{
 					$retVal['STARTS_BAROMETER']++;				
 					$retVal['UREN_BAROMETER'] += intval(substr($vlucht['DUUR'],0,2)) * 60 + intval(substr($vlucht['DUUR'],3,2));
@@ -1367,21 +1373,16 @@
 			}
 
 			// uitrekenen barameter status
-			// getallen komen uit plaatje https://members.gliding.co.uk/wp-content/uploads/sites/3/2015/04/1430312045_currency-barometer.gif
-			// Zijn verhoudingen / pixels
-			// Grens rood / geel = 8,75
-			// Grens geel/groen = 2x 8,75 
-			// 5 uren = 4.1
-			// 5 starts = 3.2
 
-			$y1 = ($retVal['UREN_BAROMETER'] / 60) * 4.1 / 5;
-			$y2 = $retVal['STARTS_BAROMETER'] * 3.2 / 5;
+
+			$y1 = $retVal['UREN_BAROMETER'] /60;		// variable heeft minuten, dus delen door 60
+			$y2 = $retVal['STARTS_BAROMETER'] * 25 / 35;	
 
 			$gem = ($y1 + $y2) / 2;		// snijpunt van witte lijn in het plaatje
 
-			if ($gem < 8.75)
+			if ($gem < 10)
 				$retVal['STATUS_BAROMETER'] = 'rood';	
-			else if ($gem < 2*8.75)
+			else if ($gem < 20)
 				$retVal['STATUS_BAROMETER'] = 'geel';
 			else
 				$retVal['STATUS_BAROMETER'] = 'groen';

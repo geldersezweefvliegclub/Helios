@@ -454,6 +454,13 @@ paths:
           schema:
             type: integer
             format: int32
+        - in: query
+          name: DATUM
+          description: Peil datum van de recency
+          required: false
+          schema:
+            type: string
+            format: date              
       responses:
         200:
           description: "OK, data succesvol opgehaald"
