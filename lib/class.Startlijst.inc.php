@@ -1111,7 +1111,7 @@
 				for ($i = 1 ; $i <= 12 ; $i++)		// 12 maanden
 				{
 					$maanden[$i] = array (
-						'MAAND' => $i, 	
+						'MAAND' => "$i", 	
 						'VLUCHTEN' => "0",
 						'LIERSTARTS' => "0",
 						'SLEEPSTARTS' => "0",
