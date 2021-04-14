@@ -474,6 +474,260 @@
             }
          }
       },
+      "/Startlijst/GetVliegtuigLogboek": {
+         "get": {
+            "security": [
+               {
+                  "basicAuth": []
+               }
+            ],
+            "summary": "Haal logboek van gebruiker op. Query parameters worden in AND conditie gebruikt",
+            "parameters": [
+               {
+                  "in": "query",
+                  "name": "LAATSTE_AANPASSING",
+                  "description": "Laatste aanpassing op basis van records in dataset. Bedoeld om data verbruik te verminderen. Dataset is daarom leeg",
+                  "required": false,
+                  "schema": {
+                     "type": "boolean"
+                  }
+               },
+               {
+                  "in": "query",
+                  "name": "HASH",
+                  "description": "HASH van laatste GetObjects aanroep. Indien bij nieuwe aanroep dezelfde data bevat, dan volgt http status code 304. In geval dataset niet hetzelfde is, dan komt de nieuwe dataset terug. Ook bedoeld om dataverbruik te vermindereren. Er wordt alleen data verzonden als het nodig is.",
+                  "required": false,
+                  "schema": {
+                     "type": "string"
+                  }
+               },
+               {
+                  "in": "query",
+                  "name": "SORT",
+                  "description": "Sortering van de velden in ORDER BY formaat. Default, meerste recente vlucht eerst",
+                  "required": false,
+                  "schema": {
+                     "type": "string"
+                  }
+               },
+               {
+                  "in": "query",
+                  "name": "MAX",
+                  "description": "Maximum aantal records in de dataset. Gebruikt in LIMIT query",
+                  "required": false,
+                  "schema": {
+                     "type": "integer",
+                     "format": "int32",
+                     "minimum": 1
+                  }
+               },
+               {
+                  "in": "query",
+                  "name": "START",
+                  "description": "Eerste record in de dataset. Gebruikt in LIMIT query",
+                  "required": false,
+                  "schema": {
+                     "type": "integer",
+                     "format": "int32",
+                     "minimum": 1
+                  }
+               },
+               {
+                  "in": "query",
+                  "name": "BEGIN_DATUM",
+                  "description": "Begin datum (inclusief deze dag)",
+                  "required": false,
+                  "schema": {
+                     "type": "string",
+                     "format": "date"
+                  }
+               },
+               {
+                  "in": "query",
+                  "name": "EIND_DATUM",
+                  "description": "Eind datum (inclusief deze dag)",
+                  "required": false,
+                  "schema": {
+                     "type": "string",
+                     "format": "date"
+                  }
+               },
+               {
+                  "in": "query",
+                  "name": "ID",
+                  "description": "Logboek voor specifiek vliegtuig, ID is database ID van het vliegtuig",
+                  "required": false,
+                  "schema": {
+                     "type": "integer"
+                  }
+               }
+            ],
+            "responses": {
+               "200": {
+                  "description": "OK, data succesvol opgehaald",
+                  "content": {
+                     "application/json": {
+                        "schema": {
+                           "type": "object",
+                           "properties": {
+                              "DATUM": {
+                                 "description": "Datum",
+                                 "type": "string",
+                                 "format": "date",
+                                 "example": "2012-01-24"
+                              },
+                              "VLUCHTEN": {
+                                 "description": "Aantal vluchten van deze dag",
+                                 "type": "integer",
+                                 "example": 4
+                              },
+                              "LIERSTARTS": {
+                                 "description": "Aantal sleepstart op deze dag voor dit vliegtuig",
+                                 "type": "integer",
+                                 "example": 4
+                              },
+                              "SLEEPSTARTS": {
+                                 "description": "Aantal sleepstart op deze dag voor dit vliegtuig",
+                                 "type": "integer",
+                                 "example": 4
+                              },
+                              "VLIEGTIJD": {
+                                 "description": "Starttijd (hh:mm)",
+                                 "type": "string",
+                                 "pattern": "^([01][0-9]|2[0-3]):([0-5][0-9]))$",
+                                 "example": "12:32"
+                              },
+                              "REG_CALL": {
+                                 "description": "Combinatie van registratie en callsign van het vliegtuig waarop gevlogen is",
+                                 "type": "string",
+                                 "example": "PH-1292 (E6)"
+                              }
+                           }
+                        }
+                     }
+                  }
+               },
+               "304": {
+                  "description": "Data niet gemodificeerd, HASH in aanroep == hash in dataset"
+               },
+               "401": {
+                  "description": "Niet geautoriseerd, geen rechten om data op te halen"
+               },
+               "405": {
+                  "description": "Methode niet toegestaan, input validatie error"
+               },
+               "500": {
+                  "description": "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"
+               }
+            }
+         }
+      },
+      "/Startlijst/GetVliegtuigLogboekTotalen": {
+         "get": {
+            "security": [
+               {
+                  "basicAuth": []
+               }
+            ],
+            "summary": "Haal logboek van gebruiker op. Query parameters worden in AND conditie gebruikt",
+            "parameters": [
+               {
+                  "in": "query",
+                  "name": "LAATSTE_AANPASSING",
+                  "description": "Laatste aanpassing op basis van records in dataset. Bedoeld om data verbruik te verminderen. Dataset is daarom leeg",
+                  "required": false,
+                  "schema": {
+                     "type": "boolean"
+                  }
+               },
+               {
+                  "in": "query",
+                  "name": "HASH",
+                  "description": "HASH van laatste GetObjects aanroep. Indien bij nieuwe aanroep dezelfde data bevat, dan volgt http status code 304. In geval dataset niet hetzelfde is, dan komt de nieuwe dataset terug. Ook bedoeld om dataverbruik te vermindereren. Er wordt alleen data verzonden als het nodig is.",
+                  "required": false,
+                  "schema": {
+                     "type": "string"
+                  }
+               },
+               {
+                  "in": "query",
+                  "name": "JAAR",
+                  "description": "Alle vluchten van het opgegven jaar",
+                  "required": false,
+                  "schema": {
+                     "type": "integer"
+                  }
+               },
+               {
+                  "in": "query",
+                  "name": "ID",
+                  "description": "Logboek voor specifiek vliegtuig, ID is database ID van het vliegtuig",
+                  "required": false,
+                  "schema": {
+                     "type": "integer"
+                  }
+               }
+            ],
+            "responses": {
+               "200": {
+                  "description": "OK, data succesvol opgehaald",
+                  "content": {
+                     "application/json": {
+                        "schema": {
+                           "type": "object",
+                           "properties": {
+                              "MAAND": {
+                                 "description": "Maand",
+                                 "type": "string",
+                                 "format": "integer",
+                                 "example": "10"
+                              },
+                              "VLUCHTEN": {
+                                 "description": "Aantal vluchten in deze maand",
+                                 "type": "integer",
+                                 "example": 58
+                              },
+                              "LIERSTARTS": {
+                                 "description": "Aantal lierstarts voor deze maand voor dit vliegtuig",
+                                 "type": "integer",
+                                 "example": 12
+                              },
+                              "SLEEPSTARTS": {
+                                 "description": "Aantal sleepstarts voor deze maand voor dit vliegtuig",
+                                 "type": "integer",
+                                 "example": 46
+                              },
+                              "VLIEGTIJD": {
+                                 "description": "Starttijd (hh:mm)",
+                                 "type": "string",
+                                 "pattern": "^([01][0-9]|2[0-3]):([0-5][0-9]))$",
+                                 "example": "12:32"
+                              },
+                              "REG_CALL": {
+                                 "description": "Combinatie van registratie en callsign van het vliegtuig waarop gevlogen is",
+                                 "type": "string",
+                                 "example": "PH-1292 (E6)"
+                              }
+                           }
+                        }
+                     }
+                  }
+               },
+               "304": {
+                  "description": "Data niet gemodificeerd, HASH in aanroep == hash in dataset"
+               },
+               "401": {
+                  "description": "Niet geautoriseerd, geen rechten om data op te halen"
+               },
+               "405": {
+                  "description": "Methode niet toegestaan, input validatie error"
+               },
+               "500": {
+                  "description": "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"
+               }
+            }
+         }
+      },
       "/Startlijst/DeleteObject": {
          "delete": {
             "security": [

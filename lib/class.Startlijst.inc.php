@@ -1112,18 +1112,18 @@
 				{
 					$maanden[$i] = array (
 						'MAAND' => $i, 	
-						'VLUCHTEN' => 0,
-						'LIERSTARTS' => 0,
-						'SLEEPSTARTS' => 0,
+						'VLUCHTEN' => "0",
+						'LIERSTARTS' => "0",
+						'SLEEPSTARTS' => "0",
 						'VLIEGTIJD' => '00:00:00',
 						'REG_CALL' => ''					
 					);
 				}
 
 				$totalen = array (
-					'VLUCHTEN' => 0,
-					'LIERSTARTS' => 0,
-					'SLEEPSTARTS' => 0,
+					'VLUCHTEN' => "0",
+					'LIERSTARTS' => "0",
+					'SLEEPSTARTS' => "0",
 					'VLIEGTIJD' => '00:00:00',
 				);
 
