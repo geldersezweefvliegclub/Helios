@@ -98,6 +98,16 @@
                     `av`.`SNELHEID`,
 					`av`.`VERWIJDERD`,
 					`av`.`LAATSTE_AANPASSING`, 
+					`v`.`REGISTRATIE`, 
+					`v`.`CALLSIGN`, 
+					`v`.`ZITPLAATSEN`, 
+					`v`.`CLUBKIST`, 
+					`v`.`FLARMCODE`, 
+					`v`.`TYPE_ID`, 
+					`v`.`TMG`, 
+					`v`.`ZELFSTART`, 
+					`v`.`SLEEPKIST`, 
+					`v`.`VOLGORDE`, 
 					CONCAT(IFNULL(`v`.`REGISTRATIE`,''),' (',IFNULL(`v`.`CALLSIGN`,''),')') AS `REG_CALL`
 				FROM
 					`%s` `av`
@@ -150,6 +160,7 @@
 			if (!is_null($obj['VERTREK']))
 				$obj['VERTREK'] = substr($obj['VERTREK'] , 0, 5);	// alleen hh:mm
 			
+			$obj = $this->RecordToOutput($obj);	
 			return $obj;	
 		}
 	
@@ -168,6 +179,7 @@
 			$limit = -1;
 			$start = -1;
 			$velden = "*";
+			$in = "";
 			$alleenVerwijderd = false;
 			$query_params = array();
 
@@ -263,7 +275,7 @@
 					case "IN" : 
 						{
 							isCSV($value, "IN");
-							$where .= sprintf(" AND VLIEGTUIG_ID IN(%s)", trim($value));
+							$in = sprintf(" VLIEGTUIG_ID IN(%s)", trim($value));
 
 							Debug(__FILE__, __LINE__, sprintf("%s: IN='%s'", $functie, $value));
 							break;
@@ -303,6 +315,16 @@
 							throw new Exception(sprintf("405;%s is een onjuiste parameter;", $key));
 							break;
 						}										
+				}
+			}
+
+			if ($in != "")
+			{
+				if (strpos($where, 'AND') === false) {
+					$where .=  " AND" . $in;			// Er is geen where conditie, dus beperken we dataset to IN parameters
+				}
+				else {
+					$where .=  sprintf(" OR (%s)", $in); // Er is WEL een where conditie, dus IN parameters als extra toevoegen
 				}
 			}
 
@@ -346,6 +368,10 @@
 				parent::DbOpvraag($rquery, $query_params);
 				$retVal['dataset'] = parent::DbData();
 
+				for ($i=0 ; $i < count($retVal['dataset']) ; $i++)
+				{
+					$retVal['dataset'][$i] = $this->RecordToOutput($retVal['dataset'][$i]);
+				}
 				return $retVal;
 			}
 			return null;  // Hier komen we nooit :-)
@@ -504,52 +530,6 @@
 		}
 
 		/*
-		Copieer data van request naar velden van het record 
-		*/
-		function RequestToRecord($input)
-		{
-			$record = array();	
-				
-			$field = 'ID';
-			if (array_key_exists($field, $input))
-				$record[$field] = isINT($input[$field], $field);
-
-			$field = 'LATITUDE';
-			if (array_key_exists($field, $input))
-				$record[$field] = isLAT($input[$field], $field, true);
-
-			$field = 'LONGITUDE';
-			if (array_key_exists($field, $input))
-				$record[$field] = isLON($input[$field], $field, true);				
-
-			$field = 'DATUM';
-			if (array_key_exists($field, $input))
-				$record[$field] = isDATE($input[$field], $field);
-
-			$field = 'VLIEGTUIG_ID';
-			if (array_key_exists($field, $input))
-				$record[$field] = isINT($input[$field], $field, false, 'Vliegtuigen');
-				 
-			$field = 'AANKOMST';
-			if (array_key_exists($field, $input))
-				$record[$field] = isTIME($input[$field], $field, true);				
-				
-			$field = 'VERTREK';
-			if (array_key_exists($field, $input))
-				$record[$field] = isTIME($input[$field], $field, true);
-
-			$field = 'SNELHEID';
-			if (array_key_exists($field, $input))
-				$record[$field] = isINT($input[$field], $field, true);
-
-			$field = 'HOOGTE';
-			if (array_key_exists($field, $input))
-				$record[$field] = isINT($input[$field], $field, true);
-
-			return $record;
-		}
-
-		/*
 		Aanmelden van een lid
 		*/
 		function Aanmelden($AanmeldenVliegtuigData, $zetTijd = true)
@@ -664,6 +644,107 @@
 
 			Debug(__FILE__, __LINE__, sprintf("AanwezigVliegtuigen aangepast id=%s", $AfmeldenVliegtuigData['ID']));		
 			return  $this->GetObject($AfmeldenVliegtuigData['ID']);
-		}		
+		}
+		
+		/*
+		Copieer data van request naar velden van het record 
+		*/
+		function RequestToRecord($input)
+		{
+			$record = array();	
+				
+			$field = 'ID';
+			if (array_key_exists($field, $input))
+				$record[$field] = isINT($input[$field], $field);
+
+			$field = 'LATITUDE';
+			if (array_key_exists($field, $input))
+				$record[$field] = isLAT($input[$field], $field, true);
+
+			$field = 'LONGITUDE';
+			if (array_key_exists($field, $input))
+				$record[$field] = isLON($input[$field], $field, true);				
+
+			$field = 'DATUM';
+			if (array_key_exists($field, $input))
+				$record[$field] = isDATE($input[$field], $field);
+
+			$field = 'VLIEGTUIG_ID';
+			if (array_key_exists($field, $input))
+				$record[$field] = isINT($input[$field], $field, false, 'Vliegtuigen');
+				 
+			$field = 'AANKOMST';
+			if (array_key_exists($field, $input))
+				$record[$field] = isTIME($input[$field], $field, true);				
+				
+			$field = 'VERTREK';
+			if (array_key_exists($field, $input))
+				$record[$field] = isTIME($input[$field], $field, true);
+
+			$field = 'SNELHEID';
+			if (array_key_exists($field, $input))
+				$record[$field] = isINT($input[$field], $field, true);
+
+			$field = 'HOOGTE';
+			if (array_key_exists($field, $input))
+				$record[$field] = isINT($input[$field], $field, true);
+
+			return $record;
+		}
+
+		/*
+		Converteer integers en booleans voor correcte output 
+		*/
+		function RecordToOutput($record)
+		{
+			$retVal = $record;
+
+			// vermengvuldigen met 1 converteer naar integer
+			if (isset($record['ID']))
+				$retVal['ID']  = $record['ID'] * 1;	
+
+			if (isset($record['VLIEGTUIG_ID']))
+				$retVal['VLIEGTUIG_ID']  = $record['VLIEGTUIG_ID'] * 1;
+			
+			if (isset($record['LATITUDE']))
+				$retVal['LATITUDE']  = $record['LATITUDE'] * 1;	
+
+			if (isset($record['LONGITUDE']))
+				$retVal['LONGITUDE']  = $record['LONGITUDE'] * 1;		
+
+			if (isset($record['HOOGTE']))
+				$retVal['HOOGTE']  = $record['HOOGTE'] * 1;						
+						
+			if (isset($record['SNELHEID']))
+				$retVal['SNELHEID']  = $record['SNELHEID'] * 1;		
+
+			if (isset($record['ZITPLAATSEN']))
+				$retVal['ZITPLAATSEN']  = $record['ZITPLAATSEN'] * 1;	
+
+			if (isset($record['VOLGORDE']))
+				$retVal['VOLGORDE']  = $record['VOLGORDE'] * 1;	
+
+			if (isset($record['TYPE_ID']))
+				$retVal['TYPE_ID']  = $record['TYPE_ID'] * 1;								
+
+			// booleans	
+			if (isset($record['VERWIJDERD']))
+				$retVal['VERWIJDERD']  = $record['VERWIJDERD'] == "1" ? true : false;
+
+			if (isset($record['CLUBKIST']))
+				$retVal['CLUBKIST']  = $record['CLUBKIST'] == "1" ? true : false;
+
+			if (isset($record['TMG']))
+				$retVal['TMG']  = $record['TMG'] == "1" ? true : false;
+
+			if (isset($record['ZELFSTART']))
+				$retVal['ZELFSTART']  = $record['ZELFSTART'] == "1" ? true : false;
+
+			if (isset($record['SLEEPKIST']))
+				$retVal['SLEEPKIST']  = $record['SLEEPKIST'] == "1" ? true : false;
+
+			return $retVal;
+		}
+		
+		
 	}
-?>
