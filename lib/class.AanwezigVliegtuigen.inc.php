@@ -115,7 +115,7 @@
 				WHERE
 					`av`.`VERWIJDERD` = %d  
 				ORDER BY 
-					DATUM DESC, ID;";				
+					DATUM DESC, CLUBKIST, VOLGORDE, ID;";				
 			
 			parent::DbUitvoeren("DROP VIEW IF EXISTS aanwezig_vliegtuigen_view");							
 			parent::DbUitvoeren(sprintf($query, "aanwezig_vliegtuigen_view", $this->dbTable, 0));

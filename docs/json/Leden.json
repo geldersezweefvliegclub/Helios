@@ -807,7 +807,7 @@
                                 "type": "string",
                                 "example": "Jeugdlid"
                              },
-                             "ZUSTERCLUB_ID": {
+                             "ZUSTERCLUB": {
                                 "description": "Naam van de zusterclub",
                                 "type": "string",
                                 "example": "De buren"

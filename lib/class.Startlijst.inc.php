@@ -276,6 +276,7 @@
 					throw new Exception("401;Geen leesrechten;");
 			}
 
+			$obj = $this->RecordToOutput($obj);
 			return $obj;	
 		}
 	
@@ -509,6 +510,10 @@
 				parent::DbOpvraag($rquery, $query_params);
 				$retVal['dataset'] = parent::DbData();
 
+				for ($i=0 ; $i < count($retVal['dataset']) ; $i++)
+				{
+					$retVal['dataset'][$i] = $this->RecordToOutput($retVal['dataset'][$i]);
+				}
 				return $retVal;
 			}
 			return null;  // Hier komen we nooit :-)
@@ -710,6 +715,10 @@
 				parent::DbOpvraag($rquery, $query_params);
 				$retVal['dataset'] = parent::DbData();
 
+				for ($i=0 ; $i < count($retVal['dataset']) ; $i++)
+				{
+					$retVal['dataset'][$i] = $this->RecordToOutput($retVal['dataset'][$i]);
+				}
 				return $retVal;
 			}
 			return null;  // Hier komen we nooit :-)
@@ -827,7 +836,7 @@
 				$rv = MaakObject('Vliegtuigen');
 				$rvObj = $rv->GetObject($vliegtuigID);
 				
-				if ($rvObj[0]['CLUBKIST'] == 1)
+				if ($rvObj['CLUBKIST'] == true)
 					$privacyCheck = false;
 			}
 			
@@ -867,7 +876,7 @@
 			$dagen = parent::DbData();
 
 			$retVal = array();
-			$retVal['totaal'] = $dagen[0]['totaal'];
+			$retVal['totaal'] = 1 * $dagen[0]['totaal'];
 			$retVal['laatste_aanpassing']=  $this->LaatsteAanpassing("SELECT %s FROM
 												startlijst_view slv
 											WHERE 
@@ -933,6 +942,8 @@
 				{
 					if (!is_null($retVal['dataset'][$i]['VLIEGTIJD']))
 						$retVal['dataset'][$i]['VLIEGTIJD'] = substr($retVal['dataset'][$i]['VLIEGTIJD'] , 0, 5);	// alleen hh:mm
+
+					$retVal['dataset'][$i] = $this->RecordToOutput($retVal['dataset'][$i]);
 				}
 			}
 			return $retVal;
@@ -1013,7 +1024,7 @@
 				$rv = MaakObject('Vliegtuigen');
 				$rvObj = $rv->GetObject($vliegtuigID);
 				
-				if ($rvObj[0]['CLUBKIST'] == 1)
+				if ($rvObj['CLUBKIST'] == true)
 					$privacyCheck = false;
 			}
 			
@@ -1157,9 +1168,23 @@
 					$totalen['VLIEGTIJD'] = sprintf("%02d:%02d:%02d", $uren, $min, $sec);
 				}
 				$retVal['dataset'] = array_values($maanden);
-				$retVal['totaal'] = count($maanden);
+				$retVal['totaal'] = 1 * count($maanden);
 				$retVal['totalen'] = $totalen;
 				
+			}
+
+			for ($i=0; $i < count($retVal['dataset']); $i++) {
+				if (isset($retVal['dataset'][$i]['MAAND']))
+					$retVal['dataset'][$i]['MAAND']  = $retVal['dataset'][$i]['MAAND'] * 1;
+
+				if (isset($retVal['dataset'][$i]['VLUCHTEN']))
+					$retVal['dataset'][$i]['VLUCHTEN']  = $retVal['dataset'][$i]['VLUCHTEN'] * 1;
+
+				if (isset($retVal['dataset'][$i]['LIERSTARTS']))
+					$retVal['dataset'][$i]['LIERSTARTS']  = $retVal['dataset'][$i]['LIERSTARTS'] * 1;
+
+				if (isset($retVal['dataset'][$i]['SLEEPSTARTS']))
+					$retVal['dataset'][$i]['SLEEPSTARTS']  = $retVal['dataset'][$i]['SLEEPSTARTS'] * 1;
 			}
 			return $retVal;
 		}	
@@ -1207,12 +1232,8 @@
 		{
 			Debug(__FILE__, __LINE__, sprintf("Startlijst.AddObject(%s)", print_r($StartlijstData, true)));
 			
-			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)	
-				throw new Exception("401;Geen schrijfrechten;");
-
 			if ($StartlijstData == null)
-				throw new Exception("406;Daginfo data moet ingevuld zijn;");	
+				throw new Exception("406;StartlijstData data moet ingevuld zijn;");	
 
 			$where = "";
 			$nieuw = true;
@@ -1236,6 +1257,17 @@
 
 			if (!array_key_exists('DATUM', $StartlijstData))
 				throw new Exception("406;DATUM is verplicht;");			
+
+			$l = MaakObject('Login');
+			if ($l->magSchrijven() == false)	
+			{
+				$nieuweVlieger = array_key_exists('VLIEGER_ID', $StartlijstData) ? $startData['VLIEGER_ID'] : -1;
+				$nieuweInzittende = array_key_exists('INZITTENDE_ID', $StartlijstData) ? $startData['INZITTENDE_ID'] : $nieuweVlieger;
+
+				// We mogen alleen vluchten voor onszelf invoeren
+				if (($nieuweVlieger != $l->getUserFromSession()) && (nieuweInzittende != $l->getUserFromSession()))
+					throw new Exception(sprintf("405;VLIEGER_ID of INZITTENDE_ID moet LID_ID(%s) bevatten;", $l->getUserFromSession()));
+			}
 
 			// Neem data over uit aanvraag
             $d = $this->RequestToRecord($StartlijstData);
@@ -1262,10 +1294,6 @@
 		{
 			Debug(__FILE__, __LINE__, sprintf("Startlijst.UpdateObject(%s)", print_r($StartlijstData, true)));
 			
-			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)	
-				throw new Exception("401;Geen schrijfrechten;");
-
 			if ($StartlijstData == null)
 				throw new Exception("406;Daginfo data moet ingevuld zijn;");	
 
@@ -1273,6 +1301,26 @@
 				throw new Exception("406;ID moet ingevuld zijn;");
 
 			$id = isINT($StartlijstData['ID'], "ID");
+
+			$l = MaakObject('Login');
+			if ($l->magSchrijven() == false)	
+			{
+				$bestaandeStart = $this->GetObject($id);
+				// Geen schrijf rechten, maar eigen starts mag je altijd aanpassen
+				if (($bestaandeStart['VLIEGER_ID'] != $l->getUserFromSession()) && ($bestaandeStart['INZITTENDE_ID'] != $l->getUserFromSession()))
+				{
+					throw new Exception("401;Geen schrijfrechten;");
+				}
+				else // we hebben geen schrijfrechten, maar zijn vlieger of inzittende
+				{
+					$nieuweVlieger = array_key_exists('VLIEGER_ID', $StartlijstData) ? $StartlijstData['VLIEGER_ID'] : $bestaandeStart['VLIEGER_ID'];
+					$nieuweInzittende = array_key_exists('INZITTENDE_ID', $StartlijstData) ? $StartlijstData['INZITTENDE_ID'] : $bestaandeStart['INZITTENDE_ID'];
+
+					// We mogen onszelf niet van de vlucht halen
+					if (($nieuweVlieger != $l->getUserFromSession()) && (nieuweInzittende != $l->getUserFromSession()))
+						throw new Exception(sprintf("405;VLIEGER_ID of INZITTENDE_ID moet LID_ID(%s) bevatten;", $l->getUserFromSession()));
+				}
+			}
 
 			// Neem data over uit aanvraag
 			$d = $this->RequestToRecord($StartlijstData);            
@@ -1316,9 +1364,17 @@
 			if ($datum !== null) {
 				$dateTime = new DateTime($datum);
 			}
-
-
 			$vliegerID = isINT($vliegerID, "VLIEGER_ID");
+
+			$l = MaakObject('Leden');
+			if ($l->isPermissie("INSTRUCTEUR", $vliegerID))		// Voor instructeurs tellen ook de instructie starts mee
+			{
+				$InstructieSQL = sprintf("(INZITTENDE_ID = %s)", $vliegerID);
+			}
+			else
+			{
+				$InstructieSQL = "(1 = 0)";			// dit is nooit waar, en dat is prima
+			}
 
 			$retVal['STARTS_DRIE_MND'] = 0;
 			$retVal['STARTS_VORIG_JAAR'] = 0; 
@@ -1331,8 +1387,8 @@
 			$retVal['STARTS_BAROMETER'] = 0; 	
 			$retVal['UREN_BAROMETER'] = 0; 	
 
-			$where = sprintf("DATUM > '%d-01-01' AND DATUM <= '%s' AND STARTTIJD IS NOT NULL AND LANDINGSTIJD IS NOT NULL AND ", 				    $dateTime->format("Y")-1, $dateTime->format("Y-m-d"));
-			$where .= sprintf("(VLIEGER_ID = %s)", $vliegerID);
+			$where = sprintf("DATUM > '%d-01-01' AND DATUM <= '%s' AND STARTTIJD IS NOT NULL AND LANDINGSTIJD IS NOT NULL  ", 				    $dateTime->format("Y")-1, $dateTime->format("Y-m-d"));
+			$where .= sprintf(" AND ((VLIEGER_ID = %s) OR %s)", $vliegerID, $InstructieSQL);
 
 			$query = "
 				SELECT
@@ -1537,6 +1593,9 @@
 
 				for ($i=0; $i < count($retVal['dataset']); $i++)
 				{
+					if (isset($retVal['dataset'][$i]['STARTS']))
+						$retVal['dataset'][$i]['STARTS']  = $retVal['dataset'][$i]['STARTS'] * 1;
+
 					if (!is_null($retVal['dataset'][$i]['VLIEGTIJD']))
 						$retVal['dataset'][$i]['VLIEGTIJD'] = substr($retVal['dataset'][$i]['VLIEGTIJD'] , 0, 5);	// alleen hh:mm
 				}
@@ -1544,72 +1603,6 @@
 			}
 			return null;  // Hier komen we nooit :-)
 		}
-
-		/*
-		Copieer data van request naar velden van het record 
-		*/
-		function RequestToRecord($input)
-		{
-			$record = array();
-
-			$field = 'ID';
-			if (array_key_exists($field, $input))
-				$record[$field] = isINT($input[$field], $field);
-
-			$field = 'DATUM';
-			if (array_key_exists($field, $input))
-				$record[$field] = isDATE($input[$field], $field);
-
-			$field = 'VLIEGTUIG_ID';
-			if (array_key_exists($field, $input))
-				$record[$field] = isINT($input[$field], $field, false, "Vliegtuigen");
-
-			$field = 'STARTTIJD';
-			if (array_key_exists($field, $input))
-				$record[$field] = isTIME($input[$field], $field, true);
-
-			$field = 'LANDINGSTIJD';
-			if (array_key_exists($field, $input))
-				$record[$field] = isTIME($input[$field], $field, true);				
-
-			$field = 'STARTMETHODE_ID';
-			if (array_key_exists($field, $input))
-				$record[$field] = isINT($input[$field], $field, true, "Types");
-
-			$field = 'VLIEGER_ID';
-			if (array_key_exists($field, $input))
-				$record[$field] = isINT($input[$field], $field, true, 'Leden');
-
-			$field = 'INZITTENDE_ID';
-			if (array_key_exists($field, $input))
-				$record[$field] = isINT($input[$field], $field, true, 'Leden');
-
-			if (array_key_exists('VLIEGERNAAM', $input))
-				$record['VLIEGERNAAM'] = $input['VLIEGERNAAM']; 
-
-			if (array_key_exists('INZITTENDENAAM', $input))
-				$record['INZITTENDENAAM'] = $input['INZITTENDENAAM']; 
-
-			$field = 'SLEEPKIST_ID';
-			if (array_key_exists($field, $input))
-				$record[$field] = isINT($input[$field], $field, true, "Vliegtuigen");
-
-			$field = 'SLEEP_HOOGTE';
-			if (array_key_exists($field, $input))
-				$record[$field] = isINT($input[$field], $field, true);					
-
-			$field = 'VELD_ID';
-			if (array_key_exists($field, $input))
-				$record[$field] = isINT($input[$field], $field, true, 'Types');
-							
-			if (array_key_exists('OPMERKINGEN', $input))
-				$record['OPMERKINGEN'] = $input['OPMERKINGEN']; 
-
-			if (array_key_exists('EXTERNAL_ID', $input))
-				$record['EXTERNAL_ID'] = $input['EXTERNAL_ID']; 
-
-			return $record;
-        }
 		
 		/*
 		Aanmelden van vlieger / inzittende / vliegtuig 
@@ -1706,5 +1699,116 @@
 			else
 				return 1;		
 		}
+
+				/*
+		Copieer data van request naar velden van het record 
+		*/
+		function RequestToRecord($input)
+		{
+			$record = array();
+
+			$field = 'ID';
+			if (array_key_exists($field, $input))
+				$record[$field] = isINT($input[$field], $field);
+
+			$field = 'DATUM';
+			if (array_key_exists($field, $input))
+				$record[$field] = isDATE($input[$field], $field);
+
+			$field = 'VLIEGTUIG_ID';
+			if (array_key_exists($field, $input))
+				$record[$field] = isINT($input[$field], $field, false, "Vliegtuigen");
+
+			$field = 'STARTTIJD';
+			if (array_key_exists($field, $input))
+				$record[$field] = isTIME($input[$field], $field, true);
+
+			$field = 'LANDINGSTIJD';
+			if (array_key_exists($field, $input))
+				$record[$field] = isTIME($input[$field], $field, true);				
+
+			$field = 'STARTMETHODE_ID';
+			if (array_key_exists($field, $input))
+				$record[$field] = isINT($input[$field], $field, true, "Types");
+
+			$field = 'VLIEGER_ID';
+			if (array_key_exists($field, $input))
+				$record[$field] = isINT($input[$field], $field, true, 'Leden');
+
+			$field = 'INZITTENDE_ID';
+			if (array_key_exists($field, $input))
+				$record[$field] = isINT($input[$field], $field, true, 'Leden');
+
+			if (array_key_exists('VLIEGERNAAM', $input))
+				$record['VLIEGERNAAM'] = $input['VLIEGERNAAM']; 
+
+			if (array_key_exists('INZITTENDENAAM', $input))
+				$record['INZITTENDENAAM'] = $input['INZITTENDENAAM']; 
+
+			$field = 'SLEEPKIST_ID';
+			if (array_key_exists($field, $input))
+				$record[$field] = isINT($input[$field], $field, true, "Vliegtuigen");
+
+			$field = 'SLEEP_HOOGTE';
+			if (array_key_exists($field, $input))
+				$record[$field] = isINT($input[$field], $field, true);					
+
+			$field = 'VELD_ID';
+			if (array_key_exists($field, $input))
+				$record[$field] = isINT($input[$field], $field, true, 'Types');
+							
+			if (array_key_exists('OPMERKINGEN', $input))
+				$record['OPMERKINGEN'] = $input['OPMERKINGEN']; 
+
+			if (array_key_exists('EXTERNAL_ID', $input))
+				$record['EXTERNAL_ID'] = $input['EXTERNAL_ID']; 
+
+			return $record;
+        }
+
+		/*
+		Converteer integers en booleans voor correcte output 
+		*/
+		function RecordToOutput($record)
+		{
+			$retVal = $record;
+
+			// vermengvuldigen met 1 converteer naar integer
+			if (isset($record['ID']))
+				$retVal['ID']  = $record['ID'] * 1;	
+
+			if (isset($record['DAGNUMMER']))
+				$retVal['DAGNUMMER']  = $record['DAGNUMMER'] * 1;	
+
+			if (isset($record['VLIEGTUIG_ID']))
+				$retVal['VLIEGTUIG_ID']  = $record['VLIEGTUIG_ID'] * 1;	
+
+			if (isset($record['STARTMETHODE_ID']))
+				$retVal['STARTMETHODE_ID']  = $record['STARTMETHODE_ID'] * 1;
+			
+			if (isset($record['VLIEGER_ID']))
+				$retVal['VLIEGER_ID']  = $record['VLIEGER_ID'] * 1;		
+
+			if (isset($record['INZITTENDE_ID']))
+				$retVal['INZITTENDE_ID']  = $record['INZITTENDE_ID'] * 1;
+
+			if (isset($record['SLEEPKIST_ID']))
+				$retVal['SLEEPKIST_ID']  = $record['SLEEPKIST_ID'] * 1;	
+			
+			if (isset($record['SLEEP_HOOGTE']))
+				$retVal['SLEEP_HOOGTE']  = $record['SLEEP_HOOGTE'] * 1;	
+
+			if (isset($record['VELD_ID']))
+				$retVal['VELD_ID']  = $record['VELD_ID'] * 1;	
+
+				
+			// booleans	
+			if (isset($record['VERWIJDERD']))
+				$retVal['VERWIJDERD']  = $record['VERWIJDERD'] == "1" ? true : false;
+
+			if (isset($record['CLUBKIST']))
+				$retVal['CLUBKIST']  = $record['CLUBKIST'] == "1" ? true : false;				
+
+			return $retVal;
+		}		
 	}
-?>

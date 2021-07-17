@@ -204,12 +204,12 @@
 			if (($l->isBeheerder() == false) && ($l->isBeheerderDDWV() == false) && ($l->isInstructeur() == false) && ($l->isStarttoren() == false))
 			{
 				// is ingelogde gebruiker de persoon zelf? Nee, dan geen toegang
-				if (($obj['ID'] !== $l->getUserFromSession()))
+				if (($obj['ID'] != $l->getUserFromSession()))
 					throw new Exception("401;Geen leesrechten;");
 			}
-
-			// privacy maskering
-			$obj = $this->privacyMask($obj);
+			
+			$obj = $this->RecordToOutput($obj);
+			$obj = $this->privacyMask($obj); // privacy maskering
 			return $obj;				
 		}
 
@@ -231,7 +231,8 @@
 
 			if ($obj == null)
 				throw new Exception("404;Record niet gevonden;");
-			
+
+			$obj = $this->RecordToOutput($obj);
 			return $obj;				
 		}
 			
@@ -253,7 +254,8 @@
 
 			if ($obj == null)
 				throw new Exception("404;Record niet gevonden;");
-						
+
+			$obj = $this->RecordToOutput($obj);
 			return $obj;				
 		}
 
@@ -280,6 +282,17 @@
 			{
 				Debug(__FILE__, __LINE__, sprintf("%s: %s is DDWV'er, beperk query", $functie, $l->getUserFromSession()));
 				$where .= " AND ((LIDTYPE_ID = 625) OR (DDWV_CREW = '1')) ";
+			}
+			else if (($l->isBeheerder() == false) && 
+					 ($l->isBeheerderDDWV() == false) && 
+					 ($l->isStarttoren() == false)) 
+			{
+				// 601 = Erelid
+				// 602 = Lid
+				// 603 = Jeugdlid
+				// 606 = Donateur
+				// 625 = DDWV
+				$where .= " AND ((LIDTYPE_ID IN (601, 602,603, 606, 625)";  
 			}
 
 			foreach ($params as $key => $value)
@@ -485,6 +498,8 @@
 
 				for ($i=0; $i < count($retVal['dataset']) ; $i++) 
 				{
+					$retVal['dataset'][$i] = $this->RecordToOutput($retVal['dataset'][$i]);
+
 					// privacy maskering
 					$retVal['dataset'][$i] = $this->privacyMask($retVal['dataset'][$i]);	
 				}
@@ -745,6 +760,211 @@
 			parent::DbUitvoeren($query);	
 		}
 
+		function isPermissie($key, $id = null, $lid = null)
+		{
+			$functie = "Leden.isPermissie";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s, %s, %s)", $functie, $key, $id, $lid[$key]));	
+
+			$retVal = false;
+
+			if (($id == null) && ($lid == null)) {
+				Debug(__FILE__, __LINE__, sprintf("%s: ERROR id & lid zijn NULL, check source code", $functie));
+				return false;
+			}
+			
+			if ($lid == null) 
+			{
+				try
+				{
+					$lid = $this->GetObject($id);
+				}
+				catch(Exception $exception) { return false; }
+			}
+			
+			if ($lid[$key] == true) 
+				$retVal = true;
+				
+			Debug(__FILE__, __LINE__, sprintf("Lid=%s isPermissie %s=%s", $lid['NAAM'], $key, ($retVal) ? "true" : "false"));
+			return $retVal;				
+		}
+	
+		
+		function isStartleider($id = null, $lid = null, $datum = null)
+		{
+			$functie = "Leden.isStartleider";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s, %s, %s)", $functie, $id, print_r($lid, true), $datum));	
+			
+			if ($this->isPermissie("STARTLEIDER", $id, $lid) == false)
+				return false;			
+
+			if ($datum == null) $datum = date('Y-m-d');
+
+			if ($lid == null) 
+			{
+				try
+				{
+					$lid = $this->GetObject($id);
+				}
+				catch(Exception $exception) { return false; }
+			}
+
+			$di = MaakObject('Daginfo');	
+			try
+			{					
+				$diObj = $di->GetObject(false, $datum);
+
+				if (isset($diObj[0]['OCHTEND_STARTLEIDER']))
+				{
+					if ($lid['ID'] == $diObj[0]['OCHTEND_STARTLEIDER']) 
+					{
+						Debug(__FILE__, __LINE__, sprintf("%s: %s(%d) is ochtend startleider, datum=%s, return true", $functie, $lid['NAAM'], $lid['ID'], $datum ));
+						return true;
+					}
+				}
+				if (isset($diObj[0]['MIDDAG_STARTLEIDER']))
+				{
+					if ($lid['ID']  == $diObj[0]['MIDDAG_STARTLEIDER'])
+					{
+						Debug(__FILE__, __LINE__, sprintf("%s: %s(%d) is middag startleider, datum=%s, return true", $functie, $lid['NAAM'], $lid['ID'], $datum ));
+						return true;
+					}
+				}			
+				
+				$rooster = MaakObject('Rooster');				
+				$roosterObj = $rooster->GetObject($datum);		
+
+				if (isset($roosterObj[0]['OCHTEND_STARTLEIDER']))
+				{
+					if ($lid['ID'] == $roosterObj[0]['OCHTEND_STARTLEIDER']) 
+					{
+						Debug(__FILE__, __LINE__, sprintf("%s: %s(%d) is ochtend startleider op rooster, datum=%s, return true", $functie, $lid['NAAM'], $lid['ID'], $datum ));
+						return true;
+					}
+				}
+				if (isset($roosterObj[0]['MIDDAG_STARTLEIDER']))
+				{
+					if ($lid['ID']  == $roosterObj[0]['MIDDAG_STARTLEIDER'])
+					{
+						Debug(__FILE__, __LINE__, sprintf("%s: %s(%d) is middag startleider op rooster, datum=%s, return true", $functie, $lid['NAAM'], $lid['ID'], $datum ));
+						return true;
+					}
+				}
+			}
+			catch(Exception $exception) {}
+
+			return false;
+		}
+	
+		function isClubVlieger($id = null, $lid = null)
+		{
+			$functie = "Leden.isClubVlieger";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s, %s)", $functie, $id, print_r($lid, true)));	
+			$retVal = false;
+			
+			if (($id == null) && ($lid == null)) {
+				Debug(__FILE__, __LINE__, sprintf("%s: ERROR id & lid zijn NULL, check source code", $functie));
+				return false;
+			}
+
+			if ($lid == null) 
+			{
+				try
+				{
+					$lid = $this->GetObject($id);
+				}
+				catch(Exception $exception) { return false; }
+			}
+			
+			if (($lid['LIDTYPE_ID'] == "601") ||       // 601 = Erelid
+				($lid['LIDTYPE_ID'] == "602") ||       // 602 = Lid 
+				($lid['LIDTYPE_ID'] == "603") ||       // 603 = Jeugdlid 
+				($lid['LIDTYPE_ID'] == "606"))         // 606 = Donateur
+				$retVal = true;
+				
+			Debug(__FILE__, __LINE__, sprintf("LIDTYPE_ID=%s isVliegendLid=%s", $lid['LIDTYPE_ID'], $retVal ? "true" : "false"));
+			return $retVal;			
+		}
+
+		function isDDWV($id = null, $lid = null)
+		{
+			$functie = "Leden.isDDWV";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s, %s)", $functie, $id, print_r($lid, true)));	
+			$retVal = false;
+			
+			if (($id == null) && ($lid == null)) {
+				Debug(__FILE__, __LINE__, sprintf("%s: ERROR id & lid zijn NULL, check source code", $functie));
+				return false;
+			}
+			
+			if ($lid == null) 
+			{
+				try
+				{
+					$lid = $this->GetObject($id);
+				}
+				catch(Exception $exception) { return false; }
+			}
+			
+			if ($lid['LIDTYPE_ID'] == "625")        // 625 = DDWV
+				$retVal = true;
+				
+			Debug(__FILE__, __LINE__, sprintf("LIDTYPE_ID=%s isDDWV=%s", $lid['LIDTYPE_ID'], $retVal ? "true" : "false"));
+			return $retVal;				
+		}						
+
+		// privacy maskering
+		function privacyMask($lid)
+		{
+			global $app_settings;
+
+			$l = MaakObject('Login');
+			if (array_key_exists("WACHTWOORD", $lid))
+			{
+				if (($l->isBeheerder() === true))
+					$lid['WACHTWOORD'] 	= dechex(crc32($lid['WACHTWOORD']));
+				else
+					$lid['WACHTWOORD'] 	= "****";
+			}
+
+			if ($lid['SECRET'] != null) {
+				if (($l->isBeheerder() === true) ||
+					($l->isBeheerderDDWV() === true)) 
+				{
+					$ga = new PHPGangsta_GoogleAuthenticator();
+					$lid['SECRET'] = $ga->getQRCodeGoogleUrl($lid['INLOGNAAM'], $lid['SECRET'], $app_settings['Vereniging']);
+				}				
+				else
+				{
+					$lid['SECRET'] 	= "****";
+				}
+			}
+
+
+			if ($lid['ID'] !== $l->getUserFromSession())
+			{
+				if (($l->isBeheerder() === false) &&
+					($l->isBeheerderDDWV() === false) &&
+					($l->isInstructeur() === false))					
+				{
+					if ($lid['PRIVACY'] === true) {
+						$lid['TELEFOON'] 		= "****";
+						$lid['MOBIEL'] 			= "****";
+						$lid['ADRES'] 			= "****";
+						$lid['POSTCODE'] 		= "****";
+						$lid['WOONPLAATS'] 		= "****";
+						$lid['GEBOORTE_DATUM'] 	= "****";
+					}
+
+					$lid['MEDICAL'] 		= "****";
+					$lid['NOODNUMMER'] 		= null;
+					$lid['HEEFT_BETAALD'] 	= null;
+					$lid['BEPERKINGEN'] 	= null;
+					$lid['OPMERKINGEN'] 	= null;
+				}
+			}
+			return $lid;
+		}
+	
 		/*
 		Copieer data van request naar velden van het record 
 		*/
@@ -915,212 +1135,75 @@
 
 				if (array_key_exists('BEPERKINGEN', $input))
 					$record['BEPERKINGEN'] = $input['BEPERKINGEN']; 	
-			}
 
-			if (array_key_exists('AVATAR', $input))
-				throw new Exception("405;AVATAR kan niet extern gezet worden;");
-					
+				// url naar extern bestand
+				if (array_key_exists('AVATAR', $input))
+					$record['AVATAR'] = $input['AVATAR']; 	
+			}
+	
 			return $record;				
 		}
 	
-
-		function isPermissie($key, $id = null, $lid = null)
+		/*
+		Converteer integers en booleans voor correcte output 
+		*/
+		function RecordToOutput($record)
 		{
-			$functie = "Leden.isPermissie";
-			Debug(__FILE__, __LINE__, sprintf("%s(%s, %s, %s)", $functie, $key, $id, print_r($lid, true)));	
+			$retVal = $record;
 
-			$retVal = false;
+			// vermengvuldigen met 1 converteer naar integer
+			if (isset($record['ID']))
+				$retVal['ID']  = $record['ID'] * 1;	
 
-			if (($id == null) && ($lid == null)) {
-				Debug(__FILE__, __LINE__, sprintf("%s: ERROR id & lid zijn NULL, check source code", $functie));
-				return false;
-			}
+			if (isset($record['LIDTYPE_ID']))
+				$retVal['LIDTYPE_ID']  = $record['LIDTYPE_ID'] * 1;
 			
-			if ($lid == null) 
-			{
-				try
-				{
-					$lid = $this->GetObject($id);
-				}
-				catch(Exception $exception) { return false; }
-			}
-			
-			if ($lid[$key] == "1") 
-				$retVal = true;
+			if (isset($record['ZUSTERCLUB_ID']))
+				$retVal['ZUSTERCLUB_ID']  = $record['ZUSTERCLUB_ID'] * 1;	
 				
-			Debug(__FILE__, __LINE__, sprintf("Lid=%s isPermissie %s=%s", $lid['NAAM'], $key, ($retVal) ? "true" : "false"));
-			return $retVal;				
-		}
-	
-		
-		function isStartleider($id = null, $lid = null, $datum = null)
-		{
-			$functie = "Leden.isStartleider";
-			Debug(__FILE__, __LINE__, sprintf("%s(%s, %s, %s)", $functie, $id, print_r($lid, true), $datum));	
-			
-			if ($this->isPermissie("STARTLEIDER", $id, $lid) == false)
-				return false;			
+			// booleans	
+			if (isset($record['LIERIST']))
+				$retVal['LIERIST']  = $record['LIERIST'] == "1" ? true : false;
 
-			if ($datum == null) $datum = date('Y-m-d');
+			if (isset($record['STARTLEIDER']))
+				$retVal['STARTLEIDER']  = $record['STARTLEIDER'] == "1" ? true : false;
 
-			if ($lid == null) 
-			{
-				try
-				{
-					$lid = $this->GetObject($id);
-				}
-				catch(Exception $exception) { return false; }
-			}
+			if (isset($record['INSTRUCTEUR']))
+				$retVal['INSTRUCTEUR']  = $record['INSTRUCTEUR'] == "1" ? true : false;
 
-			$di = MaakObject('Daginfo');	
-			try
-			{					
-				$diObj = $di->GetObject(false, $datum);
+			if (isset($record['CIMT']))
+				$retVal['CIMT']  = $record['CIMT'] == "1" ? true : false;
 
-				if (isset($diObj[0]['OCHTEND_STARTLEIDER']))
-				{
-					if ($lid['ID'] == $diObj[0]['OCHTEND_STARTLEIDER']) 
-					{
-						Debug(__FILE__, __LINE__, sprintf("%s: %s(%d) is ochtend startleider, datum=%s, return true", $functie, $lid['NAAM'], $lid['ID'], $datum ));
-						return true;
-					}
-				}
-				if (isset($diObj[0]['MIDDAG_STARTLEIDER']))
-				{
-					if ($lid['ID']  == $diObj[0]['MIDDAG_STARTLEIDER'])
-					{
-						Debug(__FILE__, __LINE__, sprintf("%s: %s(%d) is middag startleider, datum=%s, return true", $functie, $lid['NAAM'], $lid['ID'], $datum ));
-						return true;
-					}
-				}			
+			if (isset($record['DDWV_CREW']))
+				$retVal['DDWV_CREW']  = $record['DDWV_CREW'] == "1" ? true : false;
 				
-				$rooster = MaakObject('Rooster');				
-				$roosterObj = $rooster->GetObject($datum);		
-
-				if (isset($roosterObj[0]['OCHTEND_STARTLEIDER']))
-				{
-					if ($lid['ID'] == $roosterObj[0]['OCHTEND_STARTLEIDER']) 
-					{
-						Debug(__FILE__, __LINE__, sprintf("%s: %s(%d) is ochtend startleider op rooster, datum=%s, return true", $functie, $lid['NAAM'], $lid['ID'], $datum ));
-						return true;
-					}
-				}
-				if (isset($roosterObj[0]['MIDDAG_STARTLEIDER']))
-				{
-					if ($lid['ID']  == $roosterObj[0]['MIDDAG_STARTLEIDER'])
-					{
-						Debug(__FILE__, __LINE__, sprintf("%s: %s(%d) is middag startleider op rooster, datum=%s, return true", $functie, $lid['NAAM'], $lid['ID'], $datum ));
-						return true;
-					}
-				}
-			}
-			catch(Exception $exception) {}
-
-			return false;
-		}
-	
-		function isClubVlieger($id = null, $lid = null)
-		{
-			$functie = "Leden.isClubVlieger";
-			Debug(__FILE__, __LINE__, sprintf("%s(%s, %s)", $functie, $id, print_r($lid, true)));	
-			$retVal = false;
-			
-			if (($id == null) && ($lid == null)) {
-				Debug(__FILE__, __LINE__, sprintf("%s: ERROR id & lid zijn NULL, check source code", $functie));
-				return false;
-			}
-
-			if ($lid == null) 
-			{
-				try
-				{
-					$lid = $this->GetObject($id);
-				}
-				catch(Exception $exception) { return false; }
-			}
-			
-			if (($lid['LIDTYPE_ID'] == "601") ||       // 601 = Erelid
-				($lid['LIDTYPE_ID'] == "602") ||       // 602 = Lid 
-				($lid['LIDTYPE_ID'] == "603") ||       // 603 = Jeugdlid 
-				($lid['LIDTYPE_ID'] == "606"))         // 606 = Donateur
-				$retVal = true;
+			if (isset($record['DDWV_BEHEERDER']))
+				$retVal['DDWV_BEHEERDER']  = $record['DDWV_BEHEERDER'] == "1" ? true : false;
 				
-			Debug(__FILE__, __LINE__, sprintf("LIDTYPE_ID=%s isVliegendLid=%s", $lid['LIDTYPE_ID'], $retVal ? "true" : "false"));
-			return $retVal;			
-		}
-
-		function isDDWV($id = null, $lid = null)
-		{
-			$functie = "Leden.isDDWV";
-			Debug(__FILE__, __LINE__, sprintf("%s(%s, %s)", $functie, $id, print_r($lid, true)));	
-			$retVal = false;
-			
-			if (($id == null) && ($lid == null)) {
-				Debug(__FILE__, __LINE__, sprintf("%s: ERROR id & lid zijn NULL, check source code", $functie));
-				return false;
-			}
-			
-			if ($lid == null) 
-			{
-				try
-				{
-					$lid = $this->GetObject($id);
-				}
-				catch(Exception $exception) { return false; }
-			}
-			
-			if ($lid['LIDTYPE_ID'] == "625")        // 625 = DDWV
-				$retVal = true;
+			if (isset($record['BEHEERDER']))
+				$retVal['BEHEERDER']  = $record['BEHEERDER'] == "1" ? true : false;
 				
-			Debug(__FILE__, __LINE__, sprintf("LIDTYPE_ID=%s isDDWV=%s", $lid['LIDTYPE_ID'], $retVal ? "true" : "false"));
-			return $retVal;				
-		}						
+			if (isset($record['STARTTOREN']))
+				$retVal['STARTTOREN']  = $record['STARTTOREN'] == "1" ? true : false;
+				
+			if (isset($record['ROOSTER']))
+				$retVal['ROOSTER']  = $record['ROOSTER'] == "1" ? true : false;
+				
+			if (isset($record['CLUBBLAD_POST']))
+				$retVal['CLUBBLAD_POST']  = $record['CLUBBLAD_POST'] == "1" ? true : false;
 
-		// privacy maskering
-		function privacyMask($lid)
-		{
-			global $app_settings;
+			if (isset($record['AUTH']))
+				$retVal['AUTH']  = $record['AUTH'] == "1" ? true : false;
+				
+			if (isset($record['HEEFT_BETAALD']))
+				$retVal['HEEFT_BETAALD']  = $record['HEEFT_BETAALD'] == "1" ? true : false;
+				
+			if (isset($record['PRIVACY']))
+				$retVal['PRIVACY']  = $record['PRIVACY'] == "1" ? true : false;
+				
+			if (isset($record['VERWIJDERD']))
+				$retVal['VERWIJDERD']  = $record['VERWIJDERD'] == "1" ? true : false;
 
-			$l = MaakObject('Login');
-			if (array_key_exists("WACHTWOORD", $lid))
-			{
-				if (($l->isBeheerder() === true))
-					$lid['WACHTWOORD'] 	= dechex(crc32($lid['WACHTWOORD']));
-				else
-					$lid['WACHTWOORD'] 	= "****";
-			}
-
-			if ($lid['SECRET'] != null) {
-				if (($l->isBeheerder() === true) ||
-					($l->isBeheerderDDWV() === true)) 
-				{
-					$ga = new PHPGangsta_GoogleAuthenticator();
-					$lid['SECRET'] = $ga->getQRCodeGoogleUrl($lid['INLOGNAAM'], $lid['SECRET'], $app_settings['Vereniging']);
-				}				
-				else
-				{
-					$lid['SECRET'] 	= "****";
-				}
-			}
-
-
-			if ($lid['ID'] !== $l->getUserFromSession())
-			{
-
-				if (($l->isBeheerder() === false) &&
-					($l->isBeheerderDDWV() === false) &&
-					($l->isInstructeur() === false) &&
-					($lid['PRIVACY'] === "1"))
-				{
-					$lid['TELEFOON'] 	= "****";
-					$lid['MOBIEL'] 		= "****";
-					$lid['ADRES'] 		= "****";
-					$lid['POSTCODE'] 	= "****";
-					$lid['WOONPLAATS'] 	= "****";
-					$lid['MEDICAL'] 	= "****";
-				}
-			}
-			return $lid;
+			return $retVal;
 		}
-	}	
-?>
+	}

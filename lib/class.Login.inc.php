@@ -88,8 +88,7 @@ require ("include/PasswordHash.php");
 
 			Debug(__FILE__, __LINE__, sprintf("getUserInfo: %s, isInstaller:%s", $UserID, ($this->isInstaller() == true ? "true" : "false") ));
 
-
-			//TODO			$a = MaakObject('Aanwezig');
+			$a = MaakObject('AanwezigLeden');
 
 			if ((is_numeric($UserID)) && (!$this->isInstaller()))
 			{	
@@ -99,7 +98,10 @@ require ("include/PasswordHash.php");
 					$LidData = $l->getObject($UserID);
 					$LidData['WACHTWOORD'] 	= "****";
 				}
-				catch(Exception $exception) {}
+				catch(Exception $exception) 
+				{
+					Debug(__FILE__, __LINE__, "getObject($UserID) gefaald");
+				}
 
 				$Userinfo['isBeheerderDDWV'] 	= $l->isPermissie("DDWV_BEHEERDER", $LidData['ID'], $LidData);
 				$Userinfo['isBeheerder'] 		= $l->isPermissie("BEHEERDER", $LidData['ID'], $LidData);
@@ -113,7 +115,7 @@ require ("include/PasswordHash.php");
 				$Userinfo['isClubVlieger'] 		= $l->isClubVlieger($LidData['ID'], $LidData);
 				$Userinfo['isDDWV'] 			= $l->isDDWV($LidData['ID'], $LidData);
 				$Userinfo['isAangemeld'] 		= false;
-//TODO				$Userinfo['isAangemeld'] = $a->IsAangemeldVandaag($UserID);				
+				$Userinfo['isAangemeld'] 		= $a->IsAangemeldVandaag($UserID);				
 			}
 			return array ("LidData" => $LidData, "Userinfo" => $Userinfo);
 		}
@@ -125,8 +127,7 @@ require ("include/PasswordHash.php");
 
 			// Indien username en wachtwword gezet zijn, via basic authenticatie. Gaan we opnieuw authoriseren
 			if (isset($_SERVER['PHP_AUTH_USER']) && isset($_SERVER['PHP_AUTH_PW']))
-			{ 	
-								
+			{ 				
 				$this->verkrijgToegang ($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW'], $token);
 				return;
 			}
@@ -195,16 +196,20 @@ require ("include/PasswordHash.php");
 				$this->toegangGeweigerd();	
 			}
 
-			if (($lObj['AUTH'] == "1") && (empty($token)))
-				throw new Exception("401;Token moet ingevoerd worden;");
 				
 			$key = sha1(strtolower ($username) . $password);
-			Debug(__FILE__, __LINE__, sprintf("Login(%s)[%s] = %s, %s %s %s", 	$username, 
+			Debug(__FILE__, __LINE__, sprintf("Login(%s)[%s] = %s, %s, %s, %s,", 	$username, 
 																				$lObj["AUTH"], 
 																				$lObj["NAAM"], 
 																				$lObj['WACHTWOORD'], 
 																				$key, 
 																				$lObj['SECRET']));
+			
+			if (($lObj['AUTH'] == "1") && (empty($token))) 
+			{
+				throw new Exception("406;Token moet ingevoerd worden;");
+			}
+																											
 			if ($lObj['WACHTWOORD'] == $key)	
 			{		
 				Debug(__FILE__, __LINE__, sprintf("Toegang toegestaan (%s)", $username));	
@@ -390,4 +395,3 @@ require ("include/PasswordHash.php");
 			throw new Exception("401;Toegang geweigerd;");
 		}
 	}
-?>

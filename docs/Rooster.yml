@@ -351,11 +351,11 @@ components:
           format: int32
           example: 214  
         DDWV:
-          description: Is het een DDWV dag? Waarde 0..1
+          description: Is het een DDWV dag? 
           type: boolean
           example: 0
         CLUB_BEDRIJF:
-          description: Is er een clubbedrijf Waarde 0..1
+          description: Is er een clubbedrijf 
           type: boolean
           example: 1        
 
@@ -366,7 +366,7 @@ components:
       - type: object
         properties:
           VERWIJDERD:
-            description: Is dit record gemarkeerd als verwijderd?  Waarde 0..1
+            description: Is dit record gemarkeerd als verwijderd?  
             type: boolean
             example: 0  
           LAATSTE_AANPASSING:
@@ -374,6 +374,53 @@ components:
             type: string
             format: date-time 
             example: "2020-04-17 07:29:01" 
+
+    view_rooster_dataset:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/oper_rooster'
+        - type: object
+          properties:
+            OCHTEND_DDI:
+              description: De naam van de DDI voor het ochtend bedrijf
+              type: string
+              example: Meneer de Uil        
+            OCHTEND_INSTRUCTEUR:
+              description: De naam van de instructeur voor het ochtend bedrijf
+              type: string
+              example: Juffrouw Ooievaar
+            OCHTEND_STARTLEIDER:
+              description: De naam van de startleider voor het ochtend bedrijf
+              type: string
+              example: Willem Bever          
+            OCHTEND_LIERIST:
+              description: De naam van de lierist voor het ochtend bedrijf 
+              type: string
+              example: Truus de Mier
+            OCHTEND_HULPLIERIST:
+              description: De naam van de hulplierist voor het ochtend bedrijf
+              type: string
+              example: Gerrit de Postduif    
+            MIDDAG_DDI:
+              description: De naam van de DDI voor het middag bedrijf
+              type: string
+              example: Teun Stier        
+            MIDDAG_INSTRUCTEUR:
+              description: De naam van de instructeur voor het middag bedrijf
+              type: string
+              example: Lowieke de Vos
+            MIDDAG_STARTLEIDER:
+              description: De naam van de startleider voor het middag bedrijf
+              type: string
+              example: Bor de Wolf          
+            MIDDAG_LIERIST:
+              description: De naam van de lierist voor het middag bedrijf 
+              type: string
+              example: Zoef de Haas
+            MIDDAG_HULPLIERIST:
+              description: De naam van de hulplierist voor het middag bedrijf 
+              type: string
+              example: Isadora Paradijsvogel  
 
     view_rooster:
       type: object
@@ -397,47 +444,5 @@ components:
           type: array
           items: 
             type: object
-            allOf:
-              - $ref: '#/components/schemas/oper_rooster'
-              - type: object
-                properties:
-                  OCHTEND_DDI:
-                    description: De naam van de DDI voor het ochtend bedrijf
-                    type: string
-                    example: Meneer de Uil        
-                  OCHTEND_INSTRUCTEUR:
-                    description: De naam van de instructeur voor het ochtend bedrijf
-                    type: string
-                    example: Juffrouw Ooievaar
-                  OCHTEND_STARTLEIDER:
-                    description: De naam van de startleider voor het ochtend bedrijf
-                    type: string
-                    example: Willem Bever          
-                  OCHTEND_LIERIST:
-                    description: De naam van de lierist voor het ochtend bedrijf 
-                    type: string
-                    example: Truus de Mier
-                  OCHTEND_HULPLIERIST:
-                    description: De naam van de hulplierist voor het ochtend bedrijf
-                    type: string
-                    example: Gerrit de Postduif    
-                  MIDDAG_DDI:
-                    description: De naam van de DDI voor het middag bedrijf
-                    type: string
-                    example: Teun Stier        
-                  MIDDAG_INSTRUCTEUR:
-                    description: De naam van de instructeur voor het middag bedrijf
-                    type: string
-                    example: Lowieke de Vos
-                  MIDDAG_STARTLEIDER:
-                    description: De naam van de startleider voor het middag bedrijf
-                    type: string
-                    example: Bor de Wolf          
-                  MIDDAG_LIERIST:
-                    description: De naam van de lierist voor het middag bedrijf 
-                    type: string
-                    example: Zoef de Haas
-                  MIDDAG_HULPLIERIST:
-                    description: De naam van de hulplierist voor het middag bedrijf 
-                    type: string
-                    example: Isadora Paradijsvogel          
+            $ref: '#/components/schemas/view_rooster_dataset'
+                     

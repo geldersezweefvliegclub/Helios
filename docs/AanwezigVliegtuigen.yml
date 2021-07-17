@@ -148,7 +148,7 @@ paths:
             type: string    
         - in: query        
           name: IN
-          description: Een of meerdere vliegtuigen database IDs in CSV formaat
+          description: Een of meerdere vliegtuigen database IDs in CSV formaat. AND conditie als er geen andere parameters zijn, anders OR conditie
           required: false
           schema:
             type: string                
@@ -454,7 +454,7 @@ components:
       - type: object
         properties:
           VERWIJDERD:
-            description: Is dit record gemarkeerd als verwijderd?  Waarde 0..1
+            description: Is dit record gemarkeerd als verwijderd?  
             type: boolean
             example: 0            
           LAATSTE_AANPASSING:
@@ -462,6 +462,63 @@ components:
             type: string
             format: date-time 
             example: "2020-09-18 09:51:16" 
+
+    view_aanwezig_vliegtuigen_dataset:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/oper_aanwezig_vliegtuigen'
+        - type: object
+          properties:  
+            REGISTRATIE:
+              description: Het registratie nummer van het vliegtuig
+              type: string
+              maxLength: 8
+              example: "PH-1234"
+            CALLSIGN:
+              description: Optioneel het callsign van het vliegtuig
+              type: string
+              maxLength: 8
+              example: AA
+            FLARMCODE:
+              description: De flarmcode zoals deze wordt uitgezonden. Zo kunnen we ontvangen flarm data herleiden naar een vliegtuig uit de database
+              type: string
+              maxLength: 6
+              example: 123456
+            ZITPLAATSEN:
+              description: Het aantal zitplaatsen. Is 1 of 2. 
+              type: integer
+              format: int32
+              example: 1
+            ZELFSTART:
+              description: Kan het vliegtuig op eigen kracht starten. 
+              type: boolean
+              example: 0
+            CLUBKIST:
+              description: Is het een club vliegtuig? 
+              type: boolean
+              example: 1
+            TMG:
+              description: Is het een TMG? 
+              type: boolean
+              example: 0
+            SLEEPKIST:
+              description: Is het een sleepvliegtuig? 
+              type: boolean
+              example: 0
+            TYPE_ID:
+              description: Link naar vliegtuig type tabel. Alleen nodig voor clubvliegtuigen
+              type: integer
+              format: int32   
+              example: 12   
+            VOLGORDE:
+              description: Volgorde van vliegtuiglijst, bedoeld voor club vliegtuigen
+              type: integer
+              format: int32   
+              example: 12                           
+            REG_CALL: 
+              description: Vliegtuig registratie en callsign van het vliegtuig
+              type: string
+              example: PH-1076 (E2)
 
     view_aanwezig_vliegtuigen:
       type: object
@@ -484,12 +541,4 @@ components:
           description: De dataset met records
           type: array
           items: 
-            type: object
-            allOf:
-              - $ref: '#/components/schemas/oper_aanwezig_vliegtuigen'
-              - type: object
-                properties:                   
-                  REG_CALL: 
-                    description: Vliegtuig registratie en callsign van het vliegtuig
-                    type: string
-                    example: PH-1076 (E2)  
+            $ref: '#/components/schemas/view_aanwezig_vliegtuigen_dataset'

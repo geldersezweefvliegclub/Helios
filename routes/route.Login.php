@@ -44,12 +44,19 @@ Heeft deze gebruiker toegang tot het systeem. Doordat eerder sessie is opgebouwd
 */
 $app->get('/Login/Login', function (Request $request, Response $response, $args) {
 
-    $datum = $request->getQueryParams()['token'];
+    $token = $request->getQueryParams()['token'];
 
-    $obj = MaakObject("Login");
     try
     {
-        $obj->heeftToegang($token);  // Hier staat de logica voor deze functie
+        /*
+            Je denkt dat je onderstaande code moet uitvoeren om in te loggen, maar dat is niet zo
+            In de index.php wordt gecontroleerd of je toegang hebt via de heeftToegang functie. Wanneer je daar ook login info 
+            meegeeft, dan wordt er al ingelogd. Wanneer je onderstaande code uitvoert, log je dus 2x in. En dat is niet nodig
+        
+
+        $obj = MaakObject("Login");
+        $obj->heeftToegang($token);  
+        */
         return $response;
     }
     catch(Exception $exception)

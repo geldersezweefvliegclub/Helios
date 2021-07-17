@@ -114,10 +114,41 @@
 					WHERE GROEP = 4 AND VOORKEUR_VLIEGTUIG_TYPE LIKE CONCAT('%%',ID,'%%') ) AS VLIEGTUIGTYPE_CODE, 
 					(SELECT 
 						GROUP_CONCAT(OMSCHRIJVING) FROM ref_types 
-					WHERE GROEP = 4 AND VOORKEUR_VLIEGTUIG_TYPE LIKE CONCAT('%%',ID,'%%') ) AS VLIEGTUIGTYPE_OMS, 					
-					`l`.`NAAM` AS `VLIEGER`,
-					`l`.`LIDTYPE_ID` AS `LIDTYPE_ID`,  
-					CONCAT(IFNULL(`v`.`REGISTRATIE`,''),' (',IFNULL(`v`.`CALLSIGN`,''),')') AS `REG_CALL`
+					WHERE GROEP = 4 AND VOORKEUR_VLIEGTUIG_TYPE LIKE CONCAT('%%',ID,'%%') ) AS VLIEGTUIGTYPE_OMS, 					 
+
+					CONCAT(IFNULL(`v`.`REGISTRATIE`,''),' (',IFNULL(`v`.`CALLSIGN`,''),')') AS `REG_CALL`,
+					`l`.`NAAM`,
+					`l`.`VOORNAAM`, 
+					`l`.`TUSSENVOEGSEL`, 
+					`l`.`ACHTERNAAM`, 
+					`l`.`ADRES`, 
+					`l`.`POSTCODE`, 
+					`l`.`WOONPLAATS`, 
+					`l`.`LIDNR`, 
+					`l`.`LIDTYPE_ID`, 
+					`l`.`MOBIEL`, 
+					`l`.`EMAIL`, 
+					`l`.`NOODNUMMER`, 
+					`l`.`TELEFOON`, 
+					`l`.`INSTRUCTEUR`, 
+					`l`.`DDWV_CREW`, 
+					`l`.`STARTLEIDER`, 
+					`l`.`LIERIST`,
+					`l`.`CIMT`,
+					`l`.`DDWV_CREW`,
+					`l`.`DDWV_BEHEERDER`,
+					`l`.`BEHEERDER`,
+					`l`.`STARTTOREN`,
+					`l`.`ROOSTER`,
+					`l`.`CLUBBLAD_POST`,
+					`l`.`MEDICAL`,
+					`l`.`GEBOORTE_DATUM`,
+					`l`.`ZUSTERCLUB_ID`,
+                    `l`.`INLOGNAAM`,    
+					`l`.`SECRET`,  
+					`l`.`AVATAR`,        
+                    `l`.`HEEFT_BETAALD`,
+					`l`.`PRIVACY`
 				FROM
 					`%s` `al`
 					LEFT JOIN `ref_leden` `l` ON `al`.`LID_ID` = `l`.`ID`
@@ -131,7 +162,7 @@
 			parent::DbUitvoeren(sprintf($query, "aanwezig_leden_view", $this->dbTable, 0));
 
 			parent::DbUitvoeren("DROP VIEW IF EXISTS verwijderd_aanwezig_leden_view");
-			parent::DbUitvoeren(sprintf($query, "verwijderd_aanwezig_leden_view", $this->dbTable, 1));			
+			parent::DbUitvoeren(sprintf($query, "verwijderd_aanwezig_leden_view", $this->dbTable, 1));		
 		}
 
 		/*
@@ -183,7 +214,7 @@
 				if (($obj['LID_ID'] !== $l->getUserFromSession()))
 					throw new Exception("401;Geen leesrechten;");
 			}
-
+			$obj = $this->RecordToOutput($obj);
 			return $obj;	
 		}
 	
@@ -201,6 +232,7 @@
 			$hash = null;
 			$limit = -1;
 			$start = -1;
+			$in = "";
 			$velden = "*";
 
 			// Als ingelogde gebruiker geen bijzonder functie heeft, worden beperkte dataset opgehaald
@@ -305,7 +337,7 @@
 					case "IN" : 
 						{
 							isCSV($value, "IN");
-							$where .= sprintf(" AND LID_ID IN(%s)", trim($value));
+							$in = sprintf(" LID_ID IN(%s)", trim($value));
 
 							Debug(__FILE__, __LINE__, sprintf("%s: IN='%s'", $functie, $value));
 							break;
@@ -350,6 +382,16 @@
 			if ((strpos($where, 'DATUM') === false) && (strpos($where, 'ID') === false)) {
 				$where .= sprintf (" AND DATUM = '%s'", date("Y-m-d"));
 			}
+
+			if ($in != "")
+			{
+				if (strpos($where, 'AND') === false) {
+					$where .=  " AND" . $in;			// Er is geen where conditie, dus beperken we dataset to IN parameters
+				}
+				else {
+					$where .=  sprintf(" OR (%s)", $in); // Er is WEL een where conditie, dus IN parameters als extra toevoegen
+				}
+			}
 				
 			$query = "
 				SELECT 
@@ -386,6 +428,7 @@
 				parent::DbOpvraag($rquery, $query_params);
 				$retVal['dataset'] = parent::DbData();
 
+				$ledenObj = MaakObject('Leden');
 				for ($i=0; $i < count($retVal['dataset']) ; $i++) 
 				{
 					if (array_key_exists('REG_CALL', $retVal['dataset'][$i]))
@@ -393,6 +436,8 @@
 						if (isINT($retVal['dataset'][$i]['OVERLAND_VLIEGTUIG_ID']) == false)
 							$retVal['dataset'][$i]['REG_CALL'] = null;		// view geeft "()" als vliegtuig null is. Dit is workarround
 					}
+					$retVal['dataset'][$i] = $this->RecordToOutput($retVal['dataset'][$i]);	
+					$retVal['dataset'][$i] = $ledenObj->privacyMask($retVal['dataset'][$i]);
 				}
 				return $retVal;
 			}
@@ -455,14 +500,10 @@
 		/*
 		Toevoegen van een record. Het is niet noodzakelijk om alle velden op te nemen in het verzoek
 		*/		
-		function AddObject($AanwezigLedenData)
+		function AddObject($AanwezigLedenData, $magSchrijven = null)
 		{
 			Debug(__FILE__, __LINE__, sprintf("AanwezigLeden.AddObject(%s)", print_r($AanwezigLedenData, true)));
-			
-			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)	
-				throw new Exception("401;Geen schrijfrechten;");
-
+				
 			if ($AanwezigLedenData == null)
 				throw new Exception("406;AanwezigLeden data moet ingevuld zijn;");	
 
@@ -490,7 +531,14 @@
 				throw new Exception("406;DATUM is verplicht;");
 
 			$lidID = isINT($AanwezigLedenData['LID_ID'], "LID_ID");
-			$aanmeldDatum = isDATE($AanwezigLedenData['DATUM'], "DATUM");			
+			$aanmeldDatum = isDATE($AanwezigLedenData['DATUM'], "DATUM");	
+			
+			$l = MaakObject('Login');
+			if ($lidID != $l->getUserFromSession()) // een lid kan zichzelf aan en afmelden (zie this->Aanmelden / this->Afmelden) 
+			{
+				if ($l->magSchrijven() == false)	
+					throw new Exception("401;Geen schrijfrechten;");
+			}			
 
 			// Voorkom dat datum meerdere keren voorkomt in de tabel
 			try 	// Als record niet bestaat, krijgen we een exception
@@ -518,10 +566,6 @@
 		{
 			Debug(__FILE__, __LINE__, sprintf("AanwezigLeden.UpdateObject(%s)", print_r($AanwezigLedenData, true)));
 			
-			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)	
-				throw new Exception("401;Geen schrijfrechten;");
-
 			if ($AanwezigLedenData == null)
 				throw new Exception("406;AanwezigLeden data moet ingevuld zijn;");	
 
@@ -545,60 +589,17 @@
 				throw new Exception(sprintf("409;Lid ID (%s, %s) kan niet gewijzigd worden;",$AanwezigLedenData['LID_ID'], $db_record['LID_ID']));
 			}
 
+			$l = MaakObject('Login');
+			if ($db_record['LID_ID'] != $l->getUserFromSession()) // een lid lan eigen aanmelding bewerken
+			{
+				if ($l->magSchrijven() == false)	
+					throw new Exception("401;Geen schrijfrechten;");
+			}
+
 			// Neem data over uit aanvraag
 			$d = $this->RequestToRecord($AanwezigLedenData);            
 			parent::DbAanpassen($id, $d);			
 			return  $this->GetObject($id);
-		}
-
-		/*
-		Copieer data van request naar velden van het record 
-		*/
-		function RequestToRecord($input)
-		{
-			$record = array();		
-				
-			$field = 'ID';
-			if (array_key_exists($field, $input))
-				$record[$field] = isINT($input[$field], $field);			
-
-			$field = 'DATUM';
-			if (array_key_exists($field, $input))
-				$record[$field] = isDATE($input[$field], $field);
-		
-			$field = 'POSITIE';
-			if (array_key_exists($field, $input))
-				$record[$field] = isINT($input[$field], $field, true);
-
-			$field = 'LID_ID';
-			if (array_key_exists($field, $input))
-				$record[$field] = isINT($input[$field], $field, false, 'Leden');
-
-			$field = 'VOORAANMELDING';
-			if (array_key_exists($field, $input))
-				$record[$field] = isBOOL($input[$field], $field);
-			
-			$field = 'AANKOMST';
-			if (array_key_exists($field, $input))
-				$record[$field] = isTIME($input[$field], $field, true);
-				
-			$field = 'VERTREK';
-			if (array_key_exists($field, $input))
-				$record[$field] = isTIME($input[$field], $field, true);
-				
-			$field = 'OVERLAND_VLIEGTUIG_ID';
-			if (array_key_exists($field, $input))
-				$record[$field] = isINT($input[$field], $field, true, "Vliegtuigen");
-			
-			$field = 'VOORKEUR_VLIEGTUIG_TYPE';
-			if (array_key_exists($field, $input))		
-				$record[$field] = isCSV($input[$field], $field, true);
-
-			$field = 'OPMERKINGEN';
-			if (array_key_exists($field, $input))
-				$record[$field] = $input[$field];	
-				
-			return $record;
 		}
 
 		/*
@@ -607,10 +608,6 @@
 		function Aanmelden($AanmeldenLedenData)
 		{
 			Debug(__FILE__, __LINE__, sprintf("AanwezigLeden.Aanmelden(%s)", print_r($AanmeldenLedenData, true)));
-
-			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)	
-				throw new Exception("401;Geen schrijfrechten;");
 
 			if ($AanmeldenLedenData == null)
 				throw new Exception("406;AanmeldenLedenData data moet ingevuld zijn;");	
@@ -728,10 +725,6 @@
 		{
 			Debug(__FILE__, __LINE__, sprintf("AanwezigLeden.Afmelden(%s)", print_r($AfmeldenLedenData, true)));
 
-			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)	
-				throw new Exception("401;Geen schrijfrechten;");
-
 			if ($AfmeldenLedenData == null)
 				throw new Exception("406;AfmeldenLedenData data moet ingevuld zijn;");	
 
@@ -740,6 +733,13 @@
 
 			$LidID = isINT($AfmeldenLedenData['LID_ID'], "LID_ID");
 		   
+			$l = MaakObject('Login');
+			if ($LidID != $l->getUserFromSession()) 
+			{
+				if ($l->magSchrijven() == false)	
+					throw new Exception("401;Geen schrijfrechten;");
+			}
+
 			$datetime = new DateTime();
 			$datetime->setTimeZone(new DateTimeZone('Europe/Amsterdam')); 
 
@@ -918,5 +918,143 @@
 			}
 			return $retVal;
 		}
+
+		function IsAangemeldVandaag($lidID) 
+		{
+			try {
+				$aanwezigRecord = $this->GetObject(null, $lidID, date("Y-m-d"));
+				return true;
+			}
+			catch(Exception $exception)
+			{
+				// exceptie als er geen aanmelding is
+				return false;
+			}
+			return true;
+		}
+
+				/*
+		Copieer data van request naar velden van het record 
+		*/
+		function RequestToRecord($input)
+		{
+			$record = array();		
+				
+			$field = 'ID';
+			if (array_key_exists($field, $input))
+				$record[$field] = isINT($input[$field], $field);			
+
+			$field = 'DATUM';
+			if (array_key_exists($field, $input))
+				$record[$field] = isDATE($input[$field], $field);
+		
+			$field = 'POSITIE';
+			if (array_key_exists($field, $input))
+				$record[$field] = isINT($input[$field], $field, true);
+
+			$field = 'LID_ID';
+			if (array_key_exists($field, $input))
+				$record[$field] = isINT($input[$field], $field, false, 'Leden');
+
+			$field = 'VOORAANMELDING';
+			if (array_key_exists($field, $input))
+				$record[$field] = isBOOL($input[$field], $field);
+			
+			$field = 'AANKOMST';
+			if (array_key_exists($field, $input))
+				$record[$field] = isTIME($input[$field], $field, true);
+				
+			$field = 'VERTREK';
+			if (array_key_exists($field, $input))
+				$record[$field] = isTIME($input[$field], $field, true);
+				
+			$field = 'OVERLAND_VLIEGTUIG_ID';
+			if (array_key_exists($field, $input))
+				$record[$field] = isINT($input[$field], $field, true, "Vliegtuigen");
+			
+			$field = 'VOORKEUR_VLIEGTUIG_TYPE';
+			if (array_key_exists($field, $input))		
+				$record[$field] = isCSV($input[$field], $field, true);
+
+			$field = 'OPMERKINGEN';
+			if (array_key_exists($field, $input))
+				$record[$field] = $input[$field];	
+				
+			return $record;
+		}
+
+		/*
+		Converteer integers en booleans voor correcte output 
+		*/
+		function RecordToOutput($record)
+		{
+			$retVal = $record;
+
+			// vermengvuldigen met 1 converteer naar integer
+			if (isset($record['ID']))
+				$retVal['ID']  = $record['ID'] * 1;	
+
+			if (isset($record['POSITIE']))
+				$retVal['POSITIE']  = $record['POSITIE'] * 1;
+			
+			if (isset($record['LID_ID']))
+				$retVal['LID_ID']  = $record['LID_ID'] * 1;	
+
+			if (isset($record['OVERLAND_VLIEGTUIG_ID']))
+				$retVal['OVERLAND_VLIEGTUIG_ID']  = $record['OVERLAND_VLIEGTUIG_ID'] * 1;		
+
+			if (isset($record['LIDTYPE_ID']))
+				$retVal['LIDTYPE_ID']  = $record['LIDTYPE_ID'] * 1;	
+
+			if (isset($record['ZUSTERCLUB_ID']))
+				$retVal['ZUSTERCLUB_ID']  = $record['ZUSTERCLUB_ID'] * 1;	
+
+			// booleans	
+			if (isset($record['VOORAANMELDING']))
+				$retVal['VOORAANMELDING']  = $record['VOORAANMELDING'] == "1" ? true : false;
+
+				if (isset($record['LIERIST']))
+				$retVal['LIERIST']  = $record['LIERIST'] == "1" ? true : false;
+
+			if (isset($record['STARTLEIDER']))
+				$retVal['STARTLEIDER']  = $record['STARTLEIDER'] == "1" ? true : false;
+
+			if (isset($record['INSTRUCTEUR']))
+				$retVal['INSTRUCTEUR']  = $record['INSTRUCTEUR'] == "1" ? true : false;
+
+			if (isset($record['CIMT']))
+				$retVal['CIMT']  = $record['CIMT'] == "1" ? true : false;
+
+			if (isset($record['DDWV_CREW']))
+				$retVal['DDWV_CREW']  = $record['DDWV_CREW'] == "1" ? true : false;
+				
+			if (isset($record['DDWV_BEHEERDER']))
+				$retVal['DDWV_BEHEERDER']  = $record['DDWV_BEHEERDER'] == "1" ? true : false;
+				
+			if (isset($record['BEHEERDER']))
+				$retVal['BEHEERDER']  = $record['BEHEERDER'] == "1" ? true : false;
+				
+			if (isset($record['STARTTOREN']))
+				$retVal['STARTTOREN']  = $record['STARTTOREN'] == "1" ? true : false;
+				
+			if (isset($record['ROOSTER']))
+				$retVal['ROOSTER']  = $record['ROOSTER'] == "1" ? true : false;
+				
+			if (isset($record['CLUBBLAD_POST']))
+				$retVal['CLUBBLAD_POST']  = $record['CLUBBLAD_POST'] == "1" ? true : false;
+
+			if (isset($record['AUTH']))
+				$retVal['AUTH']  = $record['AUTH'] == "1" ? true : false;
+				
+			if (isset($record['HEEFT_BETAALD']))
+				$retVal['HEEFT_BETAALD']  = $record['HEEFT_BETAALD'] == "1" ? true : false;
+				
+			if (isset($record['PRIVACY']))
+				$retVal['PRIVACY']  = $record['PRIVACY'] == "1" ? true : false;
+				
+			if (isset($record['VERWIJDERD']))
+				$retVal['VERWIJDERD']  = $record['VERWIJDERD'] == "1" ? true : false;			
+
+			return $retVal;
+		}
 	}
-?>

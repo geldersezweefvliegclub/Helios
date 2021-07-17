@@ -128,14 +128,15 @@ paths:
           description: Haal alle types op van een specieke groep
           required: false
           schema:
-            type: string                           
+            type: integer   
+            format: int32                        
       responses:
         200:
           description: "OK, data succesvol opgehaald"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ref_types'
+                $ref: '#/components/schemas/view_types'
         304:
           description: "Data niet gemodificeerd, HASH in aanroep == hash in dataset"                     
         405:
@@ -154,7 +155,8 @@ paths:
           description: Database ID van het record. Meerdere ID's in CSV formaat
           required: true
           schema:
-            type: string
+            type: integer
+            format: int32
         - in: query
           name: VERIFICATIE
           description: Controleer of record bestaat voordat het verwijderd wordt. Default = true
@@ -186,7 +188,8 @@ paths:
           description: Database ID van het record. Meerdere ID's in CSV formaat
           required: true
           schema:
-            type: string           
+            type: integer
+            format: int32          
       responses:
         202:
           description: "Record(s) hersteld" 
@@ -300,7 +303,7 @@ components:
           format: int32
           example: 7
         READ_ONLY:
-          description: Is dit record (met ID) hard gecodeerd in de source code. Zo ja, dan niet aanpassen. Waarde 0..1
+          description: Is dit record (met ID) hard gecodeerd in de source code. Zo ja, dan niet aanpassen. 
           type: boolean
           example: 0
 
@@ -311,11 +314,35 @@ components:
       - type: object
         properties:
           VERWIJDERD:
-            description: Is dit record gemarkeerd als verwijderd?  Waarde 0..1
+            description: Is dit record gemarkeerd als verwijderd?  
             type: boolean
             example: 0        
           LAATSTE_AANPASSING:
             description: Tijdstempel van laaste aanpassing in de database
             type: string
             format: date-time 
-            example: "2020-09-28 14:12:00"       
+            example: "2020-09-28 14:12:00"     
+
+    view_types:
+      type: object
+      properties:
+        totaal:
+          description: Aantal records dat voldoet aan de criteria in de database
+          type: integer
+          format: int32
+          example: 287
+        laatste_aanpassing:
+          description: Tijdstempel van laaste aanpassing in de database van de records dat voldoet aan de criteria
+          type: string
+          format: date-time 
+          example: "2020-07-022 16:39:25" 
+        hash: 
+          description: hash van de dataset
+          type: string
+          example: "4d00b3f"            
+        dataset:
+          description: De dataset met records
+          type: array
+          items: 
+            type: object
+            $ref: '#/components/schemas/ref_types'              

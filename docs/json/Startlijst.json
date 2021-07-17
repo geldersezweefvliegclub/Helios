@@ -927,7 +927,7 @@
             "parameters": [
                {
                   "in": "query",
-                  "name": "ID",
+                  "name": "VLIEGER_ID",
                   "description": "Database ID van de vlieger",
                   "required": true,
                   "schema": {

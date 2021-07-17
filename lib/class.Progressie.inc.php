@@ -126,6 +126,7 @@
 			if ($obj == null)
 				throw new Exception("404;Record niet gevonden;");
 			
+			$obj = $this->RecordToOutput($obj);
 			return $obj;	
 		}
 	
@@ -248,7 +249,15 @@
 							
 							Debug(__FILE__, __LINE__, sprintf("%s: INSTRUCTEUR_ID='%s'", $functie, $instructeurID));
 							break;	  
-						}  							
+						}  		
+					case "IN" : 
+						{
+							isCSV($value, "IN");
+							$where .=  " AND" . sprintf(" COMPETENTIE_ID IN(%s)", trim($value));
+
+							Debug(__FILE__, __LINE__, sprintf("%s: IN='%s'", $functie, $value));
+							break;
+						}						
 					default:
 						{
 							throw new Exception(sprintf("405;%s is een onjuiste parameter;", $key));
@@ -292,6 +301,10 @@
 				parent::DbOpvraag($rquery, $query_params);
 				$retVal['dataset'] = parent::DbData();
 
+				for ($i=0; $i < count($retVal['dataset']) ; $i++) 
+				{
+					$retVal['dataset'][$i] = $this->RecordToOutput($retVal['dataset'][$i]);
+				}
 				return $retVal;
 			}
 			return null;  // Hier komen we nooit :-)
@@ -571,6 +584,36 @@
 			return $record;
 		}
 
+		/*
+		Converteer integers en booleans voor correcte output 
+		*/
+		function RecordToOutput($record)
+		{
+			$retVal = $record;
+
+			// vermengvuldigen met 1 converteer naar integer
+			if (isset($record['ID']))
+				$retVal['ID']  = $record['ID'] * 1;	
+
+			if (isset($record['LID_ID']))
+				$retVal['LID_ID']  = $record['LID_ID'] * 1;	
+
+			if (isset($record['COMPETENTIE_ID']))
+				$retVal['COMPETENTIE_ID']  = $record['COMPETENTIE_ID'] * 1;		
+
+			if (isset($record['INSTRUCTEUR_ID']))
+				$retVal['INSTRUCTEUR_ID']  = $record['INSTRUCTEUR_ID'] * 1;		
+
+			if (isset($record['LINK_ID']))
+				$retVal['LINK_ID']  = $record['LINK_ID'] * 1;	
+
+			// booleans	
+			if (isset($record['VERWIJDERD']))
+				$retVal['VERWIJDERD']  = $record['VERWIJDERD'] == "1" ? true : false;
+
+			return $retVal;
+		}
+
 		// Allerhoogste niveau om de progressie kaart te tonen
 		// De hoofgroepen komen uit de types tabel
 		function bouwBoom()
@@ -768,5 +811,3 @@
 			$this->OPMERKINGEN = $opmerkingen;
 		}
 	}
-	
-?>

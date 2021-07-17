@@ -170,6 +170,7 @@
 			}
 
 			$obj = parent::GetSingleObject($conditie);
+			$obj = $this->RecordToOutput($obj);
 			Debug(__FILE__, __LINE__, print_r($obj, true));
 			
 			if ($obj == null)
@@ -318,6 +319,10 @@
 				parent::DbOpvraag($rquery, $query_params);
 				$retVal['dataset'] = parent::DbData();
 
+				for ($i=0 ; $i < count($retVal['dataset']) ; $i++)
+				{
+					$retVal['dataset'][$i] = $this->RecordToOutput($retVal['dataset'][$i]);
+				}
 				return $retVal;
 			}
 			return null;  // Hier komen we nooit :-)
@@ -545,5 +550,58 @@
 
 			return $record;
 		}
+
+		/*
+		Converteer integers en booleans voor correcte output 
+		*/
+		function RecordToOutput($record)
+		{
+			$retVal = $record;
+
+			// vermengvuldigen met 1 converteer naar integer
+			if (isset($record['ID']))
+				$retVal['ID']  = $record['ID'] * 1;	
+
+			if (isset($record['OCHTEND_DDI_ID']))
+				$retVal['OCHTEND_DDI_ID']  = $record['OCHTEND_DDI_ID'] * 1;
+
+			if (isset($record['OCHTEND_INSTRUCTEUR_ID']))
+				$retVal['OCHTEND_INSTRUCTEUR_ID']  = $record['OCHTEND_INSTRUCTEUR_ID'] * 1;
+
+			if (isset($record['OCHTEND_LIERIST_ID']))
+				$retVal['OCHTEND_LIERIST_ID']  = $record['OCHTEND_LIERIST_ID'] * 1;	
+			
+			if (isset($record['OCHTEND_HULPLIERIST_ID']))
+				$retVal['OCHTEND_HULPLIERIST_ID']  = $record['OCHTEND_HULPLIERIST_ID'] * 1;	
+
+			if (isset($record['OCHTEND_STARTLEIDER_ID']))
+				$retVal['OCHTEND_STARTLEIDER_ID']  = $record['OCHTEND_STARTLEIDER_ID'] * 1;	
+
+			if (isset($record['MIDDAG_DDI_ID']))
+				$retVal['MIDDAG_DDI_ID']  = $record['MIDDAG_DDI_ID'] * 1;
+			
+			if (isset($record['MIDDAG_INSTRUCTEUR_ID']))
+				$retVal['MIDDAG_INSTRUCTEUR_ID']  = $record['MIDDAG_INSTRUCTEUR_ID'] * 1;		
+
+			if (isset($record['MIDDAG_LIERIST_ID']))
+				$retVal['MIDDAG_LIERIST_ID']  = $record['MIDDAG_LIERIST_ID'] * 1;	
+			
+			if (isset($record['MIDDAG_HULPLIERIST_ID']))
+				$retVal['MIDDAG_HULPLIERIST_ID']  = $record['MIDDAG_HULPLIERIST_ID'] * 1;	
+
+			if (isset($record['MIDDAG_STARTLEIDER_ID']))
+				$retVal['MIDDAG_STARTLEIDER_ID']  = $record['MIDDAG_STARTLEIDER_ID'] * 1;	
+
+			// booleans				
+			if (isset($record['CLUB_BEDRIJF']))
+				$retVal['CLUB_BEDRIJF']  = $record['CLUB_BEDRIJF'] == "1" ? true : false;	
+
+			if (isset($record['DDWV']))
+				$retVal['DDWV']  = $record['DDWV'] == "1" ? true : false;				
+
+			if (isset($record['VERWIJDERD']))
+				$retVal['VERWIJDERD']  = $record['VERWIJDERD'] == "1" ? true : false;
+
+			return $retVal;
+		}	
 	}
-?>

@@ -71,7 +71,7 @@ paths:
       parameters:
         - in: query
           name: ID
-          description: Database ID van het aanwezig record
+          description: Database ID van het progressie record
           required: false
           schema:
             type: integer
@@ -124,11 +124,23 @@ paths:
           schema:
             type: string                                    
         - in: query
-          name: LEERFASE_ID
-          description: Haal alle types op van een specieke leerfase
+          name: INSTRUCTEUR_ID
+          description: Welke instruct heeft welke comptententie afgetekend
           required: false
           schema:
-            type: string                           
+            type: string 
+        - in: query
+          name: LID_ID
+          description: Progressie van een bepaald lid
+          required: false
+          schema:
+            type: string             
+        - in: query
+          name: IN
+          description: Comptententie ID's in CSV formaat
+          required: false
+          schema:
+            type: string                                         
       responses:
         200:
           description: "OK, data succesvol opgehaald"
@@ -312,7 +324,7 @@ components:
             format: int32
             example: 1655          
           VERWIJDERD:
-            description: Is dit record gemarkeerd als verwijderd?  Waarde 0..1
+            description: Is dit record gemarkeerd als verwijderd?  
             type: boolean
             example: 0        
           LAATSTE_AANPASSING:
@@ -320,6 +332,29 @@ components:
             type: string
             format: date-time 
             example: "2000-11-30T09:23:59Z" 
+
+    view_progressie_dataset:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ref_progressie'
+        - type: object
+          properties:                   
+            LEERFASE: 
+              description: Fase van de vliegopleiding
+              type: string
+              example: Voortgezette vliegopleiding 1    
+            COMPETENTIE: 
+              description: Volledige omschrijving van de compententie
+              type: string
+              example: Uitstap procedure
+            LID_NAAM:
+              description: De volledige naam van het lid
+              type: string
+              example: Meindert het Paard 
+            INSTRUCTEUR_NAAM:
+              description: De volledige naam van de instrcuteur die de competentie heeft toegevoegd
+              type: string
+              example: "Lowieke de Vos"  
 
     view_progressie:
       type: object
@@ -343,26 +378,7 @@ components:
           type: array
           items: 
             type: object
-            allOf:
-              - $ref: '#/components/schemas/ref_progressie'
-              - type: object
-                properties:                   
-                  LEERFASE: 
-                    description: Fase van de vliegopleiding
-                    type: string
-                    example: Voortgezette vliegopleiding 1    
-                  COMPETENTIE: 
-                    description: Volledige omschrijving van de compententie
-                    type: string
-                    example: Uitstap procedure
-                  LID_NAAM:
-                    description: De volledige naam van het lid
-                    type: string
-                    example: Meindert het Paard 
-                  INSTRUCTEUR_NAAM:
-                    description: De volledige naam van de instrcuteur die de competentie heeft toegevoegd
-                    type: string
-                    example: "Lowieke de Vos"  
+            $ref: '#/components/schemas/view_progressie_dataset'
 
     competenties_kaart:
       type: object

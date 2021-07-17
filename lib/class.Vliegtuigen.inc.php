@@ -130,7 +130,8 @@
 
 			if ($obj == null)
 				throw new Exception("404;Record niet gevonden;");
-			
+
+			$obj = $this->RecordToOutput($obj);
 			return $obj;
 		}
 
@@ -161,6 +162,8 @@
 			{
 				throw new Exception("404;Record niet gevonden;");
 			}
+
+			$obj = $this->RecordToOutput($obj);
 			return $obj[0];				
 		}			
 	
@@ -179,6 +182,7 @@
 			$limit = -1;
 			$start = -1;
 			$velden = "*";
+			$in = "";
 			$alleenVerwijderd = false;
 			$query_params = array();
 
@@ -277,7 +281,7 @@
 					case "IN" : 
 						{
 							isCSV($value, "IN");
-							$where .= sprintf(" AND ID IN(%s)", trim($value));
+							$in = sprintf(" ID IN(%s)", trim($value));
 
 							Debug(__FILE__, __LINE__, sprintf("%s: IN='%s'", $functie, $value));
 							break;
@@ -346,6 +350,16 @@
 						}																																				
 				}
 			}
+		
+			if ($in != "")
+			{
+				if (strpos($where, 'AND') === false) {
+					$where .=  " AND" . $in;			// Er is geen where conditie, dus beperken we dataset to IN parameters
+				}
+				else {
+					$where .=  sprintf(" OR (%s)", $in); // Er is WEL een where conditie, dus IN parameters als extra toevoegen
+				}
+			}
 				
 			$query = "
 				SELECT 
@@ -381,6 +395,11 @@
 				$rquery = sprintf($query, $velden);
 				parent::DbOpvraag($rquery, $query_params);
 				$retVal['dataset'] = parent::DbData();
+
+				for ($i=0 ; $i < count($retVal['dataset']) ; $i++)
+				{
+					$retVal['dataset'][$i] = $this->RecordToOutput($retVal['dataset'][$i]);
+				}
 
 				return $retVal;
 			}
@@ -587,5 +606,44 @@
 
 			return $record;
 		}	
+
+		/*
+		Converteer integers en booleans voor correcte output 
+		*/
+		function RecordToOutput($record)
+		{
+			$retVal = $record;
+
+			// vermengvuldigen met 1 converteer naar integer
+			if (isset($record['ID']))
+				$retVal['ID']  = $record['ID'] * 1;	
+
+			if (isset($record['TYPE_ID']))
+				$retVal['TYPE_ID']  = $record['TYPE_ID'] * 1;
+			
+			if (isset($record['ZITPLAATSEN']))
+				$retVal['ZITPLAATSEN']  = $record['ZITPLAATSEN'] * 1;	
+
+			if (isset($record['VOLGORDE']))
+				$retVal['VOLGORDE']  = $record['VOLGORDE'] * 1;		
+				
+				
+			// booleans	
+			if (isset($record['TMG']))
+				$retVal['TMG']  = $record['TMG'] == "1" ? true : false;
+
+			if (isset($record['ZELFSTART']))
+				$retVal['ZELFSTART']  = $record['ZELFSTART'] == "1" ? true : false;
+
+			if (isset($record['CLUBKIST']))
+				$retVal['CLUBKIST']  = $record['CLUBKIST'] == "1" ? true : false;
+
+			if (isset($record['SLEEPKIST']))
+				$retVal['SLEEPKIST']  = $record['SLEEPKIST'] == "1" ? true : false;
+
+			if (isset($record['VERWIJDERD']))
+				$retVal['VERWIJDERD']  = $record['VERWIJDERD'] == "1" ? true : false;
+
+			return $retVal;
+		}
 	}
-?>

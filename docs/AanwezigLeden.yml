@@ -148,7 +148,7 @@ paths:
             type: string    
         - in: query        
           name: IN
-          description: Een of meerdere leden database IDs in CSV formaat
+          description: Een of meerdere leden database IDs in CSV formaat. AND conditie als er geen andere parameters zijn, anders OR conditie
           required: false
           schema:
             type: string    
@@ -320,7 +320,7 @@ paths:
   #           example: "1999-01-01"         
   #       - in: query
   #         name: ALLEEN_AANWEZIG
-  #         description: Beperk de lijst met vliegtuigen to die vliegtuigen die aanwezig zijn. Waarde 0..1
+  #         description: Beperk de lijst met vliegtuigen to die vliegtuigen die aanwezig zijn. 
   #         required: false
   #         schema:
   #           type: boolean
@@ -503,7 +503,7 @@ components:
           type: integer
           example: 10408
         VOORAANMELDING: 
-          description: Heeft het lid zich vooraf aangemeld (bijv ingeschreven via DDWV)?  Waarde 0..1
+          description: Heeft het lid zich vooraf aangemeld (bijv ingeschreven via DDWV)?  
           type: boolean
           example: 0           
         AANKOMST: 
@@ -523,8 +523,7 @@ components:
           example: 200 
         VOORKEUR_VLIEGTUIG_TYPE:
           description: Op welke type wil dit lid vandaag vliegen? Types als CSV formaat
-          type: integer
-          format: int32
+          type: string
           example: 404, 405     
         OPMERKINGEN:
           description: Opmerking over de vliegdag 
@@ -538,7 +537,7 @@ components:
       - type: object
         properties:
           VERWIJDERD:
-            description: Is dit record gemarkeerd als verwijderd?  Waarde 0..1
+            description: Is dit record gemarkeerd als verwijderd?  
             type: boolean
             example: 0            
           LAATSTE_AANPASSING:
@@ -546,6 +545,160 @@ components:
             type: string
             format: date-time 
             example: "2015-01-21 11:52:22" 
+
+    view_aanwezig_leden_dataset:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/oper_aanwezig_leden' 
+      - type: object
+        properties:                             
+          VLIEGTUIGTYPE_CODE: 
+            description: Korte beschrijving van het vliegtuig types
+            type: string
+            example: DCS, Duo
+          VLIEGTUIGTYPE_OMS: 
+            description: Beschrijving van het vliegtuig types
+            type: string
+            example: Discus CS, Duo Discus                    
+          REG_CALL: 
+            description: Vliegtuig registratie en callsign van overland vliegtuig
+            type: string
+            example: PH-1076 (E2)  
+
+          NAAM: 
+            description: De volledige naam van het lid
+            type: string
+            maxLength: 255
+            example: Meindert het Paard
+          VOORNAAM: 
+            description: De voornaam van het lid
+            type: string
+            maxLength: 15
+            example: Meindert        
+          TUSSENVOEGSEL: 
+            description: De tussenvoegsel van het lid
+            type: string
+            maxLength: 8
+            example: het              
+          ACHTERNAAM:
+            description: De achternaam van het lid zonder tussenvoegsels
+            type: string
+            maxLength: 30
+            example: Paard        
+          ADRES:
+            description: Het (post) adres waar het lid woont
+            type: string
+            maxLength: 50
+            example: Werf 18       
+          POSTCODE:
+            description: De postcode die bij het adres hoort
+            type: string
+            maxLength: 50
+            example: 7158 PP          
+          WOONPLAATS:
+            description: De plaatsnaam 
+            type: string
+            maxLength: 50
+            example: Berkum                           
+          TELEFOON: 
+            description: Telefoon nummer van het lid
+            type: string
+            maxLength: 255
+            example: 086-1506822
+          MOBIEL: 
+            description: Mobiel telefoon nummer van het lid
+            type: string
+            maxLength: 255
+            example: 06-1025500
+          NOODNUMMER:
+            description: Het telefoonnummer van een naaste, kan gebruikt worden in noodgevallen
+            type: string
+            maxLength: 255
+            example: 0112-11801              
+          EMAIL:
+            description: email adres van het lid
+            type: string
+            maxLength: 45
+            example: meindert@fabeltje.com
+          LIDNR: 
+            description: Het lidnummer zoals dat in de leden administratie bekend is
+            type: string
+            maxLength: 10
+            example: 11139        
+          LIDTYPE_ID: 
+            description: Het soort lid (jeugdlid, lid, donateur). Verwijzing naar type tabel
+            type: integer
+            format: int32
+            example: 603      
+          ZUSTERCLUB_ID: 
+            description: Zusterclub lidmaatschap van lid. Nodig voor DDWV.
+            type: integer
+            format: int32
+            example: 603              
+          LIERIST:
+            description: Mag dit lid lieren? 
+            type: boolean
+            example: 0            
+          STARTLEIDER: 
+            description: Kan dit lid het startbedrijf leiden?  
+            type: boolean
+            example: 0    
+          INSTRUCTEUR:
+            description: Heeft dit lid een instructie bevoegdheid?  
+            type: boolean
+            example: 0    
+          DDWV_CREW:
+            description: Werkt dit lid mee in het DDWV bedrijf  
+            type: boolean
+            example: 0  
+          DDWV_BEHEERDER:
+            description: Is dit lid de beheerder van het DDWV bedrijf, heeft toegang tot DDWV gerelateede data  
+            type: boolean
+            example: 0  
+          BEHEERDER:
+            description: Is dit lid de beheerder van deze omgeving, heeft toegang tot alles   
+            type: boolean
+            example: 0 
+          STARTTOREN:
+            description: Dit account wordt gebruikt om starts in de start toren in te voeren    
+            type: boolean
+            example: 0                               
+          ROOSTER:
+            description: Is dit lid  belast met het maken van roosters    
+            type: boolean
+            example: 0       
+          CLUBBLAD_POST:
+            description: Moet clubblad per post verstuurd worden    
+            type: boolean
+            example: 0                                      
+          MEDICAL:
+            description: Verloopdatum van het medical 
+            type: string
+            format: date
+            example: "2022-01-16"
+          GEBOORTE_DATUM:
+            description: Geboorte datum van het lid 
+            type: string
+            format: date
+            example: "1932-01-16"          
+          INLOGNAAM: 
+            description: De inlognaam van het lid
+            type: string
+            maxLength: 45
+            example: mpaard                  
+          AVATAR: 
+            description: Readonly, URL om image op te halen. Zetten via UploadAvatar functie
+            type: string
+            maxLength: 255
+            example: 123456              
+          HEEFT_BETAALD: 
+            description: Heef het lid de factuur van dit jaar betaald?  
+            type: boolean
+            example: 0   
+          PRIVACY: 
+            description: Staat privacy mode (AVG / GDPR) uit/aan 
+            type: boolean
+            example: 0     
 
     view_aanwezig_leden:
       type: object
@@ -568,32 +721,8 @@ components:
           description: De dataset met records
           type: array
           items: 
-            type: object
-            allOf:
-              - $ref: '#/components/schemas/oper_aanwezig_leden'
-              - type: object
-                properties:
-                  VLIEGER:
-                    description: De volledige naam van het lid
-                    type: string
-                    example: Meindert het Paard    
-                  LIDTYPE_ID:
-                    description: Het soort lid (jeugdlid, lid, donateur). Verwijzing naar type tabel
-                    type: integer
-                    format: int32
-                    example: 603                                  
-                  VLIEGTUIGTYPE_CODE: 
-                    description: Korte beschrijving van het vliegtuig types
-                    type: string
-                    example: DCS, Duo
-                  VLIEGTUIGTYPE_OMS: 
-                    description: Beschrijving van het vliegtuig types
-                    type: string
-                    example: Discus CS, Duo Discus                    
-                  REG_CALL: 
-                    description: Vliegtuig registratie en callsign van overland vliegtuig
-                    type: string
-                    example: PH-1076 (E2)  
+            $ref: '#/components/schemas/view_aanwezig_leden_dataset'
+                
     oper_vliegers:
       type: object
       properties:

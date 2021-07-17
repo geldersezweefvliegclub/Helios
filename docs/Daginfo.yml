@@ -138,7 +138,21 @@ paths:
           required: false
           schema:
             type: string
-            format: date                          
+            format: date   
+        - in: query
+          name: BEGIN_DATUM
+          description: Begin datum (inclusief deze dag)
+          required: false
+          schema:
+            type: string
+            format: date   
+        - in: query
+          name: EIND_DATUM
+          description: Eind datum (inclusief deze dag)
+          required: false
+          schema:
+            type: string
+            format: date                                       
       responses:
         200:
           description: "OK, data succesvol opgehaald"
@@ -303,29 +317,19 @@ components:
           description: Welke vliegveld vliegen we vandaag. Kan afwijken voor vliegkamp. Verwijzing naar type tabel.
           type: integer
           format: int32
-          example: 901               
-        BAAN_ID:
-          description: Welke baan is in gebruik. Verwijzing naar type tabel. 
-          type: integer
-          format: int32
-          example: 108    
-        BEDRIJF_ID:
-          description: Welke club is in verantwoordelijk voor het vliegbedrijf. Verwijzing naar type tabel. 
-          type: integer
-          format: int32
-          example: 1550   
+          example: 901                
         DDWV:
-          description: Is het een DDWV dag? Waarde 0..1
+          description: Is het een DDWV dag? 
           type: boolean
           example: 0
         CLUB_BEDRIJF:
-          description: Is er een clubbedrijf Waarde 0..1
+          description: Is er een clubbedrijf 
           type: boolean
           example: 1          
-        OPMERKINGEN:
-          description: Opmerking over de vliegdag 
+        INCIDENTEN:
+          description: Incidenten om iets van te leren 
           type: string
-          example: Zomerkamp dag 8                  
+          example: Scherpe uitstekels aan lierkabel                  
         VLIEGBEDRIJF:
           description: Beschrijving van de situatie op het veld
           type: string
@@ -358,7 +362,7 @@ components:
       - type: object
         properties:
           VERWIJDERD:
-            description: Is dit record gemarkeerd als verwijderd?  Waarde 0..1
+            description: Is dit record gemarkeerd als verwijderd?  
             type: boolean
             example: 0          
           LAATSTE_AANPASSING:
@@ -366,6 +370,45 @@ components:
             type: string
             format: date-time 
             example: "2010-04-13 19:32:17"
+
+    view_daginfo_dataset:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/oper_daginfo'
+        - type: object
+          properties:
+            VELD_CODE:
+              description: Verkorte naam van het vliegveld
+              type: string
+              example: EHTL
+            VELD_OMS: 
+              description: Naam van het vliegveld
+              type: string 
+              example: Terlet
+            BAAN_CODE: 
+              description: Verkorte beschrijving start strip
+              type: string
+              example: 22R
+            BAAN_OMS: 
+              description: beschrijving start strip
+              type: string 
+              example: RWY 22R
+            BEDRIJF_CODE:
+              description: Verkorte naam van de club die leiding heeft over vliegbedrijf
+              type: string
+              example: gezc
+            BEDRIJF_OMS:
+              description: Club die leiding heeft over vliegbedrijf
+              type: string 
+              example: GeZC
+            STARTMETHODE_CODE: 
+              description: De verkorte beschrijving van de meest gebruikte startmethode
+              type: string
+              example: Lier
+            STARTMETHODE_OMS: 
+              description: Beschrijving van de meest gebruikte startmethode
+              type: string
+              example: Lierstart
 
     view_daginfo:
       type: object
@@ -388,40 +431,5 @@ components:
           description: De dataset met records
           type: array
           items: 
-            type: object
-            allOf:
-              - $ref: '#/components/schemas/oper_daginfo'
-              - type: object
-                properties:
-                  VELD_CODE:
-                    description: Verkorte naam van het vliegveld
-                    type: string
-                    example: EHTL
-                  VELD_OMS: 
-                    description: Naam van het vliegveld
-                    type: string 
-                    example: Terlet
-                  BAAN_CODE: 
-                    description: Verkorte beschrijving start strip
-                    type: string
-                    example: 22R
-                  BAAN_OMS: 
-                    description: beschrijving start strip
-                    type: string 
-                    example: RWY 22R
-                  BEDRIJF_CODE:
-                    description: Verkorte naam van de club die leiding heeft over vliegbedrijf
-                    type: string
-                    example: gezc
-                  BEDRIJF_OMS:
-                    description: Club die leiding heeft over vliegbedrijf
-                    type: string 
-                    example: GeZC
-                  STARTMETHODE_CODE: 
-                    description: De verkorte beschrijving van de meest gebruikte startmethode
-                    type: string
-                    example: Lier
-                  STARTMETHODE_OMS: 
-                    description: Beschrijving van de meest gebruikte startmethode
-                    type: string
-                    example: Lierstart           
+            $ref: '#/components/schemas/view_daginfo_dataset'
+              

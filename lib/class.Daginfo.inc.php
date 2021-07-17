@@ -24,10 +24,8 @@
                     `ID` mediumint  UNSIGNED NOT NULL AUTO_INCREMENT,
                     `DATUM` date NOT NULL,
                     `VELD_ID` mediumint UNSIGNED DEFAULT NULL,
-                    `BAAN_ID` mediumint UNSIGNED DEFAULT NULL,
-                    `BEDRIJF_ID` mediumint UNSIGNED DEFAULT NULL,
                     `STARTMETHODE_ID` mediumint UNSIGNED DEFAULT NULL,
-                    `OPMERKINGEN` text DEFAULT NULL,
+                    `INCIDENTEN` text DEFAULT NULL,  
 					`VLIEGBEDRIJF` text DEFAULT NULL,
 					`METEO` text DEFAULT NULL,
                     `DIENSTEN` text DEFAULT NULL,
@@ -44,8 +42,6 @@
 						INDEX (`VERWIJDERD`),
 						
 					FOREIGN KEY (VELD_ID) REFERENCES ref_types(ID),	
-					FOREIGN KEY (BAAN_ID) REFERENCES ref_types(ID),	
-					FOREIGN KEY (BEDRIJF_ID) REFERENCES ref_types(ID),	
 					FOREIGN KEY (STARTMETHODE_ID) REFERENCES ref_types(ID)
 				)", $this->dbTable);
 			parent::DbUitvoeren($query);
@@ -53,14 +49,14 @@
             if (isset($FillData))
             {
                 $inject = array(
-					"1, '####-04-28', 901, 109, 1550, NULL, 1,0, '%s', '%s', '%s', '%s', '%s', '%s', '%s'",
-					"2, '####-04-29', 901, 109, 1550, NULL, 1,1, '%s', '%s', '%s', '%s', '%s', '%s', '%s'",
-					"3, '####-04-30', 901, 109, 1550, NULL, 0,1, '%s', '%s', '%s', '%s', '%s', '%s', '%s'",
-					"4, '####-05-01', 901, 109, 1550, NULL, 1,1, '%s', '%s', '%s', '%s', '%s', '%s', '%s'",
-                    "5, '####-05-02', 901, 108, 1550, 550,  1,0, '%s', '%s', '%s', '%s', '%s', '%s', '%s'",
-                    "6, '####-05-03', 901, 108, 1550, 550,  1,0, '%s', '%s', '%s', '%s', '%s', '%s', '%s'",
-                    "7, '####-05-04', 901, 108, 1550, 550,  1,0, '%s', '%s', '%s', '%s', '%s', '%s', '%s'",
-                    "8, '####-05-05', 901, 108, 1550, 550,  1,0, '%s', '%s', '%s', '%s', '%s', '%s', '%s'");
+					"1, '####-04-28', 901, NULL, 1,0, '%s', '%s', '%s', '%s', '%s', '%s', '%s'",
+					"2, '####-04-29', 901, NULL, 1,1, '%s', '%s', '%s', '%s', '%s', '%s', '%s'",
+					"3, '####-04-30', 901, NULL, 0,1, '%s', '%s', '%s', '%s', '%s', '%s', '%s'",
+					"4, '####-05-01', 901, NULL, 1,1, '%s', '%s', '%s', '%s', '%s', '%s', '%s'",
+                    "5, '####-05-02', 901, 550,  1,0, '%s', '%s', '%s', '%s', '%s', '%s', '%s'",
+                    "6, '####-05-03', 901, 550,  1,0, '%s', '%s', '%s', '%s', '%s', '%s', '%s'",
+                    "7, '####-05-04', 901, 550,  1,0, '%s', '%s', '%s', '%s', '%s', '%s', '%s'",
+                    "8, '####-05-05', 901, 550,  1,0, '%s', '%s', '%s', '%s', '%s', '%s', '%s'");
 
 				$inject = str_replace("####", strval(date("Y")), $inject);		// aanwezigheid in dit jaar
 
@@ -80,13 +76,11 @@
                             INSERT INTO `%s` (
                                 `ID`, 
                                 `DATUM`, 
-                                `VELD_ID`, 
-                                `BAAN_ID`, 
-                                `BEDRIJF_ID`, 
+                                `VELD_ID`,  
 								`STARTMETHODE_ID`, 
 								`CLUB_BEDRIJF`, 
 								`DDWV`, 
-                                `OPMERKINGEN`, 
+                                `INCIDENTEN`, 
 								`VLIEGBEDRIJF`, 
 								`METEO`, 
                                 `DIENSTEN`, 
@@ -115,17 +109,11 @@
 				di.*,
 				`T_Veld`.`CODE` AS `VELD_CODE`,
 				`T_Veld`.`OMSCHRIJVING` AS  `VELD_OMS`,        
-				`T_Baan`.`CODE` AS `BAAN_CODE`,
-				`T_Baan`.`OMSCHRIJVING` AS  `BAAN_OMS`,
-				`T_Bedrijf`.`CODE` AS `BEDRIJF_CODE`,
-				`T_Bedrijf`.`OMSCHRIJVING` AS  `BEDRIJF_OMS`,
 				`T_Startmethode`.`CODE` AS `STARTMETHODE_CODE`,
 				`T_Startmethode`.`OMSCHRIJVING` AS  `STARTMETHODE_OMS`
 			FROM
 				`%s` `di`
 				LEFT JOIN `ref_types` `T_Veld` ON (`di`.`VELD_ID` = `T_Veld`.`ID`)
-				LEFT JOIN `ref_types` `T_Baan` ON (`di`.`BAAN_ID` = `T_Baan`.`ID`)
-				LEFT JOIN `ref_types` `T_Bedrijf` ON (`di`.`BEDRIJF_ID` = `T_Bedrijf`.`ID`)
 				LEFT JOIN `ref_types` `T_Startmethode` ON (`di`.`STARTMETHODE_ID` = `T_Startmethode`.`ID`)
 			WHERE
 				`di`.`VERWIJDERD` = %d
@@ -141,7 +129,7 @@
 		/*
 		Haal een enkel record op uit de database
 		*/		
-		function GetObject($ID = null, $DATUM = null, $heeftVerwijderd = true)
+		function GetObject($ID = null, $DATUM = null, $heeftVerwijderd = false)
 		{
 			Debug(__FILE__, __LINE__, sprintf("Daginfo.GetObject(%s,%s,%s)", $ID, $DATUM, $heeftVerwijderd));	
 
@@ -179,6 +167,7 @@
 				throw new Exception("401;Geen leesrechten;");
 			}
 
+			$obj = $this->RecordToOutput($obj);
 			return $obj;	
 		}
 	
@@ -292,6 +281,26 @@
 							}
 							break;
 						}	
+					case "BEGIN_DATUM" : 
+						{
+							$beginDatum = isDATE($value, "BEGIN_DATUM");
+
+							$where .= " AND DATE(DATUM) >= ? ";
+							array_push($query_params, $beginDatum);
+
+							Debug(__FILE__, __LINE__, sprintf("%s: BEGIN_DATUM='%s'", $functie, $beginDatum));
+							break;
+						}
+					case "EIND_DATUM" : 
+						{
+							$eindDatum = isDATE($value, "EIND_DATUM");
+
+							$where .= " AND DATE(DATUM) <= ? ";
+							array_push($query_params, $eindDatum);
+
+							Debug(__FILE__, __LINE__, sprintf("%s: EIND_DATUM='%s'", $functie, $eindDatum));
+							break;
+						}							
 					default:
 						{
 							throw new Exception(sprintf("405;%s is een onjuiste parameter;", $key));
@@ -335,6 +344,10 @@
 				parent::DbOpvraag($rquery, $query_params);
 				$retVal['dataset'] = parent::DbData();
 
+				for ($i=0 ; $i < count($retVal['dataset']) ; $i++)
+				{
+					$retVal['dataset'][$i] = $this->RecordToOutput($retVal['dataset'][$i]);
+				}
 				return $retVal;
 			}
 			return null;  // Hier komen we nooit :-)
@@ -508,15 +521,7 @@
 
 			$field = 'VELD_ID';
 			if (array_key_exists($field, $input))
-				$record[$field] = isINT($input[$field], $field, true, "Types");
-			
-			$field = 'BAAN_ID';
-			if (array_key_exists($field, $input))
-				$record[$field] = isINT($input[$field], $field, true, "Types");			
-
-			$field = 'BEDRIJF_ID';
-			if (array_key_exists($field, $input))
-				$record[$field] = isINT($input[$field], $field, true, "Types");	
+				$record[$field] = isINT($input[$field], $field, true, "Types");		
 
 			$field = 'STARTMETHODE_ID';
 			if (array_key_exists($field, $input))
@@ -530,8 +535,8 @@
 			if (array_key_exists($field, $input))
 				$record[$field] = isBOOL($input[$field], $field);
 				
-			if (array_key_exists('OPMERKINGEN', $input))
-				$record['OPMERKINGEN'] = $input['OPMERKINGEN']; 
+			if (array_key_exists('INCIDENTEN', $input))
+				$record['INCIDENTEN'] = $input['INCIDENTEN']; 
 				
 			if (array_key_exists('VLIEGBEDRIJF', $input))
 				$record['VLIEGBEDRIJF'] = $input['VLIEGBEDRIJF'];
@@ -553,5 +558,35 @@
 
 			return $record;
 		}
+
+		/*
+		Converteer integers en booleans voor correcte output 
+		*/
+		function RecordToOutput($record)
+		{
+			$retVal = $record;
+
+			// vermengvuldigen met 1 converteer naar integer
+			if (isset($record['ID']))
+				$retVal['ID']  = $record['ID'] * 1;	
+
+			if (isset($record['VELD_ID']))
+				$retVal['VELD_ID']  = $record['VELD_ID'] * 1;
+	
+			if (isset($record['STARTMETHODE_ID']))
+				$retVal['STARTMETHODE_ID']  = $record['STARTMETHODE_ID'] * 1;					
+				
+			// booleans	
+			if (isset($record['DDWV']))
+				$retVal['DDWV']  = $record['DDWV'] == "1" ? true : false;
+
+			if (isset($record['CLUB_BEDRIJF']))
+				$retVal['CLUB_BEDRIJF']  = $record['CLUB_BEDRIJF'] == "1" ? true : false;
+
+			if (isset($record['VERWIJDERD']))
+				$retVal['VERWIJDERD']  = $record['VERWIJDERD'] == "1" ? true : false;
+
+			return $retVal;
+		}
+		
 	}
-?>

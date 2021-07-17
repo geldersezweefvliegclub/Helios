@@ -49,6 +49,7 @@
 					(107, 1, '30R',     '30R', NULL, 0),
 					(108, 1, '04L',     '04L', NULL, 0),
 					(109, 1, '22R',     '22R', NULL, 0),
+
 					(201, 2, 'N',       'Noord', NULL, 0),
 					(202, 2, 'NNO',     'NNO', NULL, 1),
 					(203, 2, 'NO',      'Noordoost', NULL, 0),
@@ -65,6 +66,7 @@
 					(214, 2, 'WNW',     'WNW', NULL, 1),
 					(215, 2, 'NW',      'Noordwest', NULL, 0),
 					(216, 2, 'NNW',     'NNW', NULL, 1),
+
 					(301, 3,  NULL,     'Windkracht 1 (1-3 kn)', NULL, 0),
 					(302, 3,  NULL,     'Windkracht 2 (4-6 kn)', NULL, 0),
 					(303, 3,  NULL,     'Windkracht 3 (7-10 kn)', NULL, 0),
@@ -73,7 +75,8 @@
 					(306, 3,  NULL,     'Windkracht 6 (22 - 27 kn)', NULL, 0),
 					(307, 3,  NULL,     'Windkracht 7 (28 - 33 kn)', NULL, 0),
 					(308, 3,  NULL,     'Windkracht 8 (34 - 40 kn)', NULL, 0),
-					(309, 3,  NULL,     'Windkracht 0 (0 - 1 kn)', NULL, 0),
+					(300, 3,  NULL,     'Windkracht 0 (0 - 1 kn)', NULL, 0),
+
 					(401, 4, 'DIS',     'Discus CS', 4, 0),
 					(402, 4, 'LS4',     'LS 4', 3, 0),
 					(403, 4, 'LS6',     'LS 6-18 w', NULL, 1),
@@ -83,15 +86,17 @@
 					(407, 4, 'ASK23',   'ASK 23 B', 2, 1),
 					(408, 4, 'ASG29',   'ASG-29', 6, 0),
 					(409, 4, 'ARC',   	'Arcus', 6, 0),
+
 					(501, 5, 'slp',     'Slepen', NULL, 0),
 					(502, 5, 'slm',     'Slepen (sleepkist)', NULL, 1),
-					(506, 5, 'zel',     'Zelfstart (zweefkist)', NULL, 0),
-					(507, 5, 'tmg',     'Zelfstart (TMG)', NULL, 0),
-					(508, 5, 'vfr',     'Overig motorkisten', NULL, 0),
-					(550, 5, 'gezc',    'Lierstart GeZC', NULL, 0),
-					(551, 5, 'cct',     'Lierstart CCT', NULL, 0),
-					(552, 5, 'zcrd',    'Lierstart ZCD/ZCR', NULL, 0),
-					(553, 5, 'gae',     'Lierstart GAE', NULL, 0),
+					(506, 5, 'zel',     'Zelfstart', NULL, 0),
+					(507, 5, 'tmg',     'Zelfstart (TMG)', NULL, 1),
+					(508, 5, 'vfr',     'Overig motorkisten', NULL, 1),
+					(550, 5, 'gezc',    'Lierstart', NULL, 0),
+					(551, 5, 'cct',     'Lierstart CCT', NULL, 1),
+					(552, 5, 'zcrd',    'Lierstart ZCD/ZCR', NULL, 1),
+					(553, 5, 'gae',     'Lierstart GAE', NULL, 1),
+
 					(600, 6, '0',       'Diverse (Bijvoorbeeld bedrijven- of jongerendag)', NULL, 0),
 					(601, 6, '1',       'Erelid', NULL, 0),
 					(602, 6, '2',       'Lid', NULL, 0),
@@ -103,10 +108,13 @@
 					(610, 6,  NULL,     'Oprotkabel', NULL, 0),
 					(611, 6, '9',       'Cursist', NULL, 0),
 					(612, 6,  NULL,     'Penningmeester', NULL, 0),
+					(613, 6,  NULL,     'Systeem account', NULL, 0),
 					(625, 6, '9',       'DDWV vlieger', NULL, 0),
+
 					(701, 7,  NULL,     'Club bedrijf', NULL, 0),
 					(702, 7,  NULL,     'Kamp + DDWV', NULL, 0),
 					(703, 7,  NULL,     'DDWV', NULL, 0),
+
 					(801, 8,  NULL,     'Passagierstart (kosten voor pax)', NULL, 0),
 					(802, 8,  NULL,     'Relatiestart', NULL, 0),
 					(803, 8,  NULL,     'Start zusterclub', NULL, 0),
@@ -121,20 +129,66 @@
 					(813, 8,  NULL,     '5- of 10-rittenkaarthouder', NULL, 0),
 					(814, 8, 'mid',     'DDWV: Midweekvliegen', NULL, 0),
 					(815, 8,  NULL,     'Sleepkist, Dienststart', NULL, 0),
+
 					(901, 9, 'EHTL',    'Terlet', NULL, 0),
 					(902, 9, 'EHDL',    'Deelen', NULL, 0),
 					(903, 9, 'EHSB',    'Soesterberg', NULL, 0),
+					(904, 9, 'ELDERS',  'Elders ...', NULL, 0),
 
 					(1001,10, 'EVO',    'Elementaire vliegopleiding', NULL, 0),
 					(1002,10, 'VVO-1',  'Voortgezette vliegopleiding 1', NULL, 0),
 					(1003,10, 'VVO-2',  'Overlandvliegen', NULL, 0),
 					(1004,10, 'GeZC',   'GeZC vinkjeslijst', NULL, 0),
 
+					(1100,11, 'Geen',   'Geen bewolking', NULL, 0),
+					(1101,11, 'Laag',   'Lage bewolking', NULL, 0),
+					(1102,11, 'Middel', 'Middelbare bewolking', NULL, 0),
+					(1103,11, 'Hoge', 	'Hoge bewolking', NULL, 0),
+					(1104,11, 'Vert',	'Verticale ontwikkelde bewolking (cumulus)', NULL, 0),
+
+					(1200, 12, 'Var', 	'Variabele wind', NULL, 0), 
+					(1201, 12, 'Krimp', 'Krimpende wind', NULL, 0), 
+					(1202, 12, 'Ruim',  'Ruimende wind', NULL, 0), 
+					(1203, 12, 'Vlag',  'Wind vlagen', NULL, 0), 
+					(1204, 12, 'Stoot', 'Wind stoten', NULL, 0), 
+
+					(1300, 13, '< 2',   'Minder dan 2 kilometer', NULL, 0), 
+					(1301, 13, '2-4', 	'Tussen 2 en 4 kilometer', NULL, 0), 
+					(1302, 13, '4-6', 	'Tussen 4 en 6 kilometer', NULL, 0), 
+					(1303, 13, '6-8', 	'Tussen 6 en 8 kilometer', NULL, 0), 
+					(1304, 13, '8-10', 	'Tussen 8 en 10 kilometer', NULL, 0), 
+					(1305, 13, '> 10', 	'Meer dan 10 kilometer', NULL, 0), 
+
+					(1401, 14, 'A', 	'Terlet A', NULL, 0),
+					(1402, 14, 'B', 	'Terlet B', NULL, 0),
+					(1403, 14, 'C', 	'Terlet C', NULL, 0),
+					(1404, 14, 'D', 	'Terlet D', NULL, 0),
+					(1405, 14, 'CTR', 	'Deelen CTR', NULL, 0),
+					(1406, 14, 'R9', 	'EH-R9', NULL, 0),
+
 					(1550, 15, 'GeZC',  'GeZC', NULL, 0),
 					(1551, 15, 'CCT',   'CCT', NULL, 0),
 					(1552, 15, 'ZCRD',  'ZCD/ZCR', NULL, 0),
-					(1553, 15, 'GAE',   'GAE', NULL, 0);";
-				
+					(1553, 15, 'GAE',   'GAE', NULL, 0),
+					(1590, 15, 'ANDERS','Anders ...', NULL, 0),
+					
+					(1601, 16, '0',   	'0 m/s stijgen', NULL, 0),
+					(1602, 16, '0-1',   '0-1 m/s stijgen', NULL, 0),
+					(1603, 16, '1-2',   '1-2 m/s stijgen', NULL, 0),
+					(1604, 16, '2-3',   '2-3 m/s stijgen', NULL, 0),
+					(1605, 16, '> 3',   'meer dan 3 m/s stijgen', NULL, 0),
+					
+					(1700, 17, '0/8',   	'0/8 bewolking', NULL, 0),
+					(1701, 17, '1/8',   	'1/8 bewolking', NULL, 0),
+					(1702, 17, '2/8',   	'2/8 bewolking', NULL, 0),
+					(1703, 17, '3/8',   	'3/8 bewolking', NULL, 0),
+					(1704, 17, '4/8',   	'4/8 bewolking', NULL, 0),
+					(1705, 17, '5/8',   	'5/8 bewolking', NULL, 0),
+					(1706, 17, '6/8',   	'6/8 bewolking', NULL, 0),
+					(1707, 17, '7/8',   	'7/8 bewolking', NULL, 0),
+					(1708, 17, '8/8',   	'8/8 bewolking', NULL, 0);";
+
+
 				$query = sprintf("
 						INSERT INTO `%s` (
 							`ID`, 
@@ -217,6 +271,7 @@
 			if ($obj == null)
 				throw new Exception("404;Record niet gevonden;");
 			
+			$obj = $this->RecordToOutput($obj);
 			return $obj;	
 		}
 	
@@ -368,7 +423,11 @@
 				$rquery = sprintf($query, $velden);
 				parent::DbOpvraag($rquery, $query_params);
 				$retVal['dataset'] = parent::DbData();
-
+				
+				for ($i=0 ; $i < count($retVal['dataset']) ; $i++)
+				{
+					$retVal['dataset'][$i] = $this->RecordToOutput($retVal['dataset'][$i]);
+				}
 				return $retVal;
 			}
 			return null;  // Hier komen we nooit :-)
@@ -516,5 +575,31 @@
 				
 			return $record;
 		}
+
+		/*
+		Converteer integers en booleans voor correcte output 
+		*/
+		function RecordToOutput($record)
+		{
+			$retVal = $record;
+
+			// vermengvuldigen met 1 converteer naar integer
+			if (isset($record['ID']))
+				$retVal['ID']  = $record['ID'] * 1;	
+
+			if (isset($record['GROEP']))
+				$retVal['GROEP']  = $record['GROEP'] * 1;	
+
+			if (isset($record['SORTEER_VOLGORDE']))
+				$retVal['SORTEER_VOLGORDE']  = $record['SORTEER_VOLGORDE'] * 1;		
+
+			// booleans	
+			if (isset($record['READ_ONLY']))
+				$retVal['READ_ONLY']  = $record['READ_ONLY'] == "1" ? true : false;
+
+			if (isset($record['VERWIJDERD']))
+				$retVal['VERWIJDERD']  = $record['VERWIJDERD'] == "1" ? true : false;
+
+			return $retVal;
+		}
 	}
-?>

@@ -259,61 +259,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  ID:
-                    description: Database ID van de vlucht
-                    type: integer
-                    format: int32
-                    example: 3570
-                  DATUM:
-                    description: Datum van de start 
-                    type: string
-                    format: date
-                    example: "2012-01-24"          
-                  REG_CALL: 
-                    description: Combinatie van registratie en callsign van het vliegtuig waarop gevlogen is
-                    type: string
-                    example: PH-1292 (E6)   
-                  STARTTIJD: 
-                    description: Starttijd (hh:mm:ss)
-                    type: string
-                    pattern: '^([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$'
-                    example: "12:32:44"                      
-                  LANDINGSTIJD: 
-                    description: Starttijd (hh:mm:ss)
-                    type: string
-                    pattern: '^([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$'
-                    example: "12:32:15"   
-                  DUUR:
-                    description: Hoe lang is er gevlogen. Indien landingstijd niet is ingevuld, op de dag zelf vliegtijd to nu toe, op alle andere dagen null
-                    type: string
-                    example: 02:11
-                  VLIEGERNAAM:
-                    description: De naam van de vlieger
-                    type: string
-                    example: "Lowieke de Vos"                    
-                  INZITTENDENAAM:
-                    description: De naam van de inzittende 
-                    type: string
-                    example: "Momfer de Mol"    
-                  VLIEGER_ID: 
-                    description: De vlieger van deze vlucht. Verwijzing naar leden tabel. LET OP; kan verwijzing zijn naar zusterclub of vergelijkbaar, de naam is dan handmatig ingevoerd.
-                    type: integer
-                    example: 10825 
-                  INZITTENDE_ID: 
-                    description: Wie zit er nog meer bij. Verwijzing naar leden tabel, kan null zijn als inzittende als tekst is ingevoerd
-                    type: integer
-                    example: 10412                                           
-                  STARTMETHODE:
-                    description: De manier van de start
-                    type: string
-                    example: Lierstart GeZC
-                  OPMERKINGEN:
-                    description: De opmerkingen die ingevoerd zijn
-                    type: string
-                    maxLength: 255
-                    example: Buitenlanding         
+                $ref: '#/components/schemas/logboek'      
         304:
           description: "Data niet gemodificeerd, HASH in aanroep == hash in dataset"                                    
         401:
@@ -389,34 +335,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  DATUM:
-                    description: Datum
-                    type: string
-                    format: date
-                    example: "2012-01-24"          
-                  VLUCHTEN: 
-                    description: Aantal vluchten van deze dag
-                    type: integer
-                    example: 4 
-                  LIERSTARTS: 
-                    description: Aantal sleepstart op deze dag voor dit vliegtuig
-                    type: integer
-                    example: 4 
-                  SLEEPSTARTS: 
-                    description: Aantal sleepstart op deze dag voor dit vliegtuig
-                    type: integer
-                    example: 4 
-                  VLIEGTIJD: 
-                    description: Starttijd (hh:mm)
-                    type: string
-                    pattern: '^([01][0-9]|2[0-3]):([0-5][0-9]))$'
-                    example: "12:32"    
-                  REG_CALL: 
-                    description: Combinatie van registratie en callsign van het vliegtuig waarop gevlogen is
-                    type: string
-                    example: PH-1292 (E6)                                                 
+                $ref: '#/components/schemas/vliegtuig_logboek'                                                     
         304:
           description: "Data niet gemodificeerd, HASH in aanroep == hash in dataset"                                    
         401:
@@ -462,34 +381,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  MAAND:
-                    description: Maand 
-                    type: string
-                    format: integer 
-                    example: "10"          
-                  VLUCHTEN: 
-                    description: Aantal vluchten in deze maand
-                    type: integer
-                    example: 58 
-                  LIERSTARTS: 
-                    description: Aantal lierstarts voor deze maand voor dit vliegtuig
-                    type: integer
-                    example: 12 
-                  SLEEPSTARTS: 
-                    description: Aantal sleepstarts voor deze maand voor dit vliegtuig
-                    type: integer
-                    example: 46 
-                  VLIEGTIJD: 
-                    description: Starttijd (hh:mm)
-                    type: string
-                    pattern: '^([01][0-9]|2[0-3]):([0-5][0-9]))$'
-                    example: "12:32"             
-                  REG_CALL: 
-                    description: Combinatie van registratie en callsign van het vliegtuig waarop gevlogen is
-                    type: string
-                    example: PH-1292 (E6)                    
+                $ref: '#/components/schemas/vliegtuig_logboek_totalen'                   
         304:
           description: "Data niet gemodificeerd, HASH in aanroep == hash in dataset"                                    
         401:
@@ -625,7 +517,7 @@ paths:
       summary: Hoeveel heeft de vlieger de afgelopen periode gevlogen en hoe is zijn barometer status
       parameters:
         - in: query
-          name: ID
+          name: VLIEGER_ID
           description: Database ID van de vlieger
           required: true
           schema:
@@ -644,36 +536,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  STARTS_DRIE_MND:
-                    type: string
-                    example: "2"
-                  STARTS_VORIG_JAAR: 
-                    type: string
-                    example: "36"
-                  STARTS_DIT_JAAR:
-                    type: string
-                    example: "2"
-                  UREN_DRIE_MND: 
-                    type: string
-                    example: "1:42"
-                  UREN_VORIG_JAAR: 
-                    type: string
-                    example: "1:42"
-                  UREN_DIT_JAAR: 
-                    type: string
-                    example: "27:31"
-                  STATUS_BAROMETER: 
-                    type: string
-                    example: "onbekend"
-                  STARTS_BAROMETER: 
-                    type: string
-                    example: "38"
-                  UREN_BAROMETER: 
-                    type: string
-                    example: "29:13"
-                
+                $ref: '#/components/schemas/recency'      
         404:
           description: "Data niet gevonden"
         405:
@@ -729,13 +592,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  DATUM:
-                    description: Datum van de start 
-                    type: string
-                    format: date
-                    example: "2017-07-21"
+                $ref: '#/components/schemas/vliegdagen'  
         404:
           description: "Data niet gevonden"
         405:
@@ -837,7 +694,7 @@ components:
       - type: object
         properties:
           VERWIJDERD:
-            description: Is dit record gemarkeerd als verwijderd?  Waarde 0..1
+            description: Is dit record gemarkeerd als verwijderd?  
             type: boolean
             example: 0            
           LAATSTE_AANPASSING:
@@ -845,6 +702,49 @@ components:
             type: string
             format: date-time 
             example: "2006-01-05 22:11:43" 
+
+    view_startlijst_dataset:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/oper_startlijst'
+        - type: object
+          properties:
+            REGISTRATIE:
+              description: Registratie van het vliegtuig waarop gevlogen is
+              type: string
+              example: D-KLUU                
+            CALLSIGN:
+              description: Callsign van het vliegtuig waarop gevlogen is
+              type: string
+              example: 7U
+            CLUBKIST:
+              description: Is het een club vliegtuig? 
+              type: boolean
+              example: 1                                   
+            REG_CALL: 
+              description: Combinatie van registratie en callsign van het vliegtuig waarop gevlogen is
+              type: string
+              example: D-KLUU (7U)                    
+            DUUR:
+              description: Hoe lang is er gevlogen. Indien landingstijd niet is ingevuld, op de dag zelf vliegtijd to nu toe, op alle andere dagen null
+              type: string
+              example: 02:11                    
+            VLIEGERNAAM_LID:
+              description: De naam van het lid zoals dat in ref_leden staat
+              type: string
+              example: "Lowieke de Vos"                    
+            INZITTENDENAAM_LID:
+              description: De naam van de inzittende zoals dat in ref_leden staat
+              type: string
+              example: "Momfer de Mol"                    
+            STARTMETHODE:
+              description: De manier van de start
+              type: string
+              example: Lierstart GeZC                    
+            VELD:
+              description: Naam van het vliegveld waarop gestart is
+              type: string
+              example: Terlet         
 
     view_startlijst:
       type: object
@@ -868,43 +768,225 @@ components:
           type: array
           items: 
             type: object
-            allOf:
-              - $ref: '#/components/schemas/oper_startlijst'
-              - type: object
-                properties:
-                  REGISTRATIE:
-                    description: Registratie van het vliegtuig waarop gevlogen is
-                    type: string
-                    example: D-KLUU                
-                  CALLSIGN:
-                    description: Callsign van het vliegtuig waarop gevlogen is
-                    type: string
-                    example: 7U
-                  CLUBKIST:
-                    description: Is het een club vliegtuig? Waarde 0..1
-                    type: boolean
-                    example: 1                                   
-                  REG_CALL: 
-                    description: Combinatie van registratie en callsign van het vliegtuig waarop gevlogen is
-                    type: string
-                    example: D-KLUU (7U)                    
-                  DUUR:
-                    description: Hoe lang is er gevlogen. Indien landingstijd niet is ingevuld, op de dag zelf vliegtijd to nu toe, op alle andere dagen null
-                    type: string
-                    example: 02:11                    
-                  VLIEGERNAAM_LID:
-                    description: De naam van het lid zoals dat in ref_leden staat
-                    type: string
-                    example: "Lowieke de Vos"                    
-                  INZITTENDENAAM_LID:
-                    description: De naam van de inzittende zoals dat in ref_leden staat
-                    type: string
-                    example: "Momfer de Mol"                    
-                  STARTMETHODE:
-                    description: De manier van de start
-                    type: string
-                    example: Lierstart GeZC                    
-                  VELD:
-                    description: Naam van het vliegveld waarop gestart is
-                    type: string
-                    example: Terlet                    
+            $ref: '#/components/schemas/view_startlijst_dataset'
+
+    logboek:
+      type: object
+      properties:
+        ID:
+          description: Database ID van de vlucht
+          type: integer
+          format: int32
+          example: 3570
+        DATUM:
+          description: Datum van de start 
+          type: string
+          format: date
+          example: "2012-01-24"          
+        REG_CALL: 
+          description: Combinatie van registratie en callsign van het vliegtuig waarop gevlogen is
+          type: string
+          example: PH-1292 (E6)   
+        STARTTIJD: 
+          description: Starttijd (hh:mm:ss)
+          type: string
+          pattern: '^([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$'
+          example: "12:32:44"                      
+        LANDINGSTIJD: 
+          description: Starttijd (hh:mm:ss)
+          type: string
+          pattern: '^([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$'
+          example: "12:32:15"   
+        DUUR:
+          description: Hoe lang is er gevlogen. Indien landingstijd niet is ingevuld, op de dag zelf vliegtijd to nu toe, op alle andere dagen null
+          type: string
+          example: 02:11
+        VLIEGERNAAM:
+          description: De naam van de vlieger
+          type: string
+          example: "Lowieke de Vos"                    
+        INZITTENDENAAM:
+          description: De naam van de inzittende 
+          type: string
+          example: "Momfer de Mol"    
+        VLIEGER_ID: 
+          description: De vlieger van deze vlucht. Verwijzing naar leden tabel. LET OP; kan verwijzing zijn naar zusterclub of vergelijkbaar, de naam is dan handmatig ingevoerd.
+          type: integer
+          example: 10825 
+        INZITTENDE_ID: 
+          description: Wie zit er nog meer bij. Verwijzing naar leden tabel, kan null zijn als inzittende als tekst is ingevoerd
+          type: integer
+          example: 10412                                           
+        STARTMETHODE:
+          description: De manier van de start
+          type: string
+          example: Lierstart GeZC
+        OPMERKINGEN:
+          description: De opmerkingen die ingevoerd zijn
+          type: string
+          maxLength: 255
+          example: Buitenlanding      
+
+    vliegtuig_logboek:
+      type: object
+      properties:
+        DATUM:
+          description: Datum
+          type: string
+          format: date
+          example: "2012-01-24"          
+        VLUCHTEN: 
+          description: Aantal vluchten van deze dag
+          type: integer
+          example: 4 
+        LIERSTARTS: 
+          description: Aantal sleepstart op deze dag voor dit vliegtuig
+          type: integer
+          example: 4 
+        SLEEPSTARTS: 
+          description: Aantal sleepstart op deze dag voor dit vliegtuig
+          type: integer
+          example: 4 
+        VLIEGTIJD: 
+          description: Starttijd (hh:mm)
+          type: string
+          pattern: '^[01][0-9]|2[0-3]:[0-5][0-9]$'
+          example: "12:32"    
+        REG_CALL: 
+          description: Combinatie van registratie en callsign van het vliegtuig waarop gevlogen is
+          type: string
+          example: PH-1292 (E6)
+
+    vliegtuig_logboek_totalen:
+      type: object
+      properties:
+        totaal:
+          description: Aantal records dat voldoet aan de criteria in de database
+          type: integer
+          format: int32
+          example: 287
+        laatste_aanpassing:
+          description: Tijdstempel van laaste aanpassing in de database van de records dat voldoet aan de criteria
+          type: string
+          format: date-time 
+          example: "2009-12-02 10:19:00" 
+        hash: 
+          description: hash van de dataset
+          type: string
+          example: "4dccb3f"      
+        totalen:
+          type: object
+          properties:
+            VLUCHTEN: 
+              description: Aantal vluchten in dit jaar
+              type: integer
+              example: 528 
+            LIERSTARTS: 
+              description: Aantal lierstarts voor dit jaar voor dit vliegtuig
+              type: integer
+              example: 466 
+            SLEEPSTARTS: 
+              description: Aantal sleepstarts voor dit jaarvoor dit vliegtuig
+              type: integer
+              example: 62
+            VLIEGTIJD: 
+              description: Starttijd (hhh:mm)
+              type: string
+              pattern: '^[0-9][0-9].*:[0-5][0-9]$'
+              example: "807:52"                        
+        dataset:
+          type: array
+          items:
+            type: object
+            properties:
+              MAAND:
+                description: Maand 
+                type: string
+                format: integer 
+                example: "10"          
+              VLUCHTEN: 
+                description: Aantal vluchten in deze maand
+                type: integer
+                example: 58 
+              LIERSTARTS: 
+                description: Aantal lierstarts voor deze maand voor dit vliegtuig
+                type: integer
+                example: 12 
+              SLEEPSTARTS: 
+                description: Aantal sleepstarts voor deze maand voor dit vliegtuig
+                type: integer
+                example: 46 
+              VLIEGTIJD: 
+                description: Starttijd (hh:mm)
+                type: string
+                pattern: '^[01][0-9]|2[0-3]:[0-5][0-9]$'
+                example: "12:32"             
+              REG_CALL: 
+                description: Combinatie van registratie en callsign van het vliegtuig waarop gevlogen is
+                type: string
+                example: PH-1292 (E6)         
+
+    recency:
+      type: object
+      properties:
+        STARTS_DRIE_MND:
+          type: string
+          example: "2"
+        STARTS_VORIG_JAAR: 
+          type: string
+          example: "36"
+        STARTS_DIT_JAAR:
+          type: string
+          example: "2"
+        UREN_DRIE_MND: 
+          type: string
+          example: "1:42"
+        UREN_VORIG_JAAR: 
+          type: string
+          example: "1:42"
+        UREN_DIT_JAAR: 
+          type: string
+          example: "27:31"
+        STATUS_BAROMETER: 
+          type: string
+          example: "onbekend"
+        STARTS_BAROMETER: 
+          type: string
+          example: "38"
+        UREN_BAROMETER: 
+          type: string
+          example: "29:13"
+
+    vliegdagen:
+      type: object
+      properties:
+        totaal:
+          description: Aantal records dat voldoet aan de criteria in de database
+          type: integer
+          format: int32
+          example: 287
+        laatste_aanpassing:
+          description: Tijdstempel van laaste aanpassing in de database van de records dat voldoet aan de criteria
+          type: string
+          format: date-time 
+          example: "2009-12-02 10:19:00" 
+        hash: 
+          description: hash van de dataset
+          type: string
+          example: "4dccb3f"            
+        dataset:
+          type: array
+          items:
+            type: object
+            properties:
+              DATUM:
+                description: Datum van de start 
+                type: string
+                format: date
+                example: "2017-07-21" 
+              STARTS:
+                type: number
+                example: 2             
+              VLIEGTIJD: 
+                type: string
+                example: "29:13"          

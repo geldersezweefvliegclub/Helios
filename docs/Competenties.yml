@@ -313,7 +313,7 @@ components:
       - type: object
         properties:
           VERWIJDERD:
-            description: Is dit record gemarkeerd als verwijderd?  Waarde 0..1
+            description: Is dit record gemarkeerd als verwijderd?  
             type: boolean
             example: 0        
           LAATSTE_AANPASSING:
@@ -321,6 +321,17 @@ components:
             type: string
             format: date-time 
             example: "2019-05-01 16:42:00"
+
+    view_competenties_dataset:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ref_competenties'
+        - type: object
+          properties:                   
+            LEERFASE: 
+              description: Fase van de vliegopleiding
+              type: string
+              example: Voortgezette vliegopleiding 1 
 
     view_competenties:
       type: object
@@ -343,12 +354,4 @@ components:
           description: De dataset met records
           type: array
           items: 
-            type: object
-            allOf:
-              - $ref: '#/components/schemas/ref_competenties'
-              - type: object
-                properties:                   
-                  LEERFASE: 
-                    description: Fase van de vliegopleiding
-                    type: string
-                    example: Voortgezette vliegopleiding 1        
+            $ref: '#/components/schemas/view_competenties_dataset'

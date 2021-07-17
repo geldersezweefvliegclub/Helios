@@ -319,7 +319,7 @@ components:
             format: int32
             example: 1655         
           VERWIJDERD:
-            description: Is dit record gemarkeerd als verwijderd?  Waarde 0..1
+            description: Is dit record gemarkeerd als verwijderd?  
             type: boolean
             example: 0        
           LAATSTE_AANPASSING:
@@ -327,6 +327,21 @@ components:
             type: string
             format: date-time 
             example: "2021-05-05 20:13:59Z" 
+
+    view_tracks_dataset:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/oper_tracks'
+        - type: object
+          properties:
+            LID_NAAM:
+              description: De naam van het lid waar de tekst over gaat
+              type: string
+              example: Momfer de Mol       
+            INSTRUCTEUR_NAAM:
+              description: De naam van de instructeur die de tekst heeft ingevoerd
+              type: string
+              example: Zoef de Haas
 
     view_tracks:
       type: object
@@ -349,17 +364,4 @@ components:
           description: De dataset met records
           type: array
           items: 
-            type: object
-            allOf:
-              - $ref: '#/components/schemas/oper_tracks'
-              - type: object
-                properties:
-                  LID_NAAM:
-                    description: De naam van het lid waar de tekst over gaat
-                    type: string
-                    example: Momfer de Mol       
-                  INSTRUCTEUR_NAAM:
-                    description: De naam van de instructeur die de tekst heeft ingevoerd
-                    type: string
-                    example: Zoef de Haas
-                             
+            $ref: '#/components/schemas/view_tracks_dataset'                     

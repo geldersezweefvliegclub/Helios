@@ -44,7 +44,9 @@ paths:
         200:
           description: "OK, ingelogd"
         401:
-          description: "Mislukt"              
+          description: "Mislukt"   
+        406:
+          description: "Niet aanvaardbaar, input ontbreekt"                      
 
   /Login/Logout:
     get:
@@ -117,15 +119,15 @@ components:
           format: int32
           example: 603        
         LIERIST:
-          description: Mag dit lid lieren? Waarde 0..1
+          description: Mag dit lid lieren? 
           type: boolean
           example: 0            
         STARTLEIDER: 
-          description: Kan dit lid het startbedrijf leiden?  Waarde 0..1
+          description: Kan dit lid het startbedrijf leiden?  
           type: boolean
           example: 0    
         INSTRUCTEUR:
-          description: Heeft dit lid een instructie bevoegdheid?  Waarde 0..1
+          description: Heeft dit lid een instructie bevoegdheid?  
           type: boolean
           example: 0    
         INLOGNAAM: 
@@ -139,15 +141,15 @@ components:
           maxLength: 255
           example: 123456        
         HEEFT_BETAALD: 
-          description: Heef het lid de factuur van dit jaar betaald?  Waarde 0..1
+          description: Heef het lid de factuur van dit jaar betaald?  
           type: boolean
           example: 0   
         PRIVACY: 
-          description: Staat privacy mode (AVG / GDPR) uit/aan Waarde 0..1
+          description: Staat privacy mode (AVG / GDPR) uit/aan 
           type: boolean
           example: 0              
         VERWIJDERD:
-          description: Is dit record gemarkeerd als verwijderd?  Waarde 0..1
+          description: Is dit record gemarkeerd als verwijderd?  
           type: boolean
           example: 0            
         LAATSTE_AANPASSING:

@@ -57,7 +57,7 @@ abstract class Helios
 	*/
 	function GetSingleObject($conditions = null)
 	{
-		Debug(__FILE__, __LINE__, sprintf("StartAdmin.GetSingleObject(%s)", print_r($conditions, true)));
+		Debug(__FILE__, __LINE__, sprintf("Helios.GetSingleObject(%s)", print_r($conditions, true)));
 
 		$params = array();
 		$where = "1=1";
@@ -89,7 +89,7 @@ abstract class Helios
 	*/
 	function MarkeerAlsVerwijderd($IDs, $verificatie = true)
 	{
-		Debug(__FILE__, __LINE__, sprintf("StartAdmin.MarkeerAlsVerwijderd('%s', %s)", $IDs, (($verificatie === false) ? "False" :  $verificatie)));	
+		Debug(__FILE__, __LINE__, sprintf("Helios.MarkeerAlsVerwijderd('%s', %s)", $IDs, (($verificatie === false) ? "False" :  $verificatie)));	
 		
 		if (is_null($verificatie))
 			$verificatie = true;
@@ -123,7 +123,7 @@ abstract class Helios
 	*/
 	function HerstelVerwijderd($IDs)
 	{
-		Debug(__FILE__, __LINE__, sprintf("StartAdmin.HerstelVerwijderd('%s')", $IDs));	
+		Debug(__FILE__, __LINE__, sprintf("Helios.HerstelVerwijderd('%s')", $IDs));	
 	
 		if (strpos($IDs, ',') !== false)
 		{
@@ -154,7 +154,7 @@ abstract class Helios
 		{
 			return 0;
 		}
-		return $d[0]['totaal'];
+		return $d[0]['totaal'] * 1;		// string to integer
 	}	
 	
 	// Functie voor slim laden van datastores in web applicatie

@@ -429,39 +429,39 @@ components:
           format: int32
           example: 603              
         LIERIST:
-          description: Mag dit lid lieren? Waarde 0..1
+          description: Mag dit lid lieren? 
           type: boolean
           example: 0            
         STARTLEIDER: 
-          description: Kan dit lid het startbedrijf leiden?  Waarde 0..1
+          description: Kan dit lid het startbedrijf leiden?  
           type: boolean
           example: 0    
         INSTRUCTEUR:
-          description: Heeft dit lid een instructie bevoegdheid?  Waarde 0..1
+          description: Heeft dit lid een instructie bevoegdheid?  
           type: boolean
           example: 0    
         DDWV_CREW:
-          description: Werkt dit lid mee in het DDWV bedrijf  Waarde 0..1
+          description: Werkt dit lid mee in het DDWV bedrijf  
           type: boolean
           example: 0  
         DDWV_BEHEERDER:
-          description: Is dit lid de beheerder van het DDWV bedrijf, heeft toegang tot DDWV gerelateede data  Waarde 0..1
+          description: Is dit lid de beheerder van het DDWV bedrijf, heeft toegang tot DDWV gerelateede data  
           type: boolean
           example: 0  
         BEHEERDER:
-          description: Is dit lid de beheerder van deze omgeving, heeft toegang tot alles   Waarde 0..1
+          description: Is dit lid de beheerder van deze omgeving, heeft toegang tot alles   
           type: boolean
           example: 0 
         STARTTOREN:
-          description: Dit account wordt gebruikt om starts in de start toren in te voeren    Waarde 0..1
+          description: Dit account wordt gebruikt om starts in de start toren in te voeren    
           type: boolean
           example: 0                               
         ROOSTER:
-          description: Is dit lid  belast met het maken van roosters    Waarde 0..1
+          description: Is dit lid  belast met het maken van roosters    
           type: boolean
           example: 0       
         CLUBBLAD_POST:
-          description: Moet clubblad per post verstuurd worden    Waarde 0..1
+          description: Moet clubblad per post verstuurd worden    
           type: boolean
           example: 0                                      
         MEDICAL:
@@ -490,15 +490,15 @@ components:
           maxLength: 255
           example: 123456                
         AUTH: 
-          description: 2Factor authenticatie voor deze gebruiker  Waarde 0..1
+          description: 2Factor authenticatie voor deze gebruiker  
           type: boolean
           example: 0    
         HEEFT_BETAALD: 
-          description: Heef het lid de factuur van dit jaar betaald?  Waarde 0..1
+          description: Heef het lid de factuur van dit jaar betaald?  
           type: boolean
           example: 0   
         PRIVACY: 
-          description: Staat privacy mode (AVG / GDPR) uit/aan Waarde 0..1
+          description: Staat privacy mode (AVG / GDPR) uit/aan 
           type: boolean
           example: 0     
         BEPERKINGEN:
@@ -529,7 +529,7 @@ components:
             maxLength: 255
             example: 123456 
           VERWIJDERD:
-            description: Is dit record gemarkeerd als verwijderd?  Waarde 0..1
+            description: Is dit record gemarkeerd als verwijderd?  
             type: boolean
             example: 0            
           LAATSTE_AANPASSING:
@@ -537,6 +537,21 @@ components:
             type: string
             format: date-time 
             example: "2020-09-01 20:21:33"       
+
+    view_leden_dataset:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ref_leden'
+        - type: object
+          properties:
+            LIDTYPE: 
+              description: Lidtype in text
+              type: string
+              example: Jeugdlid
+            ZUSTERCLUB: 
+              description: Naam van de zusterclub
+              type: string
+              example: "De buren"       
 
     view_leden:
       type: object
@@ -560,15 +575,5 @@ components:
           type: array
           items: 
             type: object
-            allOf:
-              - $ref: '#/components/schemas/ref_leden'
-              - type: object
-                properties:
-                  LIDTYPE: 
-                    description: Lidtype in text
-                    type: string
-                    example: Jeugdlid
-                  ZUSTERCLUB_ID: 
-                    description: Naam van de zusterclub
-                    type: string
-                    example: "De buren"                    
+            $ref: '#/components/schemas/view_leden_dataset'
+                   

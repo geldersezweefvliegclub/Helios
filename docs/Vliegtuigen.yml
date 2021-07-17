@@ -131,7 +131,7 @@ paths:
             type: string
         - in: query
           name: IN
-          description: Een of meerdere vliegtuig database IDs in CSV formaat
+          description: Een of meerdere vliegtuig database IDs in CSV formaat. AND conditie als er geen andere parameters zijn, anders OR conditie
           required: false
           schema:
             type: string   
@@ -341,19 +341,19 @@ components:
           format: int32
           example: 1
         ZELFSTART:
-          description: Kan het vliegtuig op eigen kracht starten. Waarde 0..1
+          description: Kan het vliegtuig op eigen kracht starten. 
           type: boolean
           example: 0
         CLUBKIST:
-          description: Is het een club vliegtuig? Waarde 0..1
+          description: Is het een club vliegtuig? 
           type: boolean
           example: 1
         TMG:
-          description: Is het een TMG? Waarde 0..1
+          description: Is het een TMG? 
           type: boolean
           example: 0
         SLEEPKIST:
-          description: Is het een sleepvliegtuig? Waarde 0..1
+          description: Is het een sleepvliegtuig? 
           type: boolean
           example: 0
         TYPE_ID:
@@ -374,7 +374,7 @@ components:
       - type: object
         properties:
           VERWIJDERD:
-            description: Is dit record gemarkeerd als verwijderd?  Waarde 0..1
+            description: Is dit record gemarkeerd als verwijderd?  
             type: boolean
             example: 0            
           LAATSTE_AANPASSING:
@@ -382,6 +382,21 @@ components:
             type: string
             format: date-time 
             example: "2020-03-03 17:14:50Z" 
+
+    view_vliegtuigen_dataset:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ref_vliegtuigen'
+        - type: object
+          properties:
+            VLIEGTUIGTYPE: 
+              description: Beschrijving van het vliegtuig type
+              type: string
+              example: Discus CS
+            REG_CALL: 
+              description: Vliegtuig registratie en callsign
+              type: string
+              example: PH-1076 (E2)      
 
     view_vliegtuigen:
       type: object
@@ -404,16 +419,4 @@ components:
           description: De dataset met records
           type: array
           items: 
-            type: object
-            allOf:
-              - $ref: '#/components/schemas/ref_vliegtuigen'
-              - type: object
-                properties:
-                  VLIEGTUIGTYPE: 
-                    description: Beschrijving van het vliegtuig type
-                    type: string
-                    example: Discus CS
-                  REG_CALL: 
-                    description: Vliegtuig registratie en callsign
-                    type: string
-                    example: PH-1076 (E2)  
+            $ref: '#/components/schemas/view_vliegtuigen_dataset'
