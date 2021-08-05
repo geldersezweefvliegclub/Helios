@@ -24,7 +24,8 @@ $app_settings = array(
 	'DbError' => false,				// Log errors naar logfile
 	'Debug' => false,				// Debug informatie naar logfile, uitzetten voor productie
 	'LogDir' => '/tmp/log/helios/',	// Locatie waar log bestanden geschreven worden
-	'Vereniging' => "GeZC"	
+	'Vereniging' => "GeZC",
+	'ApiKeySMS' => 'API key here'	// api key voor messagebird
 );
 
 

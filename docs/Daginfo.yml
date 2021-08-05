@@ -318,6 +318,11 @@ components:
           type: integer
           format: int32
           example: 901                
+        STARTMETHODE_ID:
+          description: De standard startmeody voor deze dag
+          type: integer
+          format: int32
+          example: 550                 
         DDWV:
           description: Is het een DDWV dag? 
           type: boolean

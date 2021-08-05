@@ -275,7 +275,37 @@
 								Debug(__FILE__, __LINE__, sprintf("%s: LIMIT='%s'", $functie, $limit));
 							}
 							break;
-						}	
+						}
+					case "DATUM" : 
+						{
+							$datum = isDATE($value, "DATUM");
+
+							$where .= " AND DATE(DATUM) = ? ";
+							array_push($query_params, $datum);
+
+							Debug(__FILE__, __LINE__, sprintf("%s: DATUM='%s'", $functie, $datum));
+							break;
+						}							
+					case "BEGIN_DATUM" : 
+						{
+							$beginDatum = isDATE($value, "BEGIN_DATUM");
+
+							$where .= " AND DATE(DATUM) >= ? ";
+							array_push($query_params, $beginDatum);
+
+							Debug(__FILE__, __LINE__, sprintf("%s: BEGIN_DATUM='%s'", $functie, $beginDatum));
+							break;
+						}
+					case "EIND_DATUM" : 
+						{
+							$eindDatum = isDATE($value, "EIND_DATUM");
+
+							$where .= " AND DATE(DATUM) <= ? ";
+							array_push($query_params, $eindDatum);
+
+							Debug(__FILE__, __LINE__, sprintf("%s: EIND_DATUM='%s'", $functie, $eindDatum));
+							break;
+						}							
 					default:
 						{
 							throw new Exception(sprintf("405;%s is een onjuiste parameter;", $key));

@@ -413,6 +413,11 @@ components:
           type: string
           maxLength: 45
           example: meindert@fabeltje.com
+        AVATAR:
+          description: url naar avatar
+          type: string
+          maxLength: 255
+          example: https://mijn.vliegclub.org/avatar.gif           
         LIDNR: 
           description: Het lidnummer zoals dat in de leden administratie bekend is
           type: string
@@ -431,39 +436,43 @@ components:
         LIERIST:
           description: Mag dit lid lieren? 
           type: boolean
-          example: 0            
+          example: false            
         STARTLEIDER: 
           description: Kan dit lid het startbedrijf leiden?  
           type: boolean
-          example: 0    
+          example: true    
         INSTRUCTEUR:
           description: Heeft dit lid een instructie bevoegdheid?  
           type: boolean
-          example: 0    
+          example: false    
+        CIMT:
+          description: Heeft dit lid een instructie bevoegdheid?  
+          type: boolean
+          example: false           
         DDWV_CREW:
           description: Werkt dit lid mee in het DDWV bedrijf  
           type: boolean
-          example: 0  
+          example: false 
         DDWV_BEHEERDER:
           description: Is dit lid de beheerder van het DDWV bedrijf, heeft toegang tot DDWV gerelateede data  
           type: boolean
-          example: 0  
+          example: true 
         BEHEERDER:
           description: Is dit lid de beheerder van deze omgeving, heeft toegang tot alles   
           type: boolean
-          example: 0 
+          example: true 
         STARTTOREN:
           description: Dit account wordt gebruikt om starts in de start toren in te voeren    
           type: boolean
-          example: 0                               
+          example: false                            
         ROOSTER:
           description: Is dit lid  belast met het maken van roosters    
           type: boolean
-          example: 0       
+          example: false       
         CLUBBLAD_POST:
           description: Moet clubblad per post verstuurd worden    
           type: boolean
-          example: 0                                      
+          example: true                                     
         MEDICAL:
           description: Verloopdatum van het medical 
           type: string
@@ -492,15 +501,15 @@ components:
         AUTH: 
           description: 2Factor authenticatie voor deze gebruiker  
           type: boolean
-          example: 0    
+          example: true    
         HEEFT_BETAALD: 
           description: Heef het lid de factuur van dit jaar betaald?  
           type: boolean
-          example: 0   
+          example: false  
         PRIVACY: 
           description: Staat privacy mode (AVG / GDPR) uit/aan 
           type: boolean
-          example: 0     
+          example: true     
         BEPERKINGEN:
           description: Wat zijn de beperkingen (vliegen / diensten) voor dit lid
           type: string
@@ -518,11 +527,6 @@ components:
       - $ref: '#/components/schemas/ref_leden_in' 
       - type: object
         properties:
-          AVATAR: 
-            description: Readonly, URL om image op te halen. Zetten via UploadAvatar functie
-            type: string
-            maxLength: 255
-            example: 123456  
           SECRET: 
             description: Readonly, **** voor gewone gebruikers, URL om QRcode op te halen voor beheerders 
             type: string

@@ -1,7 +1,14 @@
 <?php
+include('include/config.php');
+include('include/functions.php');
+include('include/helios.php');
+include('include/GoogleAuthenticator.php');
 
-    // Allow from any origin
-    if (isset($_SERVER['HTTP_ORIGIN'])) {
+require __DIR__ . '/ext/vendor/autoload.php';
+
+  // Allow from any origin
+  if (isset($_SERVER['HTTP_ORIGIN'])) 
+  {
       header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
       header('Access-Control-Allow-Credentials: true');
       header('Access-Control-Max-Age: 86400');    // cache for 1 day
@@ -18,11 +25,6 @@
 
       exit(0);
   }
-
-include('include/config.php');
-include('include/functions.php');
-include('include/helios.php');
-include('include/GoogleAuthenticator.php');
 
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -44,9 +46,6 @@ catch(Exception $exception)
     header("Content-Type: text/plain");
     die;
 }  
-
-
-require __DIR__ . '/ext/vendor/autoload.php';
 
 $app = AppFactory::create();
 

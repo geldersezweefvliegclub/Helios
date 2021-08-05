@@ -149,7 +149,7 @@ require ("include/PasswordHash.php");
 			
 			Debug(__FILE__, __LINE__, sprintf("verkrijgToegang(%s, %s, %s)", $username, "??", $token)); 
 			
-			// Als username & wachtwoord niet zijn meegegevne, dan ophalen uit de aanvraag
+			// Als username & wachtwoord niet zijn meegegeven, dan ophalen uit de aanvraag
 			if (($username == null) || ($password == null))
 			{				
 				if ((array_key_exists('USERNAME', $this->Data)) && (array_key_exists('PASSWORD', $this->Data)))
@@ -207,6 +207,17 @@ require ("include/PasswordHash.php");
 			
 			if (($lObj['AUTH'] == "1") && (empty($token))) 
 			{
+				Debug(__FILE__, __LINE__, sprintf("URI: %s)", $_SERVER['REQUEST_URI']));	
+
+				// als we SMS gaan versturen, kunnen we verder
+				$uri = explode('/', $_SERVER['REQUEST_URI']);
+				if (count($uri) > 1)
+				{
+					if (strtoupper($uri[2]) == "SENDSMS") {
+						return;
+					}
+				}
+
 				throw new Exception("406;Token moet ingevoerd worden;");
 			}
 																											
@@ -305,7 +316,7 @@ require ("include/PasswordHash.php");
 			// als er session niet gezet is, gaan we voor de veilige oplossing
 			if (isset($_SESSION['userInfo']) === false)
 			{
-				Debug(__FILE__, __LINE__, sprintf("sessiePermissie userInfo BESTAAT NIET", $key)); 
+				Debug(__FILE__, __LINE__, sprintf("sessiePermissie userInfo BESTAAT NIET")); 
 				return false;
 			}
 
@@ -393,5 +404,33 @@ require ("include/PasswordHash.php");
 		function toegangGeweigerd()
 		{
 			throw new Exception("401;Toegang geweigerd;");
+		}
+
+		function sendSMS() 
+		{
+			Debug(__FILE__, __LINE__, "sendSMS()");
+
+			global $app_settings;
+
+			if (!array_key_exists('PHP_AUTH_USER', $_SERVER)) 
+			{
+				throw new Exception("406;Geen login naam in aanroep;");
+			}
+
+			$l = MaakObject('Leden');
+			$lObj = $l->GetObjectByLoginNaam($_SERVER['PHP_AUTH_USER']); 
+
+			Debug(__FILE__, __LINE__, sprintf("sendSMS username:%s mobiel:%s", $_SERVER['PHP_AUTH_USER'], $lObj['MOBIEL'])); 
+			
+			$ga = new PHPGangsta_GoogleAuthenticator();
+
+			$MessageBird = new \MessageBird\Client($app_settings['ApiKeySMS']);
+			$Message = new \MessageBird\Objects\Message();
+			$Message->originator = $app_settings['Vereniging'];
+			$Message->recipients = array($lObj['MOBIEL']);
+			$Message->body = 'Uw code: ' . $ga->getCode($lObj['SECRET']);
+
+			$reponse = $MessageBird->messages->create($Message);
+			Debug(__FILE__, __LINE__, sprintf("sendSMS response: %s", print_r($reponse, true))); 
 		}
 	}

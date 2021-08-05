@@ -57,6 +57,25 @@ paths:
         200:
           description: "OK, tot de volgende keer"
 
+  //Login/SendSMS:
+    get:
+      security:
+        - basicAuth: []    
+      summary: Verstuur 2 factor security ode
+      responses:
+        200:
+          description: "OK, SMS is verstuurd"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ref_leden'
+        404:
+          description: "Data niet gevonden"
+        406:
+          description: "Niet aanvaardbaar, input ontbreekt"           
+        500:
+          description: "Data verwerkingsfout"  
+
 components:
   securitySchemes:
     basicAuth:

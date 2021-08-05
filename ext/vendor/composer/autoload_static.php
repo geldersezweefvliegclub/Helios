@@ -24,6 +24,10 @@ class ComposerStaticInite39cdff3d4671ad6f7505052d4cd4b1c
             'Psr\\Http\\Message\\' => 17,
             'Psr\\Container\\' => 14,
         ),
+        'M' => 
+        array (
+            'MessageBird\\' => 12,
+        ),
         'F' => 
         array (
             'Fig\\Http\\Message\\' => 17,
@@ -58,6 +62,10 @@ class ComposerStaticInite39cdff3d4671ad6f7505052d4cd4b1c
         array (
             0 => __DIR__ . '/..' . '/psr/container/src',
         ),
+        'MessageBird\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/messagebird/php-rest-api/src/MessageBird',
+        ),
         'Fig\\Http\\Message\\' => 
         array (
             0 => __DIR__ . '/..' . '/fig/http-message-util/src',
@@ -68,11 +76,16 @@ class ComposerStaticInite39cdff3d4671ad6f7505052d4cd4b1c
         ),
     );
 
+    public static $classMap = array (
+        'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
+    );
+
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
             $loader->prefixLengthsPsr4 = ComposerStaticInite39cdff3d4671ad6f7505052d4cd4b1c::$prefixLengthsPsr4;
             $loader->prefixDirsPsr4 = ComposerStaticInite39cdff3d4671ad6f7505052d4cd4b1c::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInite39cdff3d4671ad6f7505052d4cd4b1c::$classMap;
 
         }, null, ClassLoader::class);
     }

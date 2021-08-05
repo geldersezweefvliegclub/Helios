@@ -269,6 +269,53 @@ paths:
         500:
           description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"    
 
+  /Startlijst/GetLogboekTotalen:
+    get:
+      security:
+        - basicAuth: []    
+      summary: Haal totalen van vliegdata op van een lid. Starts per kist en start types. Query parameters worden in AND conditie gebruikt
+      parameters:
+        - in: query
+          name: LAATSTE_AANPASSING
+          description: Laatste aanpassing op basis van records in dataset. Bedoeld om data verbruik te verminderen. Dataset is daarom leeg
+          required: false
+          schema:
+            type: boolean
+        - in: query
+          name: HASH
+          description: HASH van laatste GetObjects aanroep. Indien bij nieuwe aanroep dezelfde data bevat, dan volgt http status code 304. In geval dataset niet hetzelfde is, dan komt de nieuwe dataset terug. Ook bedoeld om dataverbruik te vermindereren. Er wordt alleen data verzonden als het nodig is.
+          required: false
+          schema:
+            type: string                
+        - in: query        
+          name: JAAR
+          description: Alle vluchten van het opgegven jaar
+          required: false
+          schema:
+            type: integer                                     
+        - in: query        
+          name: LID_ID
+          description: Logboek voor specifiek lid, ID is database ID van het lid
+          required: false
+          schema:
+            type: integer                                                 
+      responses:
+        200:
+          description: "OK, data succesvol opgehaald"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/logboek_totalen'                   
+        304:
+          description: "Data niet gemodificeerd, HASH in aanroep == hash in dataset"                                    
+        401:
+          description: "Niet geautoriseerd, geen rechten om data op te halen"                 
+        405:
+          description: "Methode niet toegestaan, input validatie error"  
+        500:
+          description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)" 
+
+
   /Startlijst/GetVliegtuigLogboek:
     get:
       security:
@@ -773,6 +820,30 @@ components:
     logboek:
       type: object
       properties:
+        totaal:
+          description: Aantal records dat voldoet aan de criteria in de database
+          type: integer
+          format: int32
+          example: 12
+        laatste_aanpassing:
+          description: Tijdstempel van laaste aanpassing in de database van de records dat voldoet aan de criteria
+          type: string
+          format: date-time 
+          example: "2020-06-01 19:59:00" 
+        hash: 
+          description: hash van de dataset
+          type: string
+          example: "c0cabaf"            
+        dataset:
+          description: De dataset met records
+          type: array
+          items: 
+            type: object
+            $ref: '#/components/schemas/logboek_dataset'
+
+    logboek_dataset:
+      type: object
+      properties:
         ID:
           description: Database ID van de vlucht
           type: integer
@@ -827,7 +898,90 @@ components:
           maxLength: 255
           example: Buitenlanding      
 
+    logboek_totalen:
+      type: object
+      properties:
+        totaal:
+          description: Aantal records dat voldoet aan de criteria in de database
+          type: integer
+          format: int32
+          example: 12
+        laatste_aanpassing:
+          description: Tijdstempel van laaste aanpassing in de database van de records dat voldoet aan de criteria
+          type: string
+          format: date-time 
+          example: "2020-06-01 19:59:00" 
+        hash: 
+          description: hash van de dataset
+          type: string
+          example: "c0cabaf"            
+        starts:
+          description: Aantal van startmethodes
+          type: array
+          items: 
+            type: object
+            $ref: '#/components/schemas/logboek_totalen_start'
+        vliegtuigen:
+          description: Aantal starts en vliegtijd per vliegtuig
+          type: array
+          items: 
+            type: object
+            $ref: '#/components/schemas/logboek_totalen_vliegtuigen'
+        jaar:
+          description: Totalen van het jaar
+          properties:
+            STARTS:
+              type: integer
+              format: int32
+            VLIEGTIJD: 
+              type: string  
+
+
+    logboek_totalen_start:
+      type: object
+      properties:
+        METHODE: 
+          type: string
+        AANTAL:
+          type: integer
+          format: int32
+
+    logboek_totalen_vliegtuigen:
+      type: object
+      properties:
+        REG_CALL: 
+          type: string
+        STARTS:
+          type: integer
+          format: int32
+        VLIEGTIJD: 
+          type: string          
+   
     vliegtuig_logboek:
+      type: object
+      properties:
+        totaal:
+          description: Aantal records dat voldoet aan de criteria in de database
+          type: integer
+          format: int32
+          example: 12
+        laatste_aanpassing:
+          description: Tijdstempel van laaste aanpassing in de database van de records dat voldoet aan de criteria
+          type: string
+          format: date-time 
+          example: "2012-01-17 09:24:16" 
+        hash: 
+          description: hash van de dataset
+          type: string
+          example: "c0cabaf"            
+        dataset:
+          description: De dataset met records
+          type: array
+          items: 
+            type: object
+            $ref: '#/components/schemas/vliegtuig_logboek_dataset'
+
+    vliegtuig_logboek_dataset:
       type: object
       properties:
         DATUM:
@@ -950,6 +1104,10 @@ components:
         STATUS_BAROMETER: 
           type: string
           example: "onbekend"
+        WAARDE: 
+          type: number
+          example: 12.4         
+          description: 0-10 = rood, 10-20 = geel, > 20 = groen.  Geeft inzicht waarde in de status
         STARTS_BAROMETER: 
           type: string
           example: "38"

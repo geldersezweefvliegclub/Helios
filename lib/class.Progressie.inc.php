@@ -322,14 +322,20 @@
 			$hash = null;
 			$lid_id = -1;
 			$velden = "							
-				`competenties_view`.*,
-
-				`p`.`ID` AS `PROGRESSIE_ID`, 
-				`p`.`INGEVOERD`, 
+				`competenties_view`.`LEERFASE`,
+				`competenties_view`.`BLOK`,
+				`competenties_view`.`ONDERWERP`,
+				`competenties_view`.`DOCUMENTATIE`,
 				`p`.`OPMERKINGEN`, 
 				`p`.`INSTRUCTEUR_NAAM`, 
-				`p`.`LAATSTE_AANPASSING` AS LAATSTE_AANPASSING";
+				`p`.`INGEVOERD`, 
 
+				`competenties_view`.`LEERFASE_ID`,
+				`competenties_view`.`ID`,
+				`p`.`ID` AS `PROGRESSIE_ID`, 
+				`competenties_view`.`BLOK_ID`";
+				
+				
 			foreach ($params as $key => $value)
 			{
 				switch ($key)
@@ -378,7 +384,7 @@
 					competenties_view LEFT JOIN (SELECT * FROM progressie_view WHERE LID_ID = $lid_id) p ON 
 					competenties_view.ID = p.COMPETENTIE_ID 
 				ORDER BY 
-					LEERFASE_ID, VOLGORDE, competenties_view.ID";
+					LEERFASE_ID, competenties_view.VOLGORDE, competenties_view.ID";
 
 			$retVal = array();
 
@@ -630,17 +636,19 @@
 				$onderwerp = ($leerfase["CODE"] != null) ? sprintf("%s: %s", $leerfase['CODE'], $leerfase['OMSCHRIJVING']) : $leerfase['OMSCHRIJVING'];
 
 				$c = new EnkeleCompetentie(
-					$leerfase["ID"],                // leerfase ID
+					$leerfase["ID"],                // leerfase ID uit types
+					
 					null,                           // competentie ID
+					null,                           // progressie ID
 					null,       					// blok ID
 					null,                           // blok
 					$onderwerp,                     // onderwerp
 					null,                           // documentatie
 					$children,                      // child data
-					null,                           // progressie ID
 					null,                           // Datum behaald
 					$this->isBehaald(null, $children),    // is onderliggende competentie behaald
-					null);                          // afgetekend door
+					null,							// afgetekend door
+					null);              			// opmerkingen            
 				
 				array_push($competentieBoom, $c);
 			}
@@ -659,16 +667,18 @@
 					$children = $this->bouwTakken($competentie["ID"]);
 
 					$c = new EnkeleCompetentie(
-						0,                              // leerfase ID
+						$topID,							// Leerfase ID
+						
 						$competentie["ID"],             // competentie ID
+						$competentie["PROGRESSIE_ID"],  // progressie ID
 						$competentie["BLOK_ID"],        // blok ID
 						$competentie["BLOK"],           // blok
 						$competentie["ONDERWERP"],      // onderwerp
 						$competentie["DOCUMENTATIE"],   // documentatie
 						$children,                      // child data
-						$competentie["PROGRESSIE_ID"],  // progressie ID
+						
 						$competentie["INGEVOERD"],      // Datum behaald
-						$this->isBehaald($competentie["INGEVOERD"], $children),    // is onderliggende competentie behaald
+						$this->isBehaald($competentie["PROGRESSIE_ID"], $children),    // is onderliggende competentie behaald
 						$competentie["INSTRUCTEUR_NAAM"],  // afgetekend door
 						$competentie["OPMERKINGEN"]);   // Opmerkingen bij het behalen
 					
@@ -695,16 +705,17 @@
 					$children = $this->bouwTakken($competentie["ID"]);
 
 					$c = new EnkeleCompetentie(
-						0,                              // leerfase ID
+						null,                           // leerfase ID
 						$competentie["ID"],             // competentie ID
+						$competentie["PROGRESSIE_ID"],  // progressie ID
 						$competentie["BLOK_ID"],        // blok ID
 						$competentie["BLOK"],           // blok
 						$competentie["ONDERWERP"],      // onderwerp
 						$competentie["DOCUMENTATIE"],   // documentatie
 						$children,                      // child data
-						$competentie["PROGRESSIE_ID"],  // progressie ID
+						
 						$competentie["INGEVOERD"],      // Datum behaald
-						$this->isBehaald($competentie["INGEVOERD"], $children),    // is onderliggende competentie behaald
+						$this->isBehaald($competentie["PROGRESSIE_ID"], $children),    // is onderliggende competentie behaald
 						$competentie["INSTRUCTEUR_NAAM"],  // afgetekend door
 						$competentie["OPMERKINGEN"]);   // Opmerkingen bij het behalen
 					
@@ -719,11 +730,11 @@
 		}  
 
 		// Geeft 0/1/2 terug als alle compententies behaald zijn, of misschien maar een gedeelte
-		function isBehaald($datumBehaald, $kaarten)
+		function isBehaald($progressieID, $kaarten)
 		{
 			if ($kaarten == null)
 			{
-				if ($datumBehaald != null)
+				if ($progressieID != null)
 					return 2;           // behaald want datum is ingevoerd
 				else
 					return 0;           // 0 = nee
@@ -763,7 +774,6 @@
 
 	class EnkeleCompetentie 
 	{
-		public $ID;
 		public $LEERFASE_ID;
 		public $COMPETENTIE_ID;
 		public $BLOK_ID;
@@ -780,16 +790,16 @@
 		public $children;
 	
 		public function __construct(
-				$id,
-				$leerfaseID,
+				$leerfaseID, 
+		
 				$competentieID,
+				$progressieID = null,
 				$blokID,
 				$blok,
 				$onderwerp,
 				$documentatie, 
 				$childData,
 	
-				$progressieID = null,
 				$datumBehaald = null,
 				$isBehaald = 0,
 				$afgetekendDoor  = null,
@@ -797,7 +807,7 @@
 			)
 		{
 			$this->LEERFASE_ID = $leerfaseID;
-			$this->ID = $competentieID;
+			$this->COMPETENTIE_ID = $competentieID;
 			$this->BLOK_ID = $blokID;
 			$this->BLOK = $blok;
 			$this->ONDERWERP = $onderwerp;

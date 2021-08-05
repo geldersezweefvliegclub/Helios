@@ -140,6 +140,32 @@ $app->get('/Startlijst/GetLogboek', function (Request $request, Response $respon
 });
 
 /*
+Haal een dataset op met de logboek totalen uit de database. 
+*/
+$app->get('/Startlijst/GetLogboekTotalen', function (Request $request, Response $response, $args) {
+    $obj = MaakObject("Startlijst");
+    try
+    {
+        $parameters = $request->getQueryParams();
+        $v = $obj->GetLogboekTotalen($parameters);     // Hier staat de logica voor deze functie
+
+        $response->getBody()->write(json_encode($v));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+    catch(Exception $exception)
+    {
+        Debug(__FILE__, __LINE__, "/Startlijst/GetLogboekTotalen: " .$exception);
+
+        list($dummy, $exceptionMsg) = explode(": ", $exception);
+        list($httpStatus, $message) = explode(";", $exceptionMsg);   // onze eigen formaat van een exceptie
+
+        header("X-Error-Message: $message", true, intval($httpStatus));
+        header("Content-Type: text/plain");
+        die;
+    }
+}); 
+
+/*
 Haal een dataset op met de logboek records als een array uit de database. 
 */
 $app->get('/Startlijst/GetVliegtuigLogboek', function (Request $request, Response $response, $args) {

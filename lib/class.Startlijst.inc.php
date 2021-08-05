@@ -727,6 +727,184 @@
 		/*
 		Haal het logboek van het vliegtuig op
 		*/
+		function GetLogboekTotalen($params)
+		{				
+			Debug(__FILE__, __LINE__, sprintf("Startlijst.GetLogboekTotalen(%s)", print_r($params, true)));		
+						
+			$where = "";
+			$limit = -1;
+			$start = -1;
+			$vliegtuigID = -1;
+			$velden = "*";
+			$query_params = array();
+			$alleenLaatsteAanpassing = false;
+			$hash = null;
+
+			foreach ($params as $key => $value)
+			{
+				switch ($key)
+				{	
+					case "LAATSTE_AANPASSING" : 
+					{
+						$alleenLaatsteAanpassing = isBOOL($value, "LAATSTE_AANPASSING");
+
+						Debug(__FILE__, __LINE__, sprintf("%s: LAATSTE_AANPASSING='%s'", $functie, $alleenLaatsteAanpassing));
+						break;
+					}	
+					case "HASH" :
+						{
+							$hash = $value;
+							Debug(__FILE__, __LINE__, sprintf("%s: HASH='%s'", $functie, $hash));
+							break;
+						}															
+					case "JAAR" : 
+						{
+							$jaar = isINT($value, "JAAR");
+							$where .= sprintf ("AND YEAR(DATUM)=%d ", $jaar);	
+							break;
+						}												
+					case "LID_ID" : 
+						{
+							$lidID = isINT($value, "LID_ID");
+
+							// privacy check
+							$l = MaakObject('Login');
+
+							if ($value != $l->getUserFromSession())
+							{
+								if (($l->isBeheerder() === false) &&
+									($l->isInstructeur() === false))
+								{
+									throw new Exception("401;Gebruiker mag geen logboek van ander lid opvragen;");
+								}									
+							}
+
+							Debug(__FILE__, __LINE__, sprintf("%s: LID_ID='%s'", $functie, $lidID));
+							break;	  
+						}  	
+					default:
+						{
+							throw new Exception(sprintf("405;%s is een onjuiste parameter;", $key));
+							break;
+						}								  																																
+				}
+			}	
+			
+			if ($lidID === null)	/* niet meegegeven in parameters, dus default waarde gebruiken */
+			{
+				$lidID = $l->getUserFromSession();				
+			}
+
+			$l = MaakObject('Leden');
+			$lid = $l->getObject($lidID);
+			if ($lid['INSTRUCTEUR'] == 1)		// Voor instructeurs tellen ook de instructie starts mee
+			{
+				$where .= sprintf(" AND ((VLIEGER_ID = '%d') OR (INZITTENDE_ID = %d))", $lidID, $lidID);	 
+			}
+			else
+			{
+				$where .= sprintf(" AND (VLIEGER_ID = '%d')", $lidID);			
+			}
+
+			if (!array_key_exists('JAAR', $params))
+				$where .= sprintf ("AND YEAR(DATUM)=%d ",date("Y"));			
+					
+			$query = "
+				SELECT 
+					%s 
+				FROM
+					startlijst_view slv INNER JOIN 
+					ref_vliegtuigen as rv ON slv.VLIEGTUIG_ID = rv.ID
+				WHERE 
+					STARTTIJD is not null AND LANDINGSTIJD is not null "  . $where . "
+				ORDER BY 
+					rv.CLUBKIST DESC, rv.VOLGORDE, slv.REG_CALL";
+
+			$retVal = array();
+			$retVal['totaal'] = $this->Count($query, $query_params);		// totaal aantal of record in de database
+			$retVal['laatste_aanpassing']=  $this->LaatsteAanpassing($query, $query_params, 'slv.LAATSTE_AANPASSING');
+			$retVal['hash'] = dechex((str_replace(":", "", substr($retVal['laatste_aanpassing'], -8)) * 1000) + ($retVal['totaal'] * 1));
+			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s, HASH=%s", $retVal['totaal'], $retVal['laatste_aanpassing'], $retVal['hash']));
+			
+			if ($retVal['hash'] == $hash)
+				throw new Exception("304;Dataset ongewijzigd;");
+
+			if ($alleenLaatsteAanpassing)
+			{
+				$retVal['dataset'] = null;
+				return $retVal;
+			}
+
+			$rquery = sprintf($query, $velden);
+			parent::DbOpvraag($rquery, $query_params);
+			$logboek = parent::DbData();
+				
+			
+			$vliegtuigen = array();
+			$startMethode = array();
+			$totaalAantalStarts = 0;
+			$totaallVliegtijd = 0;
+
+			for ($i=0; $i < count($logboek); $i++) {
+
+				$REG_CALL = $logboek[$i]['REG_CALL'];		// REG_CALL uit vlucht
+
+				$t = explode(":",$logboek[$i]['DUUR']);
+				$vliegtijd = $t[0] * 60 + $t[1] * 1;		// Vliegtijd in minuten
+
+				$totaallVliegtijd += $vliegtijd;
+				$totaalAantalStarts++;
+
+				if (!isset($vliegtuigen[$REG_CALL]))
+				{
+					$vliegtuigen[$REG_CALL]['REG_CALL'] = $REG_CALL;
+					$vliegtuigen[$REG_CALL]['STARTS'] = 1;
+					$vliegtuigen[$REG_CALL]['VLIEGTIJD'] = $vliegtijd;
+				}
+				else 
+				{
+					$vliegtuigen[$REG_CALL]['STARTS']++;
+					$vliegtuigen[$REG_CALL]['VLIEGTIJD'] += $vliegtijd;
+				}
+
+				$START_METHODE = $logboek[$i]['STARTMETHODE'];			// Startmethode uit vlucht
+
+				if (!isset($startMethode[$START_METHODE]))
+				{
+					$startMethode[$START_METHODE]['METHODE'] = $START_METHODE;
+					$startMethode[$START_METHODE]['AANTAL'] = 1;
+				}
+				else
+				{
+					$startMethode[$START_METHODE]['AANTAL']++;
+				}				
+			}
+
+			$keys = array_keys($vliegtuigen);
+			for ($i=0; $i < count($vliegtuigen); $i++)
+			{
+				$key = $keys[$i];
+				$hh = $vliegtuigen[$key]['VLIEGTIJD'] / 60;
+				$mm = $vliegtuigen[$key]['VLIEGTIJD'] % 60;
+
+				$vliegtuigen[$key]['VLIEGTIJD'] = sprintf("%d:%02d", intval($hh), $mm);
+			}
+
+			$retVal['starts'] = array_values($startMethode);
+			$retVal['vliegtuigen'] = array_values($vliegtuigen);
+
+			$hh = $totaallVliegtijd / 60;
+			$mm = $totaallVliegtijd % 60;
+
+			$retVal['jaar']['STARTS'] = $totaalAantalStarts;
+			$retVal['jaar']['VLIEGTIJD'] = sprintf("%d:%02d", intval($hh), $mm);
+
+			return $retVal;
+		}
+
+		/*
+		Haal het logboek van het vliegtuig op
+		*/
 		function GetVliegtuigLogboek($params)
 		{				
 			Debug(__FILE__, __LINE__, sprintf("Startlijst.GetVliegtuigLogboek(%s)", print_r($params, true)));		
@@ -1355,7 +1533,7 @@
 		
 		function GetRecency($vliegerID, $datum = null)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Startlijst.VliegerRecencyJSON(%s)", $vliegerID));	
+			Debug(__FILE__, __LINE__, sprintf("Startlijst.VliegerRecencyJSON(%s, %s)", $vliegerID, $datum));	
 
 			if ($vliegerID == null)
 				throw new Exception("406;VLIEGER_ID moet ingevuld zijn;");
@@ -1402,7 +1580,7 @@
 
 			foreach (parent::DbData() as $vlucht)
 			{
-				$diff = abs(strtotime(date('Y-m-d')) - strtotime($vlucht['DATUM'])) / (60*60*24);  	// dif in dagen
+				$diff = abs(strtotime($dateTime->format("Y-m-d")) - strtotime($vlucht['DATUM'])) / (60*60*24);  	// dif in dagen
 
 				if ($diff < (13*7)) // laaste drie maanden = 13 weken
 				{
@@ -1445,6 +1623,7 @@
 
 
 			// tijden staan in minuten, moet naar hh:mm
+			$retVal['WAARDE'] = intval($gem * 10) / 10;		// 1 cijfer achter de komma
 			$retVal['UREN_DRIE_MND']   = intval($retVal['UREN_DRIE_MND']   / 60) . ":" . sprintf("%02d", $retVal['UREN_DRIE_MND'] %60);
 			$retVal['UREN_DIT_JAAR']   = intval($retVal['UREN_DIT_JAAR']   / 60) . ":" . sprintf("%02d", $retVal['UREN_DIT_JAAR'] %60);
 			$retVal['UREN_VORIG_JAAR'] = intval($retVal['UREN_VORIG_JAAR'] / 60) . ":" . sprintf("%02d", $retVal['UREN_VORIG_JAAR'] %60);
@@ -1472,14 +1651,18 @@
 			// Als ingelogde gebruiker geen bijzonder functie heeft, worden alleen zijn vliegdagen opgehaald
 			$l = MaakObject('Login');
 
-			if ($l->isBeheerderDDWV())
+			if ($l->isStarttoren() == true)
 			{
-				$condition .= " AND ((DDWV = 1)";
-				$condition .= sprintf(" OR ((VLIEGER_ID = '%d') OR (INZITTENDE_ID = '%d')))", $l->getUserFromSession(), $l->getUserFromSession());				
+				$where .= sprintf (" AND DATUM = '%s'", date("Y-m-d"));		// starttoren mag alleen vandaag opvragen
 			}
-			else if ((!$l->isBeheerder()) && (!$l->isInstructeur()))
+			else if ($l->isBeheerderDDWV())
 			{
-				$condition .= sprintf(" AND ((VLIEGER_ID = '%d') OR (INZITTENDE_ID = '%d'))", $l->getUserFromSession(), $l->getUserFromSession());
+				$where .= " AND ((DDWV = 1)";
+				$where .= sprintf(" OR ((VLIEGER_ID = '%d') OR (INZITTENDE_ID = '%d')))", $l->getUserFromSession(), $l->getUserFromSession());		
+			}
+			else if ((!$l->isBeheerder()) && (!$l->isInstructeur()) && (!$l->isCIMT()))
+			{
+				$where .= sprintf(" AND ((VLIEGER_ID = '%d') OR (INZITTENDE_ID = '%d'))", $l->getUserFromSession(), $l->getUserFromSession());
 			}
 
 			foreach ($params as $key => $value)

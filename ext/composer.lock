@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b2223f08702636361e0a10ceb63ec5a9",
+    "content-hash": "eacfa2792265ef5cdaef07aa6cecce52",
     "packages": [
         {
             "name": "fig/http-message-util",
@@ -55,6 +55,54 @@
                 "response"
             ],
             "time": "2018-11-19T16:19:58+00:00"
+        },
+        {
+            "name": "messagebird/php-rest-api",
+            "version": "v2.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/messagebird/php-rest-api.git",
+                "reference": "128c781855638f3fe42e346f4df4dc165378d3c0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/messagebird/php-rest-api/zipball/128c781855638f3fe42e346f4df4dc165378d3c0",
+                "reference": "128c781855638f3fe42e346f4df4dc165378d3c0",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-json": "*",
+                "php": ">=7.3|^8.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^8.0|^9.0",
+                "vimeo/psalm": "^4.6"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "MessageBird\\": "src/MessageBird/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-2-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "MessageBird",
+                    "email": "info@messagebird.com"
+                }
+            ],
+            "description": "MessageBird REST API client for PHP",
+            "homepage": "https://github.com/messagebird/php-rest-api",
+            "support": {
+                "docs": "https://developers.messagebird.com/api",
+                "issues": "https://github.com/messagebird/php-rest-api/issues",
+                "source": "https://github.com/messagebird/php-rest-api"
+            },
+            "time": "2021-06-30T08:02:59+00:00"
         },
         {
             "name": "nikic/fast-route",
@@ -570,6 +618,9 @@
     "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
-    "platform": [],
-    "platform-dev": []
+    "platform": {
+        "ext-json": "*"
+    },
+    "platform-dev": [],
+    "plugin-api-version": "2.1.0"
 }

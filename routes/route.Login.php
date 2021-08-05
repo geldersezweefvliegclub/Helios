@@ -40,6 +40,30 @@ $app->get('/Login/GetUserInfo', function (Request $request, Response $response, 
 });
 
 /*
+Verstuur SMS
+*/
+$app->get('/Login/SendSMS', function (Request $request, Response $response, $args) {
+
+    $obj = MaakObject("Login");
+    try
+    {
+        $l = $obj->sendSMS();  // Hier staat de logica voor deze functie
+        return $response;
+    }
+    catch(Exception $exception)
+    {
+        Debug(__FILE__, __LINE__, "/Login/sendSMS: " .$exception);
+
+        list($dummy, $exceptionMsg) = explode(": ", $exception);
+        list($httpStatus, $message) = explode(";", $exceptionMsg);  // onze eigen formaat van een exceptie
+
+        header("X-Error-Message: $message", true, intval($httpStatus));
+        header("Content-Type: text/plain");
+        die;
+    }  
+});
+
+/*
 Heeft deze gebruiker toegang tot het systeem. Doordat eerder sessie is opgebouwd, of dat hij op een toegstane computer werky
 */
 $app->get('/Login/Login', function (Request $request, Response $response, $args) {

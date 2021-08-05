@@ -732,7 +732,7 @@
 			$extension = pathinfo($file->getClientFilename(), PATHINFO_EXTENSION);
 
 			if (!in_array(strtolower($extension), $ext_type)) {
-				Debug(__FILE__, __LINE__, sprintf("Leden.UploadAvatar extentie %s is ongeldig)", $id));
+				Debug(__FILE__, __LINE__, sprintf("Leden.UploadAvatar extentie '%s' is ongeldig)", $extension));
 				throw new Exception("422;Onjuiste bestand extentie;");	
 			}	
 
@@ -1042,10 +1042,16 @@
 			$ld = $l->lidData();
 			if (array_key_exists('WACHTWOORD', $input))
 			{
-				if (strlen($input['WACHTWOORD']) > 0)
+				if (strlen($input['WACHTWOORD']) > 4)
 				{
 					$loginnaam = (isset($record['INLOGNAAM'])) ? $record['INLOGNAAM'] : $ld->INLOGNAAM;
 					$record['WACHTWOORD'] = sha1(strtolower ($loginnaam) . $input['WACHTWOORD']);
+				}
+				else 
+				{
+					if (strlen($input['WACHTWOORD']) > 0) {
+						throw new Exception("406;Wachtwoord voldoet niet;");
+					}
 				}
 			}
 			if (array_key_exists('WACHTWOORD_HASH', $input))

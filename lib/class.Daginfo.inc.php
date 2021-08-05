@@ -281,6 +281,16 @@
 							}
 							break;
 						}	
+					case "DATUM" : 
+						{
+							$datum = isDATE($value, "DATUM");
+
+							$where .= " AND DATE(DATUM) = ? ";
+							array_push($query_params, $datum);
+
+							Debug(__FILE__, __LINE__, sprintf("%s: DATUM='%s'", $functie, $datum));
+							break;
+						}							
 					case "BEGIN_DATUM" : 
 						{
 							$beginDatum = isDATE($value, "BEGIN_DATUM");

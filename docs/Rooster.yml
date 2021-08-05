@@ -137,7 +137,21 @@ paths:
           required: false
           schema:
             type: string
-            format: date                          
+            format: date    
+        - in: query
+          name: BEGIN_DATUM
+          description: Begin datum (inclusief deze dag)
+          required: false
+          schema:
+            type: string
+            format: date   
+        - in: query
+          name: EIND_DATUM
+          description: Eind datum (inclusief deze dag)
+          required: false
+          schema:
+            type: string
+            format: date                                    
                                    
       responses:
         200:

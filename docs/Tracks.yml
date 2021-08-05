@@ -293,8 +293,7 @@ components:
           example: 10001                 
         TEKST:
           description: De tekst
-          type: integer
-          format: String
+          type: string
           example: "Kabelbreuk oefening ging prima. Netjes verkort circuit gevlogen"
         START_ID:
           description: Verwijzing naar een start. Verwijzing naar oper_startlijst
