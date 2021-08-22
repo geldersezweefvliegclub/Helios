@@ -1,11 +1,11 @@
 openapi: 3.0.2
 info:
-  title: RefVliegtuigen
-  description: Vliegtuig referentie data. Andere tabellen verwijzen naar deze tabel
+  title: OperDiensten
+  description: Diensten voor een rooster
   version: '1.0'
        
 paths:
-  /Vliegtuigen/CreateTable:
+  /Diensten/CreateTable:
     post:
       security:
         - basicAuth: []    
@@ -23,7 +23,7 @@ paths:
         500:
           description: "Data verwerkingsfout, bijv omdat de tabel al bestaat" 
 
-  /Vliegtuigen/CreateViews:
+  /Diensten/CreateViews:
     post:
       security:
         - basicAuth: []    
@@ -34,15 +34,15 @@ paths:
         500:
           description: "Data verwerkingsfout, view niet aangemaak"    
 
-  /Vliegtuigen/GetObject:
+  /Diensten/GetObject:
     get:
       security:
         - basicAuth: []    
-      summary: Haal een enkel vliegtuig op uit de database
+      summary: Haal een enkele dienst op uit de database
       parameters:
         - in: query
           name: ID
-          description: Database ID van het vliegtuig record
+          description: Database ID van het dienst record
           required: true
           schema:
             type: integer
@@ -53,7 +53,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ref_vliegtuigen'
+                $ref: '#/components/schemas/oper_diensten'
         404:
           description: "Data niet gevonden"
         405:
@@ -63,15 +63,15 @@ paths:
         500:
           description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"      
 
-  /Vliegtuigen/GetObjects:
+  /Diensten/GetObjects:
     get:
       security:
         - basicAuth: []    
-      summary: Haal een lijst met vliegtuigen op uit de database. Query parameters worden in AND conditie gebruikt
+      summary: Haal een lijst met diensten op uit de database. Query parameters worden in AND conditie gebruikt
       parameters:
         - in: query
           name: ID
-          description: Database ID van het aanwezig record
+          description: Database ID van het diensten record
           required: false
           schema:
             type: integer
@@ -97,7 +97,7 @@ paths:
             type: string                
         - in: query
           name: SORT
-          description: Sortering van de velden in ORDER BY formaat. Default = CLUBKIST DESC, VOLGORDE, REGISTRATIE
+          description: Sortering van de velden in ORDER BY formaat. Default = DATUM
           required: false
           schema:
             type: string     
@@ -122,63 +122,60 @@ paths:
           description: Welke velden moet opgenomen worden in de dataset
           required: false
           schema:
-            type: string                                    
-        - in: query        
-          name: SELECTIE
-          description: Zoek in de REGISTRATIE, CALLSIGN, FLARM_CODE
-          required: false
-          schema:
-            type: string
+            type: string    
         - in: query
-          name: IN
-          description: Een of meerdere vliegtuig database IDs in CSV formaat. AND conditie als er geen andere parameters zijn, anders OR conditie
+          name: LID_ID
+          description: Diensten van een bepaald lid
           required: false
           schema:
             type: string   
+        - in: query        
+          name: DATUM
+          description: Zoek op datum
+          required: false
+          schema:
+            type: string
+            format: date    
+        - in: query
+          name: BEGIN_DATUM
+          description: Begin datum (inclusief deze dag)
+          required: false
+          schema:
+            type: string
+            format: date   
+        - in: query
+          name: EIND_DATUM
+          description: Eind datum (inclusief deze dag)
+          required: false
+          schema:
+            type: string
+            format: date                                                           
         - in: query
           name: TYPES
-          description: Zoek op een of meerder type vliegtuig(en). Types als CSV formaat
+          description: Zoek op een of meerder type diensten. Types als CSV formaat
           required: false
           schema:
-            type: string                    
+            type: string                                                
         - in: query
-          name: ZITPLAATSEN
-          description: Zoek op zitplaatsen 1/2
-          required: false
-          schema:
-            type: integer
-            format: int32                               
-        - in: query
-          name: CLUBKIST
-          description: Haal alle clubvliegtuigen op
+          name: AANWEZIG
+          description: Haal alle diensten op waar lid aanwezig was
           required: false
           schema:
             type: boolean   
         - in: query
-          name: ZELFSTART
-          description: Haal alle zelfstarters op.
+          name: AFWEZIG
+          description: Haal alle diensten op waar lid NIET aanwezig was
           required: false
           schema:
-            type: boolean   
-        - in: query
-          name: SLEEPKIST
-          description: Haal alle sleepkisten op.
-          required: false
-          schema:
-            type: boolean           
-        - in: query
-          name: TMG
-          description: Haal alle TMGs op.
-          required: false
-          schema:
-            type: boolean                           
+            type: boolean    
+                         
       responses:
         200:
           description: "OK, data succesvol opgehaald"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/view_vliegtuigen'
+                $ref: '#/components/schemas/view_diensten'
         304:
           description: "Data niet gemodificeerd, HASH in aanroep == hash in dataset"                     
         405:
@@ -186,7 +183,7 @@ paths:
         500:
           description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"         
 
-  /Vliegtuigen/DeleteObject:
+  /Diensten/DeleteObject:
     delete:
       security:
         - basicAuth: []    
@@ -194,7 +191,7 @@ paths:
       parameters:
         - in: query
           name: ID
-          description: Database ID van het vliegtuig record. Meerdere ID's in CSV formaat
+          description: Database ID van het diensten record. Meerdere ID's in CSV formaat
           required: true
           schema:
             type: string
@@ -206,7 +203,7 @@ paths:
             type: boolean            
       responses:
         204:
-          description: "Vliegtuig verwijderd"
+          description: "Dienst verwijderd"
         401:
           description: "Niet geautoriseerd, geen schrijfrechten"   
         404:
@@ -218,11 +215,11 @@ paths:
         500:
           description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)" 
 
-  /Vliegtuigen/RestoreObject:
+  /Diensten/RestoreObject:
     patch:
       security:
         - basicAuth: []    
-      summary: Record dat verwijderd is terug halen. VERWIJDERD marker kijrgt reset
+      summary: Record dat verwijderd is terug halen. VERWIJDERD marker krijgt reset
       parameters:
         - in: query
           name: ID
@@ -244,25 +241,25 @@ paths:
         500:
           description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)" 
 
-  /Vliegtuigen/SaveObject:
+  /Diensten/SaveObject:
     post:
       security:
         - basicAuth: []    
-      summary: Voeg nieuw vliegtuig toe
+      summary: Voeg nieuw dienst toe
       requestBody:
-        description: Vliegtuig data
+        description: Dienst data
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ref_vliegtuigen_in'
+              $ref: '#/components/schemas/oper_diensten_in'
       responses:
         200:
           description: "OK, data succesvol toegevoegd"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ref_vliegtuigen'  
+                $ref: '#/components/schemas/oper_diensten'  
         401:
           description: "Niet geautoriseerd, geen schrijfrechten"                    
         405:
@@ -270,27 +267,27 @@ paths:
         406:
           description: "Niet aanvaardbaar, input ontbreekt"          
         409:
-          description: "Conflict, registratie bestaat al"  
+          description: "Conflict, dienst is al ingevuld"  
         500:
           description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"                   
     put:
       security:
         - basicAuth: []    
-      summary: Update bestaand vliegtuig
+      summary: Update bestaande dienst
       requestBody:
-        description: Vliegtuig data
+        description: Dienst data
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ref_vliegtuigen_in'
+              $ref: '#/components/schemas/oper_diensten_in'
       responses:
         200:
           description: "OK, data succesvol aangepast"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ref_vliegtuigen'  
+                $ref: '#/components/schemas/oper_diensten'  
         401:
           description: "Niet geautoriseerd, geen schrijfrechten"  
         404:
@@ -300,7 +297,7 @@ paths:
         406:
           description: "Niet aanvaardbaar, input ontbreekt"          
         409:
-          description: "Conflict, registratie bestaat al"  
+          description: "Conflict, dienst is al ingevuld"  
         500:
           description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)" 
 
@@ -312,76 +309,43 @@ components:
       description: Eerst inloggen voordat API beschikbaar is
 
   schemas:
-    ref_vliegtuigen_in:
+    oper_diensten_in:
       type: object
       properties:
         ID:
-          description: Database ID van het vliegtuig record
+          description: Database ID van het dienten record
           type: integer
           format: int32
           example: 12871
-        REGISTRATIE:
-          description: Het registratie nummer van het vliegtuig
+        DATUM:
+          description: Datum van de rooster 
           type: string
-          maxLength: 8
-          example: "PH-1234"
-        CALLSIGN:
-          description: Optioneel het callsign van het vliegtuig
-          type: string
-          maxLength: 8
-          example: AA
-        FLARMCODE:
-          description: De flarmcode zoals deze wordt uitgezonden. Zo kunnen we ontvangen flarm data herleiden naar een vliegtuig uit de database
-          type: string
-          maxLength: 6
-          example: 123456
-        ZITPLAATSEN:
-          description: Het aantal zitplaatsen. Is 1 of 2. 
+          format: date
+          example: "2017-07-21"
+        LID_ID: 
+          description: Voor wie is deze dienst. Verwijzing naar leden tabel
           type: integer
-          format: int32
-          example: 1
-        ZELFSTART:
-          description: Kan het vliegtuig op eigen kracht starten. 
-          type: boolean
-          example: 0
-        CLUBKIST:
-          description: Is het een club vliegtuig? 
-          type: boolean
-          example: 1
-        TMG:
-          description: Is het een TMG? 
-          type: boolean
-          example: 0
-        SLEEPKIST:
-          description: Is het een sleepvliegtuig? 
-          type: boolean
-          example: 0
-        TYPE_ID:
-          description: Link naar vliegtuig type tabel. Alleen nodig voor clubvliegtuigen
+          example: 10412       
+        TYPE_DIENST_ID:
+          description: Link naar type tabel. Geeft aan wat voor type dienst 
           type: integer
           format: int32   
-          example: 12   
-        VOLGORDE:
-          description: Volgorde van vliegtuiglijst, bedoeld voor club vliegtuigen
-          type: integer
-          format: int32   
-          example: 12
-        INZETBAAR:
-          description: Mag het vliegtuig vliegen?
-          type: boolean
-          example: 1
-        OPMERKINGEN:
-          description: De opmerkingen die ingevoerd zijn
-          type: string
-          maxLength: 255
-          example: Radio stoort bij snelheid boven 150 km/h   
-
-    ref_vliegtuigen:
+          example: 12                
+ 
+    oper_diensten:
       type: object
       allOf:
-      - $ref: '#/components/schemas/ref_vliegtuigen_in' 
+      - $ref: '#/components/schemas/oper_diensten_in' 
       - type: object
         properties:
+          ROOSTER_ID: 
+            description: Verwijzing naar rooster tabel
+            type: integer
+            example: 10900  
+          INGEVOERD_DOOR_ID: 
+            description: Diegene die de dienst heeft ingevoerd. Verwijzing naar leden tabel
+            type: integer
+            example: 10900  
           VERWIJDERD:
             description: Is dit record gemarkeerd als verwijderd?  
             type: boolean
@@ -392,40 +356,44 @@ components:
             format: date-time 
             example: "2020-03-03 17:14:50Z" 
 
-    view_vliegtuigen_dataset:
+    view_diensten_dataset:
       type: object
       allOf:
-        - $ref: '#/components/schemas/ref_vliegtuigen'
+        - $ref: '#/components/schemas/oper_diensten'
         - type: object
           properties:
-            VLIEGTUIGTYPE: 
-              description: Beschrijving van het vliegtuig type
+            NAAM: 
+              description: Naam van het lid
               type: string
-              example: Discus CS
-            REG_CALL: 
-              description: Vliegtuig registratie en callsign
+              example: Juffrouw Ooievaar
+            INGEVOERD_DOOR: 
+              description: Naam van diegene die de dienst heeft ingevoerd
               type: string
-              example: PH-1076 (E2)      
+              example: Meneer Ooievaar      
+            TYPE_DIENST: 
+              description: Beschrijving van de dienst
+              type: string
+              example: Ochtend lierist                
 
-    view_vliegtuigen:
+    view_diensten:
       type: object
       properties:
         totaal:
           description: Aantal records dat voldoet aan de criteria in de database
           type: integer
           format: int32
-          example: 287
+          example: 51
         laatste_aanpassing:
           description: Tijdstempel van laaste aanpassing in de database van de records dat voldoet aan de criteria
           type: string
           format: date-time 
-          example: "2020-02-12 21:15:16" 
+          example: "2016-12-07 09:10:19" 
         hash: 
           description: hash van de dataset
           type: string
-          example: "400000f"            
+          example: "40ab00b"            
         dataset:
           description: De dataset met records
           type: array
           items: 
-            $ref: '#/components/schemas/view_vliegtuigen_dataset'
+            $ref: '#/components/schemas/view_diensten_dataset'

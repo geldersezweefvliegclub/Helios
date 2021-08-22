@@ -131,7 +131,6 @@
 					`l`.`NOODNUMMER`, 
 					`l`.`TELEFOON`, 
 					`l`.`INSTRUCTEUR`, 
-					`l`.`DDWV_CREW`, 
 					`l`.`STARTLEIDER`, 
 					`l`.`LIERIST`,
 					`l`.`CIMT`,

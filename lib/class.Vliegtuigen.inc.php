@@ -32,6 +32,8 @@
 					`ZELFSTART` tinyint UNSIGNED NOT NULL DEFAULT '0',
 					`SLEEPKIST` tinyint UNSIGNED NOT NULL DEFAULT '0',
 					`VOLGORDE` tinyint UNSIGNED DEFAULT NULL,
+					`INZETBAAR` tinyint UNSIGNED NOT NULL DEFAULT '1',
+					`OPMERKINGEN` text DEFAULT NULL,
 					`VERWIJDERD` tinyint UNSIGNED NOT NULL DEFAULT '0',
 					`LAATSTE_AANPASSING` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 					
@@ -598,11 +600,18 @@
 			if (array_key_exists($field, $input))
 				$record[$field] = isINT($input[$field], $field, true);
 
+			$field = 'INZETBAAR';
+				if (array_key_exists($field, $input))
+					$record[$field] = isBOOL($input[$field], $field);	
+
 			if (array_key_exists('FLARMCODE', $input))
 				$record['FLARMCODE'] = $input['FLARMCODE'];
 
 			if (array_key_exists('CALLSIGN', $input))
 				$record['CALLSIGN'] = $input['CALLSIGN'];
+
+			if (array_key_exists('OPMERKINGEN', $input))
+				$record['OPMERKINGEN'] = $input['OPMERKINGEN'];
 
 			return $record;
 		}	
@@ -640,6 +649,9 @@
 
 			if (isset($record['SLEEPKIST']))
 				$retVal['SLEEPKIST']  = $record['SLEEPKIST'] == "1" ? true : false;
+
+			if (isset($record['INZETBAAR']))
+				$retVal['INZETBAAR']  = $record['INZETBAAR'] == "1" ? true : false;	
 
 			if (isset($record['VERWIJDERD']))
 				$retVal['VERWIJDERD']  = $record['VERWIJDERD'] == "1" ? true : false;

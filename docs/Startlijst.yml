@@ -933,6 +933,9 @@ components:
             STARTS:
               type: integer
               format: int32
+            INSTRUCTIE_STARTS:
+              type: integer
+              format: int32              
             VLIEGTIJD: 
               type: string  
 

@@ -292,7 +292,7 @@
 				// 603 = Jeugdlid
 				// 606 = Donateur
 				// 625 = DDWV
-				$where .= " AND ((LIDTYPE_ID IN (601, 602,603, 606, 625)";  
+				$where .= " AND LIDTYPE_ID IN (601, 602,603, 606, 625)";  
 			}
 
 			foreach ($params as $key => $value)

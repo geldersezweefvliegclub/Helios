@@ -795,11 +795,13 @@
 				$lidID = $l->getUserFromSession();				
 			}
 
+			$isInstructeur = false;
 			$l = MaakObject('Leden');
 			$lid = $l->getObject($lidID);
 			if ($lid['INSTRUCTEUR'] == 1)		// Voor instructeurs tellen ook de instructie starts mee
 			{
-				$where .= sprintf(" AND ((VLIEGER_ID = '%d') OR (INZITTENDE_ID = %d))", $lidID, $lidID);	 
+				$where .= sprintf(" AND ((VLIEGER_ID = '%d') OR (INZITTENDE_ID = %d))", $lidID, $lidID);	
+				$isInstructeur = true; 
 			}
 			else
 			{
@@ -842,6 +844,7 @@
 			
 			$vliegtuigen = array();
 			$startMethode = array();
+			$instructieStarts = 0;
 			$totaalAantalStarts = 0;
 			$totaallVliegtijd = 0;
 
@@ -877,7 +880,12 @@
 				else
 				{
 					$startMethode[$START_METHODE]['AANTAL']++;
-				}				
+				}		
+				
+				if (($isInstructeur) && ($logboek[$i]['INZITTENDE_ID'] == $lidID))
+				{
+					$instructieStarts++;
+				}
 			}
 
 			$keys = array_keys($vliegtuigen);
@@ -897,6 +905,7 @@
 			$mm = $totaallVliegtijd % 60;
 
 			$retVal['jaar']['STARTS'] = $totaalAantalStarts;
+			$retVal['jaar']['INSTRUCTIE_STARTS'] = $instructieStarts;
 			$retVal['jaar']['VLIEGTIJD'] = sprintf("%d:%02d", intval($hh), $mm);
 
 			return $retVal;

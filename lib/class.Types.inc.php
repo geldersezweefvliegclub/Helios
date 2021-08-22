@@ -178,15 +178,26 @@
 					(1604, 16, '2-3',   '2-3 m/s stijgen', NULL, 0),
 					(1605, 16, '> 3',   'meer dan 3 m/s stijgen', NULL, 0),
 					
-					(1700, 17, '0/8',   	'0/8 bewolking', NULL, 0),
-					(1701, 17, '1/8',   	'1/8 bewolking', NULL, 0),
-					(1702, 17, '2/8',   	'2/8 bewolking', NULL, 0),
-					(1703, 17, '3/8',   	'3/8 bewolking', NULL, 0),
-					(1704, 17, '4/8',   	'4/8 bewolking', NULL, 0),
-					(1705, 17, '5/8',   	'5/8 bewolking', NULL, 0),
-					(1706, 17, '6/8',   	'6/8 bewolking', NULL, 0),
-					(1707, 17, '7/8',   	'7/8 bewolking', NULL, 0),
-					(1708, 17, '8/8',   	'8/8 bewolking', NULL, 0);";
+					(1700, 17, '0/8',   '0/8 bewolking', NULL, 0),
+					(1701, 17, '1/8',   '1/8 bewolking', NULL, 0),
+					(1702, 17, '2/8',   '2/8 bewolking', NULL, 0),
+					(1703, 17, '3/8',   '3/8 bewolking', NULL, 0),
+					(1704, 17, '4/8',   '4/8 bewolking', NULL, 0),
+					(1705, 17, '5/8',   '5/8 bewolking', NULL, 0),
+					(1706, 17, '6/8',   '6/8 bewolking', NULL, 0),
+					(1707, 17, '7/8',   '7/8 bewolking', NULL, 0),
+					(1708, 17, '8/8',   '8/8 bewolking', NULL, 0),
+
+					(1800, 18, NULL,   	'Ochtend DDI', 			 1, 0),
+					(1801, 18, NULL,   	'Ochtend Insructeur', 	 2, 0),
+					(1802, 18, NULL,   	'Ochtend Lierist',   	 3, 0),
+					(1803, 18, NULL,   	'Ochtend Hulplierist', 	 4, 0),
+					(1804, 18, NULL,   	'Ochtend Startleider',   5, 0),
+					(1805, 18, NULL,   	'Middag DDI', 			 6, 0),
+					(1806, 18, NULL,   	'Middag Instructeur', 	 7, 0),
+					(1807, 18, NULL,   	'Middag Lierist', 	 	 8, 0),
+					(1808, 18, NULL,   	'Middag Hulplierist', 	 9, 0),
+					(1809, 18, NULL,   	'Middag Startleider', 	10, 0);";
 
 
 				$query = sprintf("
