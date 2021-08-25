@@ -177,6 +177,8 @@
 				throw new Exception("406;Geen TypeDienst in aanroep;");                
 
 			$conditie = array();
+			$conditie['VERWIJDERD'] = "0";
+
             isDATE($Datum, "DATUM");
 			$conditie['DATUM'] = $Datum;
             $conditie['TYPE_DIENST_ID'] = isINT($TypeDienst, "TYPE_DIENST");

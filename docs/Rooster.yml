@@ -314,56 +314,6 @@ components:
           type: string
           format: date
           example: "2017-07-21"
-        OCHTEND_DDI_ID:
-          description: De DDI voor het ochtend bedrijf. Link naar leden tabel 
-          type: integer
-          format: int32
-          example: 129          
-        OCHTEND_INSTRUCTEUR_ID:
-          description: De instructeur voor het ochtend bedrijf. Link naar leden tabel 
-          type: integer
-          format: int32
-          example: 19
-        OCHTEND_STARTLEIDER_ID:
-          description: De startleider voor het ochtend bedrijf. Link naar leden tabel 
-          type: integer
-          format: int32
-          example: 24          
-        OCHTEND_LIERIST_ID:
-          description: De lierist voor het ochtend bedrijf. Link naar leden tabel 
-          type: integer
-          format: int32
-          example: 722
-        OCHTEND_HULPLIERIST_ID:
-          description: De hulplierist voor het ochtend bedrijf. Link naar leden tabel 
-          type: integer
-          format: int32
-          example: 214        
-        MIDDAG_DDI_ID:
-          description: De DDI voor het middag bedrijf. Link naar leden tabel 
-          type: integer
-          format: int32
-          example: 129          
-        MIDDAG_INSTRUCTEUR_ID:
-          description: De instructeur voor het middag bedrijf. Link naar leden tabel 
-          type: integer
-          format: int32
-          example: 129
-        MIDDAG_STARTLEIDER_ID:
-          description: De startleider voor het middag bedrijf. Link naar leden tabel 
-          type: integer
-          format: int32
-          example: 24          
-        MIDDAG_LIERIST_ID:
-          description: De lierist voor het middag bedrijf. Link naar leden tabel 
-          type: integer
-          format: int32
-          example: 12
-        MIDDAG_HULPLIERIST_ID:
-          description: De hulplierist voor het middag bedrijf. Link naar leden tabel 
-          type: integer
-          format: int32
-          example: 214  
         DDWV:
           description: Is het een DDWV dag? 
           type: boolean
@@ -371,7 +321,13 @@ components:
         CLUB_BEDRIJF:
           description: Is er een clubbedrijf 
           type: boolean
-          example: 1        
+          example: 1      
+        OPMERKINGEN:
+          description: De opmerkingen die voor deze dag van toepassing zijn
+          type: string
+          maxLength: 255
+          example: EH-R122 actief ivm oefening gyros
+
 
     oper_rooster:
       type: object
@@ -393,49 +349,7 @@ components:
       type: object
       allOf:
         - $ref: '#/components/schemas/oper_rooster'
-        - type: object
-          properties:
-            OCHTEND_DDI:
-              description: De naam van de DDI voor het ochtend bedrijf
-              type: string
-              example: Meneer de Uil        
-            OCHTEND_INSTRUCTEUR:
-              description: De naam van de instructeur voor het ochtend bedrijf
-              type: string
-              example: Juffrouw Ooievaar
-            OCHTEND_STARTLEIDER:
-              description: De naam van de startleider voor het ochtend bedrijf
-              type: string
-              example: Willem Bever          
-            OCHTEND_LIERIST:
-              description: De naam van de lierist voor het ochtend bedrijf 
-              type: string
-              example: Truus de Mier
-            OCHTEND_HULPLIERIST:
-              description: De naam van de hulplierist voor het ochtend bedrijf
-              type: string
-              example: Gerrit de Postduif    
-            MIDDAG_DDI:
-              description: De naam van de DDI voor het middag bedrijf
-              type: string
-              example: Teun Stier        
-            MIDDAG_INSTRUCTEUR:
-              description: De naam van de instructeur voor het middag bedrijf
-              type: string
-              example: Lowieke de Vos
-            MIDDAG_STARTLEIDER:
-              description: De naam van de startleider voor het middag bedrijf
-              type: string
-              example: Bor de Wolf          
-            MIDDAG_LIERIST:
-              description: De naam van de lierist voor het middag bedrijf 
-              type: string
-              example: Zoef de Haas
-            MIDDAG_HULPLIERIST:
-              description: De naam van de hulplierist voor het middag bedrijf 
-              type: string
-              example: Isadora Paradijsvogel  
-
+ 
     view_rooster:
       type: object
       properties:

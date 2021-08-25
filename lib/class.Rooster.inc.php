@@ -25,45 +25,25 @@
 					`DATUM` date NOT NULL,
 					`DDWV` tinyint UNSIGNED NOT NULL DEFAULT 0,
 					`CLUB_BEDRIJF` tinyint UNSIGNED NOT NULL DEFAULT 1,
-					`OCHTEND_DDI_ID` mediumint UNSIGNED DEFAULT NULL,
-					`OCHTEND_INSTRUCTEUR_ID` mediumint UNSIGNED DEFAULT NULL,
-					`OCHTEND_LIERIST_ID` mediumint UNSIGNED DEFAULT NULL,
-					`OCHTEND_HULPLIERIST_ID` mediumint UNSIGNED DEFAULT NULL,
-					`OCHTEND_STARTLEIDER_ID` mediumint UNSIGNED DEFAULT NULL,
-					`MIDDAG_DDI_ID` mediumint UNSIGNED DEFAULT NULL,
-					`MIDDAG_INSTRUCTEUR_ID` mediumint UNSIGNED DEFAULT NULL,
-					`MIDDAG_LIERIST_ID` mediumint UNSIGNED DEFAULT NULL,
-					`MIDDAG_HULPLIERIST_ID` mediumint UNSIGNED DEFAULT NULL,
-					`MIDDAG_STARTLEIDER_ID` mediumint UNSIGNED DEFAULT NULL,
+					`OPMERKINGEN` text DEFAULT NULL,
 					`VERWIJDERD` tinyint UNSIGNED NOT NULL DEFAULT '0',
 					`LAATSTE_AANPASSING` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 					 
 					CONSTRAINT ID_PK PRIMARY KEY (ID),
 						INDEX (`DATUM`), 
 						INDEX (`DDWV`), 
-						INDEX (`VERWIJDERD`),
-
-					FOREIGN KEY (OCHTEND_DDI_ID) REFERENCES ref_leden(ID),		
-					FOREIGN KEY (OCHTEND_INSTRUCTEUR_ID) REFERENCES ref_leden(ID),	
-					FOREIGN KEY (OCHTEND_LIERIST_ID) REFERENCES ref_leden(ID),	
-					FOREIGN KEY (OCHTEND_HULPLIERIST_ID) REFERENCES ref_leden(ID),	
-					FOREIGN KEY (OCHTEND_STARTLEIDER_ID) REFERENCES ref_leden(ID),	
-					FOREIGN KEY (MIDDAG_DDI_ID) REFERENCES ref_leden(ID),	
-					FOREIGN KEY (MIDDAG_INSTRUCTEUR_ID) REFERENCES ref_leden(ID),	
-					FOREIGN KEY (MIDDAG_LIERIST_ID) REFERENCES ref_leden(ID),	
-					FOREIGN KEY (MIDDAG_HULPLIERIST_ID) REFERENCES ref_leden(ID),	
-					FOREIGN KEY (MIDDAG_STARTLEIDER_ID) REFERENCES ref_leden(ID)	
+						INDEX (`VERWIJDERD`)	
 				)", $this->dbTable);
 			parent::DbUitvoeren($query);
 
 			if (isset($FillData))
 			{
 				$inject = array(
-					"1, '####-05-01', 1, 0, 10001, 10265, 10408, NULL, 10001, 10115, 10001, 10804, NULL, NULL",
-					"2, '####-05-02', 1, 0, 10115, 10470, 10804, NULL, NULL,  10115, 10408, NULL,  NULL, 10001",
-					"3, '####-05-03', 1, 0, 10470, 10001, 10804, NULL, NULL,  10470, NULL,  NULL,  NULL, NULL",
-					"4, '####-05-04', 1, 0, 10001, 10265, NULL,  NULL, NULL,  10470, NULL,  NULL,  NULL, NULL",
-					"5, '####-05-05', 1, 0, NULL,  10470, 10408, NULL, 10408, 10470, NULL,  10858, NULL, 10408");
+					"1, '####-05-01', 1, 0",
+					"2, '####-05-02', 1, 0",
+					"3, '####-05-03', 1, 0",
+					"4, '####-05-04', 1, 0",
+					"5, '####-05-05', 1, 0");
 
 				$inject = str_replace("####", strval(date("Y")), $inject);		// rooster in dit jaar
 				$i = 0;    
@@ -75,17 +55,7 @@
 								`ID`, 
 								`DATUM`, 
 								`DDWV`, 
-								`CLUB_BEDRIJF`, 
-								`OCHTEND_DDI_ID`, 
-								`OCHTEND_INSTRUCTEUR_ID`, 
-								`OCHTEND_LIERIST_ID`, 
-								`OCHTEND_HULPLIERIST_ID`, 
-								`OCHTEND_STARTLEIDER_ID`, 
-								`MIDDAG_DDI_ID`, 
-								`MIDDAG_INSTRUCTEUR_ID`, 
-								`MIDDAG_LIERIST_ID`, 
-								`MIDDAG_HULPLIERIST_ID`, 
-								`MIDDAG_STARTLEIDER_ID`) 
+								`CLUB_BEDRIJF`) 
 							VALUES
 								(%s);", $this->dbTable, $record);
 					$i++;
@@ -105,29 +75,9 @@
 				
 			$query = "CREATE VIEW `%s` AS
 				SELECT 
-					rooster.*,
-					ref_leden.NAAM AS OCHTEND_DDI,
-					ref_leden_1.NAAM AS OCHTEND_INSTRUCTEUR,
-					ref_leden_2.NAAM AS OCHTEND_HULPLIERIST,
-					ref_leden_3.NAAM AS OCHTEND_STARTLEIDER,
-					ref_leden_4.NAAM AS MIDDAG_DDI,
-					ref_leden_5.NAAM AS MIDDAG_INSTRUCTEUR,
-					ref_leden_6.NAAM AS MIDDAG_LIERIST,
-					ref_leden_7.NAAM AS OCHTEND_LIERIST,
-					ref_leden_8.NAAM AS MIDDAG_HULPLIERIST,
-					ref_leden_9.NAAM AS MIDDAG_STARTLEIDER
+					rooster.*
 				FROM
-					`%s` AS `rooster`
-					LEFT JOIN ref_leden         			ON (rooster.OCHTEND_DDI_ID = ref_leden.ID)
-					LEFT JOIN ref_leden AS ref_leden_1      ON (rooster.OCHTEND_INSTRUCTEUR_ID = ref_leden_1.ID)
-					LEFT JOIN ref_leden AS ref_leden_2      ON (rooster.OCHTEND_HULPLIERIST_ID = ref_leden_2.ID)
-					LEFT JOIN ref_leden AS ref_leden_3      ON (rooster.OCHTEND_STARTLEIDER_ID = ref_leden_3.ID)
-					LEFT JOIN ref_leden AS ref_leden_4      ON (rooster.MIDDAG_DDI_ID = ref_leden_4.ID)
-					LEFT JOIN ref_leden AS ref_leden_5      ON (rooster.MIDDAG_INSTRUCTEUR_ID = ref_leden_5.ID)
-					LEFT JOIN ref_leden AS ref_leden_6      ON (rooster.MIDDAG_LIERIST_ID = ref_leden_6.ID)
-					LEFT JOIN ref_leden AS ref_leden_7      ON (rooster.OCHTEND_LIERIST_ID = ref_leden_7.ID)
-					LEFT JOIN ref_leden AS ref_leden_8      ON (rooster.MIDDAG_HULPLIERIST_ID = ref_leden_8.ID)
-					LEFT JOIN ref_leden AS ref_leden_9      ON (rooster.MIDDAG_STARTLEIDER_ID = ref_leden_9.ID)				
+					`%s` AS `rooster`			
 				WHERE
 					`rooster`.`VERWIJDERD` = %d  
 				ORDER BY 
@@ -464,35 +414,6 @@
 			if (parent::NumRows() > 0)
 				throw new Exception("409;Datum bestaat al;");
 	
-			$l = MaakObject('Login');
-
-			if (!$l->isBeheerder() && !$l->isBeheerderDDWV() && !$l->isRooster())
-			{
-				// als je geen speciale rechten hebt, dan mag je
-				// 1. een leeg rooster record aanmaken
-				// 2. een rooster record aanmaken met een dienst voor jezelf
-				
-				if (isset($RoosterData['OCHTEND_DDI_ID']) && $RoosterData['OCHTEND_DDI_ID'] != $l->getUserFromSession())
-					throw new Exception("401;Geen schrijfrechten;");
-				if (isset($RoosterData['OCHTEND_INSTRUCTEUR_ID']) && $RoosterData['OCHTEND_INSTRUCTEUR_ID'] != $l->getUserFromSession())
-					throw new Exception("401;Geen schrijfrechten;");			
-				if (isset($RoosterData['OCHTEND_STARTLEIDER_ID']) && $RoosterData['OCHTEND_STARTLEIDER_ID'] != $l->getUserFromSession())
-					throw new Exception("401;Geen schrijfrechten;");
-				if (isset($RoosterData['OCHTEND_LIERIST_ID']) && $RoosterData['OCHTEND_LIERIST_ID'] != $l->getUserFromSession())
-					throw new Exception("401;Geen schrijfrechten;");	
-				if (isset($RoosterData['OCHTEND_HULPLIERIST_ID']) && $RoosterData['OCHTEND_HULPLIERIST_ID'] != $l->getUserFromSession())
-					throw new Exception("401;Geen schrijfrechten;");
-				if (isset($RoosterData['MIDDAG_DDI_ID']) && $RoosterData['MIDDAG_DDI_ID'] != $l->getUserFromSession())
-					throw new Exception("401;Geen schrijfrechten;");	
-				if (isset($RoosterData['MIDDAG_INSTRUCTEUR_ID']) && $RoosterData['MIDDAG_INSTRUCTEUR_ID'] != $l->getUserFromSession())
-					throw new Exception("401;Geen schrijfrechten;");
-				if (isset($RoosterData['MIDDAG_STARTLEIDER_ID']) && $RoosterData['MIDDAG_STARTLEIDER_ID'] != $l->getUserFromSession())
-					throw new Exception("401;Geen schrijfrechten;");	
-				if (isset($RoosterData['MIDDAG_LIERIST_ID']) && $RoosterData['MIDDAG_LIERIST_ID'] != $l->getUserFromSession())
-					throw new Exception("401;Geen schrijfrechten;");
-				if (isset($RoosterData['MIDDAG_HULPLIERIST_ID']) && $RoosterData['MIDDAG_HULPLIERIST_ID'] != $l->getUserFromSession())
-					throw new Exception("401;Geen schrijfrechten;");
-			}
 			// Neem data over uit aanvraag
 			$d = $this->RequestToRecord($RoosterData);
 								
@@ -509,6 +430,7 @@
 		{
 			Debug(__FILE__, __LINE__, sprintf("Rooster.UpdateObject(%s)", print_r($RoosterData, true)));
 			
+			$l = MaakObject('Login');
 			if ($l->magSchrijven() == false)	
 				throw new Exception("401;Geen schrijfrechten;");
 
@@ -581,46 +503,6 @@
 			$field = 'DATUM';
 			if (array_key_exists($field, $input))
 				$record[$field] = isDATE($input[$field], $field);
-
-			$field = 'OCHTEND_DDI_ID';
-			if (array_key_exists($field, $input))
-				$record[$field] = isINT($input[$field], $field, true, 'Leden');
-
-			$field = 'OCHTEND_INSTRUCTEUR_ID';
-			if (array_key_exists($field, $input))
-				$record[$field] = isINT($input[$field], $field, true, 'Leden');
-			
-			$field = 'OCHTEND_STARTLEIDER_ID';
-			if (array_key_exists($field, $input))
-				$record[$field] = isINT($input[$field], $field, true, 'Leden');
-		
-			$field = 'OCHTEND_LIERIST_ID';
-			if (array_key_exists($field, $input))
-				$record[$field] = isINT($input[$field], $field, true, 'Leden');
-
-			$field = 'OCHTEND_HULPLIERIST_ID';
-			if (array_key_exists($field, $input))
-				$record[$field] = isINT($input[$field], $field, true, 'Leden');
-			
-			$field = 'MIDDAG_DDI_ID';
-			if (array_key_exists($field, $input))
-				$record[$field] = isINT($input[$field], $field, true, 'Leden');
-									
-			$field = 'MIDDAG_INSTRUCTEUR_ID';
-			if (array_key_exists($field, $input))
-				$record[$field] = isINT($input[$field], $field, true, 'Leden');
-								
-			$field = 'MIDDAG_STARTLEIDER_ID';
-			if (array_key_exists($field, $input))
-				$record[$field] = isINT($input[$field], $field, true, 'Leden');
-										
-			$field = 'MIDDAG_LIERIST_ID';
-			if (array_key_exists($field, $input))
-				$record[$field] = isINT($input[$field], $field, true, 'Leden');
-
-				$field = 'MIDDAG_HULPLIERIST_ID';
-			if (array_key_exists($field, $input))
-				$record[$field] = isINT($input[$field], $field, true, 'Leden');
 															
 			$field = 'DDWV';
 			if (array_key_exists($field, $input))
@@ -629,6 +511,9 @@
 			$field = 'CLUB_BEDRIJF';
 			if (array_key_exists($field, $input))
 				$record[$field] = isBOOL($input[$field], $field);
+
+			if (array_key_exists('OPMERKINGEN', $input))
+				$record['OPMERKINGEN'] = $input['OPMERKINGEN']; 
 
 			return $record;
 		}
@@ -642,37 +527,7 @@
 
 			// vermengvuldigen met 1 converteer naar integer
 			if (isset($record['ID']))
-				$retVal['ID']  = $record['ID'] * 1;	
-
-			if (isset($record['OCHTEND_DDI_ID']))
-				$retVal['OCHTEND_DDI_ID']  = $record['OCHTEND_DDI_ID'] * 1;
-
-			if (isset($record['OCHTEND_INSTRUCTEUR_ID']))
-				$retVal['OCHTEND_INSTRUCTEUR_ID']  = $record['OCHTEND_INSTRUCTEUR_ID'] * 1;
-
-			if (isset($record['OCHTEND_LIERIST_ID']))
-				$retVal['OCHTEND_LIERIST_ID']  = $record['OCHTEND_LIERIST_ID'] * 1;	
-			
-			if (isset($record['OCHTEND_HULPLIERIST_ID']))
-				$retVal['OCHTEND_HULPLIERIST_ID']  = $record['OCHTEND_HULPLIERIST_ID'] * 1;	
-
-			if (isset($record['OCHTEND_STARTLEIDER_ID']))
-				$retVal['OCHTEND_STARTLEIDER_ID']  = $record['OCHTEND_STARTLEIDER_ID'] * 1;	
-
-			if (isset($record['MIDDAG_DDI_ID']))
-				$retVal['MIDDAG_DDI_ID']  = $record['MIDDAG_DDI_ID'] * 1;
-			
-			if (isset($record['MIDDAG_INSTRUCTEUR_ID']))
-				$retVal['MIDDAG_INSTRUCTEUR_ID']  = $record['MIDDAG_INSTRUCTEUR_ID'] * 1;		
-
-			if (isset($record['MIDDAG_LIERIST_ID']))
-				$retVal['MIDDAG_LIERIST_ID']  = $record['MIDDAG_LIERIST_ID'] * 1;	
-			
-			if (isset($record['MIDDAG_HULPLIERIST_ID']))
-				$retVal['MIDDAG_HULPLIERIST_ID']  = $record['MIDDAG_HULPLIERIST_ID'] * 1;	
-
-			if (isset($record['MIDDAG_STARTLEIDER_ID']))
-				$retVal['MIDDAG_STARTLEIDER_ID']  = $record['MIDDAG_STARTLEIDER_ID'] * 1;	
+				$retVal['ID']  = $record['ID'] * 1;		
 
 			// booleans				
 			if (isset($record['CLUB_BEDRIJF']))
