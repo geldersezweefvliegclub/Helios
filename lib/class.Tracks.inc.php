@@ -5,6 +5,8 @@
 		{
 			parent::__construct();
 			$this->dbTable = "oper_tracks";
+			$this->dbView = "tracks_view";
+			$this->Naam = "Tracks";
 		}
 		
 		/*
@@ -112,6 +114,9 @@
 		{
 			Debug(__FILE__, __LINE__, sprintf("Tracks.GetObject(%s)", $ID));	
 
+			if (!$this->heeftDataToegang())
+				throw new Exception("401;Geen leesrechten;");
+
 			if ($ID == null)
 				throw new Exception("406;Geen ID in aanroep;");
 
@@ -206,6 +211,9 @@
 			$velden = "*";
 			$alleenVerwijderd = false;
 			$query_params = array();
+
+			if (!$this->heeftDataToegang())
+				throw new Exception("401;Geen leesrechten;");
 
 			foreach ($params as $key => $value)
 			{
@@ -327,7 +335,7 @@
 			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s, HASH=%s", $retVal['totaal'], $retVal['laatste_aanpassing'], $retVal['hash']));	
 
 			if ($retVal['hash'] == $hash)
-				throw new Exception("304;Dataset ongewijzigd;");
+				throw new Exception("704;Dataset ongewijzigd;");
 
 			if ($alleenLaatsteAanpassing)
 			{
@@ -363,14 +371,17 @@
 		function VerwijderObject($id, $verificatie = true)
 		{
 			Debug(__FILE__, __LINE__, sprintf("Tracks.VerwijderObject('%s', %s)", $id, (($verificatie === false) ? "False" :  $verificatie)));	
-			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)
-				throw new Exception("401;Geen schrijfrechten;");
-
 			if ($id == null)
 				throw new Exception("406;Geen ID in aanroep;");
-			
-			isCSV($id, "ID");					
+
+			isCSV($id, "ID");	
+			$trk = $this->GetObject($id);
+
+			$l = MaakObject('Login');
+
+			if (($l->getUserFromSession() != $trk["INSTRUCTEUR_ID"]) && (!$this->heeftDataToegang(null, false)))
+				throw new Exception("401;Geen schrijfrechten;");
+							
 			parent::MarkeerAlsVerwijderd($id, $verificatie);
 		}
 		
@@ -381,8 +392,7 @@
 		{
 			Debug(__FILE__, __LINE__, sprintf("Tracks.HerstelObject('%s')", $id));
 
-			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)
+			if (!$this->heeftDataToegang(null, false))
 				throw new Exception("401;Geen schrijfrechten;");
 
 			if ($id == null)
@@ -399,8 +409,7 @@
 		{
 			Debug(__FILE__, __LINE__, sprintf("Tracks.AddObject(%s)", print_r($TrackData, true)));
 			
-			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)	
+			if (!$this->heeftDataToegang(null, true))
 				throw new Exception("401;Geen schrijfrechten;");
 
 			if ($TrackData == null)
@@ -443,8 +452,7 @@
 		{
 			Debug(__FILE__, __LINE__, sprintf("Tracks.SaveObject(%s)", print_r($TrackData, true)));
 			
-			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)	
+			if (!$this->heeftDataToegang(null, false))
 				throw new Exception("401;Geen schrijfrechten;");
 
 			if ($TrackData == null)

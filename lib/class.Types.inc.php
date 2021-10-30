@@ -5,6 +5,8 @@
 		{
 			parent::__construct();
 			$this->dbTable = "ref_types";
+			$this->dbView = "types_view";
+			$this->Naam = "Types";
 		}
 		
 		/*
@@ -23,7 +25,7 @@
 				CREATE TABLE `%s` (
 					`ID` mediumint  UNSIGNED NOT NULL AUTO_INCREMENT,
 					`GROEP` smallint UNSIGNED NOT NULL,
-					`CODE` varchar(5) DEFAULT NULL,
+					`CODE` varchar(10) DEFAULT NULL,
 					`EXT_REF` varchar(25) DEFAULT NULL,
 					`OMSCHRIJVING` varchar(75) NOT NULL,
 					`SORTEER_VOLGORDE` tinyint UNSIGNED DEFAULT NULL,
@@ -415,7 +417,7 @@
 			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s, HASH=%s", $retVal['totaal'], $retVal['laatste_aanpassing'], $retVal['hash']));
 
 			if ($retVal['hash'] == $hash)
-				throw new Exception("304;Dataset ongewijzigd;");
+				throw new Exception("704;Dataset ongewijzigd;");
 
 			if ($alleenLaatsteAanpassing)
 			{
@@ -451,8 +453,8 @@
 		function VerwijderObject($id = null, $verificatie = true)
 		{
 			Debug(__FILE__, __LINE__, sprintf("Types.VerwijderObject('%s', %s)", $id, (($verificatie === false) ? "False" :  $verificatie)));
-			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)
+
+			if (!$this->heeftDataToegang(null, false))
 				throw new Exception("401;Geen schrijfrechten;");
 
 			if ($id == null)
@@ -469,8 +471,7 @@
 		{
 			Debug(__FILE__, __LINE__, sprintf("Types.HerstelObject('%s')", $id));
 
-			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)
+			if (!$this->heeftDataToegang(null, false))
 				throw new Exception("401;Geen schrijfrechten;");
 
 			if ($id == null)
@@ -487,8 +488,7 @@
 		{
 			Debug(__FILE__, __LINE__, sprintf("Types.AddObject(%s)", print_r($TypeData, true)));
 			
-			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)
+			if (!$this->heeftDataToegang(null, false))
 				throw new Exception("401;Geen schrijfrechten;");
 			
 			if ($TypeData == null)
@@ -531,8 +531,7 @@
 		{
 			Debug(__FILE__, __LINE__, sprintf("Types.UpdateObject(%s)", print_r($TypeData, true)));
 			
-			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)
+			if (!$this->heeftDataToegang(null, false))
 				throw new Exception("401;Geen schrijfrechten;");
 
 			if ($TypeData == null)

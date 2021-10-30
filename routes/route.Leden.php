@@ -229,12 +229,7 @@ $app->post('/Leden/UploadAvatar', function (Request $request, Response $response
         $params = $request->getParsedBody();
         $uploadedFiles = $request->getUploadedFiles();
 
-        $file = $uploadedFiles['FILE'];
-        if ($file->getError() !== UPLOAD_ERR_OK) {
-            Debug(__FILE__, __LINE__, "Leden.UploadAvatar upload mislukt");
-            throw new Exception("500;Upload mislukt;");		
-        }
-        $avatar_url = $obj->UploadAvatar($params['ID'], $file);    // Hier staat de logica voor deze functie
+        $avatar_url = $obj->UploadAvatar($params['ID'], $params['FILE']);    // Hier staat de logica voor deze functie
         $response->getBody()->write(json_encode($avatar_url));
         return $response->withHeader('Content-Type', 'application/json');
     }

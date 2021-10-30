@@ -110,7 +110,7 @@ $app->get('/AanwezigLeden/GetObjects', function (Request $request, Response $res
 
         header("X-Error-Message: $message", true, intval($httpStatus));
         header("Content-Type: text/plain");
-        die;
+        exit;
     }
 });
 

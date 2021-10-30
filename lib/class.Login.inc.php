@@ -67,17 +67,16 @@ require ("include/PasswordHash.php");
 		function getUserInfo($datum = null)
 		{			
 			$Userinfo = array();
-			$Userinfo['magSchrijven'] = $this->magSchrijven();
 
 			// initieele waarde, weten we zeker dat array gevuld is
 			$Userinfo['isBeheerderDDWV'] = false;
 			$Userinfo['isBeheerder'] = false;
-			$Userinfo['isStartleider'] = false;
 			$Userinfo['isInstructeur'] = false;
 
 			$Userinfo['isCIMT'] = false;
 			$Userinfo['isStarttoren'] = false;
 			$Userinfo['isRooster'] = false;		
+			$Userinfo['isDDWVCrew'] = false;
 
 			$Userinfo['isClubVlieger'] = false;
 			$Userinfo['isDDWV'] = false;
@@ -105,12 +104,12 @@ require ("include/PasswordHash.php");
 
 				$Userinfo['isBeheerderDDWV'] 	= $l->isPermissie("DDWV_BEHEERDER", $LidData['ID'], $LidData);
 				$Userinfo['isBeheerder'] 		= $l->isPermissie("BEHEERDER", $LidData['ID'], $LidData);
-				$Userinfo['isStartleider'] 		= $l->isStartleider($LidData['ID'], $LidData, $datum);
 				$Userinfo['isInstructeur'] 		= $l->isPermissie("INSTRUCTEUR", $LidData['ID'], $LidData);
 
 				$Userinfo['isCIMT'] 			= $l->isPermissie("CIMT", $LidData['ID'], $LidData);
 				$Userinfo['isRooster'] 			= $l->isPermissie("ROOSTER", $LidData['ID'], $LidData);
 				$Userinfo['isStarttoren'] 		= $l->isPermissie("STARTTOREN", $LidData['ID'], $LidData);
+				$Userinfo['isDDWVCrew'] 		= $l->isPermissie("DDWV_CREW", $LidData['ID'], $LidData);
 
 				$Userinfo['isClubVlieger'] 		= $l->isClubVlieger($LidData['ID'], $LidData);
 				$Userinfo['isDDWV'] 			= $l->isDDWV($LidData['ID'], $LidData);
@@ -266,33 +265,6 @@ require ("include/PasswordHash.php");
 			$this->toegangGeweigerd();				
 		}		
 		
-		function magSchrijven()
-		{			
-			Debug(__FILE__, __LINE__, sprintf("magSchrijven() UserID = %s", $this->getUserFromSession()));
-								
-			// Beheeders hebben altijd schrijf rechten
-			if ($this->isBeheerder())
-			{
-				Debug(__FILE__, __LINE__, sprintf("%d is beheerder, return true", $this->getUserFromSession()));
-				return true;
-			}
-		
-			if ($this->isInstructeur())
-			{
-				Debug(__FILE__, __LINE__, sprintf("%d is instructeur, return true", $this->getUserFromSession()));
-				return true;
-			}
-
-			if ($this->isStarttoren())
-			{
-				Debug(__FILE__, __LINE__, sprintf("%d is starttoren, return true", $this->getUserFromSession()));
-				return true;		
-			}		
-			
-			Debug(__FILE__, __LINE__, sprintf("%d is gewone gebruiker, return false", $this->getUserFromSession()));			
-			return false;
-		}
-
 		// Geef data over gebruiker
 		function lidData()
 		{
@@ -387,9 +359,23 @@ require ("include/PasswordHash.php");
 		}			
 
 		// Deze data komt uit de sessie, bij het inloggen is de sessie data gezet
+		function isDDWVCrew()
+		{			
+			$key = 'isDDWVCrew';
+			return $this->sessiePermissie($key);
+		}	
+
+		// Deze data komt uit de sessie, bij het inloggen is de sessie data gezet
 		function isDDWV()
 		{			
 			$key = 'isDDWV';
+			return $this->sessiePermissie($key);
+		}
+
+		// Deze data komt uit de sessie, bij het inloggen is de sessie data gezet
+		function isClubVlieger()
+		{			
+			$key = 'isClubVlieger';
 			return $this->sessiePermissie($key);
 		}
 
@@ -432,5 +418,11 @@ require ("include/PasswordHash.php");
 
 			$reponse = $MessageBird->messages->create($Message);
 			Debug(__FILE__, __LINE__, sprintf("sendSMS response: %s", print_r($reponse, true))); 
+		}
+
+		function GetObjects($params)
+		{
+			// Doe niets. 
+			// Deze functie is alleen maar nodig omdat de abstract class helios (= parent) afdwingt dat we deze functie moeten implementeren
 		}
 	}

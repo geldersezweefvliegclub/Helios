@@ -5,6 +5,8 @@
 		{
 			parent::__construct();
 			$this->dbTable = "ref_leden";
+			$this->dbView = "leden_view";
+			$this->Naam = "Leden";
 		}
 		
 		/*
@@ -55,7 +57,6 @@
 					`AVATAR` varchar(255) DEFAULT NULL,        
                     `HEEFT_BETAALD` tinyint UNSIGNED NOT NULL DEFAULT 0,
 					`PRIVACY` tinyint UNSIGNED NOT NULL DEFAULT 0,
-					`BEPERKINGEN` text DEFAULT NULL,
 					`OPMERKINGEN` text DEFAULT NULL,
                     `VERWIJDERD` tinyint UNSIGNED NOT NULL DEFAULT 0,
 					`LAATSTE_AANPASSING` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -179,7 +180,7 @@
 		{
 			Debug(__FILE__, __LINE__, sprintf("Leden.GetObject(%s)", $ID));	
 
-			if ($ID == null)
+			if (!isset($ID))
 				throw new Exception("406;Geen ID in aanroep;");
 
 			$conditie = array();
@@ -189,25 +190,15 @@
 			$l = MaakObject('Login');
 			if ($l->getUserFromSession() != $ID)
 			{
-				if (($l->isBeheerder() == false) && ($l->isBeheerderDDWV() == false) && ($l->isStarttoren() == false))
+				if (!$this->heeftDataToegang() && !$l->isBeheerderDDWV() && !$l->isRooster())
 					throw new Exception("401;Geen leesrechten;");
 			}
-
 			$obj = parent::GetSingleObject($conditie);
 			Debug(__FILE__, __LINE__, print_r($obj, true));
 
 			if ($obj == null)
 				throw new Exception("404;Record niet gevonden;");
-			
-			// Controle of de gebruiker deze data wel mag ophalen
-			$l = MaakObject('Login');
-			if (($l->isBeheerder() == false) && ($l->isBeheerderDDWV() == false) && ($l->isInstructeur() == false) && ($l->isStarttoren() == false))
-			{
-				// is ingelogde gebruiker de persoon zelf? Nee, dan geen toegang
-				if (($obj['ID'] != $l->getUserFromSession()))
-					throw new Exception("401;Geen leesrechten;");
-			}
-			
+						
 			$obj = $this->RecordToOutput($obj);
 			$obj = $this->privacyMask($obj); // privacy maskering
 			return $obj;				
@@ -227,7 +218,15 @@
 			$conditie['LIDNR'] = isINT($LidNr, "LIDNR");
 			$conditie['VERWIJDERD'] = 0;		
 
-			$obj = parent::GetSingleObject($conditie);			
+			$obj = parent::GetSingleObject($conditie);	
+			
+			// ophalen mag alleen door ingelogde gebruiker of beheerder
+			$l = MaakObject('Login');
+			if ($l->getUserFromSession() != $obj['ID'])
+			{
+				if (!$this->heeftDataToegang() && !$l->isBeheerderDDWV())
+					throw new Exception("401;Geen leesrechten;");
+			}			
 
 			if ($obj == null)
 				throw new Exception("404;Record niet gevonden;");
@@ -476,7 +475,7 @@
 			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s, HASH=%s", $retVal['totaal'], $retVal['laatste_aanpassing'], $retVal['hash']));	
 
 			if ($retVal['hash'] == $hash)
-				throw new Exception("304;Dataset ongewijzigd;");
+				throw new Exception("704;Dataset ongewijzigd;");
 
 			if ($alleenLaatsteAanpassing)
 			{
@@ -516,8 +515,9 @@
 		{
 			Debug(__FILE__, __LINE__, sprintf("Leden.VerwijderObject('%s', %s)", $id, (($verificatie === false) ? "False" :  $verificatie)));
 
+			// schrijven mag alleen door beheerder
 			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)
+			if (!$this->heeftDataToegang(null, false) && !$l->isBeheerderDDWV())
 				throw new Exception("401;Geen schrijfrechten;");
 
 			if ($id == null)
@@ -534,8 +534,7 @@
 		{
 			Debug(__FILE__, __LINE__, sprintf("Leden.HerstelObject('%s')", $id));
 
-			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)
+			if (!$this->heeftDataToegang(null, false) && !$l->isBeheerderDDWV())
 				throw new Exception("401;Geen schrijfrechten;");
 
 			if ($id == null)
@@ -554,10 +553,8 @@
 			
 			// schrijven mag alleen door beheerder
 			$l = MaakObject('Login');
-			if (($l->isBeheerder() == false) && ($l->isBeheerderDDWV() == false))
-			{
+			if (!$this->heeftDataToegang(null, false) && !$l->isBeheerderDDWV())
 				throw new Exception("401;Geen schrijfrechten;");
-			}
 			
 			if ($LidData == null)
 				throw new Exception("406;Lid data moet ingevuld zijn;");			
@@ -640,10 +637,8 @@
 			$l = MaakObject('Login');
 			if ($l->getUserFromSession() != $LidData["ID"])
 			{
-				if (($l->isBeheerder() == false) && ($l->isBeheerderDDWV() == false))
-				{
+				if (!$l->isBeheerder() && !$l->isBeheerderDDWV() && !$l->isCIMT() && !$l->isRooster())
 					throw new Exception("401;Geen schrijfrechten;");
-				}
 			}
 
 			if ($LidData == null)
@@ -661,15 +656,15 @@
 				{
 					try 	// Als record niet bestaat, krijgen we een exception
 					{
-						$l = $this->GetObjectByLidnr($LidData['LIDNR']);
+						$lid = $this->GetObjectByLidnr($LidData['LIDNR']);
+
+						if (parent::NumRows() > 0)
+						{
+							if ($id != $lid['ID'])
+								throw new Exception("409;LidNr bestaat reeds;");
+						}	
 					}
 					catch (Exception $e) {}
-
-					if (parent::NumRows() > 0)
-					{
-						if ($id != $l['ID'])
-							throw new Exception("409;LidNr bestaat reeds;");
-					}	
 				}
 			}
 
@@ -680,15 +675,15 @@
 				{
 					try 	// Als record niet bestaat, krijgen we een exception
 					{
-						$l = $this->GetObjectByLoginNaam($LidData['INLOGNAAM']);
+						$lid = $this->GetObjectByLoginNaam($LidData['INLOGNAAM']);
+					
+						if (parent::NumRows() > 0)
+						{
+							if ($id != $lid['ID'])
+								throw new Exception("409;Inlognaam bestaat reeds;");
+						}	
 					}
 					catch (Exception $e) {}
-
-					if (parent::NumRows() > 0)
-					{
-						if ($id != $l['ID'])
-							throw new Exception("409;Inlognaam bestaat reeds;");
-					}	
 				}
 			}			
 
@@ -718,7 +713,7 @@
 			$l = MaakObject('Login');
 			if ($l->getUserFromSession() != $LidData["ID"])
 			{
-				if (($l->isBeheerder() == false) && ($l->isBeheerderDDWV() == false))
+				if (!$this->heeftDataToegang(null, false) && !$l->isBeheerderDDWV())
 					throw new Exception("401;Geen schrijfrechten;");
 			}
 
@@ -727,21 +722,40 @@
 			// geeft een exceptie als id niet bestaat
 			$lid = $this->GetObject($id);
 
-			$upload_dir = "avatars";
-			$ext_type = array('gif','jpg','jpe','jpeg','png');
-			$extension = pathinfo($file->getClientFilename(), PATHINFO_EXTENSION);
+			$upload_dir = "avatars/";
+			$ext_type = array('.gif','.jpg','.jpe','.jpeg','.png');
 
+			$extension = null;
+    
+			if(strpos($file, 'data:image/jpeg;base64,') === 0) {
+				$file = str_replace('data:image/jpeg;base64,', '', $file);
+				$extension = '.jpg';
+			} elseif (strpos($file, 'data:image/jpg;base64,') === 0) {
+				$file = str_replace('data:image/jpg;base64,', '', $file);
+				$extension = '.jpg';
+			} elseif (strpos($file, 'data:image/png;base64,') === 0) {
+				$file = str_replace('data:image/png;base64,', '', $file);
+				$extension = '.png';
+			} elseif (strpos($file, 'data:image/gif;base64,') === 0) {
+				$file = str_replace('data:image/gif;base64,', '', $file);
+				$extension = '.gif';
+			}
 			if (!in_array(strtolower($extension), $ext_type)) {
 				Debug(__FILE__, __LINE__, sprintf("Leden.UploadAvatar extentie '%s' is ongeldig)", $extension));
 				throw new Exception("422;Onjuiste bestand extentie;");	
-			}	
-
-			$r = date('YmdHis'); // random is nodig om uniek bestandsnaam te krijgen
-			$target = sprintf("%s-%s-%s", $id, $lid['INLOGNAAM'], $r);	
-			$file->moveTo(sprintf("./%s/%s.%s", $upload_dir, $target, $extension));
+			}
+			$image = base64_decode($file);
+	
+			$filename = $lid['INLOGNAAM'] . '-' . date('YmdHis') . $extension;
+			Debug(__FILE__, __LINE__, sprintf("Leden.UploadAvatar opslag =%s", $upload_dir. $filename));
+			if(file_put_contents($upload_dir. $filename, $image) === FALSE) {
+				Debug(__FILE__, __LINE__, sprintf("Leden.UploadAvatar file_put_contents error"));
+				throw new Exception("422;Bestand upload mislukt;");			
+			}
+			
 			$url =  'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . "://{$_SERVER['HTTP_HOST']}";
 
-			$upd['AVATAR'] = sprintf("%s/%s/%s.%s", $url, $upload_dir, $target, $extension);
+			$upd['AVATAR'] = sprintf("%s/%s/%s", $url, $upload_dir, $filename);
 			parent::DbAanpassen($id, $upd);
 
 			Debug(__FILE__, __LINE__, sprintf("Leden.UploadAvatar image url= %s", $upd['AVATAR']));
@@ -787,73 +801,7 @@
 			Debug(__FILE__, __LINE__, sprintf("Lid=%s isPermissie %s=%s", $lid['NAAM'], $key, ($retVal) ? "true" : "false"));
 			return $retVal;				
 		}
-	
-		
-		function isStartleider($id = null, $lid = null, $datum = null)
-		{
-			$functie = "Leden.isStartleider";
-			Debug(__FILE__, __LINE__, sprintf("%s(%s, %s, %s)", $functie, $id, print_r($lid, true), $datum));	
-			
-			if ($this->isPermissie("STARTLEIDER", $id, $lid) == false)
-				return false;			
 
-			if ($datum == null) $datum = date('Y-m-d');
-
-			if ($lid == null) 
-			{
-				try
-				{
-					$lid = $this->GetObject($id);
-				}
-				catch(Exception $exception) { return false; }
-			}
-
-			$di = MaakObject('Daginfo');	
-			try
-			{					
-				$diObj = $di->GetObject(false, $datum);
-
-				if (isset($diObj[0]['OCHTEND_STARTLEIDER']))
-				{
-					if ($lid['ID'] == $diObj[0]['OCHTEND_STARTLEIDER']) 
-					{
-						Debug(__FILE__, __LINE__, sprintf("%s: %s(%d) is ochtend startleider, datum=%s, return true", $functie, $lid['NAAM'], $lid['ID'], $datum ));
-						return true;
-					}
-				}
-				if (isset($diObj[0]['MIDDAG_STARTLEIDER']))
-				{
-					if ($lid['ID']  == $diObj[0]['MIDDAG_STARTLEIDER'])
-					{
-						Debug(__FILE__, __LINE__, sprintf("%s: %s(%d) is middag startleider, datum=%s, return true", $functie, $lid['NAAM'], $lid['ID'], $datum ));
-						return true;
-					}
-				}			
-				
-				$rooster = MaakObject('Rooster');				
-				$roosterObj = $rooster->GetObject($datum);		
-
-				if (isset($roosterObj[0]['OCHTEND_STARTLEIDER']))
-				{
-					if ($lid['ID'] == $roosterObj[0]['OCHTEND_STARTLEIDER']) 
-					{
-						Debug(__FILE__, __LINE__, sprintf("%s: %s(%d) is ochtend startleider op rooster, datum=%s, return true", $functie, $lid['NAAM'], $lid['ID'], $datum ));
-						return true;
-					}
-				}
-				if (isset($roosterObj[0]['MIDDAG_STARTLEIDER']))
-				{
-					if ($lid['ID']  == $roosterObj[0]['MIDDAG_STARTLEIDER'])
-					{
-						Debug(__FILE__, __LINE__, sprintf("%s: %s(%d) is middag startleider op rooster, datum=%s, return true", $functie, $lid['NAAM'], $lid['ID'], $datum ));
-						return true;
-					}
-				}
-			}
-			catch(Exception $exception) {}
-
-			return false;
-		}
 	
 		function isClubVlieger($id = null, $lid = null)
 		{
@@ -944,7 +892,8 @@
 			{
 				if (($l->isBeheerder() === false) &&
 					($l->isBeheerderDDWV() === false) &&
-					($l->isInstructeur() === false))					
+					($l->isInstructeur() === false) &&
+					($l->isCIMT() === false))					
 				{
 					if ($lid['PRIVACY'] === true) {
 						$lid['TELEFOON'] 		= "****";
@@ -955,10 +904,18 @@
 						$lid['GEBOORTE_DATUM'] 	= "****";
 					}
 
-					$lid['MEDICAL'] 		= "****";
+					$lid['MEDICAL'] 		= null;
 					$lid['NOODNUMMER'] 		= null;
 					$lid['HEEFT_BETAALD'] 	= null;
-					$lid['BEPERKINGEN'] 	= null;
+					$lid['OPMERKINGEN'] 	= null;
+				}
+
+				if (($l->isBeheerder() === false) &&
+					($l->isBeheerderDDWV() === false) &&
+					($l->isRooster() === false) &&
+					($l->isInstructeur() === false) &&
+					($l->isCIMT() === false))	
+				{
 					$lid['OPMERKINGEN'] 	= null;
 				}
 			}
@@ -973,99 +930,99 @@
 			$record = array();
 			$l = MaakObject('Login');
 
-			$field = 'ID';
-			if (array_key_exists($field, $input))
-				$record[$field] = isINT($input[$field], $field);
-
-			if (array_key_exists('NAAM', $input)) {
-				$record['NAAM'] = $input['NAAM']; 
-			}
-			elseif ((array_key_exists('VOORNAAM', $input)) && (array_key_exists('ACHTERNAAM', $input)))
+			if (($l->getUserFromSession() == $input["ID"]) || ($l->isBeheerder()))
 			{
-				$record['NAAM'] = "";
+				$field = 'ID';
+				if (array_key_exists($field, $input))
+					$record[$field] = isINT($input[$field], $field);
+
+				if (array_key_exists('NAAM', $input)) {
+					$record['NAAM'] = $input['NAAM']; 
+				}
+				elseif ((array_key_exists('VOORNAAM', $input)) && (array_key_exists('ACHTERNAAM', $input)))
+				{
+					$record['NAAM'] = "";
+
+					if (array_key_exists('VOORNAAM', $input))
+						$record['NAAM'] .= $input['VOORNAAM'] . " "; 
+
+					if (array_key_exists('TUSSENVOEGSEL', $input))
+						$record['NAAM'] .= $input['TUSSENVOEGSEL'] . " "; 
+
+					if (array_key_exists('ACHTERNAAM', $input))	
+						$record['NAAM'] .= $input['ACHTERNAAM']; 	
+				}
 
 				if (array_key_exists('VOORNAAM', $input))
-					$record['NAAM'] .= $input['VOORNAAM'] . " "; 
+					$record['VOORNAAM'] = $input['VOORNAAM']; 
 
 				if (array_key_exists('TUSSENVOEGSEL', $input))
-					$record['NAAM'] .= $input['TUSSENVOEGSEL'] . " "; 
+					$record['TUSSENVOEGSEL'] = $input['TUSSENVOEGSEL']; 
 
-				if (array_key_exists('ACHTERNAAM', $input))	
-					$record['NAAM'] .= $input['ACHTERNAAM']; 	
-			}
+				if (array_key_exists('ACHTERNAAM', $input))
+					$record['ACHTERNAAM'] = $input['ACHTERNAAM']; 
 
-			if (array_key_exists('VOORNAAM', $input))
-				$record['VOORNAAM'] = $input['VOORNAAM']; 
+				if (array_key_exists('ADRES', $input))
+					$record['ADRES'] = $input['ADRES']; 	
+					
+				if (array_key_exists('POSTCODE', $input))
+					$record['POSTCODE'] = $input['POSTCODE']; 	
+					
+				if (array_key_exists('WOONPLAATS', $input))
+					$record['WOONPLAATS'] = $input['WOONPLAATS']; 				
 
-			if (array_key_exists('TUSSENVOEGSEL', $input))
-				$record['TUSSENVOEGSEL'] = $input['TUSSENVOEGSEL']; 
+				if (array_key_exists('TELEFOON', $input))
+					$record['TELEFOON'] = $input['TELEFOON']; 
 
-			if (array_key_exists('ACHTERNAAM', $input))
-				$record['ACHTERNAAM'] = $input['ACHTERNAAM']; 
+				if (array_key_exists('MOBIEL', $input))
+					$record['MOBIEL'] = $input['MOBIEL']; 
 
-			if (array_key_exists('ADRES', $input))
-				$record['ADRES'] = $input['ADRES']; 	
-				
-			if (array_key_exists('POSTCODE', $input))
-				$record['POSTCODE'] = $input['POSTCODE']; 	
-				
-			if (array_key_exists('WOONPLAATS', $input))
-				$record['WOONPLAATS'] = $input['WOONPLAATS']; 				
+				if (array_key_exists('NOODNUMMER', $input))
+					$record['NOODNUMMER'] = $input['NOODNUMMER']; 
 
-			if (array_key_exists('TELEFOON', $input))
-				$record['TELEFOON'] = $input['TELEFOON']; 
+				if (array_key_exists('EMAIL', $input))
+					$record['EMAIL'] = $input['EMAIL']; 
 
-			if (array_key_exists('MOBIEL', $input))
-				$record['MOBIEL'] = $input['MOBIEL']; 
+				$field = 'CLUBBLAD_POST';
+				if (array_key_exists($field, $input))
+					$record[$field] = isBOOL($input[$field], $field);
 
-			if (array_key_exists('NOODNUMMER', $input))
-				$record['NOODNUMMER'] = $input['NOODNUMMER']; 
+				$field = 'GEBOORTE_DATUM';
+				if (array_key_exists($field, $input))
+					$record[$field]= isDATE($input[$field], $field, true);	
 
-			if (array_key_exists('EMAIL', $input))
-				$record['EMAIL'] = $input['EMAIL']; 
+				$field = 'MEDICAL';
+				if (array_key_exists($field, $input))
+					$record[$field]= isDATE($input[$field], $field, true);		
 
-			$field = 'CLUBBLAD_POST';
-			if (array_key_exists($field, $input))
-				$record[$field] = isBOOL($input[$field], $field);
+				if (array_key_exists('INLOGNAAM', $input))
+					$record['INLOGNAAM'] = $input['INLOGNAAM']; 	
 
-			$field = 'GEBOORTE_DATUM';
-			if (array_key_exists($field, $input))
-				$record[$field]= isDATE($input[$field], $field, true);	
-
-			$field = 'MEDICAL';
-			if (array_key_exists($field, $input))
-				$record[$field]= isDATE($input[$field], $field, true);		
-
-			if (array_key_exists('INLOGNAAM', $input))
-				$record['INLOGNAAM'] = $input['INLOGNAAM']; 	
-
-			$ld = $l->lidData();
-			if (array_key_exists('WACHTWOORD', $input))
-			{
-				if (strlen($input['WACHTWOORD']) > 4)
+				$ld = $l->lidData();
+				if (array_key_exists('WACHTWOORD', $input))
 				{
-					$loginnaam = (isset($record['INLOGNAAM'])) ? $record['INLOGNAAM'] : $ld->INLOGNAAM;
-					$record['WACHTWOORD'] = sha1(strtolower ($loginnaam) . $input['WACHTWOORD']);
-				}
-				else 
-				{
-					if (strlen($input['WACHTWOORD']) > 0) {
-						throw new Exception("406;Wachtwoord voldoet niet;");
+					if (strlen($input['WACHTWOORD']) > 4)
+					{
+						$loginnaam = (isset($record['INLOGNAAM'])) ? $record['INLOGNAAM'] : $ld->INLOGNAAM;
+						$record['WACHTWOORD'] = sha1(strtolower ($loginnaam) . $input['WACHTWOORD']);
+					}
+					else 
+					{
+						if (strlen($input['WACHTWOORD']) > 0) {
+							throw new Exception("406;Wachtwoord voldoet niet;");
+						}
 					}
 				}
+				if (array_key_exists('WACHTWOORD_HASH', $input))
+				{
+					if (strlen($input['WACHTWOORD_HASH']) > 0)
+						$record['WACHTWOORD'] = $input['WACHTWOORD_HASH'];
+				}			
+
+				$field = 'PRIVACY';
+				if (array_key_exists($field, $input))
+					$record[$field] = isBOOL($input[$field], $field);
 			}
-			if (array_key_exists('WACHTWOORD_HASH', $input))
-			{
-				if (strlen($input['WACHTWOORD_HASH']) > 0)
-					$record['WACHTWOORD'] = $input['WACHTWOORD_HASH'];
-			}			
-
-			$field = 'PRIVACY';
-			if (array_key_exists($field, $input))
-				$record[$field] = isBOOL($input[$field], $field);
-
-			if (array_key_exists('OPMERKINGEN', $input))
-				$record['OPMERKINGEN'] = $input['OPMERKINGEN'];	
 
 			// onderstaande velden zijn beperkt aanpasbaar
 			if (($l->isBeheerder()) || ($l->isBeheerderDDWV()))
@@ -1087,7 +1044,13 @@
 
 				$field = 'STARTLEIDER';
 				if (array_key_exists($field, $input))
-					$record[$field] = isBOOL($input[$field], $field);			
+					$record[$field] = isBOOL($input[$field], $field);	
+							
+			}
+
+			if (($l->isBeheerder()) || ($l->isRooster()) || $l->isCIMT())  {
+				if (array_key_exists('OPMERKINGEN', $input))
+				$record['OPMERKINGEN'] = $input['OPMERKINGEN']; 
 			}
 
 			if (($l->isBeheerder()) || ($l->isCIMT()))
@@ -1138,9 +1101,6 @@
 				$field = 'HEEFT_BETAALD';
 				if (array_key_exists($field, $input))
 					$record[$field] = isBOOL($input[$field], $field);
-
-				if (array_key_exists('BEPERKINGEN', $input))
-					$record['BEPERKINGEN'] = $input['BEPERKINGEN']; 	
 
 				// url naar extern bestand
 				if (array_key_exists('AVATAR', $input))

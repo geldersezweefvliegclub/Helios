@@ -5,6 +5,8 @@
 		{
 			parent::__construct();
 			$this->dbTable = "ref_vliegtuigen";
+			$this->dbView = "vliegtuigen_view";
+			$this->Naam = "Vliegtuigen";
 		}
 		
 		/*
@@ -378,7 +380,7 @@
 			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s, HASH=%s", $retVal['totaal'], $retVal['laatste_aanpassing'], $retVal['hash']));	
 
 			if ($retVal['hash'] == $hash)
-				throw new Exception("304;Dataset ongewijzigd;");
+				throw new Exception("704;Dataset ongewijzigd;");
 
 			if ($alleenLaatsteAanpassing)
 			{
@@ -415,8 +417,7 @@
 		function VerwijderObject($id, $verificatie = true)
 		{
 			Debug(__FILE__, __LINE__, sprintf("Vliegtuigen.VerwijderObject('%s', %s)", $id, (($verificatie === false) ? "False" :  $verificatie)));				
-			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)
+			if (!$this->heeftDataToegang(null, false))
 				throw new Exception("401;Geen schrijfrechten;");
 
 			if ($id == null)
@@ -433,8 +434,7 @@
 		{
 			Debug(__FILE__, __LINE__, sprintf("Vliegtuigen.HerstelObject('%s')", $id));
 
-			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)
+			if (!$this->heeftDataToegang(null, false))
 				throw new Exception("401;Geen schrijfrechten;");
 
 			if ($id == null)
@@ -451,10 +451,6 @@
 		{
 			Debug(__FILE__, __LINE__, sprintf("Vliegtuigen.AddObject(%s)", print_r($VliegtuigData, true)));
 			
-			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)	
-				throw new Exception("401;Geen schrijfrechten;");
-
 			if ($VliegtuigData == null)
 				throw new Exception("406;Vliegtuig data moet ingevuld zijn;");			
 
@@ -504,10 +500,6 @@
 		{
 			Debug(__FILE__, __LINE__, sprintf("Vliegtuigen.UpdateObject(%s)", print_r($VliegtuigData, true)));
 			
-			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)	
-				throw new Exception("401;Geen schrijfrechten;");
-
 			if ($VliegtuigData == null)
 				throw new Exception("406;Vliegtuig data moet ingevuld zijn;");			
 
@@ -534,6 +526,15 @@
 						throw new Exception(sprintf("409;Vliegtuig met registratie %s bestaat al;", $VliegtuigData['REGISTRATIE']));
 				}					
 			}
+
+			$vbd = $this->getObject($id);
+			if ($vbd['CLUBKIST']) {
+
+				// alleen beheerders mogen club vliegtuigen aanpassen
+				if (!$this->heeftDataToegang(null, false))
+					throw new Exception("401;Geen schrijfrechten;");
+			}
+
 			// Neem data over uit aanvraag
 			$v = $this->RequestToRecord($VliegtuigData);
 

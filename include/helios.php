@@ -6,10 +6,13 @@ abstract class Helios
 	public $qParams = array();
 	public $Data = array();
 	public $dbTable;
+	public $Naam;
 	
 	private $defaultErrorLevel;
 	private $HttpGetContext;
 	
+	abstract function GetObjects($params);
+
 	// de constructor
 	public function __construct() 
 	{
@@ -19,6 +22,112 @@ abstract class Helios
 					'timeout' => 0.2, // 0.2 seconde
 				  )
 			));	
+	} 
+
+	/*
+	Heeft de ingelogde gebruiker toegang tot de volledige startlijst
+	*/
+	function heeftDataToegang($datum = null, $instructeurs = true)
+	{
+		Debug(__FILE__, __LINE__, sprintf("heeftDataToegang(%s, %d)", $datum, $instructeurs));
+
+		$l = MaakObject('Login');
+		//Debug(__FILE__, __LINE__, sprintf("isBeheerder = %d", $l->isBeheerder()));
+		//Debug(__FILE__, __LINE__, sprintf("isInstaller = %d", $l->isInstaller()));
+		//Debug(__FILE__, __LINE__, sprintf("isInstructeur = %d", $l->isInstructeur()));
+		//Debug(__FILE__, __LINE__, sprintf("isCIMT = %d", $l->isCIMT()));
+		//Debug(__FILE__, __LINE__, sprintf("isStarttoren = %d", $l->isStarttoren()));
+
+
+		if ($l->isBeheerder() || $l->isInstaller() || ($instructeurs &&  ($l->isInstructeur() || $l->isCIMT())))
+		{
+			return true;
+		}
+		else if ($datum == null)
+		{
+			return false;
+		}
+		else if ($l->isStarttoren())
+		{
+			return ($datum == date("Y-m-d"));
+		}
+		else if ($l->isBeheerderDDWV())
+		{
+			return $this->heeftToegangBeheerderDDVW($datum);
+		}
+		else if ($l->isDDWVCrew())
+		{
+			return $this->heeftToegangDDWVCrew($datum);
+		}
+		return false;
+	}
+
+	/*
+	De beheerder DDWV heeft op DDWV dagen volledig toegang
+	*/
+	function heeftToegangBeheerderDDVW($datum)
+	{
+		$l = MaakObject('Login');
+
+		Debug(__FILE__, __LINE__, sprintf("Startlijst.heeftToegangBeheerderDDVW(%s) isBeheerderDDWV(%d) =  %d", $datum,
+									$l->getUserFromSession(), 
+									$l->isBeheerderDDWV()));
+
+		$r = MaakObject('Rooster');
+
+		try {
+			$rooster = $r->GetObject(null, $datum, false); 
+
+			if ($rooster['DDWV'])
+			{
+				Debug(__FILE__, __LINE__, sprintf("Startlijst.heeftDDWVtoegang %s is een DDWV dag", $datum));
+
+				if ($l->isBeheerderDDWV())
+				{
+					return true; // Het is een DDWV dag, dus geen beperkingen voor de DDWV beheerder
+				}
+			}
+		}
+		catch (Exception $e) {}	
+		return false;
+	}
+
+	/*
+	De DDWV crew heeft toegang op DDWV dagen waar ze zelf dienst hadden
+	*/
+	function heeftToegangDDWVCrew($datum)
+	{
+		$l = MaakObject('Login');
+
+		Debug(__FILE__, __LINE__, sprintf("heeftToegangDDWVCrew(%s) isDDWVCrew(%d) =  %d", $datum, 
+									$l->getUserFromSession(), 
+									$l->isDDWVCrew()));
+
+		$r = MaakObject('Rooster');
+		$d = MaakObject('Diensten');
+
+		try {
+			$rooster = $r->GetObject(null, $datum, false); 
+
+			if ($rooster['DDWV'])
+			{
+				Debug(__FILE__, __LINE__, sprintf("heeftToegangDDWVCrew %s is een DDWV dag", $datum));
+
+				$diensten = $d->GetObjects(
+					array (
+						'LID_ID' => $l->getUserFromSession(),
+						'DATUM' => $datum
+					));
+				
+				if ($diensten['totaal'] > 0)
+				{
+					Debug(__FILE__, __LINE__, sprintf("heeftToegangDDWVCrew %d heeft dienst op %s", $l->getUserFromSession(), $datum));
+					return true;
+				}
+			}
+		}
+		catch (Exception $e) {}	
+		return false;
 	}
 
 	/*
@@ -90,33 +199,44 @@ abstract class Helios
 	function MarkeerAlsVerwijderd($IDs, $verificatie = true)
 	{
 		Debug(__FILE__, __LINE__, sprintf("Helios.MarkeerAlsVerwijderd('%s', %s)", $IDs, (($verificatie === false) ? "False" :  $verificatie)));	
-		
 		if (is_null($verificatie))
-			$verificatie = true;
+		$verificatie = true;
 
 		$verify = isBOOL($verificatie, "VERIFICATIE");
+		$list = array();
+	
+		if (strpos($IDs, ',') !== false)
+			$list = explode(",", $IDs);
+		else
+			$list[0] = $IDs;
 
-		if ($verify !== 0)
+		if ($this->dbTable == "audit") 
 		{
-			if (strpos($IDs, ',') !== false)
-			{
-				foreach($list as $i)
-				{
-					Debug(__FILE__, __LINE__, sprintf(">>'%s'<<", $i));	
-					if ($this->bestaatID($i) == false)
-						throw new Exception(sprintf("404;Record met ID=%s niet gevonden;", $i));	 	
-				}
-			}	
-			else
-			{
-				if ($this->bestaatID($IDs) == false)
-					throw new Exception(sprintf("404;Record met ID=%s niet gevonden;", $IDs));	
-			}		
+			$this->DbUitvoeren(sprintf("UPDATE `%s` SET `VERWIJDERD`= 1 WHERE ID IN (%s);", $this->dbTable, $IDs));
 		}
-		$this->DbUitvoeren(sprintf("UPDATE `%s` SET `VERWIJDERD`= 1 WHERE ID IN (%s);", $this->dbTable, $IDs));
-	}		
-		
+		else
+		{
+			foreach($list as $i)
+			{
+				//$this->DbOpvraag(sprintf("SELECT * FROM %s WHERE ID = %d", $this->dbView, $i));
+				//$org = $this->DbData();
+				$org = $this->GetObjects(array('ID' => $i));
+				
 
+				if (($this->NumRows() == 0) && (($verify !== 0)))
+					throw new Exception(sprintf("404;Record met ID=%s niet gevonden;", $i));	
+
+				if (($this->NumRows() > 0))
+				{	
+					$this->DbUitvoeren(sprintf("UPDATE `%s` SET `VERWIJDERD`= 1 WHERE ID IN (%s);", $this->dbTable, $i));
+
+					$audit = MaakObject("Audit");
+					$audit->AddObject($this->dbTable, $this->Naam, "Verwijderd", json_encode($org['dataset'][0]), null, null);
+				}
+			}
+		}
+	}				
+		
 	/*
 	Markeer een record in de database als verwijderd. Het record wordt niet fysiek verwijderd om er een link kan zijn naar andere tabellen.
 	Het veld VERWIJDERD wordt op "1" gezet.
@@ -124,23 +244,34 @@ abstract class Helios
 	function HerstelVerwijderd($IDs)
 	{
 		Debug(__FILE__, __LINE__, sprintf("Helios.HerstelVerwijderd('%s')", $IDs));	
+		$list = array();
 	
 		if (strpos($IDs, ',') !== false)
-		{
 			$list = explode(",", $IDs);
+		else
+			$list[0] = $IDs;
+
+		if ($this->dbTable == "audit") 
+		{
+			$this->DbUitvoeren(sprintf("UPDATE `%s` SET `VERWIJDERD`= 0 WHERE ID IN (%s);", $this->dbTable, $IDs));
+		}
+		else
+		{
 			foreach($list as $i)
 			{
 				if ($this->bestaatID($i) == false)
-					throw new Exception(sprintf("404;Record met ID=%s niet gevonden;", $i));	 	
+					throw new Exception(sprintf("404;Record met ID=%s niet gevonden;", $i));	
+
+				$this->DbUitvoeren(sprintf("UPDATE `%s` SET `VERWIJDERD`= 0 WHERE ID IN (%s);", $this->dbTable, $i));
+
+				//$this->DbOpvraag(sprintf("SELECT * FROM %s WHERE ID = %d", $this->dbView, $i));
+				//$result = $this->DbData();
+				$result = $this->GetObjects(array('ID' => $i));
+
+				$audit = MaakObject("Audit");
+				$audit->AddObject($this->dbTable, $this->Naam, "Hersteld", null, null, json_encode($result['dataset'][0]));
 			}
-		}	
-		else
-		{
-			if ($this->bestaatID($IDs) == false)
-				throw new Exception(sprintf("404;Record met ID=%s niet gevonden;", $IDs));	
-		}		
-		
-		$this->DbUitvoeren(sprintf("UPDATE `%s` SET `VERWIJDERD`= 0 WHERE ID IN (%s);", $this->dbTable, $IDs));
+		}
 	}			
 	
 	// Functie voor slim laden van datastores in web applicatie
@@ -184,7 +315,20 @@ abstract class Helios
 	{
 		global $db, $app_settings;
 		
-		$lastid = $db->DbToevoegen($this->dbTable, $array);
+		if ($this->dbTable == "audit") 
+		{
+			$lastid = $db->DbToevoegen($this->dbTable, $array);
+		} else 
+		{
+			$lastid = $db->DbToevoegen($this->dbTable, $array);
+			//$this->DbOpvraag(sprintf("SELECT * FROM %s WHERE ID = %d", $this->dbView, $lastid));
+			//$record = $this->DbData();
+
+			$record = $this->GetObjects(array('ID' => $lastid));
+
+			$audit = MaakObject("Audit");
+			$audit->AddObject($this->dbTable, $this->Naam,"Toevoegen", null, json_encode($array), json_encode($result['dataset'][0]));
+		}
 		return $lastid;
 	}
 	
@@ -192,7 +336,27 @@ abstract class Helios
 	{
 		global $db, $app_settings;
 		
-		$retVal = $db->DbAanpassen($this->dbTable, $ID, $array);
+		if ($this->dbTable == "audit") 
+		{
+			$retVal = $db->DbAanpassen($this->dbTable, $ID, $array);
+		}
+		else 
+		{
+			//$this->DbOpvraag(sprintf("SELECT * FROM %s  WHERE ID = %d", $this->dbView, $ID));
+			//$org = $this->DbData();
+			$org = $this->GetObjects(array('ID' => $ID));
+
+			$retVal = $db->DbAanpassen($this->dbTable, $ID, $array);
+			if ($retVal > 0) 		// record is aangepast
+			{
+				//$this->DbOpvraag(sprintf("SELECT * FROM %s WHERE ID = %d", $this->dbView, $ID));
+				//$record = $this->DbData();
+				$record = $this->GetObjects(array('ID' => $ID));
+
+				$audit = MaakObject("Audit");
+				$audit->AddObject($this->dbTable, $this->Naam, "Aanpassen", json_encode($org['dataset'][0]), json_encode($array), json_encode($record['dataset'][0]));
+			}
+		}
 		return $retVal;	
 	}
 	

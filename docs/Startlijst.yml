@@ -166,7 +166,14 @@ paths:
           description: Wanneer 'true', toon alleen de vluchten die nog niet geland zijn, of waar gezagvoeder onbekend is
           required: false
           schema:
-            type: boolean                                                       
+            type: boolean   
+        - in: query
+          name: DDWV
+          description: Toon alleen start op DDWV dagen
+          required: false
+          schema:
+            type: boolean    
+
       responses:
         200:
           description: "OK, data succesvol opgehaald"
@@ -783,7 +790,19 @@ components:
             INZITTENDENAAM_LID:
               description: De naam van de inzittende zoals dat in ref_leden staat
               type: string
-              example: "Momfer de Mol"                    
+              example: "Momfer de Mol"     
+            VLIEGER_LIDTYPE_ID:
+              description: Het lidtype van het lid zoals dat in ref_leden staat
+              type: integer
+              example: 625                   
+            INZITTENDE_LIDTYPE_ID:
+              description: Het lidtype van de inzittende zoals dat in ref_leden staat
+              type: integer
+              example: 601    
+            VERWIJDERD:
+              description: Is deze vlucht op een DDWV dag uitgevoerd 
+              type: boolean
+              example: 0               
             STARTMETHODE:
               description: De manier van de start
               type: string
@@ -858,6 +877,10 @@ components:
           description: Combinatie van registratie en callsign van het vliegtuig waarop gevlogen is
           type: string
           example: PH-1292 (E6)   
+        VLIEGTUIG_ID: 
+          description: Het vliegtuig ID. Verwijzing naar vliegtuigen tabel
+          type: integer
+          example: 215             
         STARTTIJD: 
           description: Starttijd (hh:mm:ss)
           type: string
@@ -892,6 +915,10 @@ components:
           description: De manier van de start
           type: string
           example: Lierstart GeZC
+        VELD:
+          description: Vliegveld waar gestart is
+          type: string
+          example: Terlet          
         OPMERKINGEN:
           description: De opmerkingen die ingevoerd zijn
           type: string

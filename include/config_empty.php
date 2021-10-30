@@ -20,9 +20,9 @@ $smtp_settings = array (
 */
 
 $app_settings = array(
-	'DbLogging' => false,			// Log database queries naar logfile
-	'DbError' => false,				// Log errors naar logfile
-	'Debug' => false,				// Debug informatie naar logfile, uitzetten voor productie
+	'DbLogging' => true,			// Log database queries naar logfile
+	'DbError' => true,				// Log errors naar logfile
+	'Debug' => true,				// Debug informatie naar logfile, uitzetten voor productie
 	'LogDir' => '/tmp/log/helios/',	// Locatie waar log bestanden geschreven worden
 	'Vereniging' => "GeZC",
 	'ApiKeySMS' => 'API key here'	// api key voor messagebird

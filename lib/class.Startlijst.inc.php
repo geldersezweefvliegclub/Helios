@@ -5,6 +5,8 @@
 		{
 			parent::__construct();
 			$this->dbTable = "oper_startlijst";
+			$this->dbView = "startlijst_view";
+			$this->Naam = "Startlijst";
 		}
 		
 		/*
@@ -212,18 +214,23 @@
                                 ELSE 
                                     '' 
                                 END 
-                        END               AS `DUUR`,
-                    `vl`.`NAAM`           AS `VLIEGERNAAM_LID`,
-                    `il`.`NAAM`           AS `INZITTENDENAAM_LID`,
-                    `sm`.`OMSCHRIJVING`   AS `STARTMETHODE`,
-                    `veld`.`OMSCHRIJVING` AS `VELD` 
+                        END               			AS `DUUR`,
+                    `vl`.`NAAM`           			AS `VLIEGERNAAM_LID`,
+                    `il`.`NAAM`           			AS `INZITTENDENAAM_LID`,
+					`vl`.`LIDTYPE_ID`     			AS `VLIEGER_LIDTYPE_ID`,
+                    `il`.`LIDTYPE_ID`     			AS `INZITTENDE_LIDTYPE_ID`,
+					`di`.`DDWV` OR `rooster`.`DDWV` AS `DDWV`,
+                    `sm`.`OMSCHRIJVING`   			AS `STARTMETHODE`,
+                    `veld`.`OMSCHRIJVING` 			AS `VELD` 
                 FROM 
                     `%s` `sl` 
-                    LEFT JOIN `ref_leden`       `vl`    ON `sl`.`VLIEGER_ID` = `vl`.`ID` 
-                    LEFT JOIN `ref_leden`       `il`    ON `sl`.`INZITTENDE_ID` = `il`.`ID` 
-                    LEFT JOIN `ref_vliegtuigen` `v`     ON `sl`.`VLIEGTUIG_ID` = `v`.`ID` 
-                    LEFT JOIN `ref_types`       `veld`  ON `sl`.`VELD_ID` = `veld`.`ID` 
-                    LEFT JOIN `ref_types`       `sm`    ON `sl`.`STARTMETHODE_ID` = `sm`.`ID` 
+                    LEFT JOIN `ref_leden`       `vl`      ON `sl`.`VLIEGER_ID` = `vl`.`ID` 
+                    LEFT JOIN `ref_leden`       `il`      ON `sl`.`INZITTENDE_ID` = `il`.`ID` 
+                    LEFT JOIN `ref_vliegtuigen` `v`       ON `sl`.`VLIEGTUIG_ID` = `v`.`ID` 
+                    LEFT JOIN `ref_types`       `veld`    ON `sl`.`VELD_ID` = `veld`.`ID` 
+					LEFT JOIN `ref_types`       `sm`      ON `sl`.`STARTMETHODE_ID` = `sm`.`ID` 
+                    LEFT JOIN `oper_daginfo`    `di`      ON `sl`.`DATUM` = `di`.`DATUM` 
+					LEFT JOIN `oper_rooster`    `rooster` ON `sl`.`DATUM` = `rooster`.`DATUM` 
 				WHERE
 					`sl`.`VERWIJDERD` = %d
 				ORDER BY 
@@ -255,25 +262,14 @@
 			if ($obj == null)
 				throw new Exception("404;Record niet gevonden;");
 			
-			if (!is_null($obj['STARTTIJD']))
-				$obj['STARTTIJD'] = substr($obj['STARTTIJD'] , 0, 5);	// alleen hh:mm
-			
-			if (!is_null($obj['LANDINGSTIJD']))
-				$obj['LANDINGSTIJD'] = substr($obj['LANDINGSTIJD'] , 0, 5);	// alleen hh:mm
-
-
 			// Controle of de gebruiker deze data wel mag ophalen
 			$l = MaakObject('Login');
-			if ($l->isStarttoren() == true)
-			{
-				if ($obj['DATUM'] !== date("Y-m-d"))		// starttoren mag alleen vandaag opvragen
-					throw new Exception("401;Geen leesrechten;");
-			}
-			elseif (($l->isBeheerder() == false) && ($l->isBeheerderDDWV() == false) && ($l->isInstructeur() == false) && ($l->isStarttoren() == false))
+			if (!$this->heeftDataToegang($obj['DATUM']))
 			{
 				// is ingelogde gebruiker de vlieger of inzittende? Nee, dan geen toegang
-				if (($obj['VLIEGER_ID'] !== $l->getUserFromSession()) && ($obj['INZITTENDE_ID'] !== $l->getUserFromSession()))
-					throw new Exception("401;Geen leesrechten;");
+				if (($obj['VLIEGER_ID'] != $l->getUserFromSession()) && ($obj['INZITTENDE_ID'] != $l->getUserFromSession())) 
+					throw new Exception("401;Geen leesrechten voor dit record;");
+			
 			}
 
 			$obj = $this->RecordToOutput($obj);
@@ -306,12 +302,28 @@
 				// als installer mogen we alleen laatste aanpassing ophalen
 				$alleenLaatsteAanpassing = true;		
 			}
-			elseif (($l->isBeheerder() == false) && ($l->isBeheerderDDWV() == false) && ($l->isInstaller() == false) && ($l->isInstructeur() == false) && ($l->isStarttoren() == false))
-				$where .= sprintf(" AND ((VLIEGER_ID = '%d') OR (INZITTENDE_ID = '%d'))", $l->getUserFromSession(), $l->getUserFromSession());
-			
+			elseif (!$this->heeftDataToegang() && !$l->isStarttoren())
+			{
+				$w = sprintf("(VLIEGER_ID = '%d') OR (INZITTENDE_ID = '%d')", $l->getUserFromSession(), $l->getUserFromSession());
+
+				// Startlijst voor beheerder DDWV is ook op DDWV dagen bechikbaar
+				if ($l->isBeheerderDDWV() == true)
+					$w .= " OR (DDWV = 1))";
+
+				// Startlijst voor DDWV crew is mogen ook DDWV dagen zien waar ze zelf dienst hadden
+				if ($l->isDDWVCrew() == true)
+				{
+					$w .= sprintf(" OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = %d))", $l->getUserFromSession());	
+					$w .= " AND (DDWV = 1))";
+				}
+
+				$where .= sprintf(" AND (%s)", $w);
+			}
+
 			if ($l->isStarttoren() == true)
 				$where .= sprintf (" AND DATUM = '%s'", date("Y-m-d"));		// starttoren mag alleen vandaag opvragen
-
+			
+			
 			foreach ($params as $key => $value)
 			{
 				switch ($key)
@@ -466,7 +478,17 @@
 
 							Debug(__FILE__, __LINE__, sprintf("%s: OPEN_STARTS='%s'", $functie, $openStarts));
 							break;
-						}							
+						}	
+					case "DDWV" :
+						{
+							$alleenDDWV = isBOOL($value, "DDWV");
+							Debug(__FILE__, __LINE__, sprintf("%s: DDWV='%s'", $functie, $alleenVerwijderd));
+
+							if ($alleenDDWV) {
+								$where .= " AND (di.DDWV=1 OR rooster.DDWV=1)";
+							}
+							break;
+						}													
 					default:
 						{
 							throw new Exception(sprintf("405;%s is een onjuiste parameter;", $key));
@@ -490,7 +512,7 @@
 			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s, HASH=%s", $retVal['totaal'], $retVal['laatste_aanpassing'], $retVal['hash']));
 
 			if ($retVal['hash'] == $hash)
-				throw new Exception("304;Dataset ongewijzigd;");
+				throw new Exception("704;Dataset ongewijzigd;");
 
 			if ($alleenLaatsteAanpassing)
 			{
@@ -621,11 +643,8 @@
 
 							if ($value != $l->getUserFromSession())
 							{
-								if (($l->isBeheerder() === false) &&
-									($l->isInstructeur() === false))
-								{
-									throw new Exception("401;Gebruiker mag geen logboek van ander lid opvragen;");
-								}									
+								if (!$this->heeftDataToegang())
+									throw new Exception("401;Gebruiker mag geen logboek van ander lid opvragen;");	
 							}
 							$where .= sprintf(" AND ((VLIEGER_ID = '%d') OR (INZITTENDE_ID = '%d'))", $lidID, $lidID);	
 
@@ -682,7 +701,7 @@
 			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s, HASH=%s", $retVal['totaal'], $retVal['laatste_aanpassing'], $retVal['hash']));
 
 			if ($retVal['hash'] == $hash)
-				throw new Exception("304;Dataset ongewijzigd;");
+				throw new Exception("704;Dataset ongewijzigd;");
 
 			if ($alleenLaatsteAanpassing)
 			{
@@ -702,14 +721,15 @@
 					ID,
 					DATUM,
 					REG_CALL,
+					VLIEGTUIG_ID,
 					STARTTIJD,
 					LANDINGSTIJD,
 					DUUR,
-					coalesce(`VLIEGERNAAM_LID`,`VLIEGERNAAM`) AS `VLIEGERNAAM`,
-					coalesce(`INZITTENDENAAM_LID`,`INZITTENDENAAM`) AS `INZITTENDENAAM`,
+					IF (`VLIEGERNAAM` IS NULL, `VLIEGERNAAM_LID` , CONCAT(`VLIEGERNAAM_LID`, '(', `VLIEGERNAAM`, ')')) AS `VLIEGERNAAM`,
+					IF (`INZITTENDENAAM` IS NULL, `INZITTENDENAAM_LID` , CONCAT(`INZITTENDENAAM_LID`, '(', `INZITTENDENAAM`, ')')) AS `INZITTENDENAAM`,
 					VLIEGER_ID AS  VLIEGER_ID,
 					INZITTENDE_ID AS INZITTENDE_ID,
-					STARTMETHODE, OPMERKINGEN AS OPMERKINGEN";	
+					STARTMETHODE, VELD, OPMERKINGEN AS OPMERKINGEN";	
 					
 				$rquery = sprintf($query, $velden);
 				parent::DbOpvraag($rquery, $query_params);
@@ -772,8 +792,7 @@
 
 							if ($value != $l->getUserFromSession())
 							{
-								if (($l->isBeheerder() === false) &&
-									($l->isInstructeur() === false))
+								if (!$this->heeftDataToegang())
 								{
 									throw new Exception("401;Gebruiker mag geen logboek van ander lid opvragen;");
 								}									
@@ -829,7 +848,7 @@
 			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s, HASH=%s", $retVal['totaal'], $retVal['laatste_aanpassing'], $retVal['hash']));
 			
 			if ($retVal['hash'] == $hash)
-				throw new Exception("304;Dataset ongewijzigd;");
+				throw new Exception("704;Dataset ongewijzigd;");
 
 			if ($alleenLaatsteAanpassing)
 			{
@@ -1008,15 +1027,18 @@
 
 			$l = MaakObject('Login');
 
-			if ($l->isBeheerder() == true)
+			if ($l->isBeheerder())
 				$privacyCheck = false;
 
-			if ($l->isBeheerderDDWV() == true)
+			if ($l->isBeheerderDDWV())
 				$privacyCheck = false;
 			
-			if ($l->isStarttoren() == true)
+			if ($l->isStarttoren())
 				$privacyCheck = false;
 			
+			if ($l->isInstructeur() || $l->isInstructeur())
+				$privacyCheck = false;
+
 			if ($privacyCheck == true)
 			{
 				// Club vliegtuigen, mag iedereen zien
@@ -1039,7 +1061,7 @@
 							STARTTIJD IS NOT NULL	AND						
 							VLIEGTUIG_ID = %s 		AND 
 							VLIEGER_ID = %s 		AND 
-							STR_TO_DATE(DATUM, '%%Y-%%m-%%d'), NOW()- INTERVAL 6 MONTH", $vliegtuigID, $l->getUserFromSession());
+							DATUM >  NOW()- INTERVAL 6 MONTH", $vliegtuigID, $l->getUserFromSession());
 			
 				parent::DbOpvraag($query);
 				$vluchten = parent::DbData();
@@ -1072,7 +1094,7 @@
 			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s, HASH=%s", $retVal['totaal'], $retVal['laatste_aanpassing'], $retVal['hash']));
 
 			if ($retVal['hash'] == $hash)
-				throw new Exception("304;Dataset ongewijzigd;");
+				throw new Exception("704;Dataset ongewijzigd;");
 
 			if ($alleenLaatsteAanpassing)
 			{
@@ -1196,13 +1218,16 @@
 
 			$l = MaakObject('Login');
 
-			if ($l->isBeheerder() == true)
+			if ($l->isBeheerder())
 				$privacyCheck = false;
 
-			if ($l->isBeheerderDDWV() == true)
+			if ($l->isBeheerderDDWV())
 				$privacyCheck = false;
 			
-			if ($l->isStarttoren() == true)
+			if ($l->isStarttoren())
+				$privacyCheck = false;
+			
+			if ($l->isInstructeur() || $l->isInstructeur())
 				$privacyCheck = false;
 			
 			if ($privacyCheck == true)
@@ -1251,7 +1276,7 @@
 			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s, HASH=%s", $retVal['totaal'], $retVal['laatste_aanpassing'], $retVal['hash']));
 
 			if ($retVal['hash'] == $hash)
-				throw new Exception("304;Dataset ongewijzigd;");
+				throw new Exception("704;Dataset ongewijzigd;");
 
 			if ($alleenLaatsteAanpassing)
 			{
@@ -1383,14 +1408,19 @@
 		function VerwijderObject($id, $verificatie = true)
 		{
 			Debug(__FILE__, __LINE__, sprintf("Startlijst.VerwijderObject('%s', %s)", $id, (($verificatie === false) ? "False" :  $verificatie)));								
-			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)
-				throw new Exception("401;Geen schrijfrechten;");
-
 			if ($id == null)
 				throw new Exception("406;Geen ID in aanroep;");
 			
-			isCSV($id, "ID");
+			$start = $this->GetObject(isCSV($id, "ID")); 
+			$volleToegang = $this->heeftDataToegang($start['DATUM']);
+			if (!$volleToegang) 
+			{
+				// We mogen alleen vluchten van onszelf verwijderen
+				$l = MaakObject('Login');
+				if (($start[VLIEGER_ID] != $l->getUserFromSession()) && ($start[VLIEGER_ID] != $l->getUserFromSession()))
+					throw new Exception("401;Geen schrijfrechten;");
+			}
+
 			parent::MarkeerAlsVerwijderd($id, $verificatie);			
 		}		
 
@@ -1401,14 +1431,18 @@
 		{
 			Debug(__FILE__, __LINE__, sprintf("Startlijst.HerstelObject('%s')", $id));
 
-			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)
-				throw new Exception("401;Geen schrijfrechten;");
-
 			if ($id == null)
 				throw new Exception("406;Geen ID in aanroep;");
 			
-			isCSV($id, "ID");
+			$start = $this->GetObject(isCSV($id, "ID")); 
+			$volleToegang = $this->heeftDataToegang($start['DATUM']);
+			if (!$volleToegang) 
+			{
+				// We mogen alleen vluchten van onszelf verwijderen
+				$l = MaakObject('Login');
+				if (($start[VLIEGER_ID] != $l->getUserFromSession()) && ($start[VLIEGER_ID] != $l->getUserFromSession()))
+					throw new Exception("401;Geen schrijfrechten;");
+			}
 			parent::HerstelVerwijderd($id);
 		}
 
@@ -1431,7 +1465,7 @@
 				// ID is opgegeven, maar bestaat record?
 				try 	// Als record niet bestaat, krijgen we een exception
 				{		
-					$this->GetObject($id, null);	
+					$this->GetObject($id);	
 				}
 				catch (Exception $e) {}
 
@@ -1446,31 +1480,35 @@
 				throw new Exception("406;DATUM is verplicht;");			
 
 			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)	
+			$volleToegang = $this->heeftDataToegang($StartlijstData['DATUM']);
+			if (!$volleToegang) 
 			{
-				$nieuweVlieger = array_key_exists('VLIEGER_ID', $StartlijstData) ? $startData['VLIEGER_ID'] : -1;
-				$nieuweInzittende = array_key_exists('INZITTENDE_ID', $StartlijstData) ? $startData['INZITTENDE_ID'] : $nieuweVlieger;
+				$nieuweVlieger = array_key_exists('VLIEGER_ID', $StartlijstData) ? $StartlijstData['VLIEGER_ID'] : -1;
+				$nieuweInzittende = array_key_exists('INZITTENDE_ID', $StartlijstData) ? $StartlijstData['INZITTENDE_ID'] : $nieuweVlieger;
 
 				// We mogen alleen vluchten voor onszelf invoeren
-				if (($nieuweVlieger != $l->getUserFromSession()) && (nieuweInzittende != $l->getUserFromSession()))
+				if (($nieuweVlieger != $l->getUserFromSession()) && ($nieuweInzittende != $l->getUserFromSession())) 
+				{
+					Debug(__FILE__, __LINE__, sprintf("Startlijst.UpdateObject nieuweVlieger=%s nieuweInzittende=%s", $nieuweVlieger, $nieuweInzittende));
 					throw new Exception(sprintf("405;VLIEGER_ID of INZITTENDE_ID moet LID_ID(%s) bevatten;", $l->getUserFromSession()));
+				}
 			}
-
+			
 			// Neem data over uit aanvraag
             $d = $this->RequestToRecord($StartlijstData);
             $d['DAGNUMMER'] = $this->NieuwDagNummer($d['DATUM']);
-				
-			if (($l->isStarttoren() == true) && (array_key_exists('DATUM', $d)))
-			{
-				if (isDATE($d['DATUM']) != date("Y-m-d"))		// starttoren mag alleen vandaag invoeren
-					throw new Exception("401;Geen schrijfrechten;");
-			}
+
+			$this->StartLandingTijdenValidatie($d);
 
 			$id = parent::DbToevoegen($d);
 			Debug(__FILE__, __LINE__, sprintf("Daginfo toegevoegd id=%d", $id));
 
 			$record = $this->GetObject($id);
-			$this->Aanmeldingen($record);
+			try 
+			{
+				$this->Aanmeldingen($record);
+			}
+			catch(Exception $exception) {}
 			return $record;
 		}
 
@@ -1490,7 +1528,8 @@
 			$id = isINT($StartlijstData['ID'], "ID");
 
 			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)	
+			$volleToegang = $this->heeftDataToegang($StartlijstData['DATUM']);
+			if (!$volleToegang) 	
 			{
 				$bestaandeStart = $this->GetObject($id);
 				// Geen schrijf rechten, maar eigen starts mag je altijd aanpassen
@@ -1504,26 +1543,34 @@
 					$nieuweInzittende = array_key_exists('INZITTENDE_ID', $StartlijstData) ? $StartlijstData['INZITTENDE_ID'] : $bestaandeStart['INZITTENDE_ID'];
 
 					// We mogen onszelf niet van de vlucht halen
-					if (($nieuweVlieger != $l->getUserFromSession()) && (nieuweInzittende != $l->getUserFromSession()))
+					if (($nieuweVlieger != $l->getUserFromSession()) && ($nieuweInzittende != $l->getUserFromSession()))
+					{
+						Debug(__FILE__, __LINE__, sprintf("Startlijst.UpdateObject nieuweVlieger=%s nieuweInzittende=%s", $nieuweVlieger, $nieuweInzittende));
 						throw new Exception(sprintf("405;VLIEGER_ID of INZITTENDE_ID moet LID_ID(%s) bevatten;", $l->getUserFromSession()));
+					}
 				}
 			}
 
 			// Neem data over uit aanvraag
 			$d = $this->RequestToRecord($StartlijstData);            
-
 			if (($l->isStarttoren() == true) && (array_key_exists('DATUM', $d)))
 			{
 				if (isDATE($d['DATUM']) != date("Y-m-d"))		// starttoren mag alleen vandaag invoeren
 					throw new Exception("401;Geen schrijfrechten;");
 			}
 
+			$this->StartLandingTijdenValidatie($d);
+
 			parent::DbAanpassen($id, $d);
 			if (parent::NumRows() === 0)
 				throw new Exception("404;Record niet gevonden;");				
 			
 			$record = $this->GetObject($id);
-			$this->Aanmeldingen($record);
+			try
+			{
+				$this->Aanmeldingen($record);
+			}
+			catch(Exception $exception) {}
 			return $record;
 		}
 
@@ -1546,6 +1593,13 @@
 
 			if ($vliegerID == null)
 				throw new Exception("406;VLIEGER_ID moet ingevuld zijn;");
+
+			$l = MaakObject('Login');
+			if ($vliegerID != $l->getUserFromSession())
+			{
+				if (!$this->heeftDataToegang())
+					throw new Exception("401;Geen leesrechten;");
+			}
 
 			$dateTime = new DateTime();
 			if ($datum !== null) {
@@ -1660,18 +1714,25 @@
 			// Als ingelogde gebruiker geen bijzonder functie heeft, worden alleen zijn vliegdagen opgehaald
 			$l = MaakObject('Login');
 
-			if ($l->isStarttoren() == true)
+			if (!$this->heeftDataToegang())
 			{
-				$where .= sprintf (" AND DATUM = '%s'", date("Y-m-d"));		// starttoren mag alleen vandaag opvragen
-			}
-			else if ($l->isBeheerderDDWV())
-			{
-				$where .= " AND ((DDWV = 1)";
-				$where .= sprintf(" OR ((VLIEGER_ID = '%d') OR (INZITTENDE_ID = '%d')))", $l->getUserFromSession(), $l->getUserFromSession());		
-			}
-			else if ((!$l->isBeheerder()) && (!$l->isInstructeur()) && (!$l->isCIMT()))
-			{
-				$where .= sprintf(" AND ((VLIEGER_ID = '%d') OR (INZITTENDE_ID = '%d'))", $l->getUserFromSession(), $l->getUserFromSession());
+				$w = sprintf("(VLIEGER_ID = '%d') OR (INZITTENDE_ID = '%d')", $l->getUserFromSession(), $l->getUserFromSession());
+
+				// Startlijst voor beheerder DDWV is ook op DDWV dagen bechikbaar
+				if ($l->isBeheerderDDWV() == true)
+					$w .= " OR (DATUM IN (select DATUM from oper_rooster WHERE DDWV = 1))";
+
+				// Startlijst voor DDWV crew is mogen ook DDWV dagen zien waar ze zelf dienst hadden
+				if ($l->isDDWVCrew() == true)
+				{
+					$w .= sprintf(" OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = %d))", $l->getUserFromSession());	
+					$w .= " AND (DATUM IN (select DATUM from oper_rooster WHERE DDWV = 1)))";
+				}
+
+				$where .= sprintf(" AND (%s)", $w);
+
+				if ($l->isStarttoren() == true)
+					$where .= sprintf (" AND DATUM = '%s'", date("Y-m-d"));		// starttoren mag alleen vandaag opvragen			}
 			}
 
 			foreach ($params as $key => $value)
@@ -1767,7 +1828,7 @@
 			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s, HASH=%s", $retVal['totaal'], $retVal['laatste_aanpassing'], $retVal['hash']));
 
 			if ($retVal['hash'] == $hash)
-				throw new Exception("304;Dataset ongewijzigd;");
+				throw new Exception("704;Dataset ongewijzigd;");
 
 			if ($alleenLaatsteAanpassing)
 			{
@@ -1795,14 +1856,78 @@
 			}
 			return null;  // Hier komen we nooit :-)
 		}
+
+		/*
+		Controleer of start en landingstijden juist zijn 
+		*/
+		function StartLandingTijdenValidatie($StartlijstData)
+		{
+			Debug(__FILE__, __LINE__, sprintf("Startlijst.StartLandingTijdenValidatie(%s)", print_r($StartlijstData, true)));			
+
+			if (!array_key_exists('STARTTIJD', $StartlijstData) && !array_key_exists('LANDINGSTIJD', $StartlijstData))
+				return; // Starttijd en landingstijd zijn niet ingegeven, er is niets te doen
+			
+			
+			if (array_key_exists('STARTTIJD', $StartlijstData) && array_key_exists('LANDINGSTIJD', $StartlijstData))
+			{
+				if (($StartlijstData['STARTTIJD'] == null) && ($StartlijstData['LANDINGSTIJD'] != null))
+					throw new Exception("406;Starttijd ontbreekt;");
+
+			
+				if (($StartlijstData['STARTTIJD'] != null) && ($StartlijstData['LANDINGSTIJD'] != null))	
+				{
+					$hms = explode(":", $StartlijstData['STARTTIJD']);
+					$s = $hms[0] * 60 +  $hms[1];
+					
+
+					$hms = explode(":", $StartlijstData['LANDINGSTIJD']);
+					$l = $hms[0] * 60 + $hms[1];
+
+					if ($l <= $s)
+						throw new Exception(sprintf("409;Landingstijd %s moet later zijn dan de starttijd %s;", 
+							$StartlijstData['STARTTIJD'], $StartlijstData['LANDINGSTIJD']));
+
+					return; 		// er is niets meer te doen start & landingstijden zijn ingegeven en goed.
+				}
+			}
+
+			// Er is eerder een start ingevoerd
+			if (array_key_exists('ID', $StartlijstData)) 
+			{
+				$start = $this->GetObject($StartlijstData['ID']);
+
+				if (array_key_exists('STARTTIJD', $StartlijstData))
+					$start['STARTTIJD'] = $StartlijstData['STARTTIJD'];
+
+				if (array_key_exists('LANDINGSTIJD', $StartlijstData))
+					$start['LANDINGSTIJD'] = $StartlijstData['LANDINGSTIJD'];	
+				
+				if (($start['STARTTIJD'] == null) && ($start['LANDINGSTIJD'] != null))
+					throw new Exception("406;Starttijd ontbreekt;");
+
+				if (($start['STARTTIJD'] != null) && ($start['LANDINGSTIJD'] != null))
+				{
+					$hms = explode(":", $start['STARTTIJD']);
+					$s = $hms[0] * 60 + $hms[1];
+
+					$hms = explode(":", $start['LANDINGSTIJD']);
+					$l = $hms[0] * 60 + $hms[1];
+
+					if ($l <= $s)
+						throw new Exception(sprintf("409;Landingstijd %s moet later zijn dan de starttijd %s;", 
+							$start['STARTTIJD'], $start['LANDINGSTIJD']));
+				}
+			}
+		}
 		
 		/*
-		Aanmelden van vlieger / inzittende / vliegtuig 
+		Aanmelden van vlieger / inzittende / vliegtuig voor de vliegdag
 		*/
 		function Aanmeldingen($startData)
 		{
 			Debug(__FILE__, __LINE__, sprintf("Startlijst.Aanmeldingen(%s)", print_r($startData, true)));
-			
+			$login = MaakObject('Login');
+
 			$refLeden = MaakObject('Leden');
 
 			$record = array();
@@ -1818,55 +1943,61 @@
 			{
 				if  (isINT($startData['VLIEGER_ID']) !== false)
 				{
-					$rlObj = $refLeden->GetObject($startData['VLIEGER_ID']);
-
-					switch($rlObj['LIDTYPE_ID'])
+					if (($this->heeftDataToegang($startData['DATUM'])) || ($startData['VLIEGER_ID'] == $login->getUserFromSession()))
 					{
-						case "600": break; 	// Diverse, niet aanmelden
-						case "607": break; 	// Zusterclub, niet aanmelden
-						case "609": break; 	// Nieuw lid, niet aanmelden
-						case "610": break; 	// Oprotkabel, niet aanmelden
-						case "612": break; 	// Penningmeester, niet aanmelden
-						default:
-							$record['LID_ID'] = $startData['VLIEGER_ID'];
+						$rlObj = $refLeden->GetObject($startData['VLIEGER_ID']);
 
-							$refVliegtuigen = MaakObject('Vliegtuigen');
-							$rvObj = $refVliegtuigen->GetObject($startData['VLIEGTUIG_ID']);
+						switch($rlObj['LIDTYPE_ID'])
+						{
+							case "600": break; 	// Diverse, niet aanmelden
+							case "607": break; 	// Zusterclub, niet aanmelden
+							case "609": break; 	// Nieuw lid, niet aanmelden
+							case "610": break; 	// Oprotkabel, niet aanmelden
+							case "612": break; 	// Penningmeester, niet aanmelden
+							default:
+								$record['LID_ID'] = $startData['VLIEGER_ID'];
 
-							if ($rvObj['CLUBKIST'] == 1)
-								$record['VOORKEUR_VLIEGTUIG_TYPE'] = $rvObj['TYPE_ID'];
-							else
-								$record['OVERLAND_VLIEGTUIG_ID'] = $startData['VLIEGTUIG_ID'];
+								$refVliegtuigen = MaakObject('Vliegtuigen');
+								$rvObj = $refVliegtuigen->GetObject($startData['VLIEGTUIG_ID']);
 
-							$aLeden->Aanmelden($record);	
-							break;
+								if ($rvObj['CLUBKIST'] == 1)
+									$record['VOORKEUR_VLIEGTUIG_TYPE'] = $rvObj['TYPE_ID'];
+								else
+									$record['OVERLAND_VLIEGTUIG_ID'] = $startData['VLIEGTUIG_ID'];
+
+								$aLeden->Aanmelden($record);	
+								break;
+						}
 					}
 				}
 			}
 			
 			if (array_key_exists('INZITTENDE_ID', $startData))
 			{
-				if  (isINT($startData['INZITTENDE_ID']) !== false)
+				if (($this->heeftDataToegang($startData['DATUM'])) || ($startData['INZITTENDE_ID'] == $login->getUserFromSession()))
 				{
-					$rlObj = $refLeden->GetObject($startData['INZITTENDE_ID']);
-
-					switch($rlObj['LIDTYPE_ID'])
+					if  (isINT($startData['INZITTENDE_ID']) !== false)
 					{
-						case "600": break; 	// Diverse, niet aanmelden
-						case "607": break; 	// Zusterclub, niet aanmelden
-						case "609": break; 	// Nieuw lid, niet aanmelden
-						case "610": break; 	// Oprotkabel, niet aanmelden
-						case "612": break; 	// Penningmeester, niet aanmelden
-						default:
-							//  geen vliegtuig en type zetten voor de inzittende
-							unset($record['OVERLAND_VLIEGTUIG_ID']);	
-							unset($record['VOORKEUR_VLIEGTUIG_TYPE']);
+						$rlObj = $refLeden->GetObject($startData['INZITTENDE_ID']);
 
-							$record['LID_ID'] = $startData['INZITTENDE_ID'];
-							$aLeden->Aanmelden($record);	
-							break;
-					}		
-				}		
+						switch($rlObj['LIDTYPE_ID'])
+						{
+							case "600": break; 	// Diverse, niet aanmelden
+							case "607": break; 	// Zusterclub, niet aanmelden
+							case "609": break; 	// Nieuw lid, niet aanmelden
+							case "610": break; 	// Oprotkabel, niet aanmelden
+							case "612": break; 	// Penningmeester, niet aanmelden
+							default:
+								//  geen vliegtuig en type zetten voor de inzittende
+								unset($record['OVERLAND_VLIEGTUIG_ID']);	
+								unset($record['VOORKEUR_VLIEGTUIG_TYPE']);
+
+								$record['LID_ID'] = $startData['INZITTENDE_ID'];
+								$aLeden->Aanmelden($record);	
+								break;
+						}		
+					}	
+				}	
 			}						
 		}
 
@@ -1892,7 +2023,8 @@
 				return 1;		
 		}
 
-				/*
+
+		/*
 		Copieer data van request naar velden van het record 
 		*/
 		function RequestToRecord($input)
@@ -1993,13 +2125,27 @@
 			if (isset($record['VELD_ID']))
 				$retVal['VELD_ID']  = $record['VELD_ID'] * 1;	
 
-				
+			if (isset($record['VLIEGER_LIDTYPE_ID']))
+				$retVal['VLIEGER_LIDTYPE_ID']  = $record['VLIEGER_LIDTYPE_ID'] * 1;
+
+			if (isset($record['INZITTENDE_LIDTYPE_ID']))
+				$retVal['INZITTENDE_LIDTYPE_ID']  = $record['INZITTENDE_LIDTYPE_ID'] * 1;				
+
+			if (isset($record['STARTTIJD']))
+				$retVal['STARTTIJD'] = substr($record['STARTTIJD'] , 0, 5);	// alleen hh:mm
+			
+			if (isset($record['LANDINGSTIJD']))
+				$retVal['LANDINGSTIJD'] = substr($record['LANDINGSTIJD'] , 0, 5);	// alleen hh:mm
+								
 			// booleans	
 			if (isset($record['VERWIJDERD']))
 				$retVal['VERWIJDERD']  = $record['VERWIJDERD'] == "1" ? true : false;
 
 			if (isset($record['CLUBKIST']))
 				$retVal['CLUBKIST']  = $record['CLUBKIST'] == "1" ? true : false;				
+
+			if (isset($record['DDWV']))
+				$retVal['DDWV']  = $record['DDWV'] == "1" ? true : false;
 
 			return $retVal;
 		}		

@@ -5,6 +5,8 @@
 		{
 			parent::__construct();
 			$this->dbTable = "oper_aanwezig_leden";
+			$this->dbView = "aanwezig_leden_view";
+			$this->Naam = "Leden aanwezig";
 		}
 		
 		/*
@@ -201,15 +203,10 @@
 				$obj['VERTREK'] = substr($obj['VERTREK'] , 0, 5);	// alleen hh:mm
 
 			// Controle of de gebruiker deze data wel mag ophalen
-			$l = MaakObject('Login');
-			if ($l->isStarttoren() == true)
-			{
-				if ($obj['DATUM'] !== date("Y-m-d"))		// starttoren mag alleen vandaag opvragen
-					throw new Exception("401;Geen leesrechten;");
-			}
-			elseif (($l->isBeheerder() == false) && ($l->isBeheerderDDWV() == false) && ($l->isInstructeur() == false) && ($l->isStarttoren() == false))
+			if (!$this->heeftDataToegang($obj['DATUM']))
 			{
 				// is ingelogde gebruiker de persoon zelf? Nee, dan geen toegang
+				$l = MaakObject('Login');
 				if (($obj['LID_ID'] !== $l->getUserFromSession()))
 					throw new Exception("401;Geen leesrechten;");
 			}
@@ -236,11 +233,30 @@
 
 			// Als ingelogde gebruiker geen bijzonder functie heeft, worden beperkte dataset opgehaald
 			$l = MaakObject('Login');
-			if (($l->isBeheerder() == false) && ($l->isBeheerderDDWV() == false) && ($l->isInstructeur() == false) && ($l->isStarttoren() == false))
+			if (($l->isBeheerder() == true) || ($l->isInstaller() == true) || ($l->isInstructeur() == true) || ($l->isCIMT() == true))
+			{
+				// geen beperkingen voor deze gebruikers
+			}
+			else if ($l->isStarttoren() == true)
+			{
+				// starttoren mag alleen vandaag opvragen
+				$where .= sprintf (" AND DATUM = '%s'", date("Y-m-d"));		
+			}
+			else if (($l->isBeheerderDDWV() == true) || ($l->isDDWVCrew() == true))
+			{
+				// Daginfo voor DDWV is alleen op DDWV dagen bechikbaar
+				$where .= " AND (DATUM IN (select DATUM from oper_rooster WHERE DDWV = 1))";	
+
+				if ($l->isDDWVCrew() == true) 
+				{
+					// DDWV crew mag alleen DDWV dagen zien waar ze zelf dienst hadden
+					$where .= sprintf(" AND (DATUM IN (select DATUM from oper_diensten WHERE LID_ID = %d))", $l->getUserFromSession());	
+				}
+			}
+			else 
+			{
 				$where .= sprintf(" AND (LID_ID = '%d') ", $l->getUserFromSession());
-			
-			if (($l->isStarttoren() == true) && ($l->isBeheerder() == false))
-				$where .= sprintf (" AND DATUM = '%s'", date("Y-m-d"));		// starttoren mag alleen vandaag opvragen
+			}
 
 			$query_params = array();
 
@@ -407,7 +423,7 @@
 			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s, HASH=%s", $retVal['totaal'], $retVal['laatste_aanpassing'], $retVal['hash']));
 
 			if ($retVal['hash'] == $hash)
-				throw new Exception("304;Dataset ongewijzigd;");
+				throw new Exception("704;Dataset ongewijzigd;");
 
 			if ($alleenLaatsteAanpassing)
 			{
@@ -450,9 +466,19 @@
 		function VerwijderObject($id = null, $lid_id = null, $datum = null, $verificatie = true)
 		{
 			Debug(__FILE__, __LINE__, sprintf("AanwezigLeden.VerwijderObject('%s', %s, %s, %s)", $id, $lid_id, $datum, (($verificatie === false) ? "False" :  $verificatie)));					
-			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)
-				throw new Exception("401;Geen schrijfrechten;");
+
+
+			if ($datum) 
+			{
+				if ($this->heeftDataToegang() == false)
+					throw new Exception("401;Geen schrijfrechten;");
+			}
+			else
+			{
+				if ($this->heeftDataToegang($datum) == false)
+					throw new Exception("401;Geen schrijfrechten;");
+			}
+
 
 			if ($id !== null)
 			{
@@ -466,6 +492,7 @@
 				isINT($lid_id, "LID_ID");
 				isDATE($datum, "DATUM");	
 			}
+
 
 			if ($id == null)
 			{
@@ -485,8 +512,7 @@
 		{
 			Debug(__FILE__, __LINE__, sprintf("AanwezigLeden.HerstelObject('%s')", $id));
 
-			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)
+			if ($this->heeftDataToegang() == false)
 				throw new Exception("401;Geen schrijfrechten;");
 
 			if ($id == null)
@@ -499,7 +525,7 @@
 		/*
 		Toevoegen van een record. Het is niet noodzakelijk om alle velden op te nemen in het verzoek
 		*/		
-		function AddObject($AanwezigLedenData, $magSchrijven = null)
+		function AddObject($AanwezigLedenData)
 		{
 			Debug(__FILE__, __LINE__, sprintf("AanwezigLeden.AddObject(%s)", print_r($AanwezigLedenData, true)));
 				
@@ -532,12 +558,9 @@
 			$lidID = isINT($AanwezigLedenData['LID_ID'], "LID_ID");
 			$aanmeldDatum = isDATE($AanwezigLedenData['DATUM'], "DATUM");	
 			
-			$l = MaakObject('Login');
-			if ($lidID != $l->getUserFromSession()) // een lid kan zichzelf aan en afmelden (zie this->Aanmelden / this->Afmelden) 
-			{
-				if ($l->magSchrijven() == false)	
-					throw new Exception("401;Geen schrijfrechten;");
-			}			
+			$login = MaakObject('Login');
+			if ((!$this->heeftDataToegang($AanwezigLedenData['DATUM'])) && ($lidID!= $login->getUserFromSession()))
+				throw new Exception("401;Geen schrijfrechten;");		
 
 			// Voorkom dat datum meerdere keren voorkomt in de tabel
 			try 	// Als record niet bestaat, krijgen we een exception
@@ -585,15 +608,11 @@
 			if (array_key_exists('LID_ID', $AanwezigLedenData))
 			{
 				if ($AanwezigLedenData['LID_ID'] != $db_record['LID_ID'])
-				throw new Exception(sprintf("409;Lid ID (%s, %s) kan niet gewijzigd worden;",$AanwezigLedenData['LID_ID'], $db_record['LID_ID']));
+					throw new Exception(sprintf("409;Lid ID (%s, %s) kan niet gewijzigd worden;",$AanwezigLedenData['LID_ID'], $db_record['LID_ID']));
 			}
 
-			$l = MaakObject('Login');
-			if ($db_record['LID_ID'] != $l->getUserFromSession()) // een lid lan eigen aanmelding bewerken
-			{
-				if ($l->magSchrijven() == false)	
-					throw new Exception("401;Geen schrijfrechten;");
-			}
+			if ($this->heeftDataToegang($db_record['DATUM']) == false)
+				throw new Exception("401;Geen schrijfrechten;");	
 
 			// Neem data over uit aanvraag
 			$d = $this->RequestToRecord($AanwezigLedenData);            
@@ -622,12 +641,21 @@
 			if (array_key_exists('TIJDSTIP', $AanmeldenLedenData))
 				$datetime = isDATETIME($AanmeldenLedenData['TIJDSTIP'], "TIJDSTIP");
 				
-			if (array_key_exists('DATUM', $AanmeldenLedenData))
+			if (!array_key_exists('DATUM', $AanmeldenLedenData))
 			{
-				$dateParts = explode('-', isDATE($AanmeldenLedenData['DATUM'], 'DATUM'));
-				$datetime->setDate($dateParts[0], $dateParts[1], $dateParts[2]);
+				$AanmeldenLedenData['DATUM'] = date('Y-m-d');
 			}
 
+			$l = MaakObject('Login');
+			if ($LidID != $l->getUserFromSession()) 
+			{
+				if (!$this->heeftDataToegang($AanmeldenLedenData['DATUM']))
+					throw new Exception("401;Geen schrijfrechten;");
+			}
+
+			$dateParts = explode('-', isDATE($AanmeldenLedenData['DATUM'], 'DATUM'));
+			$datetime->setDate($dateParts[0], $dateParts[1], $dateParts[2]);
+			
 			$id = null;
 			try
 			{
@@ -646,7 +674,9 @@
 					$aanmeldType = $AanmeldenLedenData['VOORKEUR_VLIEGTUIG_TYPE'];	// voorkeur type uit aanmelding 
 					$dbType = $db_data['VOORKEUR_VLIEGTUIG_TYPE'];				// voorkeur type uit database
 
-					if (strstr($dbType, $aanmeldType) !== false)
+					$a = explode(',',$dbType);
+
+					if (in_array($aanmeldType, $a))
 					{
 						// heeft dit vliegtuig al als voorkeur, dus geen update
 						unset($AanmeldenLedenData['VOORKEUR_VLIEGTUIG_TYPE']);			
@@ -732,13 +762,6 @@
 
 			$LidID = isINT($AfmeldenLedenData['LID_ID'], "LID_ID");
 		   
-			$l = MaakObject('Login');
-			if ($LidID != $l->getUserFromSession()) 
-			{
-				if ($l->magSchrijven() == false)	
-					throw new Exception("401;Geen schrijfrechten;");
-			}
-
 			$datetime = new DateTime();
 			$datetime->setTimeZone(new DateTimeZone('Europe/Amsterdam')); 
 
@@ -749,6 +772,13 @@
 			{
 				$db_data = $this->GetObject(null, $LidID, $datetime->format('Y-m-d'), false);
 				$AfmeldenLedenData['ID'] = $db_data['ID'];
+
+				$l = MaakObject('Login');
+				if ($LidID != $l->getUserFromSession()) 
+				{
+					if (!$this->heeftDataToegang($db_data['DATUM']))	
+						throw new Exception("401;Geen schrijfrechten;");
+				}
 			}
 			catch (Exception $e) 
 			{
@@ -774,6 +804,9 @@
 		function PotentieelVliegers($vliegtuigID, $datum = null)
 		{
 			Debug(__FILE__, __LINE__, sprintf("AanwezigLeden.PotentieelVliegers(%s,%s)", $vliegtuigID, $datum));
+
+			if (!$this->heeftDataToegang($datum))	
+				throw new Exception("401;Geen leesrechten;");
 
 			if ($vliegtuigID == null)
 				throw new Exception("406;Geen VLIEGTUID_ID in aanroep;");
@@ -804,7 +837,7 @@
 				array_push($query_params, $rvObj['ID']);			
 			}
 
-			$query = "SELECT LID_ID, VLIEGER FROM `aanwezig_leden_view`" . $where . $condition;
+			$query = "SELECT LID_ID, NAAM FROM `aanwezig_leden_view`" . $where . $condition;
 			
 			parent::DbOpvraag($query, $query_params);
 			Debug(__FILE__, __LINE__, sprintf("AanwezigLeden.PotentieelVliegers Plan A = %d", parent::NumRows()));
@@ -817,7 +850,7 @@
 			{
 				// Alle leden die vandaag aanwezig zijn, 601 = 'Erelid', 602 = 'Lid', 603 = 'Jeugdlid', 606	= 'Donateur', 608 = '5-rittenkaarthouder', 611 = 'Cursist'
 
-				$query = sprintf("SELECT LID_ID, VLIEGER FROM `aanwezig_leden_view` %s AND LIDTYPE_ID IN (601, 602, 603, 606, 608, 611)", $where);
+				$query = sprintf("SELECT LID_ID, NAAM FROM `aanwezig_leden_view` %s AND LIDTYPE_ID IN (601, 602, 603, 606, 608, 611)", $where);
 				parent::DbOpvraag($query, array( ($datum == null) ? date("Y-m-d") : $datum ));
 				Debug(__FILE__, __LINE__, sprintf("AanwezigLeden.PotentieelVliegers Plan B1 = %d", parent::NumRows()));
 
@@ -845,7 +878,7 @@
 					{
 						$vlieger = array (
 							'LID_ID' => $vlucht['VLIEGER_ID'],
-							'VLIEGER' => $vlucht['VLIEGERNAAM_LID']
+							'NAAM' => $vlucht['VLIEGERNAAM_LID']
 						);
 
 						if (!in_array($vlieger, $retVal)) 
@@ -856,7 +889,7 @@
 			}
 
 			// Jeetje nog niets, dan maar plan C, alle aanwezigen
-			$query = sprintf("SELECT LID_ID, VLIEGER FROM `aanwezig_leden_view` %s", $where);														
+			$query = sprintf("SELECT LID_ID, NAAM FROM `aanwezig_leden_view` %s", $where);														
 			parent::DbOpvraag($query, array( ($datum == null) ? date("Y-m-d") : $datum ));
 			Debug(__FILE__, __LINE__, sprintf("AanwezigLeden.PotentieelVliegers Plan C = %d ", parent::NumRows()));
 
@@ -910,7 +943,7 @@
 			{
 				$lid = array (
 					'LID_ID' => $lid['ID'],
-					'VLIEGER' => $lid['NAAM']
+					'NAAM' => $lid['NAAM']
 				);
 
 				array_push($retVal, $lid);

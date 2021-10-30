@@ -5,6 +5,8 @@
 		{
 			parent::__construct();
 			$this->dbTable = "oper_diensten";
+			$this->dbView = "diensten_view";
+			$this->Naam = "Diensten";
 		}
 		
 		/*
@@ -131,7 +133,7 @@
 				WHERE
 					`d`.`VERWIJDERD` = %s
 				ORDER BY 
-					DATUM DESC, SORTEER_VOLGORDE;";	
+					DATUM, SORTEER_VOLGORDE;";	
 							
 			parent::DbUitvoeren("DROP VIEW IF EXISTS diensten_view");							
 			parent::DbUitvoeren(sprintf($query, "diensten_view", $this->dbTable, 0));
@@ -208,10 +210,19 @@
 			$hash = null;
 			$limit = -1;
 			$start = -1;
-			$velden = "*";
+			$velden = "DV.*";
 			$in = "";
 			$alleenVerwijderd = false;
 			$query_params = array();
+
+			$l = MaakObject('Login');
+			if ($l->isDDWV())
+			{
+				// DDWV'ers mogen alleen rooster van DDWV dagen zien
+				Debug(__FILE__, __LINE__, sprintf("%s: %s is DDWV'er, beperk query", $functie, $l->getUserFromSession()));
+
+				$where .= " AND DDWV=1";
+			}
 
 			foreach ($params as $key => $value)
 			{
@@ -302,11 +313,21 @@
                             Debug(__FILE__, __LINE__, sprintf("%s: LID_ID='%s'", $functie, $lidID));
                             break;                      
                         }
+					case "DATUM" : 
+						{
+							$datum = isDATE($value, "DATUM");
+
+							$where .= " AND DATE(DV.DATUM) = ? ";
+							array_push($query_params, $datum);
+
+							Debug(__FILE__, __LINE__, sprintf("%s: DATUM='%s'", $functie, $datum));
+							break;
+						}						
                     case "BEGIN_DATUM" : 
                         {
                             $beginDatum = isDATE($value, "BEGIN_DATUM");
 
-                            $where .= " AND DATE(DATUM) >= ? ";
+                            $where .= " AND DATE(DV.DATUM) >= ? ";
                             array_push($query_params, $beginDatum);
 
                             Debug(__FILE__, __LINE__, sprintf("%s: BEGIN_DATUM='%s'", $functie, $beginDatum));
@@ -316,7 +337,7 @@
                         {
                             $eindDatum = isDATE($value, "EIND_DATUM");
 
-                            $where .= " AND DATE(DATUM) <= ? ";
+                            $where .= " AND DATE(DV.DATUM) <= ? ";
                             array_push($query_params, $eindDatum);
 
                             Debug(__FILE__, __LINE__, sprintf("%s: EIND_DATUM='%s'", $functie, $eindDatum));
@@ -360,18 +381,18 @@
 				SELECT 
 					%s
 				FROM
-					`####diensten_view`" . $where . $orderby;
+					`####diensten_view` AS `DV` INNER JOIN `oper_rooster` ON `DV`.`DATUM` = `oper_rooster`.`DATUM` " . $where . $orderby;
 			$query = str_replace("####", ($alleenVerwijderd ? "verwijderd_" : "") , $query);		
 			
 			$retVal = array();
 
 			$retVal['totaal'] = $this->Count($query, $query_params);		// totaal aantal of record in de database
-			$retVal['laatste_aanpassing']=  $this->LaatsteAanpassing($query, $query_params);
+			$retVal['laatste_aanpassing']=  $this->LaatsteAanpassing($query, $query_params, "DV.LAATSTE_AANPASSING");
 			$retVal['hash'] = dechex((str_replace(":", "", substr($retVal['laatste_aanpassing'], -8)) * 1000) + ($retVal['totaal'] * 1));
 			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s, HASH=%s", $retVal['totaal'], $retVal['laatste_aanpassing'], $retVal['hash']));	
 
 			if ($retVal['hash'] == $hash)
-				throw new Exception("304;Dataset ongewijzigd;");
+				throw new Exception("704;Dataset ongewijzigd;");
 
 			if ($alleenLaatsteAanpassing)
 			{
@@ -408,14 +429,13 @@
 		function VerwijderObject($id, $verificatie = true)
 		{
 			Debug(__FILE__, __LINE__, sprintf("Diensten.VerwijderObject('%s', %s)", $id, (($verificatie === false) ? "False" :  $verificatie)));				
-			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)
-				throw new Exception("401;Geen schrijfrechten;");
-
 			if ($id == null)
 				throw new Exception("406;Geen ID in aanroep;");
 			
 			isCSV($id, "ID");
+
+			$dienst = $this->GetObject($id);
+			$this->magVerwijderenAanpassen($id, $dienst["DATUM"]);
 			parent::MarkeerAlsVerwijderd($id, $verificatie);
 		}		
 		
@@ -426,8 +446,7 @@
 		{
 			Debug(__FILE__, __LINE__, sprintf("Diensten.HerstelObject('%s')", $id));
 
-			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)
+			if (!$this->heeftDataToegang(null, false))
 				throw new Exception("401;Geen schrijfrechten;");
 
 			if ($id == null)
@@ -445,9 +464,6 @@
 			Debug(__FILE__, __LINE__, sprintf("Diensten.AddObject(%s)", print_r($DienstData, true)));
 			
 			$l = MaakObject('Login');
-        // TODO
-	//		if ($l->magSchrijven() == false)	
-	//			throw new Exception("401;Geen schrijfrechten;");
 
 			if ($DienstData == null)
 				throw new Exception("406;Diensten data moet ingevuld zijn;");			
@@ -503,6 +519,17 @@
                 $rooster = $r->AddObject($rooster);
             }
 
+			$l = MaakObject('Login');
+			if ($l->isDDWV()) {
+				throw new Exception("401;Geen schrijfrechten DDWV;");
+			}
+
+			if (($DienstData['LID_ID'] != $l->getUserFromSession()) && (!$l->isBeheerderDDWV()) && (!$l->isRooster()))
+			{
+				if (!$this->heeftDataToegang(null, false))
+					throw new Exception("401;Geen schrijfrechten;");
+			}
+			
 			// Neem data over uit aanvraag
 			$v = $this->RequestToRecord($DienstData);
             $v['ROOSTER_ID'] = $rooster['ID'];
@@ -520,10 +547,6 @@
 		function UpdateObject($DienstData)
 		{
 			Debug(__FILE__, __LINE__, sprintf("Diensten.UpdateObject(%s)", print_r($DienstData, true)));
-			
-			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)	
-				throw new Exception("401;Geen schrijfrechten;");
 
 			if ($DienstData == null)
 				throw new Exception("406;Diensten data moet ingevuld zijn;");			
@@ -532,7 +555,7 @@
 				throw new Exception("406;ID moet ingevuld zijn;");
 
 			$id = isINT($DienstData['ID'], "ID");
-            $ddb = $this->GetObject($id);
+			$ddb = $this->magVerwijderenAanpassen($id, $DienstData['DATUM']);
 
             $Datum = $ddb['DATUM'];
             $Dienst = $ddb['TYPE_DIENST_ID'];
@@ -582,6 +605,7 @@
             }
             
 			// Neem data over uit aanvraag
+			$l = MaakObject('Login');
 			$v = $this->RequestToRecord($DienstData);
             $v['ROOSTER_ID'] = $rooster['ID'];
             $v['INGEVOERD_DOOR_ID'] = $l->getUserFromSession(); 
@@ -591,6 +615,120 @@
 				throw new Exception("404;Record niet gevonden;");				
 			
 			return $this->GetObject($id);
+		}
+
+		/*
+		Mag de gebruiker een dienst aanpassen of verwijderen
+		*/
+		function magVerwijderenAanpassen($id, $datum) 
+		{
+			$l = MaakObject('Login');
+			if ($l->isDDWV()) {
+				throw new Exception("401;Geen schrijfrechten DDWV;");
+			}
+
+			$ddb = $this->GetObject($id);
+			if (!$this->heeftDataToegang($ddb['DATUM']) && !$this->heeftDataToegang($datum) && !$l->isRooster())
+			{
+				// we hebben geen speciale rol, dus mag je niet altijd wijzigen
+
+				// bestaand record moet dienst van ingelogde gebruiker zijn
+				if ($ddb['LID_ID'] != $l->getUserFromSession()) 			
+					throw new Exception("401;Geen schrijfrechten (l1);");
+
+				// nieuwe record moet ook van de ingelogde gebruiker zijn
+				if (array_key_exists('LID_ID', $DienstData) && ($DienstData['LID_ID'] != $l->getUserFromSession()))
+					throw new Exception("401;Geen schrijfrechten (l2);");					
+
+				$datetime1 = strtotime(ddb['DATUM']);
+				$now = new DateTime();
+				
+				$secs = $now - $datetime1;	// seconds between the two times
+				$days = $secs / 86400;
+
+				if (days < 60) {	// tot 2 maanden mag je sowieso wijzgen
+					$datetime1 = strtotime(ddb['LAATSTE_AANPASSING']);
+
+					$secs = $now - $datetime1;	// seconds between the two times
+					$hours = $secs / 3600;
+
+					if ($hours > 4)	{	// tot 4 uur mag je aanpassen
+						throw new Exception("401;Geen schrijfrechten (4);");
+					}
+				}
+			}
+			return $ddb;
+		}
+
+		/*
+			Op hoeveel diensten is het lid ingedeeld
+		*/
+		function TotaalDiensten($jaar, $lidID) {
+
+			Debug(__FILE__, __LINE__, sprintf("Diensten.TotaalDiensten(%s, %s)", $jaar, $lidID));
+
+			$l = MaakObject('Login');
+			if (!$this->heeftDataToegang(null, false) && !$l->isRooster())
+				throw new Exception("401;Geen leesechten;");
+
+			isINT($jaar, "JAAR");
+			$LID_ID = isINT($lidID, "LID_ID", true);
+
+			$query = sprintf("
+				SELECT 
+					`LID_ID`, `NAAM`, YEAR(`r`.`DATUM`) AS JAAR, MONTH(`r`.`DATUM`) AS MAAND, count(*) AS AANTAL 
+				FROM 
+					`diensten_view` `dv` INNER JOIN `oper_rooster` `r` ON `dv`.`ROOSTER_ID` = `r`.`ID`
+				WHERE `CLUB_BEDRIJF` = 1 AND YEAR(`r`.`DATUM`) = '%s' AND %s
+				GROUP BY 
+					LID_ID, NAAM, YEAR(`r`.`DATUM`), MONTH(`r`.`DATUM`)
+				ORDER BY 
+					NAAM, YEAR(`r`.`DATUM`), MONTH(`r`.`DATUM`)", $jaar, ($lidID) ? "LID_ID=$LID_ID" : "1=1");
+
+			parent::DbOpvraag($query);
+
+			$retVal = array();
+			$lidID = null;
+			$naam = null;
+			$totaal = 0;
+			foreach (parent::DbData() as $maand)
+			{
+				// converteer naar integers
+				$maand['LID_ID'] = 1 * $maand['LID_ID'];
+				$maand['JAAR'] = 1 * $maand['JAAR'];
+				$maand['MAAND'] = 1 * $maand['MAAND'];
+				$maand['AANTAL'] = 1 * $maand['AANTAL'];
+
+
+				if (($lidID != null) && ($lidID != $maand['LID_ID'])) {
+					$totaalRecord = array();
+					$totaalRecord['LID_ID'] = $lidID;
+					$totaalRecord['NAAM'] = $naam;
+					$totaalRecord['JAAR'] = $jaar;
+					$totaalRecord['MAAND'] = null;
+					$totaalRecord['AANTAL'] = $totaal;
+
+					array_push($retVal, $totaalRecord);
+					$totaal = 0;
+				}
+
+				array_push($retVal, $maand);
+				$naam = $maand['NAAM'];
+				$lidID = $maand['LID_ID'];
+				$totaal += (1 * $maand['AANTAL']);
+			}
+
+			// nog even de laatste meenemen 
+			$totaalRecord = array();
+			$totaalRecord['LID_ID'] = $lidID;
+			$totaalRecord['NAAM'] = $naam;
+			$totaalRecord['JAAR'] = $jaar;
+			$totaalRecord['MAAND'] = null;
+			$totaalRecord['AANTAL'] = $totaal;
+
+			array_push($retVal, $totaalRecord);			
+
+			return $retVal;
 		}
 
 		/*

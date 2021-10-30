@@ -1,0 +1,247 @@
+openapi: 3.0.2
+info:
+  title: Audit
+  description: Welke wijzigingen hebben in de database plaatsgevonden
+  version: '1.0'
+          
+paths:
+  /Audit/CreateTable:
+    post:
+      security:
+        - basicAuth: []    
+      summary: Creeer database objecten
+      parameters:
+        - in: query
+          name: FILLDATA
+          description: Dummy records aanmaken
+          required: true
+          schema:
+            type: boolean
+      responses:
+        201:
+          description: "Aangemaakt, Tabel toegevoegd"
+        500:
+          description: "Data verwerkingsfout, bijv omdat de tabel al bestaat"   
+
+  /Audit/CreateViews:
+    post:
+      security:
+        - basicAuth: []    
+      summary: Creeer database views
+      responses:
+        201:
+          description: "Aangemaakt, View toegevoegd"
+        500:
+          description: "Data verwerkingsfout, view niet aangemaak"    
+
+ 
+  /Audit/GetObjects:
+    get:
+      security:
+        - basicAuth: []    
+      summary: Haal een lijst met records op uit de database. Query parameters worden in AND conditie gebruikt
+      parameters:
+        - in: query
+          name: ID
+          description: Database ID van het aanwezig record
+          required: false
+          schema:
+            type: integer
+            format: int32
+            example: 82     
+        - in: query
+          name: VERWIJDERD
+          description: Toon welke records verwijderd zijn. Default = false
+          required: false
+          schema:
+            type: boolean             
+        - in: query
+          name: LAATSTE_AANPASSING
+          description: Laatste aanpassing op basis van records in dataset. Bedoeld om data verbruik te verminderen. Dataset is daarom leeg
+          required: false
+          schema:
+            type: boolean
+        - in: query
+          name: HASH
+          description: HASH van laatste GetObjects aanroep. Indien bij nieuwe aanroep dezelfde data bevat, dan volgt http status code 304. In geval dataset niet hetzelfde is, dan komt de nieuwe dataset terug. Ook bedoeld om dataverbruik te vermindereren. Er wordt alleen data verzonden als het nodig is.
+          required: false
+          schema:
+            type: string                
+        - in: query
+          name: SORT
+          description: Sortering van de velden in ORDER BY formaat. Default = CLUBKIST DESC, VOLGORDE, REGISTRATIE
+          required: false
+          schema:
+            type: string     
+        - in: query
+          name: MAX
+          description: Maximum aantal records in de dataset. Gebruikt in LIMIT query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 1  
+        - in: query
+          name: START
+          description: Eerste record in de dataset. Gebruikt in LIMIT query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 1  
+        - in: query        
+          name: VELDEN
+          description: Welke velden moet opgenomen worden in de dataset
+          required: false
+          schema:
+            type: string                                    
+        - in: query
+          name: LID_ID
+          description: Haal alle audit records op van een specifiek lid
+          required: false
+          schema:
+            type: string     
+        - in: query        
+          name: SELECTIE
+          description: NAAM, TABEL, AKTIE, VOOR, DATA, RESULTAAT
+          required: false
+          schema:
+            type: string   
+        - in: query        
+          name: TABEL
+          description: CSV strin met tabel naam
+          required: false
+          schema:
+            type: string                                                              
+      responses:
+        200:
+          description: "OK, data succesvol opgehaald"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/audit'
+        304:
+          description: "Data niet gemodificeerd, HASH in aanroep == hash in dataset"                     
+        405:
+          description: "Methode niet toegestaan, input validatie error"  
+        500:
+          description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"          
+
+  
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+      description: Eerst inloggen voordat API beschikbaar is
+
+  schemas:
+    audit_in:
+      type: object
+      properties:
+        ID:
+          description: Database ID van het record
+          type: integer
+          format: int32
+          example: 14
+        LID_ID:
+          description: Welk lid heeft de aanpassing gemaakt?
+          type: integer
+          format: int32
+          example: 10115
+        TABEL:
+          description: De database tabel waar het om gaat
+          type: string
+          example: "oper_startlijst"
+        TABEL_NAAM:
+          description: Gebruikersvriendelijke naam van de database 
+          type: string
+          example: "Startlijst"
+        ACTIIE:
+          description: De database actie
+          type: string
+          example: "Toevoegen"
+        VOOR:
+          description: De dataset voor de databse bewerking in JSON formaat
+          type: string
+          example: "{}}"
+        DATA:
+          description: De data voor de bewerking in JSON formaat
+          type: string
+          example: "{ID:75,DATUM:2021-09-17,VLIEGTUIG_ID:297}," 
+        RESULTAAT:
+          description: De dataset voor de databse bewerking in JSON formaat
+          type: string
+          example: "{ID:75,DATUM:2021-09-17,VLIEGTUIG_ID:297,AANKOMST:08:59:00,VERTREK:null,LATITUDE:null,LONGITUDE:null,HOOGTE:null,SNELHEID:null,VERWIJDERD:0,LAATSTE_AANPASSING:2021-09-17 08:59:49}"                                   
+ 
+
+    audit:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/audit_in' 
+      - type: object
+        properties:   
+          VERWIJDERD:
+            description: Is dit record gemarkeerd als verwijderd?  
+            type: boolean
+            example: 0        
+          LAATSTE_AANPASSING:
+            description: Tijdstempel van laaste aanpassing in de database
+            type: string
+            format: date-time 
+            example: "2021-05-05 20:13:59Z" 
+
+    view_audit_dataset:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/audit'
+        - type: object
+          properties:
+            NAAM:
+              description: De naam van het lid die de wijziging heeft gedaan
+              type: string
+              example: Momfer de Mol       
+            STARTTOREN:
+              description: Heeft de starttoren de wijziging ingevperd
+              type: boolean
+              example: 0        
+            BEHEERDER:
+              description: Is diegene die aanpassing gemaakt heeft een beheerder?
+              type: boolean
+              example: 0    
+            LIDTYPE_ID:
+              description: Wat voor een soort lid heeft de aanpassing gedaan
+              type: integer
+              format: int32
+              example: 625      
+            LIDTYPE:
+              description: Wat voor een soort lid heeft de aanpassing gedaan, 
+              type: string
+              example: "Ere lid"       
+            DDWV:
+              description: Is de aanpassing op een DDWV gedaan?
+              type: boolean
+              example: 0       
+
+    view_audit:
+      type: object
+      properties:
+        totaal:
+          description: Aantal records dat voldoet aan de criteria in de database
+          type: integer
+          format: int32
+          example: 287
+        laatste_aanpassing:
+          description: Tijdstempel van laaste aanpassing in de database van de records dat voldoet aan de criteria
+          type: string
+          format: date-time 
+          example: "2019-01-05 10:09:53" 
+        hash: 
+          description: hash van de dataset
+          type: string
+          example: "9302aa0"            
+        dataset:
+          description: De dataset met records
+          type: array
+          items: 
+            $ref: '#/components/schemas/view_audit_dataset'                     

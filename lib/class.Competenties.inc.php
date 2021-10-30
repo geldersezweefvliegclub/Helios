@@ -5,6 +5,8 @@
 		{
 			parent::__construct();
 			$this->dbTable = "ref_competenties";
+			$this->dbView = "competenties_view";
+			$this->Naam = "Competenties";
 		}
 		
 		/*
@@ -400,7 +402,7 @@
 			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s, HASH=%s", $retVal['totaal'], $retVal['laatste_aanpassing'], $retVal['hash']));
 
 			if ($retVal['hash'] == $hash)
-				throw new Exception("304;Dataset ongewijzigd;");
+				throw new Exception("704;Dataset ongewijzigd;");
 
 			if ($alleenLaatsteAanpassing)
 			{
@@ -436,8 +438,8 @@
 		function VerwijderObject($id = null, $verificatie = true)
 		{
 			Debug(__FILE__, __LINE__, sprintf("Competenties.VerwijderObject('%s', %s)", $id, (($verificatie === false) ? "False" :  $verificatie)));
-			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)
+			
+			if (!$this->heeftDataToegang(null, false))
 				throw new Exception("401;Geen schrijfrechten;");
 
 			if ($id === null)
@@ -454,8 +456,7 @@
 		{
 			Debug(__FILE__, __LINE__, sprintf("Competenties.HerstelObject('%s')", $id));
 
-			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)
+			if (!$this->heeftDataToegang(null, false))
 				throw new Exception("401;Geen schrijfrechten;");
 
 			if ($id == null)
@@ -472,8 +473,7 @@
 		{
 			Debug(__FILE__, __LINE__, sprintf("Competenties.AddObject(%s)", print_r($CompetentieData, true)));
 			
-			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)
+			if (!$this->heeftDataToegang(null, false))
 				throw new Exception("401;Geen schrijfrechten;");
 			
 			if ($CompetentieData == null)
@@ -519,8 +519,7 @@
 		{
 			Debug(__FILE__, __LINE__, sprintf("Competenties.UpdateObject(%s)", print_r($CompetentieData, true)));
 			
-			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)
+			if (!$this->heeftDataToegang(null, false))
 				throw new Exception("401;Geen schrijfrechten;");
 
 			if ($CompetentieData == null)

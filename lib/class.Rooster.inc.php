@@ -5,6 +5,8 @@
 		{
 			parent::__construct();
 			$this->dbTable = "oper_rooster";
+			$this->dbView = "rooster_view";
+			$this->Naam = "Rooster";
 		}
 		
 		/*
@@ -279,7 +281,7 @@
 			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s, HASH=%s", $retVal['totaal'], $retVal['laatste_aanpassing'], $retVal['hash']));	
 
 			if ($retVal['hash'] == $hash)
-				throw new Exception("304;Dataset ongewijzigd;");
+				throw new Exception("704;Dataset ongewijzigd;");
 
 			if ($alleenLaatsteAanpassing)
 			{
@@ -314,9 +316,9 @@
 		*/
 		function VerwijderObject($id = null, $datum = null, $verificatie = true)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Rooster.VerwijderObject('%s', %s, %s)", $id, $datum, ($verificatie ? "true" : "false")));								
-			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)
+			Debug(__FILE__, __LINE__, sprintf("Rooster.VerwijderObject('%s', %s, %s)", $id, $datum, ($verificatie ? "true" : "false")));							
+			$l = MaakObject('Login');	
+			if (!$this->heeftDataToegang(null, false) && !$l->isBeheerderDDWV() && !$l->isRooster())
 				throw new Exception("401;Geen schrijfrechten;");
 
 			if (($id == null) && ($datum == null))
@@ -346,7 +348,7 @@
 			Debug(__FILE__, __LINE__, sprintf("Rooster.HerstelObject('%s')", $id));
 
 			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)
+			if (!$this->heeftDataToegang(null, false) && !$l->isBeheerderDDWV() && !$l->isRooster())
 				throw new Exception("401;Geen schrijfrechten;");
 
 			if ($id == null)
@@ -387,22 +389,37 @@
 				throw new Exception("406;Datum is verplicht;");
 
 			$roosterDatum = isDATE($RoosterData['DATUM'], "DATUM");
+			$weekday = DateTime::createFromFormat('Y-m-d', $roosterDatum)->format('N');
 
-			if (!array_key_exists('CLUB_BEDRIJF', $RoosterData))
+			$l = MaakObject('Login');
+			if ($this->heeftDataToegang(null, false) || $l->isBeheerderDDWV() || $l->isRooster())
 			{
-				$weekday = DateTime::createFromFormat('Y-m-d', $roosterDatum)->format('N');
+				// een gewone gebruiker mag alleen default aanmaken
+				$RoosterData['OPMERKINGEN'] = null;
+				if ($weekday <= 5) {
+					$RoosterData['DDWV'] = true;
+				}
 				if ($weekday >= 6) {
 					$RoosterData['CLUB_BEDRIJF'] = true;
 				}
 			}
-				
-			if (!array_key_exists('DDWV', $RoosterData))
-			{				
-				$weekday = DateTime::createFromFormat('Y-m-d', $roosterDatum)->format('N');
-				if ($weekday <= 5) {
-					$RoosterData['DDWV'] = true;
+			else
+			{
+				// Beheerders en roostermaker mogen velden vullen
+				if (!array_key_exists('CLUB_BEDRIJF', $RoosterData))
+				{
+					if ($weekday >= 6) {
+						$RoosterData['CLUB_BEDRIJF'] = true;
+					}
 				}
-			}				
+					
+				if (!array_key_exists('DDWV', $RoosterData))
+				{				
+					if ($weekday <= 5) {
+						$RoosterData['DDWV'] = true;
+					}
+				}	
+			}			
 
 			// Voorkom dat datum meerdere keren voorkomt in de tabel
 			try 	// Als record niet bestaat, krijgen we een exception
@@ -431,11 +448,11 @@
 			Debug(__FILE__, __LINE__, sprintf("Rooster.UpdateObject(%s)", print_r($RoosterData, true)));
 			
 			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)	
+			if (!$this->heeftDataToegang(null, false) && !$l->isBeheerderDDWV() && !$l->isRooster() && !$l->isCIMT())
 				throw new Exception("401;Geen schrijfrechten;");
 
 			if ($RoosterData == null)
-				throw new Exception("406;Daginfo data moet ingevuld zijn;");	
+				throw new Exception("406;Rooster data moet ingevuld zijn;");	
 
 			if (!array_key_exists('ID', $RoosterData))
 				throw new Exception("406;ID moet ingevuld zijn;");
@@ -460,8 +477,6 @@
 				}	
 			}
 
-			
-			
 			// Neem data over uit aanvraag
 			$d = $this->RequestToRecord($RoosterData);            
 
@@ -472,22 +487,6 @@
 			return $this->GetObject($id);
 		}
 
-		/*
-		Mag de data aangepast worden
-		*/
-		function magAanpassen($bestaand, $nieuw, $veld) 
-		{
-			if (isset($nieuw[$veld]))
-			{
-				if ($nieuw[$veld] != $bestaand[$veld]) 
-				{
-					if ($nieuw[$veld] != $l->getUserFromSession())
-						throw new Exception("401;Geen schrijfrechten;");
-					if ($bestaand[$veld] != $l->getUserFromSession())
-						throw new Exception("401;Geen schrijfrechten;");
-				}						
-			}
-		}
 
 		/*
 		Copieer data van request naar velden van het record 

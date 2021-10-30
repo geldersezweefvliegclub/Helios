@@ -183,6 +183,40 @@ paths:
         500:
           description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"         
 
+  /Diensten/TotaalDiensten:
+    get:
+      security:
+        - basicAuth: []    
+      summary: Leden en daarbij specificatie van diensten (totaal per jaar en totalen per maand)
+      parameters:
+        - in: query
+          name: JAAR
+          description: Voor welk jaar wordt de data opgevraagd
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - in: query
+          name: LID_ID
+          description: Voor welk lid wordt de data opgevraagd
+          required: true
+          schema:
+            type: integer
+            format: int32            
+      responses:
+        200:
+          description: "OK, data succesvol opgehaald"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/diensten_totaal'
+        405:
+          description: "Methode niet toegestaan, input validatie error"  
+        406:
+          description: "Niet aanvaardbaar, input ontbreekt"    
+        500:
+          description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"     
+
   /Diensten/DeleteObject:
     delete:
       security:
@@ -330,7 +364,15 @@ components:
           description: Link naar type tabel. Geeft aan wat voor type dienst 
           type: integer
           format: int32   
-          example: 12                
+          example: 12    
+        AANWEZIG:
+          description: Is lid aanwezig geweest
+          type: boolean
+          example: 1
+        AFWEZIG:
+          description: Lid is niet komen opdagen
+          type: boolean
+          example: 0                                
  
     oper_diensten:
       type: object
@@ -397,3 +439,29 @@ components:
           type: array
           items: 
             $ref: '#/components/schemas/view_diensten_dataset'
+
+    diensten_totaal:
+      type: object
+      allOf:
+      - type: object
+        properties:
+          LID_ID: 
+            description: Verwijzing naar leden tabel
+            type: integer
+            example: 10900  
+          NAAM: 
+            description: Naam van het lid
+            type: string
+            example: Juffrouw Ooievaar            
+          JAAR: 
+            description: Jaar
+            type: integer
+            example: 2021  
+          MAAND: 
+            description: Maand 1..12, null voor jaar totaal
+            type: integer
+            example: 12       
+          AANTAL: 
+            description: Aantal diensten
+            type: integer
+            example: 39               

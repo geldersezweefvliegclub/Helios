@@ -5,6 +5,8 @@
 		{
 			parent::__construct();
 			$this->dbTable = "oper_aanwezig_vliegtuigen";
+			$this->dbView = "aanwezig_vliegtuigen_view";
+			$this->Naam = "Vliegtuigen aanwezig";
 		}
 		
 		/*
@@ -348,7 +350,7 @@
 			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s, HASH=%s", $retVal['totaal'], $retVal['laatste_aanpassing'], $retVal['hash']));
 
 			if ($retVal['hash'] == $hash)
-				throw new Exception("304;Dataset ongewijzigd;");
+				throw new Exception("704;Dataset ongewijzigd;");
 
 			if ($alleenLaatsteAanpassing)
 			{
@@ -384,9 +386,17 @@
 		function VerwijderObject($id = null, $vliegtuig_id = null, $datum = null, $verificatie = true)
 		{
 			Debug(__FILE__, __LINE__, sprintf("AanwezigVliegtuigen.VerwijderObject('%s', %s, %s, %s)", $id, $vliegtuig_id, $datum, (($verificatie === false) ? "False" :  $verificatie)));					
-			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)
-				throw new Exception("401;Geen schrijfrechten;");
+			
+			if ($datum) 
+			{
+				if ($this->heeftDataToegang() == false)
+					throw new Exception("401;Geen schrijfrechten;");
+			}
+			else
+			{
+				if ($this->heeftDataToegang($datum) == false)
+					throw new Exception("401;Geen schrijfrechten;");
+			}
 
 			if ($id !== null)
 			{
@@ -419,8 +429,7 @@
 		{
 			Debug(__FILE__, __LINE__, sprintf("AanwezigVliegtuigen.HerstelObject('%s')", $id));
 
-			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)
+			if ($this->heeftDataToegang() == false)
 				throw new Exception("401;Geen schrijfrechten;");
 
 			if ($id == null)
@@ -438,8 +447,6 @@
 			Debug(__FILE__, __LINE__, sprintf("AanwezigVliegtuigen.AddObject(%s)", print_r($AanwezigVliegtuigData, true)));
 			
 			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)	
-				throw new Exception("401;Geen schrijfrechten;");
 
 			if ($AanwezigVliegtuigData == null)
 				throw new Exception("406;AanwezigLeden data moet ingevuld zijn;");	
@@ -496,10 +503,6 @@
 		{
 			Debug(__FILE__, __LINE__, sprintf("AanwezigVliegtuigen.UpdateObject(%s)", print_r($AanwezigVliegtuigData, true)));
 			
-			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)	
-				throw new Exception("401;Geen schrijfrechten;");
-
 			if ($AanwezigVliegtuigData == null)
 				throw new Exception("406;AanwezigVliegtuigen data moet ingevuld zijn;");	
 
@@ -530,15 +533,11 @@
 		}
 
 		/*
-		Aanmelden van een lid
+		Aanmelden van een vliegtuig
 		*/
 		function Aanmelden($AanmeldenVliegtuigData, $zetTijd = true)
 		{
 			Debug(__FILE__, __LINE__, sprintf("AanwezigVliegtuigen.Aanmelden(%s)", print_r($AanmeldenVliegtuigData, true)));
-
-			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)	
-				throw new Exception("401;Geen schrijfrechten;");
 
 			if ($AanmeldenVliegtuigData == null)
 				throw new Exception("406;AanmeldenVliegtuigData data moet ingevuld zijn;");	
@@ -554,11 +553,12 @@
 			if (array_key_exists('TIJDSTIP', $AanmeldenVliegtuigData))
 				$datetime = isDATETIME($AanmeldenVliegtuigData['TIJDSTIP'], "TIJDSTIP");
 	
-			if (array_key_exists('DATUM', $AanmeldenVliegtuigData))
-			{
-				$dateParts = explode('-', isDATE($AanmeldenVliegtuigData['DATUM'], 'DATUM'));
-				$datetime->setDate($dateParts[0], $dateParts[1], $dateParts[2]);
-			}
+			if (!array_key_exists('DATUM', $AanmeldenVliegtuigData))
+				$AanmeldenVliegtuigData['DATUM'] = date('Y-m-d');
+
+			$dateParts = explode('-', isDATE($AanmeldenVliegtuigData['DATUM'], 'DATUM'));
+			$datetime->setDate($dateParts[0], $dateParts[1], $dateParts[2]);
+
 
 			$id = null;
 			try
@@ -578,9 +578,38 @@
 				if (!is_null($db_data['VERTREK']))
 					$AanmeldenVliegtuigData['VERTREK'] = null;
 
-				$this->UpdateObject($AanmeldenVliegtuigData);
-				Debug(__FILE__, __LINE__, sprintf("AanwezigVliegtuigen aangepast id=%s", $id));		
-				return  $this->GetObject($id);
+				// Moeten we uberhaupt wel de database aanpassen
+				$aanpassen = false;
+				$velden = array(
+					"ID",
+					"DATUM",
+					"POSITIE" ,
+					"VLIEGTUIG_ID" ,
+					"AANKOMST",
+					"VERTREK",
+					"LATITUDE" ,
+					"LONGITUDE" ,
+					"HOOGTE" ,
+					"SNELHEID");
+	
+				foreach ($velden as $veld)
+				{
+					if (array_key_exists($veld, $AanmeldenVliegtuigData))
+					{
+						if ($db_data[$veld] != $AanmeldenVliegtuigData[$veld])
+						{
+							$aanpassen = true;
+							break;
+						}
+					}
+				}
+				if ($aanpassen)
+				{
+					$this->UpdateObject($AanmeldenVliegtuigData);
+					Debug(__FILE__, __LINE__, sprintf("AanwezigVliegtuigen aangepast id=%s", $id));		
+					return  $this->GetObject($id);
+				}
+				return $db_data;
 			}
 			
 			$AanmeldenVliegtuigData['VERTREK'] = null;	// zeker weten dat vertrek niet gezet wordt
@@ -604,10 +633,6 @@
 		function Afmelden($AfmeldenVliegtuigData)
 		{
 			Debug(__FILE__, __LINE__, sprintf("AfmeldenVliegtuigData.Afmelden(%s)", print_r($AfmeldenVliegtuigData, true)));
-
-			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)	
-				throw new Exception("401;Geen schrijfrechten;");
 
 			if ($AfmeldenVliegtuigData == null)
 				throw new Exception("406;AfmeldenVliegtuigData data moet ingevuld zijn;");	

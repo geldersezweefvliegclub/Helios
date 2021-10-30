@@ -5,6 +5,8 @@
 		{
 			parent::__construct();
 			$this->dbTable = "oper_progressie";
+			$this->dbView = "progressie_view";
+			$this->Naam = "Progressie";
 		}
 		
 		/*
@@ -121,8 +123,15 @@
 			$conditie['ID'] = isINT($ID, "ID");
 
 			$obj = parent::GetSingleObject($conditie);
-			Debug(__FILE__, __LINE__, print_r($obj, true));
-			
+
+			// ophalen mag alleen door ingelogde gebruiker of beheerder
+			$l = MaakObject('Login');
+			if ($l->getUserFromSession() != $obj['LID_ID'])
+			{
+				if (!$this->heeftDataToegang())
+					throw new Exception("401;Geen leesrechten;");
+			}
+
 			if ($obj == null)
 				throw new Exception("404;Record niet gevonden;");
 			
@@ -150,8 +159,9 @@
 
 			// Als ingelogde gebruiker geen bijzonder functie heeft, worden beperkte dataset opgehaald
 			$l = MaakObject('Login');
-			if (($l->isBeheerder() == false) && ($l->isInstructeur() == false))
+			if (!$this->heeftDataToegang()) 
 				$where .= sprintf(" AND (LID_ID = '%d') ", $l->getUserFromSession());
+		
 
 			foreach ($params as $key => $value)
 			{
@@ -235,6 +245,13 @@
 					case "LID_ID" : 
 						{
 							$lidID = isINT($value, "LID_ID");
+
+							if ($lidID != $l->getUserFromSession())
+							{
+								if (!$this->heeftDataToegang())
+									throw new Exception("401;Gebruiker mag geen progressie van ander lid opvragen;");								
+							}
+							
 							$where .= " AND LID_ID=?";
 							array_push($query_params, $lidID);	
 							
@@ -281,7 +298,7 @@
 			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s, HASH=%s", $retVal['totaal'], $retVal['laatste_aanpassing'], $retVal['hash']));	
 
 			if ($retVal['hash'] == $hash)
-			throw new Exception("304;Dataset ongewijzigd;");
+			throw new Exception("704;Dataset ongewijzigd;");
 
 			if ($alleenLaatsteAanpassing)
 			{
@@ -315,12 +332,12 @@
 			$functie = "Progressie.ProgressieKaart";
 			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($params, true)));		
 
-			if (!array_key_exists('LID_ID', $params))
-				throw new Exception("406;LID_ID ontbreekt in aanroep;");
-
 			$alleenLaatsteAanpassing = false;
 			$hash = null;
-			$lid_id = -1;
+		
+			$l = MaakObject('Login');
+			$lid_id = $l->getUserFromSession();
+
 			$velden = "							
 				`competenties_view`.`LEERFASE`,
 				`competenties_view`.`BLOK`,
@@ -365,6 +382,12 @@
 					case "LID_ID" : 
 						{							
 							$lid_id = isINT($value, "LID_ID");
+
+							if ($lid_id != $l->getUserFromSession())
+							{
+								if (!$this->heeftDataToegang())
+									throw new Exception("401;Gebruiker mag geen progressie van ander lid opvragen;");								
+							}
 							
 							Debug(__FILE__, __LINE__, sprintf("%s: LID_ID='%s'", $functie, $lid_id));
 							break;	  
@@ -394,7 +417,7 @@
 			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s, HASH=%s", $retVal['totaal'], $retVal['laatste_aanpassing'], $retVal['hash']));
 
 			if ($retVal['hash'] == $hash)
-				throw new Exception("304;Dataset ongewijzigd;");
+				throw new Exception("704;Dataset ongewijzigd;");
 
 			if ($alleenLaatsteAanpassing)
 			{
@@ -435,8 +458,7 @@
 		function VerwijderObject($id = null, $verificatie = true)
 		{
 			Debug(__FILE__, __LINE__, sprintf("Progressie.VerwijderObject('%s', %s)", $id, (($verificatie === false) ? "False" :  $verificatie)));
-			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)
+			if (!$this->heeftDataToegang())
 				throw new Exception("401;Geen schrijfrechten;");
 
 			if ($id === null)
@@ -454,7 +476,7 @@
 			Debug(__FILE__, __LINE__, sprintf("Progressie.HerstelObject('%s')", $id));
 
 			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)
+			if (!$this->heeftDataToegang())
 				throw new Exception("401;Geen schrijfrechten;");
 
 			if ($id == null)
@@ -471,8 +493,7 @@
 		{
 			Debug(__FILE__, __LINE__, sprintf("Progressie.AddObject(%s)", print_r($ProgressieData, true)));
 			
-			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)
+			if (!$this->heeftDataToegang())
 				throw new Exception("401;Geen schrijfrechten;");
 			
 			if ($ProgressieData == null)
@@ -515,8 +536,7 @@
 		{
 			Debug(__FILE__, __LINE__, sprintf("Progressie.SaveObject(%s)", print_r($ProgressieData, true)));
 			
-			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)	
+			if (!$this->heeftDataToegang())
 				throw new Exception("401;Geen schrijfrechten;");
 
 			if ($ProgressieData == null)
@@ -625,8 +645,7 @@
 		function bouwBoom()
 		{
 			$functie = "Progressie.bouwBoom";
-			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($this->hoofdGroepen, true)));	
-			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($this->progressieKaart, true)));	
+			Debug(__FILE__, __LINE__, sprintf("%s()", $functie));	
 
 			$competentieBoom = array();
 

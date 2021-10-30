@@ -262,7 +262,7 @@ paths:
           required: true
           schema:
             type: string
-            format: binary
+            format: base64 encoded image
 
       responses:
         200:
@@ -510,11 +510,6 @@ components:
           description: Staat privacy mode (AVG / GDPR) uit/aan 
           type: boolean
           example: true     
-        BEPERKINGEN:
-          description: Wat zijn de beperkingen (vliegen / diensten) voor dit lid
-          type: string
-          maxLength: 255
-          example: Meindert niet inzetten als startleider, hij gaat gras eten :-)   
         OPMERKINGEN:
           description: Extra text om opmerkingen toe te voegen
           type: string

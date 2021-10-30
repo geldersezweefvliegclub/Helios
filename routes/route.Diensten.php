@@ -113,6 +113,34 @@ $app->get('/Diensten/GetObjects', function (Request $request, Response $response
 });
 
 /*
+Haal een dataset op met records als een array uit de database. 
+*/
+$app->get('/Diensten/TotaalDiensten', function (Request $request, Response $response, $args) {
+    $obj = MaakObject("Diensten");
+    try
+    {
+        $jaar = $request->getQueryParams()['JAAR'];
+        $lidID = $request->getQueryParams()['LID_ID'];
+        $totalen = $obj->TotaalDiensten($jaar, $lidID);     // Hier staat de logica voor deze functie
+
+        $response->getBody()->write(json_encode($totalen));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+    catch(Exception $exception)
+    {
+        Debug(__FILE__, __LINE__, "/Diensten/TotaalDiensten: " .$exception);
+
+        list($dummy, $exceptionMsg) = explode(": ", $exception);
+        list($httpStatus, $message) = explode(";", $exceptionMsg);   // onze eigen formaat van een exceptie
+
+        header("X-Error-Message: $message", true, intval($httpStatus));
+        header("Content-Type: text/plain");
+        die;
+    }
+});
+
+
+/*
 Markeer een record in de database als verwijderd. Het record wordt niet fysiek verwijderd om er een link kan zijn naar andere tabellen.
 Het veld VERWIJDERD wordt op "1" gezet.
 */

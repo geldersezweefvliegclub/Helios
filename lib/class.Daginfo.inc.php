@@ -5,6 +5,8 @@
 		{
 			parent::__construct();
 			$this->dbTable = "oper_daginfo";
+			$this->dbView = "daginfo_view";
+			$this->Naam = "Daginfo";
 		}
 		
 		/*
@@ -33,7 +35,7 @@
                     `ROLLENDMATERIEEL` text DEFAULT NULL,
                     `VLIEGENDMATERIEEL` text DEFAULT NULL,
                     `DDWV` tinyint UNSIGNED NOT NULL DEFAULT 0,
-					`CLUB_BEDRIJF` tinyint UNSIGNED NOT NULL DEFAULT 1,
+					`CLUB_BEDRIJF` tinyint UNSIGNED NOT NULL DEFAULT 0,
 					`VERWIJDERD` tinyint UNSIGNED NOT NULL DEFAULT '0',
 					`LAATSTE_AANPASSING` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 					
@@ -155,17 +157,8 @@
 			if ($obj == null)
 				throw new Exception("404;Record niet gevonden;");
 
-			// Controle of de gebruiker deze data wel mag ophalen
-			$l = MaakObject('Login');
-			if ($l->isStarttoren() == true)
-			{
-				if ($obj['DATUM'] !== date("Y-m-d"))		// starttoren mag alleen vandaag opvragen
-					throw new Exception("401;Geen leesrechten;");
-			}
-			elseif (($l->isBeheerder() == false) && ($l->isBeheerderDDWV() == false) && ($l->isInstructeur() == false) && ($l->isStarttoren() == false))
-			{
+			if (!$this->heeftDataToegang($obj['DATUM']))
 				throw new Exception("401;Geen leesrechten;");
-			}
 
 			$obj = $this->RecordToOutput($obj);
 			return $obj;	
@@ -191,16 +184,30 @@
 
 			// Als ingelogde gebruiker geen bijzonder functie heeft, worden beperkte dataset opgehaald
 			$l = MaakObject('Login');
-			if (($l->isBeheerder() == false) && 
-				($l->isBeheerderDDWV() == false) && 
-				($l->isInstructeur() == false) && 
-				($l->isRooster() == false) && 
-				($l->isStarttoren() == false) && 
-				($l->isInstaller() == false))
+			if (($l->isBeheerder() == true) || ($l->isInstaller() == true) || ($l->isInstructeur() == true) || ($l->isCIMT() == true))
+			{
+				// geen beperkingen voor deze gebruikers
+			}
+			else if ($l->isStarttoren() == true)
+			{
+				// starttoren mag alleen vandaag opvragen
+				$where .= sprintf (" AND DATUM = '%s'", date("Y-m-d"));		
+			}
+			else if (($l->isBeheerderDDWV() == true) || ($l->isDDWVCrew() == true))
+			{
+				// Daginfo voor DDWV is alleen op DDWV dagen bechikbaar
+				$where .= " AND (DATUM IN (select DATUM from oper_rooster WHERE DDWV = 1))";	
+
+				if ($l->isDDWVCrew() == true) 
+				{
+					// DDWV crew mag alleen DDWV dagen zien waar ze zelf dienst hadden
+					$where .= sprintf(" AND (DATUM IN (select DATUM from oper_diensten WHERE LID_ID = %d))", $l->getUserFromSession());	
+				}
+			}
+			else 
+			{
 				throw new Exception("401;Gebruiker mag daginfo niet opvragen;");
-			
-			if (($l->isStarttoren() == true) && ($l->isBeheerder() == false))
-				$where .= sprintf (" AND DATUM = '%s'", date("Y-m-d"));		// starttoren mag alleen vandaag opvragen
+			}
 
 			foreach ($params as $key => $value)
 			{
@@ -318,7 +325,8 @@
 						}																																											
 				}
 			}
-				
+
+
 			$query = "
 				SELECT 
 					%s
@@ -334,7 +342,7 @@
 			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s, HASH=%s", $retVal['totaal'], $retVal['laatste_aanpassing'], $retVal['hash']));
 
 			if ($retVal['hash'] == $hash)
-				throw new Exception("304;Dataset ongewijzigd;");
+				throw new Exception("704;Dataset ongewijzigd;");
 
 			if ($alleenLaatsteAanpassing)
 			{
@@ -370,8 +378,8 @@
 		function VerwijderObject($id = null, $datum = null, $verificatie = true)
 		{
 			Debug(__FILE__, __LINE__, sprintf("Daginfo.VerwijderObject('%s', %s, %s)", $id, $datum, (($verificatie === false) ? "False" :  $verificatie)));					
-			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)
+			
+			if (!$this->heeftDataToegang())
 				throw new Exception("401;Geen schrijfrechten;");
 
 			if (($id == null) && ($datum == null))
@@ -400,8 +408,7 @@
 		{
 			Debug(__FILE__, __LINE__, sprintf("Daginfo.HerstelObject('%s')", $id));
 
-			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)
+			if (!$this->heeftDataToegang(null, false))
 				throw new Exception("401;Geen schrijfrechten;");
 
 			if ($id == null)
@@ -417,10 +424,6 @@
 		function AddObject($DaginfoData)
 		{
 			Debug(__FILE__, __LINE__, sprintf("Daginfo.AddObject(%s)", print_r($DaginfoData, true)));
-			
-			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)	
-				throw new Exception("401;Geen schrijfrechten;");
 
 			if ($DaginfoData == null)
 				throw new Exception("406;Daginfo data moet ingevuld zijn;");	
@@ -448,10 +451,13 @@
 
 			$daginfoDatum = isDATE($DaginfoData['DATUM'], "DATUM");
 
+			if (!$this->heeftDataToegang($DaginfoData['DATUM']))
+				throw new Exception("401;Geen schrijfrechten;");
+
 			// Voorkom dat datum meerdere keren voorkomt in de tabel
 			try 	// Als record niet bestaat, krijgen we een exception
 			{				
-				$this->GetObject(null, $daginfoDatum, false);
+				$this->GetObject(null, $DaginfoData['DATUM'], false);
 			}
 			catch (Exception $e) {}		
 
@@ -474,10 +480,6 @@
 		{
 			Debug(__FILE__, __LINE__, sprintf("Daginfo.UpdateObject(%s)", print_r($DaginfoData, true)));
 			
-			$l = MaakObject('Login');
-			if ($l->magSchrijven() == false)	
-				throw new Exception("401;Geen schrijfrechten;");
-
 			if ($DaginfoData == null)
 				throw new Exception("406;Daginfo data moet ingevuld zijn;");	
 
@@ -493,7 +495,7 @@
 
 				try 	// Als record niet bestaat, krijgen we een exception
 				{
-					$di = $this->GetObject(null, $daginfoDatum, false);
+					$di = $this->GetObject(null, $DaginfoData['DATUM'], false);
 				}
 				catch (Exception $e) {}	
 
@@ -503,7 +505,14 @@
 						throw new Exception("409;Datum bestaat reeds;");
 				}	
 			}
-			
+			else 
+			{
+				$di = $this->GetObject($id, null, false);
+			}
+
+			if (!$this->heeftDataToegang($di['DATUM']))
+				throw new Exception("401;Geen schrijfrechten;");
+
 			// Neem data over uit aanvraag
 			$d = $this->RequestToRecord($DaginfoData);            
 
@@ -532,6 +541,14 @@
 			$field = 'VELD_ID';
 			if (array_key_exists($field, $input))
 				$record[$field] = isINT($input[$field], $field, true, "Types");		
+
+			$field = 'BAAN_ID';
+			if (array_key_exists($field, $input))
+				$record[$field] = isINT($input[$field], $field, true, "Types");	
+				
+			$field = 'BEDRIJF_ID';
+			if (array_key_exists($field, $input))
+				$record[$field] = isINT($input[$field], $field, true, "Types");	
 
 			$field = 'STARTMETHODE_ID';
 			if (array_key_exists($field, $input))
