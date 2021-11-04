@@ -327,7 +327,7 @@ abstract class Helios
 			$record = $this->GetObjects(array('ID' => $lastid));
 
 			$audit = MaakObject("Audit");
-			$audit->AddObject($this->dbTable, $this->Naam,"Toevoegen", null, json_encode($array), json_encode($result['dataset'][0]));
+			$audit->AddObject($this->dbTable, $this->Naam,"Toevoegen", null, json_encode($array), json_encode($record['dataset'][0]));
 		}
 		return $lastid;
 	}

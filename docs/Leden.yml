@@ -469,6 +469,10 @@ components:
           description: Is dit lid  belast met het maken van roosters    
           type: boolean
           example: false       
+        SLEEPVLIEGER:
+          description: Is dit lid ook een sleepvlieger 
+          type: boolean
+          example: false             
         CLUBBLAD_POST:
           description: Moet clubblad per post verstuurd worden    
           type: boolean
@@ -509,7 +513,17 @@ components:
         PRIVACY: 
           description: Staat privacy mode (AVG / GDPR) uit/aan 
           type: boolean
-          example: true     
+          example: true   
+        SLEUTEL1: 
+          description: Het serienummner van sleutel 1 (GeZC)
+          type: string
+          maxLength: 25
+          example: 12372    
+        SLEUTEL2: 
+          description: Het serienummner van sleutel 2 (SNZT)
+          type: string
+          maxLength: 25
+          example: 88AB021EC04                           
         OPMERKINGEN:
           description: Extra text om opmerkingen toe te voegen
           type: string

@@ -197,15 +197,23 @@
 					(286, 07,  1004,  280,  NULL,  'Turbogebruik XLT',  'Let op! Jaarlijkse vragenlijst ook noodzakelijk!'),
 					(287, 08,  1004,  280,  NULL,  'DDWV-Vliegen',  'Toestemming van bestuur'),
 					(288, 09,  1004,  280,  NULL,  '2-zitter overland',  'Toestemming van bestuur'),
+					(289, 07,  1004,  280,  NULL,  'Turboinstructeur',  NULL), 
 					
 					(300, 01,  1004,  NULL, NULL,  'Jaarchecks',  NULL),
+					
 					(301, 02,  1004,  300,  NULL,  '2020',  NULL),
 					(302, 02,  1004,  301,  NULL,  'Checkvlucht',  NULL),
 					(303, 02,  1004,  301,  NULL,  'XLT vragenlijst',  NULL),
+
 					(304, 02,  1004,  300,  NULL,  '2021',  NULL),
 					(305, 02,  1004,  304,  NULL,  'Checkvlucht',  NULL),
 					(306, 02,  1004,  304,  NULL,  'XLT vragenlijst',  NULL),
-					(307, 02,  1004,  304,  NULL,  'Arcus vragenlijst',  NULL)";
+					(307, 02,  1004,  304,  NULL,  'Arcus vragenlijst',  NULL),
+
+					(311, 02,  1004,  300,  NULL,  '2022',  NULL),
+					(312, 02,  1004,  311,  NULL,  'Checkvlucht',  NULL),
+					(313, 02,  1004,  311,  NULL,  'XLT vragenlijst',  NULL),
+					(314, 02,  1004,  311,  NULL,  'Arcus vragenlijst',  NULL)";
 
 				$query = sprintf("
 						INSERT INTO `%s` (

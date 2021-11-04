@@ -82,6 +82,7 @@
 			Debug(__FILE__, __LINE__, sprintf("Audit.AddObject(%s, $s, %s, %s, %s)", $Tabel, $Actie, $Voor, $Data, $Resultaat));
 												
 			$l = MaakObject('Login');
+			Debug(__FILE__, __LINE__, sprintf("Kweenee(%s)", $l->getUserFromSession()));
 
 			$record = array();
             $record['LID_ID'] = $l->getUserFromSession(); 
@@ -109,7 +110,7 @@
 			$orderby = "";
 			$alleenLaatsteAanpassing = false;
 			$hash = null;
-			$limit = -1;
+			$limit = 1000;	 // standaard max 1000 records
 			$start = -1;
 			$velden = "*";
 			$in = "";

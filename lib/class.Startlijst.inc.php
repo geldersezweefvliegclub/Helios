@@ -39,6 +39,7 @@
                     `VELD_ID` mediumint UNSIGNED DEFAULT NULL,
 					`OPMERKINGEN` text DEFAULT NULL,
 					`EXTERNAL_ID` text DEFAULT NULL,
+					`PAX` tinyint UNSIGNED NOT NULL DEFAULT '0',
 					`VERWIJDERD` tinyint UNSIGNED NOT NULL DEFAULT '0',
 					`LAATSTE_AANPASSING` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 					 
@@ -1526,12 +1527,13 @@
 				throw new Exception("406;ID moet ingevuld zijn;");
 
 			$id = isINT($StartlijstData['ID'], "ID");
+			$bestaandeStart = $this->GetObject($id);
 
 			$l = MaakObject('Login');
-			$volleToegang = $this->heeftDataToegang($StartlijstData['DATUM']);
+			$volleToegang = $this->heeftDataToegang($bestaandeStart['DATUM']);
 			if (!$volleToegang) 	
 			{
-				$bestaandeStart = $this->GetObject($id);
+				
 				// Geen schrijf rechten, maar eigen starts mag je altijd aanpassen
 				if (($bestaandeStart['VLIEGER_ID'] != $l->getUserFromSession()) && ($bestaandeStart['INZITTENDE_ID'] != $l->getUserFromSession()))
 				{
@@ -2075,6 +2077,10 @@
 
 			$field = 'SLEEP_HOOGTE';
 			if (array_key_exists($field, $input))
+				$record[$field] = isINT($input[$field], $field, true);	
+
+			$field = 'PAX';
+			if (array_key_exists($field, $input))
 				$record[$field] = isINT($input[$field], $field, true);					
 
 			$field = 'VELD_ID';
@@ -2146,6 +2152,9 @@
 
 			if (isset($record['DDWV']))
 				$retVal['DDWV']  = $record['DDWV'] == "1" ? true : false;
+
+			if (isset($record['PAX']))
+				$retVal['PAX']  = $record['PAX'] == "1" ? true : false;				
 
 			return $retVal;
 		}		

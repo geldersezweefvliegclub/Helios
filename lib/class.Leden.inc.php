@@ -20,7 +20,7 @@
 				
 			if (parent::bestaatTabel())	
 				throw new Exception("405;Tabel bestaat al;");
-				
+
 			$query = sprintf ("
 				CREATE TABLE `%s` (
                     `ID` mediumint  UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -47,6 +47,7 @@
 					`BEHEERDER` tinyint UNSIGNED NOT NULL DEFAULT 0,
 					`STARTTOREN` tinyint UNSIGNED NOT NULL DEFAULT 0,
 					`ROOSTER` tinyint UNSIGNED NOT NULL DEFAULT 0,
+					`SLEEPVLIEGER` tinyint UNSIGNED NOT NULL DEFAULT 0,
 					`CLUBBLAD_POST` tinyint UNSIGNED NOT NULL DEFAULT 0,
 					`MEDICAL` date DEFAULT NULL,
 					`GEBOORTE_DATUM` date DEFAULT NULL,
@@ -57,6 +58,8 @@
 					`AVATAR` varchar(255) DEFAULT NULL,        
                     `HEEFT_BETAALD` tinyint UNSIGNED NOT NULL DEFAULT 0,
 					`PRIVACY` tinyint UNSIGNED NOT NULL DEFAULT 0,
+					`SLEUTEL1` varchar(25) DEFAULT NULL,
+					`SLEUTEL2` varchar(25) DEFAULT NULL,
 					`OPMERKINGEN` text DEFAULT NULL,
                     `VERWIJDERD` tinyint UNSIGNED NOT NULL DEFAULT 0,
 					`LAATSTE_AANPASSING` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -998,6 +1001,12 @@
 				if (array_key_exists('INLOGNAAM', $input))
 					$record['INLOGNAAM'] = $input['INLOGNAAM']; 	
 
+				if (array_key_exists('SLEUTEL1', $input))
+					$record['SLEUTEL1'] = $input['SLEUTEL1']; 		
+					
+				if (array_key_exists('SLEUTEL2', $input))
+					$record['SLEUTEL2'] = $input['SLEUTEL2']; 						
+
 				$ld = $l->lidData();
 				if (array_key_exists('WACHTWOORD', $input))
 				{
@@ -1045,7 +1054,10 @@
 				$field = 'STARTLEIDER';
 				if (array_key_exists($field, $input))
 					$record[$field] = isBOOL($input[$field], $field);	
-							
+			
+				$field = 'SLEEPVLIEGER';
+				if (array_key_exists($field, $input))
+					$record[$field] = isBOOL($input[$field], $field);						
 			}
 
 			if (($l->isBeheerder()) || ($l->isRooster()) || $l->isCIMT())  {
@@ -1080,7 +1092,7 @@
 
 				$field = 'ROOSTER';
 				if (array_key_exists($field, $input))
-					$record[$field] = isBOOL($input[$field], $field);
+					$record[$field] = isBOOL($input[$field], $field);					
 
 				$field = 'STARTTOREN';
 				if (array_key_exists($field, $input))
@@ -1154,6 +1166,9 @@
 				
 			if (isset($record['ROOSTER']))
 				$retVal['ROOSTER']  = $record['ROOSTER'] == "1" ? true : false;
+
+			if (isset($record['SLEEPVLIEGER']))
+				$retVal['SLEEPVLIEGER']  = $record['SLEEPVLIEGER'] == "1" ? true : false;
 				
 			if (isset($record['CLUBBLAD_POST']))
 				$retVal['CLUBBLAD_POST']  = $record['CLUBBLAD_POST'] == "1" ? true : false;

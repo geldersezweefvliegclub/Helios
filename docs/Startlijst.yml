@@ -739,7 +739,11 @@ components:
           description: Extra text om ID van extern systeem op te slaan
           type: string
           maxLength: 255
-          example: 2012-06-03:TQ:219            
+          example: 2012-06-03:TQ:219   
+        PAX:
+          description: Is dit een passagiers start
+          type: boolean
+          example: 0                       
 
     oper_startlijst:
       type: object

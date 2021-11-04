@@ -206,7 +206,7 @@ if (!IsSet($GLOBALS['DATABASE_INCLUDED']))
 					
 				if ($values == "")
 				{
-					if ($value == null)
+					if ($value === null)
 						$values = sprintf("NULL");
 					elseif (is_numeric($value))
 						$values = sprintf("%s", $value);

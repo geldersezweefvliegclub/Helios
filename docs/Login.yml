@@ -202,7 +202,11 @@ components:
         ROOSTER:
           description: Is dit lid  belast met het maken van roosters    
           type: boolean
-          example: false       
+          example: false     
+        SLEEPVLIEGER:
+          description: Is dit lid ook een sleepvlieger 
+          type: boolean
+          example: false              
         CLUBBLAD_POST:
           description: Moet clubblad per post verstuurd worden    
           type: boolean

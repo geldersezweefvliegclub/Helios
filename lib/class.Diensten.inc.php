@@ -231,7 +231,7 @@
 					case "ID" : 
 						{
 							$id = isINT($value, "ID");
-							$where .= " AND ID=?";
+							$where .= " AND DV.ID=?";
 							array_push($query_params, $id);
 
 							Debug(__FILE__, __LINE__, sprintf("%s: ID='%s'", $functie, $id));

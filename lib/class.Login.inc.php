@@ -28,6 +28,7 @@ require ("include/PasswordHash.php");
 			if (isset($_SESSION['login']))
 				return $_SESSION['login'];
 
+			Debug(__FILE__, __LINE__, sprintf("getUserFromSession NULL : %s", print_r($_SESSION, true)));
 			return null;	
 		}
 
