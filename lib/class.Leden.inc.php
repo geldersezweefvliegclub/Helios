@@ -37,6 +37,7 @@
                     `EMAIL` varchar(45) DEFAULT NULL,
                     `LIDNR` varchar(10) DEFAULT NULL,
 					`LIDTYPE_ID` mediumint UNSIGNED NOT NULL,
+					`STATUSTYPE_ID` mediumint UNSIGNED NULL,
 					`ZUSTERCLUB_ID` mediumint UNSIGNED DEFAULT NULL,
                     `LIERIST` tinyint UNSIGNED NOT NULL DEFAULT 0,
                     `STARTLEIDER` tinyint UNSIGNED NOT NULL DEFAULT 0,
@@ -714,7 +715,7 @@
 			
 			// schrijven mag alleen door ingelogde gebruiker of beheerder
 			$l = MaakObject('Login');
-			if ($l->getUserFromSession() != $LidData["ID"])
+			if ($l->getUserFromSession() != $id)
 			{
 				if (!$this->heeftDataToegang(null, false) && !$l->isBeheerderDDWV())
 					throw new Exception("401;Geen schrijfrechten;");
@@ -1070,6 +1071,10 @@
 				$field = 'INSTRUCTEUR';
 				if (array_key_exists($field, $input))
 					$record[$field] = isBOOL($input[$field], $field);
+
+				$field = 'STATUSTYPE_ID';
+				if (array_key_exists($field, $input))
+					$record[$field] = isINT($input[$field], $field, true, "Types");				
 			}
 			
 			if ($l->isBeheerder() == true)
@@ -1135,6 +1140,9 @@
 
 			if (isset($record['LIDTYPE_ID']))
 				$retVal['LIDTYPE_ID']  = $record['LIDTYPE_ID'] * 1;
+
+			if (isset($record['STATUSTYPE_ID']))
+				$retVal['STATUSTYPE_ID']  = $record['STATUSTYPE_ID'] * 1;				
 			
 			if (isset($record['ZUSTERCLUB_ID']))
 				$retVal['ZUSTERCLUB_ID']  = $record['ZUSTERCLUB_ID'] * 1;	

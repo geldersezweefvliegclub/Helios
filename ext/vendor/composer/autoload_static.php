@@ -30,6 +30,7 @@ class ComposerStaticInite39cdff3d4671ad6f7505052d4cd4b1c
         ),
         'F' => 
         array (
+            'Firebase\\JWT\\' => 13,
             'Fig\\Http\\Message\\' => 17,
             'FastRoute\\' => 10,
         ),
@@ -65,6 +66,10 @@ class ComposerStaticInite39cdff3d4671ad6f7505052d4cd4b1c
         'MessageBird\\' => 
         array (
             0 => __DIR__ . '/..' . '/messagebird/php-rest-api/src/MessageBird',
+        ),
+        'Firebase\\JWT\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/firebase/php-jwt/src',
         ),
         'Fig\\Http\\Message\\' => 
         array (

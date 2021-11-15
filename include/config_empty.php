@@ -25,7 +25,8 @@ $app_settings = array(
 	'Debug' => true,				// Debug informatie naar logfile, uitzetten voor productie
 	'LogDir' => '/tmp/log/helios/',	// Locatie waar log bestanden geschreven worden
 	'Vereniging' => "GeZC",
-	'ApiKeySMS' => 'API key here'	// api key voor messagebird
+	'ApiKeySMS' => 'API key here',	// api key voor messagebird
+	'KeyJWT' => '480f4p*%ghouiEWf*DXKz22Vy7RDzFeaBlw329zMyHh*o'	// versleutel JWT token, AANPASSEN voor productie !!!
 );
 
 

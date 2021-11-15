@@ -5,7 +5,7 @@
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => 'f8a4252bb259bce54b86485e339f6de620d773c9',
+        'reference' => '990d87f7b68e594e1fefa00d37c5a7f475fa702a',
         'name' => '__root__',
         'dev' => true,
     ),
@@ -16,7 +16,7 @@
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => 'f8a4252bb259bce54b86485e339f6de620d773c9',
+            'reference' => '990d87f7b68e594e1fefa00d37c5a7f475fa702a',
             'dev_requirement' => false,
         ),
         'fig/http-message-util' => array(
@@ -26,6 +26,15 @@
             'install_path' => __DIR__ . '/../fig/http-message-util',
             'aliases' => array(),
             'reference' => '35b19404371b31b3a43823c755398c48c9966db4',
+            'dev_requirement' => false,
+        ),
+        'firebase/php-jwt' => array(
+            'pretty_version' => 'v5.5.1',
+            'version' => '5.5.1.0',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../firebase/php-jwt',
+            'aliases' => array(),
+            'reference' => '83b609028194aa042ea33b5af2d41a7427de80e6',
             'dev_requirement' => false,
         ),
         'messagebird/php-rest-api' => array(

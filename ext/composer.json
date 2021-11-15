@@ -3,6 +3,7 @@
         "slim/slim": "^4.0",
         "slim/psr7": "^0.6.0",
       "ext-json": "*",
-        "messagebird/php-rest-api": "^2.0"
+        "messagebird/php-rest-api": "^2.0",
+        "firebase/php-jwt": "^5.5"
     }
 }

@@ -200,7 +200,11 @@
 					(1807, 18, NULL,   	'Middag Lierist', 	 	 8, 0),
 					(1808, 18, NULL,   	'Middag Hulplierist', 	 9, 0),
 					(1809, 18, NULL,   	'Middag Startleider', 	10, 0),
-					(1810, 18, NULL,   	'Sleepvlieger vd dag', 	11, 0);";
+					(1810, 18, NULL,   	'Sleepvlieger vd dag', 	11, 0),
+					
+					(1901, 19, 'DBO',    'DBO', NULL, 0),
+					(1902, 19, 'SOLIST', 'Solist', NULL, 0),
+					(1903, 19, 'BREVET', 'Brevethouder', NULL, 0);";
 
 				$query = sprintf("
 						INSERT INTO `%s` (

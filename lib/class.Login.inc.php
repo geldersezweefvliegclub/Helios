@@ -1,4 +1,8 @@
 <?php
+
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
+
 require ("include/PasswordHash.php");
 
 	class Login extends Helios
@@ -22,14 +26,40 @@ require ("include/PasswordHash.php");
 		
 		function getUserFromSession()
 		{
-			if ($this->_userID != null)
-				return $this->_userID;
+			global $app_settings;
+			$id = -1;
 
-			if (isset($_SESSION['login']))
-				return $_SESSION['login'];
+			if ($this->_userID != null)			// id van ingelode gebruiker is opgeslagen in class member
+			{
+				$id = $this->_userID;
+			}
+			elseif (isset($_SESSION['login']))	// id van ingelode gebruiker is opgeslagen in sessie
+			{
+				$id = $_SESSION['login'];
+			}
+			elseif ((array_key_exists('PHP_AUTH_USER', $_SERVER)) && (array_key_exists('PHP_AUTH_PW', $_SERVER)))
+			{
+				$username = $_SERVER['PHP_AUTH_USER'];
+				
+				$lObj = $l->GetObjectByLoginNaam($username); 	// id van ingelode gebruiker via username
+				$id = $lObj['ID'];
+			}
+			else 	// id van ingelode gebruiker uit bearer token
+			{				
+				$jwt = $this->getBearerToken();	
 
-			Debug(__FILE__, __LINE__, sprintf("getUserFromSession NULL : %s", print_r($_SESSION, true)));
-			return null;	
+				if ($jwt)
+				{
+					$decoded = (array) JWT::decode($jwt, new Key($app_settings['KeyJWT'], 'HS256'));
+					$id = $decoded["ID"];	
+				}
+
+				if ($id < 0)
+				{
+					throw new Exception("501;Gebruiker onbekend;");
+				}
+			}
+			return $id;
 		}
 
 		function Logout()
@@ -59,13 +89,13 @@ require ("include/PasswordHash.php");
 				session_start();
 
 			$_SESSION['login']= $id;
-			$_SESSION['userInfo'] = json_encode($this->getUserInfo());
+			$_SESSION['userInfo'] = json_encode($this->getUserInfo($id));
 
 			Debug(__FILE__, __LINE__, sprintf("setSessionUser = %s", $_SESSION['userInfo'] ));
 			//session_write_close();
 		}
 
-		function getUserInfo($datum = null)
+		function getUserInfo($lidID)
 		{			
 			$Userinfo = array();
 
@@ -83,24 +113,23 @@ require ("include/PasswordHash.php");
 			$Userinfo['isDDWV'] = false;
 			$Userinfo['isAangemeld'] = false;
 
-			$UserID = $this->getUserFromSession();
 			$LidData = null;
 
-			Debug(__FILE__, __LINE__, sprintf("getUserInfo: %s, isInstaller:%s", $UserID, ($this->isInstaller() == true ? "true" : "false") ));
+			Debug(__FILE__, __LINE__, sprintf("getUserInfo: %s, isInstaller:%s", $lidID, ($this->isInstaller() == true ? "true" : "false") ));
 
 			$a = MaakObject('AanwezigLeden');
 
-			if ((is_numeric($UserID)) && (!$this->isInstaller()))
+			if ((is_numeric($lidID)) && (!$this->isInstaller()))
 			{	
 				$l = MaakObject('Leden');
 				try
 				{
-					$LidData = $l->getObject($UserID);
+					$LidData = $l->getObject($lidID);
 					$LidData['WACHTWOORD'] 	= "****";
 				}
 				catch(Exception $exception) 
 				{
-					Debug(__FILE__, __LINE__, "getObject($UserID) gefaald");
+					Debug(__FILE__, __LINE__, "getObject($lidID) gefaald");
 				}
 
 				$Userinfo['isBeheerderDDWV'] 	= $l->isPermissie("DDWV_BEHEERDER", $LidData['ID'], $LidData);
@@ -114,7 +143,6 @@ require ("include/PasswordHash.php");
 
 				$Userinfo['isClubVlieger'] 		= $l->isClubVlieger($LidData['ID'], $LidData);
 				$Userinfo['isDDWV'] 			= $l->isDDWV($LidData['ID'], $LidData);
-				$Userinfo['isAangemeld'] 		= false;
 				$Userinfo['isAangemeld'] 		= $a->IsAangemeldVandaag($UserID);				
 			}
 			return array ("LidData" => $LidData, "Userinfo" => $Userinfo);
@@ -134,6 +162,18 @@ require ("include/PasswordHash.php");
 
 			$UserID = $this->getUserFromSession();
 
+			// Check of sessie data valide is, zo nee dat goed zetten
+			if (isset($_SESSION['userInfo']) === false) 
+			{
+				$this->setSessionUser($UserID);
+			}
+			else 
+			{
+				$lidData = $this->lidData();
+				if ($lidData->ID != $UserID)
+					$this->setSessionUser($UserID);
+			}
+
 			if(isset($UserID))
 			{
 				Debug(__FILE__, __LINE__, sprintf("heeftToegang: UserID=%s ", $UserID));
@@ -151,11 +191,11 @@ require ("include/PasswordHash.php");
 			
 			// Als username & wachtwoord niet zijn meegegeven, dan ophalen uit de aanvraag
 			if (($username == null) || ($password == null))
-			{				
-				if ((array_key_exists('USERNAME', $this->Data)) && (array_key_exists('PASSWORD', $this->Data)))
+			{		
+				if ((array_key_exists('PHP_AUTH_USER', $_SERVER)) && (array_key_exists('PHP_AUTH_PW', $_SERVER)))
 				{
-					$username = $this->Data['USERNAME'];
-					$password = $this->Data['PASSWORD'];
+					$username = $_SERVER['PHP_AUTH_USER'];
+					$password = $_SERVER['PHP_AUTH_PW'];
 					
 					Debug(__FILE__, __LINE__, sprintf("username = %s", $username));
 				}
@@ -205,7 +245,17 @@ require ("include/PasswordHash.php");
 																				$key, 
 																				$lObj['SECRET']));
 			
-			if (($lObj['AUTH'] == "1") && (empty($token))) 
+			// check of we 2factor kunnen overslaan, dit kan als er een cookie is
+			// en de cookie hetzelfde ID heeft als de gebruiker die nu wil inloggen 
+			$skip2Factor = false;
+			if (isset($_COOKIE['2FACTOR']))
+			{
+				if ($_COOKIE['2FACTOR'] == base64_encode($lObj['ID']))	// Cookie bevat ID ten tijde van de SMS
+					$skip2Factor = true;
+			}
+
+
+			if (($lObj['AUTH'] == "1") && (empty($token)) && $skip2Factor == false) 
 			{
 				Debug(__FILE__, __LINE__, sprintf("URI: %s)", $_SERVER['REQUEST_URI']));	
 
@@ -220,12 +270,12 @@ require ("include/PasswordHash.php");
 
 				throw new Exception("406;Token moet ingevoerd worden;");
 			}
-																											
+																										
 			if ($lObj['WACHTWOORD'] == $key)	
 			{		
 				Debug(__FILE__, __LINE__, sprintf("Toegang toegestaan (%s)", $username));	
 
-				if ($lObj['AUTH'] == "1")		// 2 factor authenticatie
+				if (($lObj['AUTH'] == "1") && ($skip2Factor == false))			// 2 factor authenticatie
 				{
 					$ga = new PHPGangsta_GoogleAuthenticator();
 					$checkResult = $ga->verifyCode($lObj['SECRET'], $token, 2);    // 2 = 2*30sec clock tolerance
@@ -233,19 +283,34 @@ require ("include/PasswordHash.php");
 					if ($checkResult) 
 					{
 						Debug(__FILE__, __LINE__, sprintf("2 Factor succesvol"));	
+
+						// We willen SMS kosten besparen, dus niet ieder inlog poging om SMS vragen
+						// De startstoren en beheerder max 1 SMS perdag, alle andere gebruikers max 1x per week
+
+						$verlopen = time()+ 60 * 60 * 24 * 7;	// na week nieuwe SMS nodig
+						if (($lObj['STARTTOREN'] ==  1) || ($lObj['BEHEERDER'] ==  1)) 
+							$verlopen = $timestamp = strtotime('today midnight') +  60 * 60 * 24;	// iedere dag nieuwe SMS nodig
+
+						session_set_cookie_params(["SameSite" => "None"]); //none, lax, strict
+						setcookie("2FACTOR", base64_encode($lObj['ID']), [
+							'expires' => $verlopen,
+							'path' => '/',
+							'secure' => true,
+							'samesite' => 'None',
+						]);  	// stoppen ID in cookie
+
 						$this->setSessionUser($lObj['ID']);	
-						return;
+						return $this->JWT($lObj);
 					}
 					else
 					{
 						Debug(__FILE__, __LINE__, sprintf("2 Factor gefaalt"));	
 					}
-
 				}
 				else
 				{
 					$this->setSessionUser($lObj['ID']);	
-					return;
+					return $this->JWT($lObj);
 				}
 			}
 			else if ($lObj['LIDTYPE_ID'] == "625")			// 625 = DDWV
@@ -257,7 +322,7 @@ require ("include/PasswordHash.php");
 				{
 					Debug(__FILE__, __LINE__, sprintf("Toegang toegestaan DDWV (%s)", $username));	
 					$this->setSessionUser($lObj['ID']);	
-					return;							
+					return $this->JWT($lObj);							
 				}
 			}
 			
@@ -392,6 +457,55 @@ require ("include/PasswordHash.php");
 		{
 			throw new Exception("401;Toegang geweigerd;");
 		}
+
+		// Maak JSON Web Token (JWT)
+		function JWT($lidData)
+		{
+			global $app_settings;
+
+			$payload = array(
+				"iss" => (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]",
+				"aud" => (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]",
+				"iat" => time(),
+				"exp" => time() + 15 * 60,		// 15 min geldig
+				"ID" => $lidData['ID'] 
+			);
+			
+			return JWT::encode($payload, $app_settings['KeyJWT'], 'HS256');
+		}
+
+		function getAuthorizationHeader(){
+			$headers = null;
+			if (isset($_SERVER['Authorization'])) {
+				$headers = trim($_SERVER["Authorization"]);
+			}
+			else if (isset($_SERVER['HTTP_AUTHORIZATION'])) { //Nginx or fast CGI
+				$headers = trim($_SERVER["HTTP_AUTHORIZATION"]);
+			} elseif (function_exists('apache_request_headers')) {
+				$requestHeaders = apache_request_headers();
+				// Server-side fix for bug in old Android versions (a nice side-effect of this fix means we don't care about capitalization for Authorization)
+				$requestHeaders = array_combine(array_map('ucwords', array_keys($requestHeaders)), array_values($requestHeaders));
+				//print_r($requestHeaders);
+				if (isset($requestHeaders['Authorization'])) {
+					$headers = trim($requestHeaders['Authorization']);
+				}
+			}
+			return $headers;
+		}
+
+		/**
+		 * get access token from header
+		 * */
+		function getBearerToken() {
+			$headers = $this->getAuthorizationHeader();
+			// HEADER: Get the access token from the header
+			if (!empty($headers)) {
+				if (preg_match('/Bearer\s(\S+)/', $headers, $matches)) {
+					return $matches[1];
+				}
+			}
+			return null;
+		}		
 
 		function sendSMS() 
 		{

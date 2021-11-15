@@ -37,7 +37,8 @@ use Slim\Factory\AppFactory;
 $l = MaakObject('Login');
 try
 {
-  $l->heeftToegang($_GET["token"]);			// het stopt hier als de gebruiker niet ingelogd is	
+    if ($_SERVER['REQUEST_URI'] != "/Login/Login")     // Als we nog moeten inloggen, dan niet controleren of we toegang hebben
+        $l->heeftToegang($_GET["token"]);			// het stopt hier als de gebruiker niet ingelogd is	
 }
 catch(Exception $exception)
 {

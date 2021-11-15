@@ -208,14 +208,14 @@ if (!IsSet($GLOBALS['DATABASE_INCLUDED']))
 				{
 					if ($value === null)
 						$values = sprintf("NULL");
-					elseif (is_numeric($value))
+					elseif ((is_numeric($value)) && (substr($value,0,1) != "0"))
 						$values = sprintf("%s", $value);
 					else
 						$values = sprintf("'%s'", $value);
 				}
 				else
 				{
-					if (is_numeric($value))
+					if ((is_numeric($value)) && (substr($value,0,1) != "0")) 
 						$values = sprintf("%s,%s", $values, $value);
 					elseif ($value == null)
 						$values = sprintf("%s,NULL", $values, $value);
@@ -310,14 +310,14 @@ if (!IsSet($GLOBALS['DATABASE_INCLUDED']))
 				{
 					if ($value == null)
 						$fields = sprintf("%s=NULL", $field);
-					elseif (is_numeric($value))
+					elseif ((is_numeric($value)) && (substr($value,0,1) != "0")) 
 						$fields = sprintf("%s=%s", $field, $value);
 					else
 						$fields = sprintf("%s='%s'", $field, str_replace("'","\'", $value));
 				}
 				else
 				{
-					if (is_numeric($value))
+					if ((is_numeric($value)) && (substr($value,0,1) != "0")) 
 							$fields = sprintf("%s,%s=%s", $fields, $field, $value);
 					elseif ($value == null)
 						$fields = sprintf("%s,%s=NULL", $fields, $field);

@@ -2081,7 +2081,7 @@
 
 			$field = 'PAX';
 			if (array_key_exists($field, $input))
-				$record[$field] = isINT($input[$field], $field, true);					
+				$record[$field] = isBOOL($input[$field], $field, true);					
 
 			$field = 'VELD_ID';
 			if (array_key_exists($field, $input))

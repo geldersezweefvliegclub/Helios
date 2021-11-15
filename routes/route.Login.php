@@ -13,9 +13,8 @@ $app->get('/Login/GetUserInfo', function (Request $request, Response $response, 
     $obj = MaakObject("Login");
     try
     {
-        $datum = $request->getQueryParams()['DATUM'];
-
-        $l = $obj->GetUserInfo($datum);  // Hier staat de logica voor deze functie
+        $lidID = $obj->getUserFromSession();
+        $l = $obj->GetUserInfo($lidID);  // Hier staat de logica voor deze functie
         if ($l === null)
         {
             header("X-Error-Message: Geen data", true, 404);
@@ -71,16 +70,12 @@ $app->get('/Login/Login', function (Request $request, Response $response, $args)
     $token = $request->getQueryParams()['token'];
 
     try
-    {
-        /*
-            Je denkt dat je onderstaande code moet uitvoeren om in te loggen, maar dat is niet zo
-            In de index.php wordt gecontroleerd of je toegang hebt via de heeftToegang functie. Wanneer je daar ook login info 
-            meegeeft, dan wordt er al ingelogd. Wanneer je onderstaande code uitvoert, log je dus 2x in. En dat is niet nodig
-        
-
+    {        
         $obj = MaakObject("Login");
-        $obj->heeftToegang($token);  
-        */
+        $BearerToken = $obj->verkrijgToegang(null, null, $token);
+
+        $response->getBody()->write('{"TOKEN":"' . $BearerToken . '"}');
+        
         return $response;
     }
     catch(Exception $exception)

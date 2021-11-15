@@ -428,6 +428,11 @@ components:
           type: integer
           format: int32
           example: 603      
+        STATUSTYPE_ID: 
+          description: De vliegstatus van het lid (DBO, solist, brevethouder), NULL indien niet van toepassing 
+          type: integer
+          format: int32
+          example: 1901                
         ZUSTERCLUB_ID: 
           description: Zusterclub lidmaatschap van lid. Nodig voor DDWV.
           type: integer
