@@ -22,6 +22,7 @@
 			$query = sprintf ("
                 CREATE TABLE `%s` (
                     `ID` mediumint  UNSIGNED NOT NULL AUTO_INCREMENT,
+					`DATUM` date NOT NULL,
                     `LID_ID` mediumint UNSIGNED NOT NULL,
                     `TABEL` varchar(15) DEFAULT NULL,
 					`TABEL_NAAM` varchar(25) DEFAULT NULL,
@@ -310,7 +311,6 @@
 				{
 					$retVal['dataset'][$i] = $this->RecordToOutput($retVal['dataset'][$i]);
 				}
-
 				return $retVal;
 			}
 			return null;  // Hier komen we nooit :-)

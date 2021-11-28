@@ -25,7 +25,8 @@ $classes = array("Types",
                  "AanwezigLeden", 
                  "Competenties", 
                  "Progressie", 
-                 "Tracks");
+                 "Tracks",
+                 "Audit");
 
 include('include/functions.php');
 include('include/helios.php');
@@ -189,7 +190,8 @@ Nu tabellen aanmaken
 -----------------------------------------------------------------------------------------------------------
 */
 
-
+$l = MaakObject('Login');
+$l->verkrijgToegang($username, $password);	
 
 foreach ($classes as $c)
 {

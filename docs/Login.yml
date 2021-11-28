@@ -8,7 +8,8 @@ paths:
   /Login/GetUserInfo:
     get:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Haal informatie van de ingelogde gebruiker
       parameters:
         - in: query
@@ -31,27 +32,57 @@ paths:
   /Login/Login:
     get:
       security:
-        - basicAuth: []    
+        - basicAuth: []  
       summary: Inloggen
       parameters:
         - in: query
           name: token
-          description: 2factor token
-          required: false
+          description: bearer token 
+          required: true
           schema:
             type: string
       responses:
         200:
           description: "OK, ingelogd"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/token'
         401:
           description: "Mislukt"   
         406:
           description: "Niet aanvaardbaar, input ontbreekt"                      
 
+  /Login/Relogin:
+    get:
+      security:
+        - basicAuth: [] 
+        - bearerAuth: []     
+      summary: Inloggen
+      parameters:
+        - in: query
+          name: token
+          description: bearer token 
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: "OK, ingelogd"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/token'
+        401:
+          description: "Mislukt"   
+        406:
+          description: "Niet aanvaardbaar, input ontbreekt"   
+
   /Login/Logout:
     get:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Uitloggen en beeindigen van de sessie
       responses:
         200:
@@ -60,7 +91,8 @@ paths:
   //Login/SendSMS:
     get:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Verstuur 2 factor security ode
       responses:
         200:
@@ -82,8 +114,18 @@ components:
       type: http
       scheme: basic
       description: Eerst inloggen voordat API beschikbaar is
+    bearerAuth:            
+      type: http
+      scheme: bearer
+      bearerFormat: JWT         
 
   schemas:
+    token:
+      type: object
+      properties:
+        TOKEN:
+          description: JSON Web Token - JWT
+          type: string
     ref_leden:
       type: object
       properties:

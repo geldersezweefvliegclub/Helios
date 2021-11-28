@@ -137,6 +137,7 @@
 					(903, 9, 'EHSB',    'Soesterberg', NULL, 0),
 					(904, 9, 'ELDERS',  'Elders ...', NULL, 0),
 
+					(1000,10,  NULL,    'Theorie examens', NULL, 0),
 					(1001,10, 'EVO',    'Elementaire vliegopleiding', NULL, 0),
 					(1002,10, 'VVO-1',  'Voortgezette vliegopleiding 1', NULL, 0),
 					(1003,10, 'VVO-2',  'Overlandvliegen', NULL, 0),
@@ -217,27 +218,6 @@
 						VALUES
 							%s;", $this->dbTable, $inject);
 			
-				parent::DbUitvoeren($query);
-
-				$inject = "
-					(1101, 11,  'Instructeur', 'INSTRUCTEUR', 0),
-					(1102, 11,  'Lierist', 'LIERIST', 0),
-					(1103, 11,  'Startleider', 'STARTLEIDER', 0),
-					(1104, 11,  'DDWV Crew', 'DDWV_CREW', 0),
-					(1105, 11,  'DDWV Beheerder', 'DDWV_BEHEERDER', 0),
-					(1106, 11,  'Beheerder', 'BEHEERDER', 0),
-					(1107, 11,  'Starttoren', 'STARTTOREN', 0)";
-
-				$query = sprintf("
-					INSERT INTO `%s` (
-						`ID`, 
-						`GROEP`, 
-						`OMSCHRIJVING`, 
-						`EXT_REF`, 
-						`VERWIJDERD`) 
-					VALUES
-						%s;", $this->dbTable, $inject);
-				
 				parent::DbUitvoeren($query);					
 			}
             

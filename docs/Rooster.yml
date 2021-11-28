@@ -8,7 +8,8 @@ paths:
   /Rooster/CreateTable:
     post:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Creeer database objecten
       parameters:
         - in: query
@@ -26,7 +27,8 @@ paths:
   /Rooster/CreateViews:
     post:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Creeer database views
       responses:
         201:
@@ -37,7 +39,8 @@ paths:
   /Rooster/GetObject:
     get:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: 'Haal een enkele dag op uit de database. Query parameters worden in AND conditie gebruikt'
       parameters:
         - in: query
@@ -74,7 +77,8 @@ paths:
   /Rooster/GetObjects:
     get:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Haal een lijst met roosters op uit de database. Query parameters worden in AND conditie gebruikt
       parameters:
         - in: query
@@ -170,7 +174,8 @@ paths:
   /Rooster/DeleteObject:
     delete:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Markeer record als verwijderd. Query parameters worden in AND conditie gebruikt
       parameters:
         - in: query
@@ -210,7 +215,8 @@ paths:
   /Rooster/RestoreObject:
     patch:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Record dat verwijderd is terug halen. VERWIJDERD marker kijrgt reset
       parameters:
         - in: query
@@ -236,7 +242,8 @@ paths:
   /Rooster/SaveObject:
     post:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Voeg nieuw rooster toe
       requestBody:
         description: Rooster data
@@ -264,7 +271,8 @@ paths:
           description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"                       
     put:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Update bestaand rooster
       requestBody:
         description: Rooster data
@@ -299,6 +307,10 @@ components:
       type: http
       scheme: basic
       description: Eerst inloggen voordat API beschikbaar is
+    bearerAuth:            
+      type: http
+      scheme: bearer
+      bearerFormat: JWT         
 
   schemas:
     oper_rooster_in:

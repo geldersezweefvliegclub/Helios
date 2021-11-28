@@ -8,7 +8,8 @@ paths:
   /Daginfo/CreateTable:
     post:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Creeer database objecten
       parameters:
         - in: query
@@ -26,7 +27,8 @@ paths:
   /Daginfo/CreateViews:
     post:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Creeer database views
       responses:
         201:
@@ -37,7 +39,8 @@ paths:
   /Daginfo/GetObject:
     get:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Haal een enkel daginfo record op uit de database
       parameters:
         - in: query
@@ -75,7 +78,8 @@ paths:
   /Daginfo/GetObjects:
     get:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Haal een lijst met vliegdagen op uit de database
       parameters:
         - in: query
@@ -170,7 +174,8 @@ paths:
   /Daginfo/DeleteObject:
     delete:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Verwijder daginfo record
       parameters:
         - in: query
@@ -210,7 +215,8 @@ paths:
   /Daginfo/RestoreObject:
     patch:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Record dat verwijderd is terug halen. VERWIJDERD marker kijrgt reset
       parameters:
         - in: query
@@ -236,7 +242,8 @@ paths:
   /Daginfo/SaveObject:
     post:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Voeg nieuw daginfo record toe
       requestBody:
         description: Daginfo data
@@ -264,7 +271,8 @@ paths:
           description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"                         
     put:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Update bestaand daginfo record
       requestBody:
         description: Daginfo data
@@ -298,6 +306,10 @@ components:
       type: http
       scheme: basic
       description: Eerst inloggen voordat API beschikbaar is
+    bearerAuth:            
+      type: http
+      scheme: bearer
+      bearerFormat: JWT         
 
   schemas:
     oper_daginfo_in:

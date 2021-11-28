@@ -123,7 +123,6 @@
 
 			$obj = parent::GetSingleObject($conditie);
 			$obj = $this->RecordToOutput($obj);
-			Debug(__FILE__, __LINE__, print_r($obj, true));
 			
 			if ($obj == null)
 				throw new Exception("404;Record niet gevonden;");

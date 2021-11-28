@@ -15,7 +15,7 @@ require ("include/PasswordHash.php");
 			
 			if (session_status() == PHP_SESSION_NONE)
 			{
-				session_start(); 
+				$this->startSession();
 				if(isset($_SESSION['login']))
 				{
 					$this->_userID = $_SESSION['login'];
@@ -66,7 +66,7 @@ require ("include/PasswordHash.php");
 		{
 			Debug(__FILE__, __LINE__, "Logout()");
 			
-			session_start(); 
+			$this->startSession();
 			if (isset($_SESSION['login']))
 				unset($_SESSION['login']);
 
@@ -85,14 +85,11 @@ require ("include/PasswordHash.php");
 			Debug(__FILE__, __LINE__, sprintf("setSessionUser(%s)", $id));
 			$this->_userID = $id;
 
-			if (session_status() == PHP_SESSION_NONE)
-				session_start();
-
+			$this->startSession();
 			$_SESSION['login']= $id;
 			$_SESSION['userInfo'] = json_encode($this->getUserInfo($id));
 
 			Debug(__FILE__, __LINE__, sprintf("setSessionUser = %s", $_SESSION['userInfo'] ));
-			//session_write_close();
 		}
 
 		function getUserInfo($lidID)
@@ -100,18 +97,18 @@ require ("include/PasswordHash.php");
 			$Userinfo = array();
 
 			// initieele waarde, weten we zeker dat array gevuld is
-			$Userinfo['isBeheerderDDWV'] = false;
-			$Userinfo['isBeheerder'] = false;
-			$Userinfo['isInstructeur'] = false;
+			$Userinfo['isBeheerderDDWV'] 	= false;
+			$Userinfo['isBeheerder'] 		= false;
+			$Userinfo['isInstructeur'] 		= false;
 
-			$Userinfo['isCIMT'] = false;
-			$Userinfo['isStarttoren'] = false;
-			$Userinfo['isRooster'] = false;		
-			$Userinfo['isDDWVCrew'] = false;
+			$Userinfo['isCIMT'] 			= false;
+			$Userinfo['isStarttoren'] 		= false;
+			$Userinfo['isRooster'] 			= false;		
+			$Userinfo['isDDWVCrew'] 		= false;
 
-			$Userinfo['isClubVlieger'] = false;
-			$Userinfo['isDDWV'] = false;
-			$Userinfo['isAangemeld'] = false;
+			$Userinfo['isClubVlieger'] 		= false;
+			$Userinfo['isDDWV'] 			= false;
+			$Userinfo['isAangemeld'] 		= false;
 
 			$LidData = null;
 
@@ -174,12 +171,23 @@ require ("include/PasswordHash.php");
 					$this->setSessionUser($UserID);
 			}
 
-			if(isset($UserID))
+			if (isset($UserID))
 			{
 				Debug(__FILE__, __LINE__, sprintf("heeftToegang: UserID=%s ", $UserID));
 				return;
 			}
 			$this->toegangGeweigerd();		
+		}
+
+		// Bearer token heeft beperkte levensduur, dus zo af en toe verlengen
+		function verlengBearerToken() 
+		{
+			$UserID = $this->getUserFromSession();
+
+			$l = MaakObject('Leden');
+			$lObj = $l->getObject($UserID );
+
+			return $this->JWT($lObj);
 		}
 
 		function verkrijgToegang($username=null, $password=null, $token=null)
@@ -188,6 +196,7 @@ require ("include/PasswordHash.php");
 			global $installer_account;
 			
 			Debug(__FILE__, __LINE__, sprintf("verkrijgToegang(%s, %s, %s)", $username, "??", $token)); 
+			$this->startSession();
 			
 			// Als username & wachtwoord niet zijn meegegeven, dan ophalen uit de aanvraag
 			if (($username == null) || ($password == null))
@@ -214,11 +223,13 @@ require ("include/PasswordHash.php");
 				{	
 					Debug(__FILE__, __LINE__, sprintf("helios installer account = true", $username));
 
-					$this->setSessionUser($installer_account['id']);
 					$_SESSION['isInstaller']= true;
+					$this->setSessionUser($installer_account['id']);
+					
 					return;
 				}	
 			}
+			
 			Debug(__FILE__, __LINE__, "helios account = false");
 			unset($_SESSION['isInstaller']); 	// gebruiker is zeker geen installer				
 				
@@ -236,6 +247,12 @@ require ("include/PasswordHash.php");
 				$this->toegangGeweigerd();	
 			}
 
+			// Indien demo mode zijn alle wachtwoorden oke
+			if ($app_settings['DemoMode'] === true)
+			{
+				$this->setSessionUser($lObj['ID']);	
+				return $this->JWT($lObj);
+			}
 				
 			$key = sha1(strtolower ($username) . $password);
 			Debug(__FILE__, __LINE__, sprintf("Login(%s)[%s] = %s, %s, %s, %s,", 	$username, 
@@ -253,7 +270,6 @@ require ("include/PasswordHash.php");
 				if ($_COOKIE['2FACTOR'] == base64_encode($lObj['ID']))	// Cookie bevat ID ten tijde van de SMS
 					$skip2Factor = true;
 			}
-
 
 			if (($lObj['AUTH'] == "1") && (empty($token)) && $skip2Factor == false) 
 			{
@@ -277,14 +293,35 @@ require ("include/PasswordHash.php");
 
 				if (($lObj['AUTH'] == "1") && ($skip2Factor == false))			// 2 factor authenticatie
 				{
-					$ga = new PHPGangsta_GoogleAuthenticator();
-					$checkResult = $ga->verifyCode($lObj['SECRET'], $token, 2);    // 2 = 2*30sec clock tolerance
+					// we hebben 2 mogelijkheden om 2factor te doen, via google authenticator of via SMS
+					// voor SMS gebruiken 2 factor verfication van messagebird (zie https://developers.messagebird.com/quickstarts/verify-overview/)
+					// de verificatie id is opgeslagen als cookie, er is geen cookie aanwezig als we google authenticator gebruiken
+					
+					$twoFactorSuccess = false;
 
-					if ($checkResult) 
+					if ($_COOKIE['ID']) // via SMS
 					{
-						Debug(__FILE__, __LINE__, sprintf("2 Factor succesvol"));	
+						$twoFactorSuccess = $this->ValideerCode($_COOKIE['ID'], $token);
+					} 
+					else // via Google authenticator
+					{
+						$ga = new PHPGangsta_GoogleAuthenticator();
+						$checkResult = $ga->verifyCode($lObj['SECRET'], $token, 2);    // 2 = 2*30sec clock tolerance
 
-						// We willen SMS kosten besparen, dus niet ieder inlog poging om SMS vragen
+						if ($checkResult) 
+						{
+							Debug(__FILE__, __LINE__, sprintf("2 Factor succesvol"));	
+							$twoFactorSuccess = true;
+						}
+						else
+						{
+							Debug(__FILE__, __LINE__, sprintf("2 Factor gefaalt"));	
+						}
+					}
+
+					if ($twoFactorSuccess === true)
+					{
+						// We willen gebruikersvriendelijk zijn en SMS kosten besparen, dus niet ieder inlog poging om 2 factor authenticatie vragen
 						// De startstoren en beheerder max 1 SMS perdag, alle andere gebruikers max 1x per week
 
 						$verlopen = time()+ 60 * 60 * 24 * 7;	// na week nieuwe SMS nodig
@@ -302,10 +339,6 @@ require ("include/PasswordHash.php");
 						$this->setSessionUser($lObj['ID']);	
 						return $this->JWT($lObj);
 					}
-					else
-					{
-						Debug(__FILE__, __LINE__, sprintf("2 Factor gefaalt"));	
-					}
 				}
 				else
 				{
@@ -313,7 +346,7 @@ require ("include/PasswordHash.php");
 					return $this->JWT($lObj);
 				}
 			}
-			else if ($lObj['LIDTYPE_ID'] == "625")			// 625 = DDWV
+			else if ($lObj['LIDTYPE_ID'] == "625")			// 625 = DDWV heeft andere password codering
 			{
 				$phpass = new PasswordHash(10, true);
 				$ok= $phpass->CheckPassword($password, $lObj['WACHTWOORD']);
@@ -351,6 +384,8 @@ require ("include/PasswordHash.php");
 		// Deze data komt uit de sessie, bij het inloggen is de sessie data gezet
 		function sessiePermissie($key)
 		{	
+			$this->startSession();
+
 			// als er session niet gezet is, gaan we voor de veilige oplossing
 			if (isset($_SESSION['userInfo']) === false)
 			{
@@ -414,7 +449,6 @@ require ("include/PasswordHash.php");
 		{	
 			$key = 'isBeheerder';
 			return $this->sessiePermissie($key);
-
 		}	
 		
 		// Deze data komt uit de sessie, bij het inloggen is de sessie data gezet
@@ -446,10 +480,10 @@ require ("include/PasswordHash.php");
 		}
 
 		function isInstaller()
-		{				
+		{			
 			if (array_key_exists('isInstaller', $_SESSION) === false)
 				return false;
-	
+			
 			return $_SESSION['isInstaller'];
 		}		
 			
@@ -474,7 +508,8 @@ require ("include/PasswordHash.php");
 			return JWT::encode($payload, $app_settings['KeyJWT'], 'HS256');
 		}
 
-		function getAuthorizationHeader(){
+		function getAuthorizationHeader()
+		{
 			$headers = null;
 			if (isset($_SERVER['Authorization'])) {
 				$headers = trim($_SERVER["Authorization"]);
@@ -485,7 +520,7 @@ require ("include/PasswordHash.php");
 				$requestHeaders = apache_request_headers();
 				// Server-side fix for bug in old Android versions (a nice side-effect of this fix means we don't care about capitalization for Authorization)
 				$requestHeaders = array_combine(array_map('ucwords', array_keys($requestHeaders)), array_values($requestHeaders));
-				//print_r($requestHeaders);
+
 				if (isset($requestHeaders['Authorization'])) {
 					$headers = trim($requestHeaders['Authorization']);
 				}
@@ -523,6 +558,88 @@ require ("include/PasswordHash.php");
 
 			Debug(__FILE__, __LINE__, sprintf("sendSMS username:%s mobiel:%s", $_SERVER['PHP_AUTH_USER'], $lObj['MOBIEL'])); 
 			
+
+			$messageBird = new \MessageBird\Client($app_settings['ApiKeySMS']);
+			$verify = new \MessageBird\Objects\Verify();
+			$verify->recipient = $lObj['MOBIEL'];
+			$verify->template = "De toegangscode is %token.";
+
+			$extraOptions = [
+				'originator' => $app_settings['Vereniging'],
+				'timeout' => 60,
+			];
+
+			try {
+				$verifyResult = $messageBird->verify->create($verify, $extraOptions);
+
+				$verlopen = time()+ 60 * 60 * 24 * 7;	// na week nieuwe SMS nodig
+				if (($lObj['STARTTOREN'] ==  1) || ($lObj['BEHEERDER'] ==  1)) 
+					$verlopen = $timestamp = strtotime('today midnight') +  60 * 60 * 24;	// iedere dag nieuwe SMS nodig
+
+				session_set_cookie_params(["SameSite" => "None"]); //none, lax, strict
+				setcookie("ID", $verifyResult->getId(), [
+					'expires' => time()+ 60,
+					'path' => '/',
+					'secure' => true,
+					'samesite' => 'None',
+				]);  	// stoppen ID in cookie
+
+				Debug(__FILE__, __LINE__, sprintf("sendSMS response: %s \n%s", $verifyResult->getId(), print_r($verifyResult, true))); 
+			} catch (\MessageBird\Exceptions\AuthenticateException $e) {
+				Debug(__FILE__, __LINE__, "wrong login, accessKey is unknown"); 	
+			} catch (\MessageBird\Exceptions\BalanceException $e) {
+				Debug(__FILE__, __LINE__, "no balance, out of credits, so do something about it"); 	
+			} catch (\Exception $e) {
+				Debug(__FILE__, __LINE__, $e->getMessage());
+			}	
+		}
+
+		function ValideerCode($id, $code) 
+		{
+			Debug(__FILE__, __LINE__, sprintf("ValideerCode(%s, %s)", $id, $code));
+
+			global $app_settings;
+
+			$messageBird = new \MessageBird\Client($app_settings['ApiKeySMS']);
+
+			try {
+				$verifyResult = $messageBird->verify->verify($id, $code); // Set a message id and the token here.
+				Debug(__FILE__, __LINE__, sprintf("ValideerCode response: %s", print_r($verifyResult, true))); 
+				setcookie("ID", "", time()-3600);	// cookie is nu niet meer nodig
+				return true;
+			} catch (\MessageBird\Exceptions\RequestException $e) {
+				Debug(__FILE__, __LINE__, "token incorrect"); 	
+			} catch (\MessageBird\Exceptions\AuthenticateException $e) {
+				Debug(__FILE__, __LINE__, "wrong login, accessKey is unknown"); 	
+			} catch (\Exception $e) {
+				Debug(__FILE__, __LINE__, $e->getMessage());
+			}		
+			return false;		
+		}
+
+		function startSession() 
+		{
+			$isActief = session_status() === PHP_SESSION_ACTIVE ? TRUE : FALSE;
+			if ($isActief === FALSE ) session_start();
+		}
+
+		/*
+		function sendSMS() 
+		{
+			Debug(__FILE__, __LINE__, "sendSMS()");
+
+			global $app_settings;
+
+			if (!array_key_exists('PHP_AUTH_USER', $_SERVER)) 
+			{
+				throw new Exception("406;Geen login naam in aanroep;");
+			}
+
+			$l = MaakObject('Leden');
+			$lObj = $l->GetObjectByLoginNaam($_SERVER['PHP_AUTH_USER']); 
+
+			Debug(__FILE__, __LINE__, sprintf("sendSMS username:%s mobiel:%s", $_SERVER['PHP_AUTH_USER'], $lObj['MOBIEL'])); 
+			
 			$ga = new PHPGangsta_GoogleAuthenticator();
 
 			$MessageBird = new \MessageBird\Client($app_settings['ApiKeySMS']);
@@ -534,6 +651,7 @@ require ("include/PasswordHash.php");
 			$reponse = $MessageBird->messages->create($Message);
 			Debug(__FILE__, __LINE__, sprintf("sendSMS response: %s", print_r($reponse, true))); 
 		}
+		*/
 
 		function GetObjects($params)
 		{

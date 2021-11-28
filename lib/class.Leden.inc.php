@@ -103,7 +103,7 @@
                             `HEEFT_BETAALD`, 
                             `LIERIST`) 
 						VALUES
-							('1','Beheerder', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 600 ,NULL, NULL, NULL, NULL, '0', '0','0','0','0'),
+							('1','Beheerder', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 601 ,NULL, NULL, NULL, NULL, '0', '0','0','0','0'),
 							('2','Zusterclub', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 607 ,NULL, NULL, NULL, NULL, '0', '0','0','0','0'),
                             ('10855','Truus de Mier', 'Truus', 'de', 'Mier', 'Boompje 72', '2211 AA', 'Puthoek', '12091', 625,NULL,'mier@fabeltje.com', NULL, NULL, '0', '0','0','1','0'),
                             ('10213','Teun Stier', 'Teun', NULL, 'Stier', 'Weide 1', '7311 AA', 'De Veenen', '10022', 602, NULL, '06-1256770','stier@fabeltje.com','06-1256770', '0','1','1','1','0'),
@@ -931,6 +931,8 @@
 		*/
 		function RequestToRecord($input)
 		{
+			global $app_settings;
+
 			$record = array();
 			$l = MaakObject('Login');
 
@@ -999,8 +1001,11 @@
 				if (array_key_exists($field, $input))
 					$record[$field]= isDATE($input[$field], $field, true);		
 
-				if (array_key_exists('INLOGNAAM', $input))
-					$record['INLOGNAAM'] = $input['INLOGNAAM']; 	
+				if ($app_settings['DemoMode'] === false)		// in demo mode mogen we de login naam niet aanpassen
+				{
+					if (array_key_exists('INLOGNAAM', $input))
+						$record['INLOGNAAM'] = $input['INLOGNAAM']; 	
+				}
 
 				if (array_key_exists('SLEUTEL1', $input))
 					$record['SLEUTEL1'] = $input['SLEUTEL1']; 		
@@ -1107,9 +1112,12 @@
 				if (array_key_exists($field, $input))
 					$record[$field] = isBOOL($input[$field], $field);
 
-				$field = 'BEHEERDER';
-				if (array_key_exists($field, $input))
-					$record[$field] = isBOOL($input[$field], $field);
+				if ($app_settings['DemoMode'] === false)		// in demo mode mogen we het veld beheerder niet aanpassen
+				{
+					$field = 'BEHEERDER';
+					if (array_key_exists($field, $input))
+						$record[$field] = isBOOL($input[$field], $field);
+				}
 
 				$field = 'AUTH';
 				if (array_key_exists($field, $input))

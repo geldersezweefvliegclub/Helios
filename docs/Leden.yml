@@ -8,7 +8,8 @@ paths:
   /Leden/CreateTable:
     post:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Creeer database objecten
       parameters:
         - in: query
@@ -26,7 +27,8 @@ paths:
   /Leden/CreateViews:
     post:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Creeer database views
       responses:
         201:
@@ -37,7 +39,8 @@ paths:
   /Leden/GetObject:
     get:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Haal een enkel lid op uit de database
       parameters:
         - in: query
@@ -66,7 +69,8 @@ paths:
   /Leden/GetObjects:
     get:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Haal de ledenlijst op uit de database. Query parameters worden in AND conditie gebruikt
       parameters:
         - in: query
@@ -188,7 +192,8 @@ paths:
   /Leden/DeleteObject:
     delete:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Markeer record als verwijderd.
       parameters:
         - in: query
@@ -220,7 +225,8 @@ paths:
   /Leden/RestoreObject:
     patch:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Record dat verwijderd is terug halen. VERWIJDERD marker kijrgt reset
       parameters:
         - in: query
@@ -246,7 +252,8 @@ paths:
   /Leden/UploadAvatar:
     post:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Avatar dat bij het lid hoort
       parameters:
         - in: query
@@ -285,7 +292,8 @@ paths:
   /Leden/SaveObject:
     post:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Voeg nieuw lid toe
       requestBody:
         description: lid data
@@ -313,7 +321,8 @@ paths:
           description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"                      
     put:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Update bestaand lid
       requestBody:
         description: lid data
@@ -348,6 +357,10 @@ components:
       type: http
       scheme: basic
       description: Eerst inloggen voordat API beschikbaar is
+    bearerAuth:            
+      type: http
+      scheme: bearer
+      bearerFormat: JWT         
 
   schemas:
     ref_leden_in:

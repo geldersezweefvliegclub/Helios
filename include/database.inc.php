@@ -194,7 +194,7 @@ if (!IsSet($GLOBALS['DATABASE_INCLUDED']))
 			
 			$fields = "";
 			$values = "";
-			
+
 			foreach ($array as $field => $value)
 			{
 				$field = str_replace("'","''", $field);
@@ -215,10 +215,10 @@ if (!IsSet($GLOBALS['DATABASE_INCLUDED']))
 				}
 				else
 				{
-					if ((is_numeric($value)) && (substr($value,0,1) != "0")) 
+					if ($value === null)
+						$values = sprintf("%s,  NULL", $values);
+					elseif ((is_numeric($value)) && (substr($value,0,1) != "0")) 
 						$values = sprintf("%s,%s", $values, $value);
-					elseif ($value == null)
-						$values = sprintf("%s,NULL", $values, $value);
 					else
 						$values = sprintf("%s,'%s'", $values, str_replace("'","\'", $value));
 				}

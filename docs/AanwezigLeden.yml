@@ -8,7 +8,8 @@ paths:
   /AanwezigLeden/CreateTable:
     post:
       security:
-        - basicAuth: []
+        - basicAuth: [] 
+        - bearerAuth: [] 
       summary: Creeer database objecten
       parameters:
         - in: query
@@ -26,7 +27,8 @@ paths:
   /AanwezigLeden/CreateViews:
     post:
       security:
-        - basicAuth: []     
+        - basicAuth: [] 
+        - bearerAuth: []      
       summary: Creeer database views
       responses:
         201:
@@ -37,7 +39,8 @@ paths:
   /AanwezigLeden/GetObject:
     get:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Haal een enkel record op uit de database
       parameters:
         - in: query
@@ -83,7 +86,8 @@ paths:
   /AanwezigLeden/GetObjects:
     get:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Haal de aanwezigheidslijst op uit de database. Query parameters worden in AND conditie gebruikt
       parameters:
         - in: query
@@ -191,7 +195,8 @@ paths:
   /AanwezigLeden/Aanmelden:
     post:
       security:
-        - basicAuth: []
+        - basicAuth: [] 
+        - bearerAuth: [] 
       summary: Aanmelden van het lid als aanwezig. Maakt record aan als het niet bestaat of update bestaand record (ook al is het lid aanwezig)
       requestBody:
         description: Lid data
@@ -229,7 +234,8 @@ paths:
   /AanwezigLeden/Afmelden:
     post:
       security:
-        - basicAuth: []
+        - basicAuth: [] 
+        - bearerAuth: [] 
       summary: Afmelden van het lid als aanwezig. Update bestaand record. Lid moet aanwezig zijn
       requestBody:
         description: Lid data
@@ -267,7 +273,8 @@ paths:
   /AanwezigLeden/PotentieelVliegers:
     get:
       security:
-        - basicAuth: []  
+        - basicAuth: [] 
+        - bearerAuth: []   
       summary: We weten het vliegtuig, maar wie gaat vliegen. Geeft een lijst met potentiele vliegers
       parameters:
       - in: query        
@@ -344,7 +351,8 @@ paths:
   /AanwezigLeden/DeleteObject:
     delete:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Markeer record als verwijderd.
       parameters:
         - in: query
@@ -389,7 +397,8 @@ paths:
   /AanwezigLeden/RestoreObject:
     patch:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Record dat verwijderd is terug halen. VERWIJDERD marker kijrgt reset
       parameters:
         - in: query
@@ -415,7 +424,8 @@ paths:
   /AanwezigLeden/SaveObject:
     post:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Voeg nieuwe aanmelding toe
       requestBody:
         description: Aanmelding data
@@ -443,7 +453,8 @@ paths:
           description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"                      
     put:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Update bestaande aanmelding. DATUM / LID_ID kunnen niet aangepast worden. Indien deze velden onjuist onjuist zijn, verwijder record en maak nieuw record.
       requestBody:
         description: Aanmelding data
@@ -478,6 +489,10 @@ components:
       type: http
       scheme: basic
       description: Eerst inloggen voordat API beschikbaar is
+    bearerAuth:            
+      type: http
+      scheme: bearer
+      bearerFormat: JWT      
 
   schemas:
     oper_aanwezig_leden_in:

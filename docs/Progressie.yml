@@ -8,7 +8,8 @@ paths:
   /Progressie/CreateTable:
     post:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Creeer database objecten
       parameters:
         - in: query
@@ -26,7 +27,8 @@ paths:
   /Progressie/CreateViews: 
     post:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Creeer database views
       responses:
         201:
@@ -37,7 +39,8 @@ paths:
   /Progressie/GetObject:
     get:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Haal een enkel record op uit de database
       parameters:
         - in: query
@@ -66,7 +69,8 @@ paths:
   /Progressie/GetObjects:
     get:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Haal een lijst met competeties op uit de database. Query parameters worden in AND conditie gebruikt
       parameters:
         - in: query
@@ -158,7 +162,8 @@ paths:
   /Progressie/ProgressieKaart:
     get:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Haal alle comptenties en progressie op en zet deze in een datset (dezelfde data als progressieboom)
       parameters:              
         - in: query
@@ -202,7 +207,8 @@ paths:
   /Progressie/ProgressieBoom:
     get:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Haal alle comptenties en progressie op en zet deze in een boom structuur (dezelfde data als progressiekaart)
       parameters:              
         - in: query
@@ -249,7 +255,8 @@ paths:
   /Progressie/DeleteObject:
     delete:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Markeer record als verwijderd.
       parameters:
         - in: query
@@ -281,7 +288,8 @@ paths:
   /Progressie/RestoreObject:
     patch:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Record dat verwijderd is terug halen. VERWIJDERD marker kijrgt reset
       parameters:
         - in: query
@@ -307,7 +315,8 @@ paths:
   /Progressie/SaveObject:
     post:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Voeg nieuw type record toe
       requestBody:
         description: type data
@@ -335,7 +344,8 @@ paths:
           description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"                       
     put:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Update bestaand type record
       requestBody:
         description: type data
@@ -368,6 +378,10 @@ components:
       type: http
       scheme: basic
       description: Eerst inloggen voordat API beschikbaar is
+    bearerAuth:            
+      type: http
+      scheme: bearer
+      bearerFormat: JWT         
 
   schemas:
     ref_progressie_in:

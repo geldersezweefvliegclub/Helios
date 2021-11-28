@@ -450,21 +450,28 @@
 		*/		
 		function UpdateObject($TrackData)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Tracks.SaveObject(%s)", print_r($TrackData, true)));
+			Debug(__FILE__, __LINE__, sprintf("Tracks.UpdateObject(%s)", print_r($TrackData, true)));
 			
-			if (!$this->heeftDataToegang(null, false))
-				throw new Exception("401;Geen schrijfrechten;");
-
 			if ($TrackData == null)
 				throw new Exception("406;Track data moet ingevuld zijn;");			
 
 			if (!array_key_exists('ID', $TrackData))
 				throw new Exception("406;ID moet ingevuld zijn;");
 
+			$track = $this->GetObject($TrackData['ID']);
+
+			if (!$this->heeftDataToegang(null, false))
+			{
+				$l = MaakObject('Login');
+
+				if ($track["INSTRUCTEUR_ID"] != $l->getUserFromSession())
+					throw new Exception("401;Geen schrijfrechten;");
+			}
+
+
             // Bij update willen we de oude input bewaren. We doen dit als volgt
             // Markeer record als verwijderd
             // Maak een nieuw track record en verwijs via LINK_ID naar het verwijderde record 
-            $track = $this->GetObject($TrackData['ID']);
             parent::MarkeerAlsVerwijderd($track['ID'], false);
 
             $track = array_merge($track, $this->RequestToRecord($TrackData));  // samenvoegen bestaande en nieuwe data

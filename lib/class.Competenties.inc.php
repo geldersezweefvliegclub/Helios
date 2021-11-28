@@ -45,6 +45,15 @@
 			if (isset($FillData))
 			{
 				$inject = "
+					(01,  01,  1000, NULL, '1',   'Luchtvaartwetgeving', NULL),
+					(02,  02,  1000, NULL, '2',   'Menselijke prestaties ', NULL),
+					(03,  03,  1000, NULL, '3',   'Meteorologie', NULL),
+					(04,  04,  1000, NULL, '4',   'Communicatie', NULL),
+					(05,  05,  1000, NULL, '5',   'Beginselen van het Vliegen', NULL),
+					(06,  06,  1000, NULL, '6',   'Operationele Procedures ', NULL),
+					(07,  07,  1000, NULL, '7',   'Vliegprestaties & Vluchtplanning', NULL),
+					(08,  08,  1000, NULL, '8',   'Algemene kennis van het Luchtvaartuig', NULL),
+					(09,  09,  1000, NULL, '9',   'Navigatie', NULL),
 					(21,  01,  1001, NULL, '1',   'Veiligheidsbriefing', NULL),
 					(22,  02,  1001, NULL, '2',   'Veldbedrijf', NULL),
 					(23,  03,  1001, NULL, '3',   'Famililiarisatie met het vliegtuig', NULL),

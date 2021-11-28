@@ -865,6 +865,7 @@
 			$vliegtuigen = array();
 			$startMethode = array();
 			$instructieStarts = 0;
+			$instructieUren = 0;
 			$totaalAantalStarts = 0;
 			$totaallVliegtijd = 0;
 
@@ -905,6 +906,7 @@
 				if (($isInstructeur) && ($logboek[$i]['INZITTENDE_ID'] == $lidID))
 				{
 					$instructieStarts++;
+					$instructieUren += $vliegtijd;
 				}
 			}
 
@@ -926,6 +928,7 @@
 
 			$retVal['jaar']['STARTS'] = $totaalAantalStarts;
 			$retVal['jaar']['INSTRUCTIE_STARTS'] = $instructieStarts;
+			$retVal['jaar']['INSTRUCTIE_UREN'] = intval($instructieUren / 60) . ":" . sprintf("%02d", $instructieUren %60);
 			$retVal['jaar']['VLIEGTIJD'] = sprintf("%d:%02d", intval($hh), $mm);
 
 			return $retVal;
@@ -1581,9 +1584,11 @@
 		//	STARTS_DRIE_MND: "2"
 		//  STARTS_VORIG_JAAR: "36"
 		//  STARTS_DIT_JAAR: "2"
+		//  STARTS_INSTRUCTIE: "45"
 		//  UREN_DRIE_MND: "1:42"
 		//  UREN_VORIG_JAAR: "1:42"
 		//  UREN_DIT_JAAR: "27:31"
+		//  UREN_INSTRUCTIE: "68:45"
 		//  STATUS_BAROMETER: "onbekend"
 		//  STARTS_BAROMETER: "38"
 		//  UREN_BAROMETER: "29:13"
@@ -1622,10 +1627,12 @@
 			$retVal['STARTS_DRIE_MND'] = 0;
 			$retVal['STARTS_VORIG_JAAR'] = 0; 
 			$retVal['STARTS_DIT_JAAR'] = 0;
+			$retVal['STARTS_INSTRUCTIE'] = -1;		
 
 			$retVal['UREN_DRIE_MND'] = 0;
 			$retVal['UREN_DIT_JAAR'] = 0; 
 			$retVal['UREN_VORIG_JAAR'] = 0; 
+			$retVal['UREN_INSTRUCTIE'] = 0; 
 			$retVal['STATUS_BAROMETER'] = 'onbekend'; 	// andere mogelijkheden: rood/geel/groen
 			$retVal['STARTS_BAROMETER'] = 0; 	
 			$retVal['UREN_BAROMETER'] = 0; 	
@@ -1639,9 +1646,9 @@
 				FROM
 					startlijst_view
 				WHERE
-					" . $where . " ORDER BY DATUM DESC";
+					%s ORDER BY DATUM DESC";
 
-			parent::DbOpvraag($query);	
+			parent::DbOpvraag(sprintf($query, $where));	
 
 			foreach (parent::DbData() as $vlucht)
 			{
@@ -1672,8 +1679,6 @@
 			}
 
 			// uitrekenen barameter status
-
-
 			$y1 = $retVal['UREN_BAROMETER'] /60;		// variable heeft minuten, dus delen door 60
 			$y2 = $retVal['STARTS_BAROMETER'] * 25 / 35;	
 
@@ -1686,13 +1691,34 @@
 			else
 				$retVal['STATUS_BAROMETER'] = 'groen';
 
+			// Nu de instructie vluchten
+			if ($l->isPermissie("INSTRUCTEUR", $vliegerID))		// Alleen nodig voor instructeurs
+			{
+				$retVal['STARTS_INSTRUCTIE'] = 0;	
+				$fromDateTime = new DateTime($dateTime->format("Y-m-d"));
+				$fromDateTime->modify('-3 year');
 
+				$where = sprintf("DATUM > '%s' AND DATUM <= '%s' AND STARTTIJD IS NOT NULL AND LANDINGSTIJD IS NOT NULL AND (INZITTENDE_ID = %s) ",	
+					$fromDateTime->format("Y-m-d"), 
+					$dateTime->format("Y-m-d"), 
+					$vliegerID);
+			
+				parent::DbOpvraag(sprintf($query, $where));	
+
+				foreach (parent::DbData() as $vlucht)
+				{
+					$retVal['STARTS_INSTRUCTIE']++;				
+					$retVal['UREN_INSTRUCTIE'] += intval(substr($vlucht['DUUR'],0,2)) * 60 + intval(substr($vlucht['DUUR'],3,2));
+				}
+			}
+ 
 			// tijden staan in minuten, moet naar hh:mm
 			$retVal['WAARDE'] = intval($gem * 10) / 10;		// 1 cijfer achter de komma
-			$retVal['UREN_DRIE_MND']   = intval($retVal['UREN_DRIE_MND']   / 60) . ":" . sprintf("%02d", $retVal['UREN_DRIE_MND'] %60);
-			$retVal['UREN_DIT_JAAR']   = intval($retVal['UREN_DIT_JAAR']   / 60) . ":" . sprintf("%02d", $retVal['UREN_DIT_JAAR'] %60);
+			$retVal['UREN_DRIE_MND']   = intval($retVal['UREN_DRIE_MND']   / 60) . ":" . sprintf("%02d", $retVal['UREN_DRIE_MND']   %60);
+			$retVal['UREN_DIT_JAAR']   = intval($retVal['UREN_DIT_JAAR']   / 60) . ":" . sprintf("%02d", $retVal['UREN_DIT_JAAR']   %60);
 			$retVal['UREN_VORIG_JAAR'] = intval($retVal['UREN_VORIG_JAAR'] / 60) . ":" . sprintf("%02d", $retVal['UREN_VORIG_JAAR'] %60);
-			$retVal['UREN_BAROMETER']  = intval($retVal['UREN_BAROMETER']  / 60) . ":" . sprintf("%02d", $retVal['UREN_BAROMETER'] %60);
+			$retVal['UREN_BAROMETER']  = intval($retVal['UREN_BAROMETER']  / 60) . ":" . sprintf("%02d", $retVal['UREN_BAROMETER']  %60);
+			$retVal['UREN_INSTRUCTIE'] = intval($retVal['UREN_INSTRUCTIE'] / 60) . ":" . sprintf("%02d", $retVal['UREN_INSTRUCTIE'] %60);
 
 			return $retVal;
 		}

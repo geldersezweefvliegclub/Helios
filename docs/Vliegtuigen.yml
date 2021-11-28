@@ -8,7 +8,8 @@ paths:
   /Vliegtuigen/CreateTable:
     post:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Creeer database objecten
       parameters:
         - in: query
@@ -26,7 +27,8 @@ paths:
   /Vliegtuigen/CreateViews:
     post:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Creeer database views
       responses:
         201:
@@ -37,7 +39,8 @@ paths:
   /Vliegtuigen/GetObject:
     get:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Haal een enkel vliegtuig op uit de database
       parameters:
         - in: query
@@ -66,7 +69,8 @@ paths:
   /Vliegtuigen/GetObjects:
     get:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Haal een lijst met vliegtuigen op uit de database. Query parameters worden in AND conditie gebruikt
       parameters:
         - in: query
@@ -189,7 +193,8 @@ paths:
   /Vliegtuigen/DeleteObject:
     delete:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Markeer record als verwijderd.
       parameters:
         - in: query
@@ -221,7 +226,8 @@ paths:
   /Vliegtuigen/RestoreObject:
     patch:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Record dat verwijderd is terug halen. VERWIJDERD marker kijrgt reset
       parameters:
         - in: query
@@ -247,7 +253,8 @@ paths:
   /Vliegtuigen/SaveObject:
     post:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Voeg nieuw vliegtuig toe
       requestBody:
         description: Vliegtuig data
@@ -275,7 +282,8 @@ paths:
           description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"                   
     put:
       security:
-        - basicAuth: []    
+        - basicAuth: [] 
+        - bearerAuth: []     
       summary: Update bestaand vliegtuig
       requestBody:
         description: Vliegtuig data
@@ -310,6 +318,10 @@ components:
       type: http
       scheme: basic
       description: Eerst inloggen voordat API beschikbaar is
+    bearerAuth:            
+      type: http
+      scheme: bearer
+      bearerFormat: JWT         
 
   schemas:
     ref_vliegtuigen_in:

@@ -92,6 +92,33 @@ $app->get('/Login/Login', function (Request $request, Response $response, $args)
 });
 
 /*
+Verlengen van de bearer token
+*/
+$app->get('/Login/Relogin', function (Request $request, Response $response, $args) {
+
+    try
+    {        
+        $obj = MaakObject("Login");
+        $BearerToken = $obj->verlengBearerToken();
+
+        $response->getBody()->write('{"TOKEN":"' . $BearerToken . '"}');
+        
+        return $response;
+    }
+    catch(Exception $exception)
+    {
+        Debug(__FILE__, __LINE__, "/Login/Relogin: " .$exception);
+
+        list($dummy, $exceptionMsg) = explode(": ", $exception);
+        list($httpStatus, $message) = explode(";", $exceptionMsg);  // onze eigen formaat van een exceptie
+
+        header("X-Error-Message: $message", true, intval($httpStatus));
+        header("Content-Type: text/plain");
+        die;
+    }  
+});
+
+/*
 Het uitloggen van de gebruiker
 */
 $app->get('/Login/Logout', function (Request $request, Response $response, $args) {
