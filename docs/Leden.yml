@@ -579,6 +579,10 @@ components:
               description: Lidtype in text
               type: string
               example: Jeugdlid
+            STATUS: 
+              description: Vliegstatus, zoals DBO, Solist of Brevethouder
+              type: string
+              example: Brevethouder   
             ZUSTERCLUB: 
               description: Naam van de zusterclub
               type: string

@@ -160,10 +160,12 @@
 				SELECT 
 					l.*,
 					`t`.`OMSCHRIJVING` AS `LIDTYPE`,
+					`s`.`OMSCHRIJVING` AS `STATUS`,
 					`z`.`NAAM` AS `ZUSTERCLUB`
 				FROM
 					`%s` `l`    
 					LEFT JOIN `ref_types` `t` ON (`l`.`LIDTYPE_ID` = `t`.`ID`)
+					LEFT JOIN `ref_types` `s` ON (`l`.`STATUSTYPE_ID` = `s`.`ID`)
 					LEFT JOIN `ref_leden` `z` ON (`l`.`ZUSTERCLUB_ID` = `z`.`ID`)
 				WHERE
 					`l`.`VERWIJDERD` = %d
