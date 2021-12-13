@@ -8,11 +8,12 @@ use Slim\Factory\AppFactory;
 /*
 Aanmaken van de database tabel. Indien FILLDATA == true, dan worden er ook voorbeeld records toegevoegd 
 */
-$app->post('/Audit/CreateTable', function (Request $request, Response $response, $args) {
+$app->post(url_base() . 'Audit/CreateTable', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Audit");
     try
     {
-        $fill = $request->getQueryParams()['FILLDATA'];
+        $params = $request->getQueryParams();
+        $fill = (isset($params['FILLDATA'])) ? $params['FILLDATA'] : null;
 
         $obj->CreateTable($fill);   // Hier staat de logica voor deze functie
         return $response->withStatus(intval(201));
@@ -33,7 +34,7 @@ $app->post('/Audit/CreateTable', function (Request $request, Response $response,
 /*
 Maak database views, als view al bestaat wordt deze overschreven
 */
-$app->post('/Audit/CreateViews', function (Request $request, Response $response, $args) {
+$app->post(url_base() . 'Audit/CreateViews', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Audit");
     try
     {
@@ -56,7 +57,7 @@ $app->post('/Audit/CreateViews', function (Request $request, Response $response,
 /*
 Haal een dataset op met records als een array uit de database. 
 */
-$app->get('/Audit/GetObjects', function (Request $request, Response $response, $args) {
+$app->get(url_base() . 'Audit/GetObjects', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Audit");
     try
     {

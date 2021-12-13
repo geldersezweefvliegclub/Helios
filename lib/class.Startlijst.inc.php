@@ -249,7 +249,8 @@
 		*/
 		function GetObject($ID = null)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Startlijst.GetObject(%s)", $ID));	
+			$functie = "Startlijst.GetObject";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, $ID));	
 
 			if ($ID == null) 
 				throw new Exception("406;Geen ID in aanroep;");
@@ -282,6 +283,8 @@
 		*/		
 		function GetObjects($params)
 		{
+			global $app_settings;
+
 			$functie = "Startlijst.GetObjects";
 			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($params, true)));		
 			
@@ -513,7 +516,7 @@
 			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s, HASH=%s", $retVal['totaal'], $retVal['laatste_aanpassing'], $retVal['hash']));
 
 			if ($retVal['hash'] == $hash)
-				throw new Exception("704;Dataset ongewijzigd;");
+				throw new Exception(sprintf("%d;Dataset ongewijzigd;", $app_settings['dataNotModified']));
 
 			if ($alleenLaatsteAanpassing)
 			{
@@ -547,6 +550,8 @@
 		*/		
 		function GetLogboek($params)
 		{
+			global $app_settings;
+
 			$functie = "Startlijst.GetLogboek";
 			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($params, true)));		
 			
@@ -702,7 +707,7 @@
 			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s, HASH=%s", $retVal['totaal'], $retVal['laatste_aanpassing'], $retVal['hash']));
 
 			if ($retVal['hash'] == $hash)
-				throw new Exception("704;Dataset ongewijzigd;");
+				throw new Exception(sprintf("%d;Dataset ongewijzigd;", $app_settings['dataNotModified']));
 
 			if ($alleenLaatsteAanpassing)
 			{
@@ -749,8 +754,11 @@
 		Haal het logboek van het vliegtuig op
 		*/
 		function GetLogboekTotalen($params)
-		{				
-			Debug(__FILE__, __LINE__, sprintf("Startlijst.GetLogboekTotalen(%s)", print_r($params, true)));		
+		{		
+			global $app_settings;
+
+			$functie = "Startlijst.GetLogboekTotalen";		
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($params, true)));		
 						
 			$where = "";
 			$limit = -1;
@@ -849,7 +857,7 @@
 			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s, HASH=%s", $retVal['totaal'], $retVal['laatste_aanpassing'], $retVal['hash']));
 			
 			if ($retVal['hash'] == $hash)
-				throw new Exception("704;Dataset ongewijzigd;");
+				throw new Exception(sprintf("%d;Dataset ongewijzigd;", $app_settings['dataNotModified']));
 
 			if ($alleenLaatsteAanpassing)
 			{
@@ -938,8 +946,11 @@
 		Haal het logboek van het vliegtuig op
 		*/
 		function GetVliegtuigLogboek($params)
-		{				
-			Debug(__FILE__, __LINE__, sprintf("Startlijst.GetVliegtuigLogboek(%s)", print_r($params, true)));		
+		{	
+			global $app_settings;
+
+			$functie = "Startlijst.GetVliegtuigLogboek";			
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($params, true)));		
 
 			if (!array_key_exists('ID', $params))
 				throw new Exception("406;ID ontbreekt in aanroep;");
@@ -1098,7 +1109,7 @@
 			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s, HASH=%s", $retVal['totaal'], $retVal['laatste_aanpassing'], $retVal['hash']));
 
 			if ($retVal['hash'] == $hash)
-				throw new Exception("704;Dataset ongewijzigd;");
+				throw new Exception(sprintf("%d;Dataset ongewijzigd;", $app_settings['dataNotModified']));
 
 			if ($alleenLaatsteAanpassing)
 			{
@@ -1166,8 +1177,11 @@
 		Haal het logboek van het vliegtuig op
 		*/
 		function GetVliegtuigLogboekTotalen($params)
-		{				
-			Debug(__FILE__, __LINE__, sprintf("Startlijst.GetVliegtuigLogboekTotalen(%s)", print_r($params, true)));		
+		{	
+			global $app_settings;
+
+			$functie = "Startlijst.GetVliegtuigLogboekTotalen";				
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($params, true)));		
 
 			if (!array_key_exists('ID', $params))
 				throw new Exception("406;ID ontbreekt in aanroep;");
@@ -1271,16 +1285,19 @@
 			if (!array_key_exists('JAAR', $params))
 				$where .= sprintf ("AND YEAR(DATUM)=%d ",date("Y"));			
 					
+			$query = "SELECT %s FROM
+						startlijst_view slv
+					WHERE 
+						STARTTIJD is not null AND LANDINGSTIJD is not null " . $where;
+			
 			$retVal = array();
-			$retVal['laatste_aanpassing']=  $this->LaatsteAanpassing("SELECT %s FROM
-												startlijst_view slv
-											WHERE 
-												STARTTIJD is not null AND LANDINGSTIJD is not null " . $where , $query_params);
+			$retVal['totaal'] = $this->Count($query);		// totaal aantal of record in de database
+			$retVal['laatste_aanpassing']=  $this->LaatsteAanpassing($query);
 			$retVal['hash'] = dechex((str_replace(":", "", substr($retVal['laatste_aanpassing'], -8)) * 1000) + ($retVal['totaal'] * 1));
 			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s, HASH=%s", $retVal['totaal'], $retVal['laatste_aanpassing'], $retVal['hash']));
 
 			if ($retVal['hash'] == $hash)
-				throw new Exception("704;Dataset ongewijzigd;");
+				throw new Exception(sprintf("%d;Dataset ongewijzigd;", $app_settings['dataNotModified']));
 
 			if ($alleenLaatsteAanpassing)
 			{
@@ -1411,7 +1428,8 @@
 		*/
 		function VerwijderObject($id, $verificatie = true)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Startlijst.VerwijderObject('%s', %s)", $id, (($verificatie === false) ? "False" :  $verificatie)));								
+			$functie = "Startlijst.VerwijderObject";	
+			Debug(__FILE__, __LINE__, sprintf("%s('%s', %s)", $functie, $id, (($verificatie === false) ? "False" :  $verificatie)));								
 			if ($id == null)
 				throw new Exception("406;Geen ID in aanroep;");
 			
@@ -1433,7 +1451,8 @@
 		*/
 		function HerstelObject($id)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Startlijst.HerstelObject('%s')", $id));
+			$functie = "Startlijst.HerstelObject";	
+			Debug(__FILE__, __LINE__, sprintf("%s('%s')", $functie, $id));
 
 			if ($id == null)
 				throw new Exception("406;Geen ID in aanroep;");
@@ -1455,7 +1474,8 @@
 		*/		
 		function AddObject($StartlijstData)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Startlijst.AddObject(%s)", print_r($StartlijstData, true)));
+			$functie = "Startlijst.AddObject";	
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($StartlijstData, true)));
 			
 			if ($StartlijstData == null)
 				throw new Exception("406;StartlijstData data moet ingevuld zijn;");	
@@ -1521,7 +1541,8 @@
 		*/		
 		function UpdateObject($StartlijstData)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Startlijst.UpdateObject(%s)", print_r($StartlijstData, true)));
+			$functie = "Startlijst.UpdateObject";	
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($StartlijstData, true)));
 			
 			if ($StartlijstData == null)
 				throw new Exception("406;Daginfo data moet ingevuld zijn;");	
@@ -1596,7 +1617,8 @@
 		
 		function GetRecency($vliegerID, $datum = null)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Startlijst.VliegerRecencyJSON(%s, %s)", $vliegerID, $datum));	
+			$functie = "Startlijst.GetRecency";	
+			Debug(__FILE__, __LINE__, sprintf("%s(%s, %s)", $functie, $vliegerID, $datum));	
 
 			if ($vliegerID == null)
 				throw new Exception("406;VLIEGER_ID moet ingevuld zijn;");
@@ -1728,7 +1750,10 @@
 		*/
 		function GetVliegDagen($params)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Startlijst.Vliegdagen(%s)", print_r($params, true)));
+			global $app_settings;
+
+			$functie = "Startlijst.GetVliegDagen";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($params, true)));
 
 			$where = ' WHERE 1=1 ';
 			$orderby = "ORDER BY DATUM";
@@ -1737,7 +1762,9 @@
 			$limit = -1;
 			$start = -1;
 			$lidID = null;
+			$hash = null;
 			$query_params = array();
+			$alleenLaatsteAanpassing = false;
 
 			// Als ingelogde gebruiker geen bijzonder functie heeft, worden alleen zijn vliegdagen opgehaald
 			$l = MaakObject('Login');
@@ -1851,12 +1878,12 @@
 			$retVal = array();
 
 			$retVal['totaal'] = $this->Count("SELECT COUNT(*) AS totaal FROM (" . $query . ") AS d", $query_params);		// wijkt af ivm de GROUP BY die opgenomen is in de query
-			$retVal['laatste_aanpassing']=  $this->LaatsteAanpassing($query, $query_params);
+			$retVal['laatste_aanpassing'] = $this->LaatsteAanpassing($query, $query_params);
 			$retVal['hash'] = dechex((str_replace(":", "", substr($retVal['laatste_aanpassing'], -8)) * 1000) + ($retVal['totaal'] * 1));
 			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s, HASH=%s", $retVal['totaal'], $retVal['laatste_aanpassing'], $retVal['hash']));
 
 			if ($retVal['hash'] == $hash)
-				throw new Exception("704;Dataset ongewijzigd;");
+				throw new Exception(sprintf("%d;Dataset ongewijzigd;", $app_settings['dataNotModified']));
 
 			if ($alleenLaatsteAanpassing)
 			{
@@ -1890,7 +1917,8 @@
 		*/
 		function StartLandingTijdenValidatie($StartlijstData)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Startlijst.StartLandingTijdenValidatie(%s)", print_r($StartlijstData, true)));			
+			$functie = "Startlijst.StartLandingTijdenValidatie";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($StartlijstData, true)));			
 
 			if (!array_key_exists('STARTTIJD', $StartlijstData) && !array_key_exists('LANDINGSTIJD', $StartlijstData))
 				return; // Starttijd en landingstijd zijn niet ingegeven, er is niets te doen
@@ -1953,7 +1981,9 @@
 		*/
 		function Aanmeldingen($startData)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Startlijst.Aanmeldingen(%s)", print_r($startData, true)));
+			$functie = "Startlijst.Aanmeldingen";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($startData, true)));
+
 			$login = MaakObject('Login');
 
 			$refLeden = MaakObject('Leden');
@@ -2033,6 +2063,9 @@
 		// Bepaal het volgnummer van de dag
 		function NieuwDagNummer($datum)
 		{
+			$functie = "Startlijst.NieuwDagNummer";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, $datum));
+
 			parent::DbOpvraag("
 					SELECT 
 						DAGNUMMER + 1 AS NIEUW_DAGNUMMER

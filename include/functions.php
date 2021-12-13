@@ -25,6 +25,17 @@ if (!function_exists('MaakObject'))
 	}
 }
 
+// In welke sub directory staat onze software
+if (!function_exists('url_base'))
+{
+	function url_base() 
+	{
+		$path = explode('/', $_SERVER['PHP_SELF']);
+		$path[count($path)-1] = "";
+		return implode('/', $path);
+	}
+}
+
 // De debug functie, schrijft niets als de globale setting UIT staat
 if (!function_exists('Debug'))
 {

@@ -70,7 +70,6 @@
 							`OPMERKINGEN`) 
 						VALUES
 							%s;", $this->dbTable, $inject);
-				$i++;
 				parent::DbUitvoeren($query);
 			}        
 		}
@@ -144,6 +143,8 @@
 		*/		
 		function GetObjects($params)
 		{
+			global $app_settings;
+
 			$functie = "Progressie.GetObjects";
 			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($params, true)));		
 			
@@ -298,7 +299,7 @@
 			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s, HASH=%s", $retVal['totaal'], $retVal['laatste_aanpassing'], $retVal['hash']));	
 
 			if ($retVal['hash'] == $hash)
-			throw new Exception("704;Dataset ongewijzigd;");
+			throw new Exception(sprintf("%d;Dataset ongewijzigd;", $app_settings['dataNotModified']));
 
 			if ($alleenLaatsteAanpassing)
 			{
@@ -329,6 +330,8 @@
 
 		function ProgressieKaart($params)
 		{
+			global $app_settings;
+
 			$functie = "Progressie.ProgressieKaart";
 			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($params, true)));		
 
@@ -417,7 +420,7 @@
 			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s, HASH=%s", $retVal['totaal'], $retVal['laatste_aanpassing'], $retVal['hash']));
 
 			if ($retVal['hash'] == $hash)
-				throw new Exception("704;Dataset ongewijzigd;");
+				throw new Exception(sprintf("%d;Dataset ongewijzigd;", $app_settings['dataNotModified']));
 
 			if ($alleenLaatsteAanpassing)
 			{
@@ -457,7 +460,8 @@
 		*/
 		function VerwijderObject($id = null, $verificatie = true)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Progressie.VerwijderObject('%s', %s)", $id, (($verificatie === false) ? "False" :  $verificatie)));
+			$functie = "Progressie.VerwijderObject";
+			Debug(__FILE__, __LINE__, sprintf("%s('%s', %s)", $functie, $id, (($verificatie === false) ? "False" :  $verificatie)));
 			if (!$this->heeftDataToegang())
 				throw new Exception("401;Geen schrijfrechten;");
 
@@ -473,7 +477,8 @@
 		*/
 		function HerstelObject($id)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Progressie.HerstelObject('%s')", $id));
+			$functie = "Progressie.HerstelObject";
+			Debug(__FILE__, __LINE__, sprintf("%s('%s')", $functie, $id));
 
 			$l = MaakObject('Login');
 			if (!$this->heeftDataToegang())
@@ -491,7 +496,8 @@
 		*/		
 		function AddObject($ProgressieData)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Progressie.AddObject(%s)", print_r($ProgressieData, true)));
+			$functie = "Progressie.AddObject";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($ProgressieData, true)));
 			
 			if (!$this->heeftDataToegang())
 				throw new Exception("401;Geen schrijfrechten;");
@@ -534,7 +540,8 @@
 		*/		
 		function UpdateObject($ProgressieData)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Progressie.SaveObject(%s)", print_r($ProgressieData, true)));
+			$functie = "Progressie.UpdateObject";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($ProgressieData, true)));
 			
 			if (!$this->heeftDataToegang())
 				throw new Exception("401;Geen schrijfrechten;");

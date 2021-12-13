@@ -1,2 +1,0 @@
-De YAML file is de bron. De JSON file (in de json directory) is een conversie van de yaml file. Bij sommige hostings providers, bijv TransIP, is de yaml extentie niet geinstalleerd.
-Gelukkig kan de editor ook JSON configuratie aan. Is dus een goede workarround.

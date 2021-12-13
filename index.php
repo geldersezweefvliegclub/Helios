@@ -6,7 +6,6 @@ include('include/GoogleAuthenticator.php');
 
 require __DIR__ . '/ext/vendor/autoload.php';
 
-
 // Allow from any origin
 if (isset($_SERVER['HTTP_ORIGIN'])) 
 {
@@ -37,8 +36,10 @@ use Slim\Factory\AppFactory;
 $l = MaakObject('Login');
 try
 {
+    $token = (isset($_GET["token"])) ? $_GET["token"] : null;
+
     if ($_SERVER['REQUEST_URI'] != "/Login/Login")     // Als we nog moeten inloggen, dan niet controleren of we toegang hebben
-        $l->heeftToegang($_GET["token"]);			// het stopt hier als de gebruiker niet ingelogd is	
+        $l->heeftToegang($token);			// het stopt hier als de gebruiker niet ingelogd is	
 }
 catch(Exception $exception)
 {

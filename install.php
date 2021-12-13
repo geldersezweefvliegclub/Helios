@@ -26,6 +26,7 @@ $classes = array("Types",
                  "Competenties", 
                  "Progressie", 
                  "Tracks",
+                 "Reservering",
                  "Audit");
 
 include('include/functions.php');
@@ -43,14 +44,14 @@ Aanmaken installer account
 */
 
 // als installer account nog niet bestaat, gebruiken we huidige credentials
-$username = $_SERVER['PHP_AUTH_USER'];
-$password = $_SERVER['PHP_AUTH_PW'];
+$username = isset($_SERVER['PHP_AUTH_USER']) ? $_SERVER['PHP_AUTH_USER'] : null;
+$password = isset($_SERVER['PHP_AUTH_PW'])   ? $_SERVER['PHP_AUTH_PW'] : null;  
 
 $toonCredentials = false;
 
 if (!file_exists("installer_account.php"))
 {
-    if (!isset($username)) 
+    if ($username == null) 
     {
         $ascii = "AaBbCcDeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz";
         $username = substr(str_shuffle($_SERVER['SERVER_ADDR'] . $ascii), 0, 10);

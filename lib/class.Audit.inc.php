@@ -80,10 +80,10 @@
 		*/		
 		function AddObject($Tabel, $Naam, $Actie, $Voor, $Data, $Resultaat)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Audit.AddObject(%s, $s, %s, %s, %s)", $Tabel, $Actie, $Voor, $Data, $Resultaat));
+			$functie = "Audit.AddObject";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s, %s, %s, %s, %s)", $functie, $Tabel, $Actie, $Voor, $Data, $Resultaat));
 												
 			$l = MaakObject('Login');
-			Debug(__FILE__, __LINE__, sprintf("Kweenee(%s)", $l->getUserFromSession()));
 
 			$record = array();
             $record['LID_ID'] = $l->getUserFromSession(); 
@@ -104,6 +104,8 @@
 		*/		
 		function GetObjects($params)
 		{
+			global $app_settings;
+
 			$functie = "Rooster.GetObjects";
 			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($params, true)));		
 			
@@ -287,7 +289,7 @@
 			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s, HASH=%s", $retVal['totaal'], $retVal['laatste_aanpassing'], $retVal['hash']));	
 
 			if ($retVal['hash'] == $hash)
-				throw new Exception("704;Dataset ongewijzigd;");
+				throw new Exception(sprintf("%d;Dataset ongewijzigd;", $app_settings['dataNotModified']));
 
 			if ($alleenLaatsteAanpassing)
 			{

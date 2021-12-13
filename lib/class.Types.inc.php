@@ -254,7 +254,8 @@
 		*/		
 		function GetObject($ID)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Types.GetObject(%s)", $ID));	
+			$functie = "Types.GetObject";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, $ID));	
 
 			if ($ID == null)
 				throw new Exception("406;Geen ID in aanroep;");
@@ -277,6 +278,8 @@
 		*/		
 		function GetObjects($params)
 		{
+			global $app_settings;
+
 			$functie = "Types.GetObjects";
 			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($params, true)));		
 			
@@ -401,7 +404,7 @@
 			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s, HASH=%s", $retVal['totaal'], $retVal['laatste_aanpassing'], $retVal['hash']));
 
 			if ($retVal['hash'] == $hash)
-				throw new Exception("704;Dataset ongewijzigd;");
+				throw new Exception(sprintf("%d;Dataset ongewijzigd;", $app_settings['dataNotModified']));
 
 			if ($alleenLaatsteAanpassing)
 			{
@@ -436,7 +439,8 @@
 		*/
 		function VerwijderObject($id = null, $verificatie = true)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Types.VerwijderObject('%s', %s)", $id, (($verificatie === false) ? "False" :  $verificatie)));
+			$functie = "Types.VerwijderObject";
+			Debug(__FILE__, __LINE__, sprintf("%s('%s', %s)", $functie, $id, (($verificatie === false) ? "False" :  $verificatie)));
 
 			if (!$this->heeftDataToegang(null, false))
 				throw new Exception("401;Geen schrijfrechten;");
@@ -453,7 +457,8 @@
 		*/
 		function HerstelObject($id)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Types.HerstelObject('%s')", $id));
+			$functie = "Types.HerstelObject";
+			Debug(__FILE__, __LINE__, sprintf("%s('%s')", $functie, $id));
 
 			if (!$this->heeftDataToegang(null, false))
 				throw new Exception("401;Geen schrijfrechten;");
@@ -470,7 +475,8 @@
 		*/		
 		function AddObject($TypeData)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Types.AddObject(%s)", print_r($TypeData, true)));
+			$functie = "Types.AddObject";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($TypeData, true)));
 			
 			if (!$this->heeftDataToegang(null, false))
 				throw new Exception("401;Geen schrijfrechten;");
@@ -513,7 +519,8 @@
 		*/		
 		function UpdateObject($TypeData)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Types.UpdateObject(%s)", print_r($TypeData, true)));
+			$functie = "Types.UpdateObject";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($TypeData, true)));
 			
 			if (!$this->heeftDataToegang(null, false))
 				throw new Exception("401;Geen schrijfrechten;");

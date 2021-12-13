@@ -131,7 +131,8 @@
 		*/		
 		function GetObject($ID = null, $VLIEGTUIG_ID = null, $DATUM = null, $heeftVerwijderd = true)
 		{
-			Debug(__FILE__, __LINE__, sprintf("AanwezigVliegtuigen.GetObject(%s,%s,%s,%s)", $ID, $VLIEGTUIG_ID, $DATUM, $heeftVerwijderd));	
+			$functie = "AanwezigVliegtuigen.GetObject";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s,%s,%s,%s)", $functie, $ID, $VLIEGTUIG_ID, $DATUM, $heeftVerwijderd));	
 
 			$conditie = array();
 			if ($ID !== null)
@@ -171,18 +172,20 @@
 		*/		
 		function GetObjects($params)
 		{
+			global $app_settings;
+
 			$functie = "AanwezigVliegtuigen.GetObjects";
 			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($params, true)));		
 			
 			$where = ' WHERE 1=1 ';
 			$orderby = "";
 			$alleenLaatsteAanpassing = false;
+			$alleenVerwijderd = false;
 			$hash = null;
 			$limit = -1;
 			$start = -1;
 			$velden = "*";
 			$in = "";
-			$alleenVerwijderd = false;
 			$query_params = array();
 
 			foreach ($params as $key => $value)
@@ -350,7 +353,7 @@
 			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s, HASH=%s", $retVal['totaal'], $retVal['laatste_aanpassing'], $retVal['hash']));
 
 			if ($retVal['hash'] == $hash)
-				throw new Exception("704;Dataset ongewijzigd;");
+				throw new Exception(sprintf("%d;Dataset ongewijzigd;", $app_settings['dataNotModified']));
 
 			if ($alleenLaatsteAanpassing)
 			{
@@ -385,7 +388,8 @@
 		*/
 		function VerwijderObject($id = null, $vliegtuig_id = null, $datum = null, $verificatie = true)
 		{
-			Debug(__FILE__, __LINE__, sprintf("AanwezigVliegtuigen.VerwijderObject('%s', %s, %s, %s)", $id, $vliegtuig_id, $datum, (($verificatie === false) ? "False" :  $verificatie)));					
+			$functie = "AanwezigVliegtuigen.VerwijderObject";
+			Debug(__FILE__, __LINE__, sprintf("%s('%s', %s, %s, %s)", $functie, $id, $vliegtuig_id, $datum, (($verificatie === false) ? "False" :  $verificatie)));					
 			
 			if ($datum) 
 			{
@@ -427,7 +431,8 @@
 		*/
 		function HerstelObject($id)
 		{
-			Debug(__FILE__, __LINE__, sprintf("AanwezigVliegtuigen.HerstelObject('%s')", $id));
+			$functie = "AanwezigVliegtuigen.HerstelObject";
+			Debug(__FILE__, __LINE__, sprintf("%s('%s')", $functie, $id));
 
 			if ($this->heeftDataToegang() == false)
 				throw new Exception("401;Geen schrijfrechten;");
@@ -444,7 +449,8 @@
 		*/		
 		function AddObject($AanwezigVliegtuigData)
 		{
-			Debug(__FILE__, __LINE__, sprintf("AanwezigVliegtuigen.AddObject(%s)", print_r($AanwezigVliegtuigData, true)));
+			$functie = "AanwezigVliegtuigen.AddObject";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($AanwezigVliegtuigData, true)));
 			
 			$l = MaakObject('Login');
 
@@ -501,7 +507,8 @@
 		*/		
 		function UpdateObject($AanwezigVliegtuigData)
 		{
-			Debug(__FILE__, __LINE__, sprintf("AanwezigVliegtuigen.UpdateObject(%s)", print_r($AanwezigVliegtuigData, true)));
+			$functie = "AanwezigVliegtuigen.UpdateObject";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($AanwezigVliegtuigData, true)));
 			
 			if ($AanwezigVliegtuigData == null)
 				throw new Exception("406;AanwezigVliegtuigen data moet ingevuld zijn;");	
@@ -537,7 +544,8 @@
 		*/
 		function Aanmelden($AanmeldenVliegtuigData, $zetTijd = true)
 		{
-			Debug(__FILE__, __LINE__, sprintf("AanwezigVliegtuigen.Aanmelden(%s)", print_r($AanmeldenVliegtuigData, true)));
+			$functie = "AanwezigVliegtuigen.Aanmelden";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($AanmeldenVliegtuigData, true)));
 
 			if ($AanmeldenVliegtuigData == null)
 				throw new Exception("406;AanmeldenVliegtuigData data moet ingevuld zijn;");	
@@ -632,7 +640,8 @@
 		*/
 		function Afmelden($AfmeldenVliegtuigData)
 		{
-			Debug(__FILE__, __LINE__, sprintf("AfmeldenVliegtuigData.Afmelden(%s)", print_r($AfmeldenVliegtuigData, true)));
+			$functie = "AanwezigVliegtuigen.Afmelden";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($AfmeldenVliegtuigData, true)));
 
 			if ($AfmeldenVliegtuigData == null)
 				throw new Exception("406;AfmeldenVliegtuigData data moet ingevuld zijn;");	
@@ -770,6 +779,4 @@
 
 			return $retVal;
 		}
-		
-		
 	}

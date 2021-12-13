@@ -10,11 +10,12 @@ use Slim\Http\UploadedFile;
 /*
 Aanmaken van de database tabel. Indien FILLDATA == true, dan worden er ook voorbeeld records toegevoegd 
 */
-$app->post('/Leden/CreateTable', function (Request $request, Response $response, $args) {
+$app->post(url_base() . 'Leden/CreateTable', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Leden");
     try
     {
-        $fill = $request->getQueryParams()['FILLDATA'];
+        $params = $request->getQueryParams();
+        $fill = (isset($params['FILLDATA'])) ? $params['FILLDATA'] : null;
 
         $obj->CreateTable($fill);   // Hier staat de logica voor deze functie
         return $response->withStatus(intval(201));
@@ -35,7 +36,7 @@ $app->post('/Leden/CreateTable', function (Request $request, Response $response,
 /*
 Maak database views, als view al bestaat wordt deze overschreven
 */
-$app->post('/Leden/CreateViews', function (Request $request, Response $response, $args) {
+$app->post(url_base() . 'Leden/CreateViews', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Leden");
     try
     {
@@ -58,11 +59,12 @@ $app->post('/Leden/CreateViews', function (Request $request, Response $response,
 /*
 Haal een enkel record op uit de database
 */
-$app->get('/Leden/GetObject', function (Request $request, Response $response, $args) {
+$app->get(url_base() . 'Leden/GetObject', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Leden");
     try
     {
-        $id = $request->getQueryParams()['ID'];
+        $params = $request->getQueryParams();
+        $id = (isset($params['ID'])) ? $params['ID'] : null;
 
         $l = $obj->GetObject($id);  // Hier staat de logica voor deze functie
         if ($l === null)
@@ -91,7 +93,7 @@ $app->get('/Leden/GetObject', function (Request $request, Response $response, $a
 /*
 Haal een dataset op met records als een array uit de database. 
 */
-$app->get('/Leden/GetObjects', function (Request $request, Response $response, $args) {
+$app->get(url_base() . 'Leden/GetObjects', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Leden");
     try
     {
@@ -118,12 +120,13 @@ $app->get('/Leden/GetObjects', function (Request $request, Response $response, $
 Markeer een record in de database als verwijderd. Het record wordt niet fysiek verwijderd om er een link kan zijn naar andere tabellen.
 Het veld VERWIJDERD wordt op "1" gezet.
 */
-$app->delete('/Leden/DeleteObject', function (Request $request, Response $response, $args) {
+$app->delete(url_base() . 'Leden/DeleteObject', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Leden");
     try
     {
-        $id = $request->getQueryParams()['ID'];
-        $verificatie = $request->getQueryParams()['VERIFICATIE'];
+        $params = $request->getQueryParams();
+        $id = (isset($params['ID'])) ? $params['ID'] : null;
+        $verificatie = (isset($params['VERIFICATIE'])) ? $params['VERIFICATIE'] : null;        
 
         $obj->VerwijderObject($id, $verificatie);     // Hier staat de logica voor deze functie
         return $response->withStatus(intval(204));
@@ -145,11 +148,12 @@ $app->delete('/Leden/DeleteObject', function (Request $request, Response $respon
 Haal een record terug dat verwijderd is . Het record was gelukkig niet fysiek verwijderd om er een link kan zijn naar andere tabellen.
 Het veld VERWIJDERD wordt terug op "0" gezet.
 */
-$app->patch('/Leden/RestoreObject', function (Request $request, Response $response, $args) {
+$app->patch(url_base() . 'Leden/RestoreObject', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Leden");
     try
     {
-        $id = $request->getQueryParams()['ID'];
+        $params = $request->getQueryParams();
+        $id = (isset($params['ID'])) ? $params['ID'] : null;
 
         $record = $obj->HerstelObject($id);     // Hier staat de logica voor deze functie
         return $response->withStatus(intval(202));
@@ -170,7 +174,7 @@ $app->patch('/Leden/RestoreObject', function (Request $request, Response $respon
 /*
 Aanmaken van een record. Het is niet noodzakelijk om alle velden op te nemen in het verzoek
 */
-$app->post('/Leden/SaveObject', function (Request $request, Response $response, $args) {
+$app->post(url_base() . 'Leden/SaveObject', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Leden");
     try
     {
@@ -196,7 +200,7 @@ $app->post('/Leden/SaveObject', function (Request $request, Response $response, 
 /*
 Aanpassen van een record. Het is niet noodzakelijk om alle velden op te nemen in het verzoek
 */
-$app->put('/Leden/SaveObject', function (Request $request, Response $response, $args) {
+$app->put(url_base() . 'Leden/SaveObject', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Leden");
     try
     {
@@ -222,7 +226,7 @@ $app->put('/Leden/SaveObject', function (Request $request, Response $response, $
 /*
 Maak database views, als view al bestaat wordt deze overschreven
 */
-$app->post('/Leden/UploadAvatar', function (Request $request, Response $response, $args) {
+$app->post(url_base() . 'Leden/UploadAvatar', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Leden");
     try
     {

@@ -171,7 +171,8 @@
 		*/		
 		function GetObject($ID = null, $LID_ID = null, $DATUM = null, $heeftVerwijderd = true)
 		{
-			Debug(__FILE__, __LINE__, sprintf("AanwezigLeden.GetObject(%s,%s,%s,%s)", $ID, $LID_ID, $DATUM, $heeftVerwijderd));	
+			$functie = "AanwezigLeden.GetObject";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s,%s,%s,%s)", $functie, $ID, $LID_ID, $DATUM, $heeftVerwijderd));	
 
 			$conditie = array();
 			if ($ID !== null)
@@ -219,12 +220,15 @@
 		*/		
 		function GetObjects($params)
 		{
+			global $app_settings;
+			
 			$functie = "AanwezigLeden.GetObjects";
 			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($params, true)));		
 			
 			$where = ' WHERE 1=1 ';
 			$orderby = "";
 			$alleenLaatsteAanpassing = false;
+			$alleenVerwijderd = false;
 			$hash = null;
 			$limit = -1;
 			$start = -1;
@@ -423,7 +427,7 @@
 			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s, HASH=%s", $retVal['totaal'], $retVal['laatste_aanpassing'], $retVal['hash']));
 
 			if ($retVal['hash'] == $hash)
-				throw new Exception("704;Dataset ongewijzigd;");
+				throw new Exception(sprintf("%d;Dataset ongewijzigd;", $app_settings['dataNotModified']));
 
 			if ($alleenLaatsteAanpassing)
 			{
@@ -465,7 +469,8 @@
 		*/
 		function VerwijderObject($id = null, $lid_id = null, $datum = null, $verificatie = true)
 		{
-			Debug(__FILE__, __LINE__, sprintf("AanwezigLeden.VerwijderObject('%s', %s, %s, %s)", $id, $lid_id, $datum, (($verificatie === false) ? "False" :  $verificatie)));					
+			$functie = "AanwezigLeden.VerwijderObject";
+			Debug(__FILE__, __LINE__, sprintf("%s('%s', %s, %s, %s)", $functie, $id, $lid_id, $datum, (($verificatie === false) ? "False" :  $verificatie)));					
 
 
 			if ($datum) 
@@ -510,7 +515,8 @@
 		*/
 		function HerstelObject($id)
 		{
-			Debug(__FILE__, __LINE__, sprintf("AanwezigLeden.HerstelObject('%s')", $id));
+			$functie = "AanwezigLeden.HerstelObject";
+			Debug(__FILE__, __LINE__, sprintf("%s('%s')", $functie, $id));
 
 			if ($this->heeftDataToegang() == false)
 				throw new Exception("401;Geen schrijfrechten;");
@@ -527,7 +533,8 @@
 		*/		
 		function AddObject($AanwezigLedenData)
 		{
-			Debug(__FILE__, __LINE__, sprintf("AanwezigLeden.AddObject(%s)", print_r($AanwezigLedenData, true)));
+			$functie = "AanwezigLeden.AddObject";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($AanwezigLedenData, true)));
 				
 			if ($AanwezigLedenData == null)
 				throw new Exception("406;AanwezigLeden data moet ingevuld zijn;");	
@@ -586,7 +593,8 @@
 		*/		
 		function UpdateObject($AanwezigLedenData)
 		{
-			Debug(__FILE__, __LINE__, sprintf("AanwezigLeden.UpdateObject(%s)", print_r($AanwezigLedenData, true)));
+			$functie = "AanwezigLeden.UpdateObject";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($AanwezigLedenData, true)));
 			
 			if ($AanwezigLedenData == null)
 				throw new Exception("406;AanwezigLeden data moet ingevuld zijn;");	
@@ -625,7 +633,8 @@
 		*/
 		function Aanmelden($AanmeldenLedenData)
 		{
-			Debug(__FILE__, __LINE__, sprintf("AanwezigLeden.Aanmelden(%s)", print_r($AanmeldenLedenData, true)));
+			$functie = "AanwezigLeden.Aanmelden";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($AanmeldenLedenData, true)));
 
 			if ($AanmeldenLedenData == null)
 				throw new Exception("406;AanmeldenLedenData data moet ingevuld zijn;");	
@@ -752,7 +761,8 @@
 		*/
 		function Afmelden($AfmeldenLedenData)
 		{
-			Debug(__FILE__, __LINE__, sprintf("AanwezigLeden.Afmelden(%s)", print_r($AfmeldenLedenData, true)));
+			$functie = "AanwezigLeden.Afmelden";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($AfmeldenLedenData, true)));
 
 			if ($AfmeldenLedenData == null)
 				throw new Exception("406;AfmeldenLedenData data moet ingevuld zijn;");	
@@ -803,7 +813,8 @@
 		*/
 		function PotentieelVliegers($vliegtuigID, $datum = null)
 		{
-			Debug(__FILE__, __LINE__, sprintf("AanwezigLeden.PotentieelVliegers(%s,%s)", $vliegtuigID, $datum));
+			$functie = "AanwezigLeden.PotentieelVliegers";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s,%s)", $functie, $vliegtuigID, $datum));
 
 			if (!$this->heeftDataToegang($datum))	
 				throw new Exception("401;Geen leesrechten;");
@@ -898,7 +909,8 @@
 
 			// Als dan niets lukt, dan maar iedereen. Laten we het plan D noemen				
 			$params = array();	
-			$params["VELDEN"] = "ID,NAAM";	
+			$params["VELDEN"] = "ID,NAAM";
+			$params["TYPES"] = "";	
 
 			$t = MaakObject('Types');
 			$types = $t->GetObjects(array('GROEP' => 6, 'VELDEN' => "ID")); 	// groep 6 = lid types

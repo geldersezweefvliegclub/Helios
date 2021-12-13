@@ -8,11 +8,12 @@ use Slim\Factory\AppFactory;
 /*
 Aanmaken van de database tabel. Indien FILLDATA == true, dan worden er ook voorbeeld records toegevoegd 
 */
-$app->post('/Rooster/CreateTable', function (Request $request, Response $response, $args) {
+$app->post(url_base() . 'Rooster/CreateTable', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Rooster");
     try
     {
-        $fill = $request->getQueryParams()['FILLDATA'];
+        $params = $request->getQueryParams();
+        $fill = (isset($params['FILLDATA'])) ? $params['FILLDATA'] : null;
 
         $obj->CreateTable($fill);   // Hier staat de logica voor deze functie
         return $response->withStatus(intval(201));
@@ -33,7 +34,7 @@ $app->post('/Rooster/CreateTable', function (Request $request, Response $respons
 /*
 Maak database views, als view al bestaat wordt deze overschreven
 */
-$app->post('/Rooster/CreateViews', function (Request $request, Response $response, $args) {
+$app->post(url_base() . 'Rooster/CreateViews', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Rooster");
     try
     {
@@ -56,12 +57,13 @@ $app->post('/Rooster/CreateViews', function (Request $request, Response $respons
 /*
 Haal een enkel record op uit de database
 */
-$app->get('/Rooster/GetObject', function (Request $request, Response $response, $args) {
+$app->get(url_base() . 'Rooster/GetObject', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Rooster");
     try
     {
-        $id = $request->getQueryParams()['ID'];
-        $datum = $request->getQueryParams()['DATUM'];
+        $params = $request->getQueryParams();
+        $id = (isset($params['ID'])) ? $params['ID'] : null;
+        $datum = (isset($params['DATUM'])) ? $params['DATUM'] : null;
 
         $r = $obj->GetObject($id, $datum);  // Hier staat de logica voor deze functie
         if ($r === null)
@@ -90,7 +92,7 @@ $app->get('/Rooster/GetObject', function (Request $request, Response $response, 
 /*
 Haal een dataset op met records als een array uit de database. 
 */
-$app->get('/Rooster/GetObjects', function (Request $request, Response $response, $args) {
+$app->get(url_base() . 'Rooster/GetObjects', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Rooster");
     try
     {
@@ -117,13 +119,14 @@ $app->get('/Rooster/GetObjects', function (Request $request, Response $response,
 Markeer een record in de database als verwijderd. Het record wordt niet fysiek verwijderd om er een link kan zijn naar andere tabellen.
 Het veld VERWIJDERD wordt op "1" gezet.
 */
-$app->delete('/Rooster/DeleteObject', function (Request $request, Response $response, $args) {
+$app->delete(url_base() . 'Rooster/DeleteObject', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Rooster");
     try
     {
-        $id = $request->getQueryParams()['ID'];
-        $datum = $request->getQueryParams()['DATUM'];
-        $verificatie = $request->getQueryParams()['VERIFICATIE'];
+        $params = $request->getQueryParams();
+        $id = (isset($params['ID'])) ? $params['ID'] : null;
+        $datum = (isset($params['DATUM'])) ? $params['DATUM'] : null;
+        $verificatie = (isset($params['VERIFICATIE'])) ? $params['VERIFICATIE'] : null;        
 
         $obj->VerwijderObject($id, $datum, $verificatie);     // Hier staat de logica voor deze functie
         return $response->withStatus(intval(204));
@@ -145,11 +148,12 @@ $app->delete('/Rooster/DeleteObject', function (Request $request, Response $resp
 Haal een record terug dat verwijderd is . Het record was gelukkig niet fysiek verwijderd om er een link kan zijn naar andere tabellen.
 Het veld VERWIJDERD wordt terug op "0" gezet.
 */
-$app->patch('/Rooster/RestoreObject', function (Request $request, Response $response, $args) {
+$app->patch(url_base() . 'Rooster/RestoreObject', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Rooster");
     try
     {
-        $id = $request->getQueryParams()['ID'];
+        $params = $request->getQueryParams();
+        $id = (isset($params['ID'])) ? $params['ID'] : null;
 
         $record = $obj->HerstelObject($id);     // Hier staat de logica voor deze functie
         return $response->withStatus(intval(202));
@@ -170,7 +174,7 @@ $app->patch('/Rooster/RestoreObject', function (Request $request, Response $resp
 /*
 Aanmaken van een record. Het is niet noodzakelijk om alle velden op te nemen in het verzoek
 */
-$app->post('/Rooster/SaveObject', function (Request $request, Response $response, $args) {
+$app->post(url_base() . 'Rooster/SaveObject', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Rooster");
     try
     {
@@ -196,7 +200,7 @@ $app->post('/Rooster/SaveObject', function (Request $request, Response $response
 /*
 Aanpassen van een record. Het is niet noodzakelijk om alle velden op te nemen in het verzoek
 */
-$app->put('/Rooster/SaveObject', function (Request $request, Response $response, $args) {
+$app->put(url_base() . 'Rooster/SaveObject', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Rooster");
     try
     {

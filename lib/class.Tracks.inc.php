@@ -71,7 +71,6 @@
                                 `TEKST`)
                             VALUES
                                 (%s);", $this->dbTable, $fields);
-                    $i++;
                     parent::DbUitvoeren($query);
                 }
 			}
@@ -112,7 +111,8 @@
 		*/
 		function GetObject($ID)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Tracks.GetObject(%s)", $ID));	
+			$functie = "Tracks.GetObject";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, $ID));	
 
 			if (!$this->heeftDataToegang())
 				throw new Exception("401;Geen leesrechten;");
@@ -138,6 +138,8 @@
 		*/		
 		function GetObjects($params)
 		{
+			global $app_settings;
+
 			$functie = "Tracks.GetObjects";
 			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($params, true)));		
 
@@ -335,7 +337,7 @@
 			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s, HASH=%s", $retVal['totaal'], $retVal['laatste_aanpassing'], $retVal['hash']));	
 
 			if ($retVal['hash'] == $hash)
-				throw new Exception("704;Dataset ongewijzigd;");
+				throw new Exception(sprintf("%d;Dataset ongewijzigd;", $app_settings['dataNotModified']));
 
 			if ($alleenLaatsteAanpassing)
 			{
@@ -370,7 +372,9 @@
 		*/
 		function VerwijderObject($id, $verificatie = true)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Tracks.VerwijderObject('%s', %s)", $id, (($verificatie === false) ? "False" :  $verificatie)));	
+			$functie = "Tracks.VerwijderObject";
+			Debug(__FILE__, __LINE__, sprintf("%s('%s', %s)", $functie, $id, (($verificatie === false) ? "False" :  $verificatie)));	
+
 			if ($id == null)
 				throw new Exception("406;Geen ID in aanroep;");
 
@@ -390,7 +394,8 @@
 		*/
 		function HerstelObject($id)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Tracks.HerstelObject('%s')", $id));
+			$functie = "Tracks.HerstelObject";
+			Debug(__FILE__, __LINE__, sprintf("%s('%s')", $functie, $id));
 
 			if (!$this->heeftDataToegang(null, false))
 				throw new Exception("401;Geen schrijfrechten;");
@@ -407,7 +412,8 @@
 		*/		
 		function AddObject($TrackData)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Tracks.AddObject(%s)", print_r($TrackData, true)));
+			$functie = "Tracks.AddObject";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($TrackData, true)));
 			
 			if (!$this->heeftDataToegang(null, true))
 				throw new Exception("401;Geen schrijfrechten;");
@@ -437,7 +443,7 @@
 				throw new Exception("406;TEKST is verplicht;");
 				
 			// Neem data over uit aanvraag
-			$l = $this->RequestToRecord($TrackData, $link_id);
+			$l = $this->RequestToRecord($TrackData);
 						
 			$id = parent::DbToevoegen($l);
 			Debug(__FILE__, __LINE__, sprintf("Track toegevoegd id=%d", $id));
@@ -450,7 +456,8 @@
 		*/		
 		function UpdateObject($TrackData)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Tracks.UpdateObject(%s)", print_r($TrackData, true)));
+			$functie = "Tracks.UpdateObject";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($TrackData, true)));
 			
 			if ($TrackData == null)
 				throw new Exception("406;Track data moet ingevuld zijn;");			

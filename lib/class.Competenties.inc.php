@@ -235,7 +235,6 @@
 							`DOCUMENTATIE`) 
 						VALUES
 							%s;", $this->dbTable, $inject);
-				$i++;
 				parent::DbUitvoeren($query);
 			}
             
@@ -274,7 +273,8 @@
 		*/		
 		function GetObject($ID)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Competenties.GetObject(%s)", $ID));	
+			$functie = "Competenties.GetObject";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, $ID));	
 
 			if ($ID == null)
 				throw new Exception("406;Geen ID in aanroep;");
@@ -295,6 +295,8 @@
 		*/		
 		function GetObjects($params)
 		{
+			global $app_settings;
+
 			$functie = "Competenties.GetObjects";
 			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($params, true)));		
 			
@@ -419,7 +421,7 @@
 			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s, HASH=%s", $retVal['totaal'], $retVal['laatste_aanpassing'], $retVal['hash']));
 
 			if ($retVal['hash'] == $hash)
-				throw new Exception("704;Dataset ongewijzigd;");
+				throw new Exception(sprintf("%d;Dataset ongewijzigd;", $app_settings['dataNotModified']));
 
 			if ($alleenLaatsteAanpassing)
 			{
@@ -454,7 +456,8 @@
 		*/
 		function VerwijderObject($id = null, $verificatie = true)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Competenties.VerwijderObject('%s', %s)", $id, (($verificatie === false) ? "False" :  $verificatie)));
+			$functie = "Competenties.VerwijderObject";
+			Debug(__FILE__, __LINE__, sprintf("%s('%s', %s)", $functie, $id, (($verificatie === false) ? "False" :  $verificatie)));
 			
 			if (!$this->heeftDataToegang(null, false))
 				throw new Exception("401;Geen schrijfrechten;");
@@ -471,7 +474,8 @@
 		*/
 		function HerstelObject($id)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Competenties.HerstelObject('%s')", $id));
+			$functie = "Competenties.HerstelObject";
+			Debug(__FILE__, __LINE__, sprintf("%s('%s')", $functie, $id));
 
 			if (!$this->heeftDataToegang(null, false))
 				throw new Exception("401;Geen schrijfrechten;");
@@ -488,7 +492,8 @@
 		*/		
 		function AddObject($CompetentieData)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Competenties.AddObject(%s)", print_r($CompetentieData, true)));
+			$functie = "Competenties.AddObject";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($CompetentieData, true)));
 			
 			if (!$this->heeftDataToegang(null, false))
 				throw new Exception("401;Geen schrijfrechten;");
@@ -534,7 +539,8 @@
 		*/		
 		function UpdateObject($CompetentieData)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Competenties.UpdateObject(%s)", print_r($CompetentieData, true)));
+			$functie = "Competenties.UpdateObject";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($CompetentieData, true)));
 			
 			if (!$this->heeftDataToegang(null, false))
 				throw new Exception("401;Geen schrijfrechten;");

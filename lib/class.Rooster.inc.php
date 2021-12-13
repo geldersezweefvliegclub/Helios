@@ -97,7 +97,8 @@
 		*/
 		function GetObject($ID = null, $DATUM = null, $heeftVerwijderd = true)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Rooster.GetObject(%s,%s,%s)", $ID, $DATUM, $heeftVerwijderd));	
+			$functie = "Rooster.GetObject";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s,%s,%s)", $functie, $ID, $DATUM, $heeftVerwijderd));	
 
 			if (($ID == null) && ($DATUM == null))
 				throw new Exception("406;Geen ID en DATUM in aanroep;");
@@ -135,6 +136,8 @@
 		*/		
 		function GetObjects($params)
 		{
+			global $app_settings;
+
 			$functie = "Rooster.GetObjects";
 			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($params, true)));		
 			
@@ -280,7 +283,7 @@
 			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s, HASH=%s", $retVal['totaal'], $retVal['laatste_aanpassing'], $retVal['hash']));	
 
 			if ($retVal['hash'] == $hash)
-				throw new Exception("704;Dataset ongewijzigd;");
+				throw new Exception(sprintf("%d;Dataset ongewijzigd;", $app_settings['dataNotModified']));
 
 			if ($alleenLaatsteAanpassing)
 			{
@@ -315,7 +318,8 @@
 		*/
 		function VerwijderObject($id = null, $datum = null, $verificatie = true)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Rooster.VerwijderObject('%s', %s, %s)", $id, $datum, ($verificatie ? "true" : "false")));							
+			$functie = "Rooster.VerwijderObject";
+			Debug(__FILE__, __LINE__, sprintf("%s('%s', %s, %s)", $functie, $id, $datum, ($verificatie ? "true" : "false")));							
 			$l = MaakObject('Login');	
 			if (!$this->heeftDataToegang(null, false) && !$l->isBeheerderDDWV() && !$l->isRooster())
 				throw new Exception("401;Geen schrijfrechten;");
@@ -344,7 +348,8 @@
 		*/
 		function HerstelObject($id)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Rooster.HerstelObject('%s')", $id));
+			$functie = "Rooster.HerstelObject";
+			Debug(__FILE__, __LINE__, sprintf("%s('%s')", $functie, $id));
 
 			$l = MaakObject('Login');
 			if (!$this->heeftDataToegang(null, false) && !$l->isBeheerderDDWV() && !$l->isRooster())
@@ -362,7 +367,8 @@
 		*/		
 		function AddObject($RoosterData)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Rooster.AddObject(%s)", print_r($RoosterData, true)));
+			$functie = "Rooster.AddObject";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($RoosterData, true)));
 			
 			if ($RoosterData == null)
 				throw new Exception("406;Rooster data moet ingevuld zijn;");	
@@ -444,7 +450,8 @@
 		*/		
 		function UpdateObject($RoosterData)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Rooster.UpdateObject(%s)", print_r($RoosterData, true)));
+			$functie = "Rooster.UpdateObject";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($RoosterData, true)));
 			
 			$l = MaakObject('Login');
 			if (!$this->heeftDataToegang(null, false) && !$l->isBeheerderDDWV() && !$l->isRooster() && !$l->isCIMT())

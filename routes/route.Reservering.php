@@ -8,8 +8,8 @@ use Slim\Factory\AppFactory;
 /*
 Aanmaken van de database tabel. Indien FILLDATA == true, dan worden er ook voorbeeld records toegevoegd 
 */
-$app->post(url_base() . 'Daginfo/CreateTable', function (Request $request, Response $response, $args) {
-    $obj = MaakObject("Daginfo");
+$app->post(url_base() . 'Reservering/CreateTable', function (Request $request, Response $response, $args) {
+    $obj = MaakObject("Reservering");
     try
     {
         $params = $request->getQueryParams();
@@ -20,7 +20,7 @@ $app->post(url_base() . 'Daginfo/CreateTable', function (Request $request, Respo
     }
     catch(Exception $exception)
     {
-        Debug(__FILE__, __LINE__, "/Daginfo/CreateTable: " .$exception);
+        Debug(__FILE__, __LINE__, "/Reservering/CreateTable: " .$exception);
 
         list($dummy, $exceptionMsg) = explode(": ", $exception);
         list($httpStatus, $message) = explode(";", $exceptionMsg);  // onze eigen formaat van een exceptie
@@ -34,8 +34,8 @@ $app->post(url_base() . 'Daginfo/CreateTable', function (Request $request, Respo
 /*
 Maak database views, als view al bestaat wordt deze overschreven
 */
-$app->post(url_base() . 'Daginfo/CreateViews', function (Request $request, Response $response, $args) {
-    $obj = MaakObject("Daginfo");
+$app->post(url_base() . 'Reservering/CreateViews', function (Request $request, Response $response, $args) {
+    $obj = MaakObject("Reservering");
     try
     {
         $obj->CreateViews();    // Hier staat de logica voor deze functie
@@ -43,7 +43,7 @@ $app->post(url_base() . 'Daginfo/CreateViews', function (Request $request, Respo
     }
     catch(Exception $exception)
     {
-        Debug(__FILE__, __LINE__, "/Daginfo/CreateViews: " .$exception);
+        Debug(__FILE__, __LINE__, "/Reservering/CreateViews: " .$exception);
 
         list($dummy, $exceptionMsg) = explode(": ", $exception);
         list($httpStatus, $message) = explode(";", $exceptionMsg);  // onze eigen formaat van een exceptie
@@ -57,28 +57,27 @@ $app->post(url_base() . 'Daginfo/CreateViews', function (Request $request, Respo
 /*
 Haal een enkel record op uit de database
 */
-$app->get(url_base() . 'Daginfo/GetObject', function (Request $request, Response $response, $args) {
-    $obj = MaakObject("Daginfo");
+$app->get(url_base() . 'Reservering/GetObject', function (Request $request, Response $response, $args) {
+    $obj = MaakObject("Reservering");
     try
     {
         $params = $request->getQueryParams();
         $id = (isset($params['ID'])) ? $params['ID'] : null;
-        $datum = (isset($params['DATUM'])) ? $params['DATUM'] : null;
 
-        $d = $obj->GetObject($id, $datum);  // Hier staat de logica voor deze functie
-        if ($d === null)
+        $r = $obj->GetObject($id);  // Hier staat de logica voor deze functie
+        if ($r === null)
         {
             header("X-Error-Message: Geen data", true, 404);
             header("Content-Type: text/plain"); 
             die;           
         }
 
-        $response->getBody()->write(json_encode($d));
+        $response->getBody()->write(json_encode($r));
         return $response->withHeader('Content-Type', 'application/json');
     }
     catch(Exception $exception)
     {
-        Debug(__FILE__, __LINE__, "/Daginfo/GetObject: " .$exception);
+        Debug(__FILE__, __LINE__, "/Reservering/GetObject: " .$exception);
 
         list($dummy, $exceptionMsg) = explode(": ", $exception);
         list($httpStatus, $message) = explode(";", $exceptionMsg);  // onze eigen formaat van een exceptie
@@ -89,11 +88,12 @@ $app->get(url_base() . 'Daginfo/GetObject', function (Request $request, Response
     }  
 });
 
+
 /*
 Haal een dataset op met records als een array uit de database. 
 */
-$app->get(url_base() . 'Daginfo/GetObjects', function (Request $request, Response $response, $args) {
-    $obj = MaakObject("Daginfo");
+$app->get(url_base() . 'Reservering/GetObjects', function (Request $request, Response $response, $args) {
+    $obj = MaakObject("Reservering");
     try
     {
         $parameters = $request->getQueryParams();
@@ -104,14 +104,14 @@ $app->get(url_base() . 'Daginfo/GetObjects', function (Request $request, Respons
     }
     catch(Exception $exception)
     {
-        Debug(__FILE__, __LINE__, "/Daginfo/GetObjects: " .$exception);
+        Debug(__FILE__, __LINE__, "/Reservering/GetObjects: " .$exception);
 
         list($dummy, $exceptionMsg) = explode(": ", $exception);
         list($httpStatus, $message) = explode(";", $exceptionMsg);   // onze eigen formaat van een exceptie
 
         header("X-Error-Message: $message", true, intval($httpStatus));
         header("Content-Type: text/plain");
-        die;
+        exit;
     }
 });
 
@@ -119,21 +119,20 @@ $app->get(url_base() . 'Daginfo/GetObjects', function (Request $request, Respons
 Markeer een record in de database als verwijderd. Het record wordt niet fysiek verwijderd om er een link kan zijn naar andere tabellen.
 Het veld VERWIJDERD wordt op "1" gezet.
 */
-$app->delete(url_base() . 'Daginfo/DeleteObject', function (Request $request, Response $response, $args) {
-    $obj = MaakObject("Daginfo");
+$app->delete(url_base() . 'Reservering/DeleteObject', function (Request $request, Response $response, $args) {
+    $obj = MaakObject("Reservering");
     try
     {
         $params = $request->getQueryParams();
         $id = (isset($params['ID'])) ? $params['ID'] : null;
-        $datum = (isset($params['DATUM'])) ? $params['DATUM'] : null;
-        $verificatie = (isset($params['VERIFICATIE'])) ? $params['VERIFICATIE'] : null;
+        $verificatie = (isset($params['VERIFICATIE'])) ? $params['VERIFICATIE'] : null;        
 
-        $obj->VerwijderObject($id, $datum, $verificatie);     // Hier staat de logica voor deze functie
+        $obj->VerwijderObject($id, $verificatie);     // Hier staat de logica voor deze functie
         return $response->withStatus(intval(204));
     }
     catch(Exception $exception)
     {
-        Debug(__FILE__, __LINE__, "/Daginfo/DeleteObject: " .$exception);
+        Debug(__FILE__, __LINE__, "/Reservering/DeleteObject: " .$exception);
 
         list($dummy, $exceptionMsg) = explode(": ", $exception);
         list($httpStatus, $message) = explode(";", $exceptionMsg);  // onze eigen formaat van een exceptie
@@ -144,49 +143,23 @@ $app->delete(url_base() . 'Daginfo/DeleteObject', function (Request $request, Re
     }  
 });  
 
-/*
-Haal een record terug dat verwijderd is . Het record was gelukkig niet fysiek verwijderd om er een link kan zijn naar andere tabellen.
-Het veld VERWIJDERD wordt terug op "0" gezet.
-*/
-$app->patch(url_base() . 'Daginfo/RestoreObject', function (Request $request, Response $response, $args) {
-    $obj = MaakObject("Daginfo");
-    try
-    {
-        $params = $request->getQueryParams();
-        $id = (isset($params['ID'])) ? $params['ID'] : null;
-
-        $record = $obj->HerstelObject($id);     // Hier staat de logica voor deze functie
-        return $response->withStatus(intval(202));
-    }
-    catch(Exception $exception)
-    {
-        Debug(__FILE__, __LINE__, "/Daginfo/RestoreObject: " .$exception);
-
-        list($dummy, $exceptionMsg) = explode(": ", $exception);
-        list($httpStatus, $message) = explode(";", $exceptionMsg);  // onze eigen formaat van een exceptie
-
-        header("X-Error-Message: $message", true, intval($httpStatus));
-        header("Content-Type: text/plain");
-        die;
-    }  
-}); 
 
 /*
-Aanamken van een record. Het is niet noodzakelijk om alle velden op te nemen in het verzoek
+Aanmaken van een record. Het is niet noodzakelijk om alle velden op te nemen in het verzoek
 */
-$app->post(url_base() . 'Daginfo/SaveObject', function (Request $request, Response $response, $args) {
-    $obj = MaakObject("Daginfo");
+$app->post(url_base() . 'Reservering/SaveObject', function (Request $request, Response $response, $args) {
+    $obj = MaakObject("Reservering");
     try
     {
         $data = json_decode($request->getBody(), true);
 
-        $v = $obj->AddObject($data);   // Hier staat de logica voor deze functie
-        $response->getBody()->write(json_encode($v));
+        $r = $obj->AddObject($data);   // Hier staat de logica voor deze functie
+        $response->getBody()->write(json_encode($r));
         return $response->withHeader('Content-Type', 'application/json');
     }
     catch(Exception $exception)
     {
-        Debug(__FILE__, __LINE__, "/Daginfo/SaveObject: " .$exception);
+        Debug(__FILE__, __LINE__, "/Reservering/SaveObject: " .$exception);
 
         list($dummy, $exceptionMsg) = explode(": ", $exception);
         list($httpStatus, $message) = explode(";", $exceptionMsg);  // onze eigen formaat van een exceptie
@@ -197,29 +170,4 @@ $app->post(url_base() . 'Daginfo/SaveObject', function (Request $request, Respon
     }  
 });
 
-/*
-Aanpassen van een record. Het is niet noodzakelijk om alle velden op te nemen in het verzoek
-*/
-$app->put(url_base() . 'Daginfo/SaveObject', function (Request $request, Response $response, $args) {
-    $obj = MaakObject("Daginfo");
-    try
-    {
-        $data = json_decode($request->getBody(), true);
-
-        $v = $obj->UpdateObject($data);   // Hier staat de logica voor deze functie
-        $response->getBody()->write(json_encode($v));
-        return $response->withHeader('Content-Type', 'application/json');
-    }
-    catch(Exception $exception)
-    {
-        Debug(__FILE__, __LINE__, "/Daginfo/SaveObject: " .$exception);
-
-        list($dummy, $exceptionMsg) = explode(": ", $exception);
-        list($httpStatus, $message) = explode(";", $exceptionMsg);  // onze eigen formaat van een exceptie
-
-        header("X-Error-Message: $message", true, intval($httpStatus));
-        header("Content-Type: text/plain");
-        die;
-    }  
-});
 ?>

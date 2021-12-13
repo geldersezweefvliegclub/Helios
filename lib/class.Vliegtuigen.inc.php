@@ -121,7 +121,8 @@
 		*/
 		function GetObject($ID)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Vliegtuigen.GetObject(%s)", $ID));	
+			$functie = "Vliegtuigen.GetObject";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, $ID));	
 
 			if ($ID == null)
 				throw new Exception("406;Geen ID in aanroep;");
@@ -144,7 +145,8 @@
 		*/
 		function GetObjectByRegistratie($Registratie)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Vliegtuigen.GetObjectByRegistratie(%s)", $Registratie));	
+			$functie = "Vliegtuigen.GetObjectByRegistratie";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, $Registratie));	
 
 			if ($Registratie == null)
 				throw new Exception("406;Geen Registratie in aanroep;");
@@ -176,6 +178,8 @@
 		*/		
 		function GetObjects($params)
 		{
+			global $app_settings;
+
 			$functie = "Vliegtuigen.GetObjects";
 			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($params, true)));		
 			
@@ -380,7 +384,7 @@
 			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s, HASH=%s", $retVal['totaal'], $retVal['laatste_aanpassing'], $retVal['hash']));	
 
 			if ($retVal['hash'] == $hash)
-				throw new Exception("704;Dataset ongewijzigd;");
+				throw new Exception(sprintf("%d;Dataset ongewijzigd;", $app_settings['dataNotModified']));
 
 			if ($alleenLaatsteAanpassing)
 			{
@@ -416,7 +420,8 @@
 		*/
 		function VerwijderObject($id, $verificatie = true)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Vliegtuigen.VerwijderObject('%s', %s)", $id, (($verificatie === false) ? "False" :  $verificatie)));				
+			$functie = "Vliegtuigen.VerwijderObject";
+			Debug(__FILE__, __LINE__, sprintf("%s('%s', %s)", $functie, $id, (($verificatie === false) ? "False" :  $verificatie)));				
 			if (!$this->heeftDataToegang(null, false))
 				throw new Exception("401;Geen schrijfrechten;");
 
@@ -432,7 +437,8 @@
 		*/
 		function HerstelObject($id)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Vliegtuigen.HerstelObject('%s')", $id));
+			$functie = "Vliegtuigen.HerstelObject";
+			Debug(__FILE__, __LINE__, sprintf("%s('%s')", $functie, $id));
 
 			if (!$this->heeftDataToegang(null, false))
 				throw new Exception("401;Geen schrijfrechten;");
@@ -449,7 +455,8 @@
 		*/		
 		function AddObject($VliegtuigData)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Vliegtuigen.AddObject(%s)", print_r($VliegtuigData, true)));
+			$functie = "Vliegtuigen.AddObject";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($VliegtuigData, true)));
 			
 			if ($VliegtuigData == null)
 				throw new Exception("406;Vliegtuig data moet ingevuld zijn;");			
@@ -498,7 +505,8 @@
 		*/		
 		function UpdateObject($VliegtuigData)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Vliegtuigen.UpdateObject(%s)", print_r($VliegtuigData, true)));
+			$functie = "Vliegtuigen.UpdateObject";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($VliegtuigData, true)));
 			
 			if ($VliegtuigData == null)
 				throw new Exception("406;Vliegtuig data moet ingevuld zijn;");			

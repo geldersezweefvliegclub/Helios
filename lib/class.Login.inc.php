@@ -64,7 +64,8 @@ require ("include/PasswordHash.php");
 
 		function Logout()
 		{
-			Debug(__FILE__, __LINE__, "Logout()");
+			$functie = "Login.Logout";
+			Debug(__FILE__, __LINE__, sprintf("%s()", $functie));
 			
 			$this->startSession();
 			if (isset($_SESSION['login']))
@@ -82,9 +83,10 @@ require ("include/PasswordHash.php");
 		
 		function setSessionUser($id)
 		{
-			Debug(__FILE__, __LINE__, sprintf("setSessionUser(%s)", $id));
-			$this->_userID = $id;
+			$functie = "Login.setSessionUser";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, $id));
 
+			$this->_userID = $id;
 			$this->startSession();
 			$_SESSION['login']= $id;
 			$_SESSION['userInfo'] = json_encode($this->getUserInfo($id));
@@ -93,7 +95,10 @@ require ("include/PasswordHash.php");
 		}
 
 		function getUserInfo($lidID)
-		{			
+		{		
+			$functie = "Login.getUserInfo";	
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, $lidID));
+
 			$Userinfo = array();
 
 			// initieele waarde, weten we zeker dat array gevuld is
@@ -140,7 +145,7 @@ require ("include/PasswordHash.php");
 
 				$Userinfo['isClubVlieger'] 		= $l->isClubVlieger($LidData['ID'], $LidData);
 				$Userinfo['isDDWV'] 			= $l->isDDWV($LidData['ID'], $LidData);
-				$Userinfo['isAangemeld'] 		= $a->IsAangemeldVandaag($UserID);				
+				$Userinfo['isAangemeld'] 		= $a->IsAangemeldVandaag($LidData['ID']);				
 			}
 			return array ("LidData" => $LidData, "Userinfo" => $Userinfo);
 		}
@@ -148,7 +153,9 @@ require ("include/PasswordHash.php");
 		function heeftToegang($token = null)
 		{
 			global $NoPasswordIP;
-			Debug(__FILE__, __LINE__, sprintf("heeftToegang(%s)", $token));
+
+			$functie = "Login.setSessionUser";	
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, $token));
 
 			// Indien username en wachtwword gezet zijn, via basic authenticatie. Gaan we opnieuw authoriseren
 			if (isset($_SERVER['PHP_AUTH_USER']) && isset($_SERVER['PHP_AUTH_PW']))
@@ -182,6 +189,9 @@ require ("include/PasswordHash.php");
 		// Bearer token heeft beperkte levensduur, dus zo af en toe verlengen
 		function verlengBearerToken() 
 		{
+			$functie = "Login.verlengBearerToken";	
+			Debug(__FILE__, __LINE__, sprintf("%s()", $functie));
+
 			$UserID = $this->getUserFromSession();
 
 			$l = MaakObject('Leden');
@@ -195,7 +205,9 @@ require ("include/PasswordHash.php");
 			global $app_settings;
 			global $installer_account;
 			
-			Debug(__FILE__, __LINE__, sprintf("verkrijgToegang(%s, %s, %s)", $username, "??", $token)); 
+			$functie = "Login.verkrijgToegang";	
+			Debug(__FILE__, __LINE__, sprintf("%s(%s, %s, %s)", $functie, $username, "??", $token)); 
+
 			$this->startSession();
 			
 			// Als username & wachtwoord niet zijn meegegeven, dan ophalen uit de aanvraag
@@ -367,6 +379,9 @@ require ("include/PasswordHash.php");
 		// Geef data over gebruiker
 		function lidData()
 		{
+			$functie = "Login.lidData";	
+			Debug(__FILE__, __LINE__, sprintf("%s()", $functie)); 
+			
 			// als er session niet gezet is, kunnen we niets
 			if (isset($_SESSION['userInfo']) === false)
 				return null;
@@ -384,6 +399,9 @@ require ("include/PasswordHash.php");
 		// Deze data komt uit de sessie, bij het inloggen is de sessie data gezet
 		function sessiePermissie($key)
 		{	
+			$functie = "Login.sessiePermissie";	
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, $key)); 
+
 			$this->startSession();
 
 			// als er session niet gezet is, gaan we voor de veilige oplossing
@@ -495,6 +513,9 @@ require ("include/PasswordHash.php");
 		// Maak JSON Web Token (JWT)
 		function JWT($lidData)
 		{
+			$functie = "Login.JWT";	
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($lidData, true))); 
+
 			global $app_settings;
 
 			$payload = array(
@@ -510,6 +531,9 @@ require ("include/PasswordHash.php");
 
 		function getAuthorizationHeader()
 		{
+			$functie = "Login.getAuthorizationHeader";	
+			Debug(__FILE__, __LINE__, sprintf("%s()", $functie)); 
+
 			$headers = null;
 			if (isset($_SERVER['Authorization'])) {
 				$headers = trim($_SERVER["Authorization"]);
@@ -544,7 +568,8 @@ require ("include/PasswordHash.php");
 
 		function sendSMS() 
 		{
-			Debug(__FILE__, __LINE__, "sendSMS()");
+			$functie = "Login.sendSMS";	
+			Debug(__FILE__, __LINE__, "%s()", $functie);
 
 			global $app_settings;
 
@@ -596,7 +621,8 @@ require ("include/PasswordHash.php");
 
 		function ValideerCode($id, $code) 
 		{
-			Debug(__FILE__, __LINE__, sprintf("ValideerCode(%s, %s)", $id, $code));
+			$functie = "Login.ValideerCode";	
+			Debug(__FILE__, __LINE__, sprintf("%s(%s, %s)", $functie, $id, $code));
 
 			global $app_settings;
 
@@ -619,6 +645,9 @@ require ("include/PasswordHash.php");
 
 		function startSession() 
 		{
+			$functie = "Login.startSession";
+			Debug(__FILE__, __LINE__, sprintf("%s()", $functie));
+
 			$isActief = session_status() === PHP_SESSION_ACTIVE ? TRUE : FALSE;
 			if ($isActief === FALSE ) session_start();
 		}

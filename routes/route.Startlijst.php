@@ -8,11 +8,12 @@ use Slim\Factory\AppFactory;
 /*
 Aanmaken van de database tabel. Indien FILLDATA == true, dan worden er ook voorbeeld records toegevoegd 
 */
-$app->post('/Startlijst/CreateTable', function (Request $request, Response $response, $args) {
+$app->post(url_base() . 'Startlijst/CreateTable', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Startlijst");
     try
     {
-        $fill = $request->getQueryParams()['FILLDATA'];
+        $params = $request->getQueryParams();
+        $fill = (isset($params['FILLDATA'])) ? $params['FILLDATA'] : null;
 
         $obj->CreateTable($fill);   // Hier staat de logica voor deze functie
         return $response->withStatus(intval(201));
@@ -33,7 +34,7 @@ $app->post('/Startlijst/CreateTable', function (Request $request, Response $resp
 /*
 Maak database views, als view al bestaat wordt deze overschreven
 */
-$app->post('/Startlijst/CreateViews', function (Request $request, Response $response, $args) {
+$app->post(url_base() . 'Startlijst/CreateViews', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Startlijst");
     try
     {
@@ -56,12 +57,13 @@ $app->post('/Startlijst/CreateViews', function (Request $request, Response $resp
 /*
 Haal een enkel record op uit de database
 */
-$app->get('/Startlijst/GetObject', function (Request $request, Response $response, $args) {
+$app->get(url_base() . 'Startlijst/GetObject', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Startlijst");
     try
     {
-        $id = $request->getQueryParams()['ID'];
-        $datum = $request->getQueryParams()['DATUM'];
+        $params = $request->getQueryParams();
+        $id = (isset($params['ID'])) ? $params['ID'] : null;
+        $datum = (isset($params['DATUM'])) ? $params['DATUM'] : null;        
 
         $r = $obj->GetObject($id, $datum);  // Hier staat de logica voor deze functie
         if ($r === null)
@@ -90,7 +92,7 @@ $app->get('/Startlijst/GetObject', function (Request $request, Response $respons
 /*
 Haal een dataset op met records als een array uit de database. 
 */
-$app->get('/Startlijst/GetObjects', function (Request $request, Response $response, $args) {
+$app->get(url_base() . 'Startlijst/GetObjects', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Startlijst");
     try
     {
@@ -116,7 +118,7 @@ $app->get('/Startlijst/GetObjects', function (Request $request, Response $respon
 /*
 Haal een dataset op met de logboek records als een array uit de database. 
 */
-$app->get('/Startlijst/GetLogboek', function (Request $request, Response $response, $args) {
+$app->get(url_base() . 'Startlijst/GetLogboek', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Startlijst");
     try
     {
@@ -142,7 +144,7 @@ $app->get('/Startlijst/GetLogboek', function (Request $request, Response $respon
 /*
 Haal een dataset op met de logboek totalen uit de database. 
 */
-$app->get('/Startlijst/GetLogboekTotalen', function (Request $request, Response $response, $args) {
+$app->get(url_base() . 'Startlijst/GetLogboekTotalen', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Startlijst");
     try
     {
@@ -168,7 +170,7 @@ $app->get('/Startlijst/GetLogboekTotalen', function (Request $request, Response 
 /*
 Haal een dataset op met de logboek records als een array uit de database. 
 */
-$app->get('/Startlijst/GetVliegtuigLogboek', function (Request $request, Response $response, $args) {
+$app->get(url_base() . 'Startlijst/GetVliegtuigLogboek', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Startlijst");
     try
     {
@@ -194,7 +196,7 @@ $app->get('/Startlijst/GetVliegtuigLogboek', function (Request $request, Respons
 /*
 Haal een dataset op met de logboek records als een array uit de database. 
 */
-$app->get('/Startlijst/GetVliegtuigLogboekTotalen', function (Request $request, Response $response, $args) {
+$app->get(url_base() . 'Startlijst/GetVliegtuigLogboekTotalen', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Startlijst");
     try
     {
@@ -220,7 +222,7 @@ $app->get('/Startlijst/GetVliegtuigLogboekTotalen', function (Request $request, 
 /*
 Haal de dagen op waar we starts van hebben
 */
-$app->get('/Startlijst/GetVliegDagen', function (Request $request, Response $response, $args) {
+$app->get(url_base() . 'Startlijst/GetVliegDagen', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Startlijst");
     try
     {
@@ -244,12 +246,14 @@ $app->get('/Startlijst/GetVliegDagen', function (Request $request, Response $res
 });
 
 
-$app->get('/Startlijst/GetRecency', function (Request $request, Response $response, $args) {
+$app->get(url_base() . 'Startlijst/GetRecency', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Startlijst");
     try
     {
-        $vliegerID = $request->getQueryParams()['VLIEGER_ID'];
-        $datum = $request->getQueryParams()['DATUM'];
+        $params = $request->getQueryParams();
+        $vliegerID = (isset($params['VLIEGER_ID'])) ? $params['VLIEGER_ID'] : null;
+        $datum = (isset($params['DATUM'])) ? $params['DATUM'] : null;
+        
         $r = $obj->GetRecency($vliegerID, $datum);  // Hier staat de logica voor deze functie
         if ($r === null)
         {
@@ -278,12 +282,13 @@ $app->get('/Startlijst/GetRecency', function (Request $request, Response $respon
 Markeer een record in de database als verwijderd. Het record wordt niet fysiek verwijderd om er een link kan zijn naar andere tabellen.
 Het veld VERWIJDERD wordt op "1" gezet.
 */
-$app->delete('/Startlijst/DeleteObject', function (Request $request, Response $response, $args) {
+$app->delete(url_base() . 'Startlijst/DeleteObject', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Startlijst");
     try
     {
-        $id = $request->getQueryParams()['ID'];
-        $verificatie = $request->getQueryParams()['VERIFICATIE'];
+        $params = $request->getQueryParams();
+        $id = (isset($params['ID'])) ? $params['ID'] : null;
+        $verificatie = (isset($params['VERIFICATIE'])) ? $params['VERIFICATIE'] : null;
 
         $obj->VerwijderObject($id, $verificatie);     // Hier staat de logica voor deze functie
         return $response->withStatus(intval(204));
@@ -305,11 +310,12 @@ $app->delete('/Startlijst/DeleteObject', function (Request $request, Response $r
 Haal een record terug dat verwijderd is . Het record was gelukkig niet fysiek verwijderd om er een link kan zijn naar andere tabellen.
 Het veld VERWIJDERD wordt terug op "0" gezet.
 */
-$app->patch('/Startlijst/RestoreObject', function (Request $request, Response $response, $args) {
+$app->patch(url_base() . 'Startlijst/RestoreObject', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Startlijst");
     try
     {
-        $id = $request->getQueryParams()['ID'];
+        $params = $request->getQueryParams();
+        $id = (isset($params['ID'])) ? $params['ID'] : null;
 
         $record = $obj->HerstelObject($id);     // Hier staat de logica voor deze functie
         return $response->withStatus(intval(202));
@@ -330,7 +336,7 @@ $app->patch('/Startlijst/RestoreObject', function (Request $request, Response $r
 /*
 Aanmaken van een record. Het is niet noodzakelijk om alle velden op te nemen in het verzoek
 */
-$app->post('/Startlijst/SaveObject', function (Request $request, Response $response, $args) {
+$app->post(url_base() . 'Startlijst/SaveObject', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Startlijst");
     try
     {
@@ -356,7 +362,7 @@ $app->post('/Startlijst/SaveObject', function (Request $request, Response $respo
 /*
 Aanpassen van een record. Het is niet noodzakelijk om alle velden op te nemen in het verzoek
 */
-$app->put('/Startlijst/SaveObject', function (Request $request, Response $response, $args) {
+$app->put(url_base() . 'Startlijst/SaveObject', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Startlijst");
     try
     {

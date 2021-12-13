@@ -147,7 +147,8 @@
 		*/
 		function GetObject($ID)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Diensten.GetObject(%s)", $ID));	
+			$functie = "Diensten.GetObject";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, $ID));	
 
 			if ($ID == null)
 				throw new Exception("406;Geen ID in aanroep;");
@@ -170,7 +171,8 @@
 		*/
 		function GetObjectByDatumDienst($Datum, $TypeDienst)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Diensten.GetObjectByDatumType(%s, %s)", $Datum, $TypeDienst));	
+			$functie = "Diensten.GetObjectByDatumDienst";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s, %s)", $functie, $Datum, $TypeDienst));	
 
 			if ($Datum == null)
 				throw new Exception("406;Geen datum in aanroep;");
@@ -201,7 +203,9 @@
 		*/		
 		function GetObjects($params)
 		{
-			$functie = "Rooster.GetObjects";
+			global $app_settings;
+
+			$functie = "Diensten.GetObjects";
 			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($params, true)));		
 			
 			$where = ' WHERE 1=1 ';
@@ -392,7 +396,7 @@
 			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s, HASH=%s", $retVal['totaal'], $retVal['laatste_aanpassing'], $retVal['hash']));	
 
 			if ($retVal['hash'] == $hash)
-				throw new Exception("704;Dataset ongewijzigd;");
+				throw new Exception(sprintf("%d;Dataset ongewijzigd;", $app_settings['dataNotModified']));
 
 			if ($alleenLaatsteAanpassing)
 			{
@@ -428,7 +432,8 @@
 		*/
 		function VerwijderObject($id, $verificatie = true)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Diensten.VerwijderObject('%s', %s)", $id, (($verificatie === false) ? "False" :  $verificatie)));				
+			$functie = "Diensten.VerwijderObject";
+			Debug(__FILE__, __LINE__, sprintf("%s('%s', %s)", $functie, $id, (($verificatie === false) ? "False" :  $verificatie)));				
 			if ($id == null)
 				throw new Exception("406;Geen ID in aanroep;");
 			
@@ -444,7 +449,8 @@
 		*/
 		function HerstelObject($id)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Diensten.HerstelObject('%s')", $id));
+			$functie = "Diensten.HerstelObject";
+			Debug(__FILE__, __LINE__, sprintf("%s('%s')", $functie, $id));
 
 			if (!$this->heeftDataToegang(null, false))
 				throw new Exception("401;Geen schrijfrechten;");
@@ -461,7 +467,8 @@
 		*/		
 		function AddObject($DienstData)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Diensten.AddObject(%s)", print_r($DienstData, true)));
+			$functie = "Diensten.AddObject";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($DienstData, true)));
 			
 			$l = MaakObject('Login');
 
@@ -546,7 +553,8 @@
 		*/		
 		function UpdateObject($DienstData)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Diensten.UpdateObject(%s)", print_r($DienstData, true)));
+			$functie = "Diensten.UpdateObject";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($DienstData, true)));
 
 			if ($DienstData == null)
 				throw new Exception("406;Diensten data moet ingevuld zijn;");			
@@ -622,6 +630,9 @@
 		*/
 		function magVerwijderenAanpassen($id, $datum) 
 		{
+			$functie = "Diensten.magVerwijderenAanpassen";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s, %s)", $functie, $id, $datum));
+
 			$l = MaakObject('Login');
 			if ($l->isDDWV()) {
 				throw new Exception("401;Geen schrijfrechten DDWV;");
@@ -663,9 +674,10 @@
 		/*
 			Op hoeveel diensten is het lid ingedeeld
 		*/
-		function TotaalDiensten($jaar, $lidID) {
-
-			Debug(__FILE__, __LINE__, sprintf("Diensten.TotaalDiensten(%s, %s)", $jaar, $lidID));
+		function TotaalDiensten($jaar, $lidID) 
+		{
+			$functie = "Diensten.TotaalDiensten";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s, %s)", $functie, $jaar, $lidID));
 
 			$l = MaakObject('Login');
 			if (!$this->heeftDataToegang(null, false) && !$l->isRooster())
@@ -736,7 +748,6 @@
 		*/
 		function RequestToRecord($input)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Diensten.RequestToRecord(%s)", print_r($input, true)));
 			$record = array();
 
 			$field = 'ID';
@@ -764,10 +775,10 @@
 				$record[$field] = isBOOL($input[$field], $field);
 			
             // AANWEZIG en AFWEZIG kunnen niet tegelijk TRUE zijn.
-            if ($record['AANWEZIG'] == true) 
+            if ((array_key_exists('AANWEZIG', $input)) && ($record['AANWEZIG'] == true)) 
                 $record['AFWEZIG'] = false;
 
-            if ($record['AFWEZIG'] == true) 
+			if ((array_key_exists('AFWEZIG', $input)) && ($record['AFWEZIG'] == true)) 
                 $record['AANWEZIG'] = false;    
 
             if (array_key_exists('INGEVOERD_DOOR_ID', $input))

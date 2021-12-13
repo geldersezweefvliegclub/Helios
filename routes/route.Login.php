@@ -9,7 +9,7 @@ use Slim\Factory\AppFactory;
 /*
 Haal gebruikers informatie op. Als er niet ingelogs is wordt basic authenticatie gebruikt
 */
-$app->get('/Login/GetUserInfo', function (Request $request, Response $response, $args) {
+$app->get(url_base() . 'Login/GetUserInfo', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Login");
     try
     {
@@ -41,7 +41,7 @@ $app->get('/Login/GetUserInfo', function (Request $request, Response $response, 
 /*
 Verstuur SMS
 */
-$app->get('/Login/SendSMS', function (Request $request, Response $response, $args) {
+$app->get(url_base() . 'Login/SendSMS', function (Request $request, Response $response, $args) {
 
     $obj = MaakObject("Login");
     try
@@ -65,10 +65,11 @@ $app->get('/Login/SendSMS', function (Request $request, Response $response, $arg
 /*
 Heeft deze gebruiker toegang tot het systeem. Doordat eerder sessie is opgebouwd, of dat hij op een toegstane computer werky
 */
-$app->get('/Login/Login', function (Request $request, Response $response, $args) {
+$app->get(url_base() . 'Login/Login', function (Request $request, Response $response, $args) {
 
-    $token = $request->getQueryParams()['token'];
-
+    $params = $request->getQueryParams();
+    $token = (isset($params['token'])) ? $params['token'] : null;
+    
     try
     {        
         $obj = MaakObject("Login");
@@ -94,7 +95,7 @@ $app->get('/Login/Login', function (Request $request, Response $response, $args)
 /*
 Verlengen van de bearer token
 */
-$app->get('/Login/Relogin', function (Request $request, Response $response, $args) {
+$app->get(url_base() . 'Login/Relogin', function (Request $request, Response $response, $args) {
 
     try
     {        
@@ -121,7 +122,7 @@ $app->get('/Login/Relogin', function (Request $request, Response $response, $arg
 /*
 Het uitloggen van de gebruiker
 */
-$app->get('/Login/Logout', function (Request $request, Response $response, $args) {
+$app->get(url_base() . 'Login/Logout', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Login");
     try
     {

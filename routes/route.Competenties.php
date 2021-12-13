@@ -8,11 +8,12 @@ use Slim\Factory\AppFactory;
 /*
 Aanmaken van de database tabel. Indien FILLDATA == true, dan worden er ook voorbeeld records toegevoegd 
 */
-$app->post('/Competenties/CreateTable', function (Request $request, Response $response, $args) {
+$app->post(url_base() . 'Competenties/CreateTable', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Competenties");
     try
     {
-        $fill = $request->getQueryParams()['FILLDATA'];
+        $params = $request->getQueryParams();
+        $fill = (isset($params['FILLDATA'])) ? $params['FILLDATA'] : null;
 
         $obj->CreateTable($fill);   // Hier staat de logica voor deze functie
         return $response->withStatus(intval(201));
@@ -33,7 +34,7 @@ $app->post('/Competenties/CreateTable', function (Request $request, Response $re
 /*
 Maak database views, als view al bestaat wordt deze overschreven
 */
-$app->post('/Competenties/CreateViews', function (Request $request, Response $response, $args) {
+$app->post(url_base() . 'Competenties/CreateViews', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Competenties");
     try
     {
@@ -56,11 +57,12 @@ $app->post('/Competenties/CreateViews', function (Request $request, Response $re
 /*
 Haal een enkel record op uit de database
 */
-$app->get('/Competenties/GetObject', function (Request $request, Response $response, $args) {
+$app->get(url_base() . 'Competenties/GetObject', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Competenties");
     try
     {
-        $id = $request->getQueryParams()['ID'];
+        $params = $request->getQueryParams();
+        $id = (isset($params['ID'])) ? $params['ID'] : null;
 
         $t = $obj->GetObject($id);  // Hier staat de logica voor deze functie
         if ($t === null)
@@ -89,7 +91,7 @@ $app->get('/Competenties/GetObject', function (Request $request, Response $respo
 /*
 Haal een dataset op met records als een array uit de database. 
 */
-$app->get('/Competenties/GetObjects', function (Request $request, Response $response, $args) {
+$app->get(url_base() . 'Competenties/GetObjects', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Competenties");
     try
     {
@@ -116,12 +118,13 @@ $app->get('/Competenties/GetObjects', function (Request $request, Response $resp
 Markeer een record in de database als verwijderd. Het record wordt niet fysiek verwijderd om er een link kan zijn naar andere tabellen.
 Het veld VERWIJDERD wordt op "1" gezet.
 */
-$app->delete('/Competenties/DeleteObject', function (Request $request, Response $response, $args) {
+$app->delete(url_base() . 'Competenties/DeleteObject', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Competenties");
     try
     {
-        $id = $request->getQueryParams()['ID'];
-        $verificatie = $request->getQueryParams()['VERIFICATIE'];
+        $params = $request->getQueryParams();
+        $id = (isset($params['ID'])) ? $params['ID'] : null;
+        $verificatie = (isset($params['VERIFICATIE'])) ? $params['VERIFICATIE'] : null;        
 
         $obj->VerwijderObject($id, $verificatie);     // Hier staat de logica voor deze functie
         return $response->withStatus(intval(204));
@@ -143,11 +146,12 @@ $app->delete('/Competenties/DeleteObject', function (Request $request, Response 
 Haal een record terug dat verwijderd is . Het record was gelukkig niet fysiek verwijderd om er een link kan zijn naar andere tabellen.
 Het veld VERWIJDERD wordt terug op "0" gezet.
 */
-$app->patch('/Competenties/RestoreObject', function (Request $request, Response $response, $args) {
+$app->patch(url_base() . 'Competenties/RestoreObject', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Competenties");
     try
     {
-        $id = $request->getQueryParams()['ID'];
+        $params = $request->getQueryParams();
+        $id = (isset($params['ID'])) ? $params['ID'] : null;
 
         $record = $obj->HerstelObject($id);     // Hier staat de logica voor deze functie
         return $response->withStatus(intval(202));
@@ -168,7 +172,7 @@ $app->patch('/Competenties/RestoreObject', function (Request $request, Response 
 /*
 Aanmaken van een record. Het is niet noodzakelijk om alle velden op te nemen in het verzoek
 */
-$app->post('/Competenties/SaveObject', function (Request $request, Response $response, $args) {
+$app->post(url_base() . 'Competenties/SaveObject', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Competenties");
     try
     {
@@ -194,7 +198,7 @@ $app->post('/Competenties/SaveObject', function (Request $request, Response $res
 /*
 Aanpassen van een record. Het is niet noodzakelijk om alle velden op te nemen in het verzoek
 */
-$app->put('/Competenties/SaveObject', function (Request $request, Response $response, $args) {
+$app->put(url_base() . 'Competenties/SaveObject', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Competenties");
     try
     {

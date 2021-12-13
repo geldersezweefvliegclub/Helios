@@ -8,11 +8,12 @@ use Slim\Factory\AppFactory;
 /*
 Aanmaken van de database tabel. Indien FILLDATA == true, dan worden er ook voorbeeld records toegevoegd 
 */
-$app->post('/Diensten/CreateTable', function (Request $request, Response $response, $args) {
+$app->post(url_base() . 'Diensten/CreateTable', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Diensten");
     try
     {
-        $fill = $request->getQueryParams()['FILLDATA'];
+        $params = $request->getQueryParams();
+        $fill = (isset($params['FILLDATA'])) ? $params['FILLDATA'] : null;
 
         $obj->CreateTable($fill);   // Hier staat de logica voor deze functie
         return $response->withStatus(intval(201));
@@ -33,7 +34,7 @@ $app->post('/Diensten/CreateTable', function (Request $request, Response $respon
 /*
 Maak database views, als view al bestaat wordt deze overschreven
 */
-$app->post('/Diensten/CreateViews', function (Request $request, Response $response, $args) {
+$app->post(url_base() . 'Diensten/CreateViews', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Diensten");
     try
     {
@@ -56,11 +57,12 @@ $app->post('/Diensten/CreateViews', function (Request $request, Response $respon
 /*
 Haal een enkel record op uit de database
 */
-$app->get('/Diensten/GetObject', function (Request $request, Response $response, $args) {
+$app->get(url_base() . 'Diensten/GetObject', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Diensten");
     try
     {
-        $id = $request->getQueryParams()['ID'];
+        $params = $request->getQueryParams();
+        $id = (isset($params['ID'])) ? $params['ID'] : null;
 
         $v = $obj->GetObject($id);  // Hier staat de logica voor deze functie
         if ($v === null)
@@ -89,7 +91,7 @@ $app->get('/Diensten/GetObject', function (Request $request, Response $response,
 /*
 Haal een dataset op met records als een array uit de database. 
 */
-$app->get('/Diensten/GetObjects', function (Request $request, Response $response, $args) {
+$app->get(url_base() . 'Diensten/GetObjects', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Diensten");
     try
     {
@@ -115,14 +117,15 @@ $app->get('/Diensten/GetObjects', function (Request $request, Response $response
 /*
 Haal een dataset op met records als een array uit de database. 
 */
-$app->get('/Diensten/TotaalDiensten', function (Request $request, Response $response, $args) {
+$app->get(url_base() . 'Diensten/TotaalDiensten', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Diensten");
     try
     {
-        $jaar = $request->getQueryParams()['JAAR'];
-        $lidID = $request->getQueryParams()['LID_ID'];
+        $params = $request->getQueryParams();
+        $jaar = (isset($params['JAAR'])) ? $params['JAAR'] : null;
+        $lidID = (isset($params['LID_ID'])) ? $params['LID_ID'] : null;   
+           
         $totalen = $obj->TotaalDiensten($jaar, $lidID);     // Hier staat de logica voor deze functie
-
         $response->getBody()->write(json_encode($totalen));
         return $response->withHeader('Content-Type', 'application/json');
     }
@@ -144,12 +147,13 @@ $app->get('/Diensten/TotaalDiensten', function (Request $request, Response $resp
 Markeer een record in de database als verwijderd. Het record wordt niet fysiek verwijderd om er een link kan zijn naar andere tabellen.
 Het veld VERWIJDERD wordt op "1" gezet.
 */
-$app->delete('/Diensten/DeleteObject', function (Request $request, Response $response, $args) {
+$app->delete(url_base() . 'Diensten/DeleteObject', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Diensten");
     try
     {
-        $id = $request->getQueryParams()['ID'];
-        $verificatie = $request->getQueryParams()['VERIFICATIE'];
+        $params = $request->getQueryParams();
+        $id = (isset($params['ID'])) ? $params['ID'] : null;
+        $verificatie = (isset($params['VERIFICATIE'])) ? $params['VERIFICATIE'] : null;
 
         $obj->VerwijderObject($id, $verificatie);     // Hier staat de logica voor deze functie
         return $response->withStatus(intval(204));
@@ -170,7 +174,7 @@ $app->delete('/Diensten/DeleteObject', function (Request $request, Response $res
 /*
 Aanmaken van een record. Het is niet noodzakelijk om alle velden op te nemen in het verzoek
 */
-$app->post('/Diensten/SaveObject', function (Request $request, Response $response, $args) {
+$app->post(url_base() . 'Diensten/SaveObject', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Diensten");
     try
     {
@@ -197,11 +201,12 @@ $app->post('/Diensten/SaveObject', function (Request $request, Response $respons
 Haal een record terug dat verwijderd is . Het record was gelukkig niet fysiek verwijderd om er een link kan zijn naar andere tabellen.
 Het veld VERWIJDERD wordt terug op "0" gezet.
 */
-$app->patch('/Diensten/RestoreObject', function (Request $request, Response $response, $args) {
+$app->patch(url_base() . 'Diensten/RestoreObject', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Diensten");
     try
     {
-        $id = $request->getQueryParams()['ID'];
+        $params = $request->getQueryParams();
+        $id = (isset($params['ID'])) ? $params['ID'] : null;
 
         $record = $obj->HerstelObject($id);     // Hier staat de logica voor deze functie
         return $response->withStatus(intval(202));
@@ -222,7 +227,7 @@ $app->patch('/Diensten/RestoreObject', function (Request $request, Response $res
 /*
 Aanpassen van een record. Het is niet noodzakelijk om alle velden op te nemen in het verzoek
 */
-$app->put('/Diensten/SaveObject', function (Request $request, Response $response, $args) {
+$app->put(url_base() . 'Diensten/SaveObject', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Diensten");
     try
     {

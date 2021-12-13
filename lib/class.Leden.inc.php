@@ -184,7 +184,8 @@
 		*/
 		function GetObject($ID)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Leden.GetObject(%s)", $ID));	
+			$functie = "Leden.GetObject";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, $ID));	
 
 			if (!isset($ID))
 				throw new Exception("406;Geen ID in aanroep;");
@@ -215,7 +216,8 @@
 		*/
 		function GetObjectByLidnr($LidNr)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Leden.GetObjectByLidnr(%s)", $LidNr));	
+			$functie = "Leden.GetObjectByLidnr";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, $LidNr));	
 
 			if ($LidNr == null)
 				throw new Exception("406;Geen LidNr in aanroep;");
@@ -246,7 +248,8 @@
 		*/
 		function GetObjectByLoginNaam($loginNaam)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Leden.GetObjectByLoginNaam(%s)", $loginNaam));	
+			$functie = "Leden.GetObjectByLoginNaam";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, $loginNaam));	
 
 			if ($loginNaam == null)
 				throw new Exception("406;Geen login naam in aanroep;");
@@ -269,6 +272,8 @@
 		*/		
 		function GetObjects($params)
 		{
+			global $app_settings;
+
 			$functie = "Leden.GetObjects";
 			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($params, true)));		
 			
@@ -481,7 +486,7 @@
 			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s, HASH=%s", $retVal['totaal'], $retVal['laatste_aanpassing'], $retVal['hash']));	
 
 			if ($retVal['hash'] == $hash)
-				throw new Exception("704;Dataset ongewijzigd;");
+				throw new Exception(sprintf("%d;Dataset ongewijzigd;", $app_settings['dataNotModified']));
 
 			if ($alleenLaatsteAanpassing)
 			{
@@ -519,7 +524,8 @@
 		*/
 		function VerwijderObject($id, $verificatie = true)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Leden.VerwijderObject('%s', %s)", $id, (($verificatie === false) ? "False" :  $verificatie)));
+			$functie = "Leden.VerwijderObject";
+			Debug(__FILE__, __LINE__, sprintf("%s('%s', %s)", $functie, $id, (($verificatie === false) ? "False" :  $verificatie)));
 
 			// schrijven mag alleen door beheerder
 			$l = MaakObject('Login');
@@ -538,7 +544,8 @@
 		*/
 		function HerstelObject($id)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Leden.HerstelObject('%s')", $id));
+			$functie = "Leden.HerstelObject";
+			Debug(__FILE__, __LINE__, sprintf("%s('%s')", $functie, $id));
 
 			if (!$this->heeftDataToegang(null, false) && !$l->isBeheerderDDWV())
 				throw new Exception("401;Geen schrijfrechten;");
@@ -555,7 +562,8 @@
 		*/		
 		function AddObject($LidData)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Leden.AddObject(%s)", print_r($LidData, true)));
+			$functie = "Leden.AddObject";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($LidData, true)));
 			
 			// schrijven mag alleen door beheerder
 			$l = MaakObject('Login');
@@ -637,7 +645,8 @@
 		*/		
 		function UpdateObject($LidData)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Leden.UpdateObject(%s)", print_r($LidData, true)));
+			$functie = "Leden.UpdateObject";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($LidData, true)));
 			
 			// schrijven mag alleen door ingelogde gebruiker of beheerder
 			$l = MaakObject('Login');
@@ -713,7 +722,8 @@
 		*/
 		function UploadAvatar($id, $file)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Leden.UploadAvatar(%s)", $id));
+			$functie = "Leden.UploadAvatar";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, $id));
 			
 			// schrijven mag alleen door ingelogde gebruiker of beheerder
 			$l = MaakObject('Login');
@@ -783,7 +793,7 @@
 		function isPermissie($key, $id = null, $lid = null)
 		{
 			$functie = "Leden.isPermissie";
-			Debug(__FILE__, __LINE__, sprintf("%s(%s, %s, %s)", $functie, $key, $id, $lid[$key]));	
+			Debug(__FILE__, __LINE__, sprintf("%s(%s, %s, %s)", $functie, $key, $id, isset($lid[$key]) ? $lid[$key] : "-"));	
 
 			$retVal = false;
 
@@ -801,7 +811,7 @@
 				catch(Exception $exception) { return false; }
 			}
 			
-			if ($lid[$key] == true) 
+			if (isset($lid[$key]) &&  $lid[$key] == true) 
 				$retVal = true;
 				
 			Debug(__FILE__, __LINE__, sprintf("Lid=%s isPermissie %s=%s", $lid['NAAM'], $key, ($retVal) ? "true" : "false"));
@@ -879,8 +889,9 @@
 				else
 					$lid['WACHTWOORD'] 	= "****";
 			}
-
-			if ($lid['SECRET'] != null) {
+			
+			$secret = (isset($lid['SECRET'] )) ? $lid['SECRET'] : null;
+			if ($secret != null) {
 				if (($l->isBeheerder() === true) ||
 					($l->isBeheerderDDWV() === true)) 
 				{
@@ -1133,7 +1144,6 @@
 				if (array_key_exists('AVATAR', $input))
 					$record['AVATAR'] = $input['AVATAR']; 	
 			}
-	
 			return $record;				
 		}
 	

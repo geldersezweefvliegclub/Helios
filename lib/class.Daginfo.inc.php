@@ -133,7 +133,8 @@
 		*/		
 		function GetObject($ID = null, $DATUM = null, $heeftVerwijderd = false)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Daginfo.GetObject(%s,%s,%s)", $ID, $DATUM, $heeftVerwijderd));	
+			$functie = "Daginfo.GetObject";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s,%s,%s)", $functie, $ID, $DATUM, $heeftVerwijderd));	
 
 			if (($ID == null) && ($DATUM == null))
 				throw new Exception("406;Geen ID en DATUM in aanroep;");
@@ -169,6 +170,8 @@
 		*/		
 		function GetObjects($params)
 		{
+			global $app_settings;
+
 			$functie = "Daginfo.GetObjects";
 			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($params, true)));		
 			
@@ -326,7 +329,6 @@
 				}
 			}
 
-
 			$query = "
 				SELECT 
 					%s
@@ -342,7 +344,7 @@
 			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s, HASH=%s", $retVal['totaal'], $retVal['laatste_aanpassing'], $retVal['hash']));
 
 			if ($retVal['hash'] == $hash)
-				throw new Exception("704;Dataset ongewijzigd;");
+				throw new Exception(sprintf("%d;Dataset ongewijzigd;", $app_settings['dataNotModified']));
 
 			if ($alleenLaatsteAanpassing)
 			{
@@ -377,7 +379,8 @@
 		*/
 		function VerwijderObject($id = null, $datum = null, $verificatie = true)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Daginfo.VerwijderObject('%s', %s, %s)", $id, $datum, (($verificatie === false) ? "False" :  $verificatie)));					
+			$functie = "Daginfo.VerwijderObject";
+			Debug(__FILE__, __LINE__, sprintf("%s('%s', %s, %s)", $functie, $id, $datum, (($verificatie === false) ? "False" :  $verificatie)));					
 			
 			if (!$this->heeftDataToegang())
 				throw new Exception("401;Geen schrijfrechten;");
@@ -406,7 +409,8 @@
 		*/
 		function HerstelObject($id)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Daginfo.HerstelObject('%s')", $id));
+			$functie = "Daginfo.HerstelObject";
+			Debug(__FILE__, __LINE__, sprintf("%s('%s')", $functie, $id));
 
 			if (!$this->heeftDataToegang(null, false))
 				throw new Exception("401;Geen schrijfrechten;");
@@ -423,7 +427,8 @@
 		*/		
 		function AddObject($DaginfoData)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Daginfo.AddObject(%s)", print_r($DaginfoData, true)));
+			$functie = "Daginfo.AddObject";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($DaginfoData, true)));
 
 			if ($DaginfoData == null)
 				throw new Exception("406;Daginfo data moet ingevuld zijn;");	
@@ -478,7 +483,8 @@
 		*/		
 		function UpdateObject($DaginfoData)
 		{
-			Debug(__FILE__, __LINE__, sprintf("Daginfo.UpdateObject(%s)", print_r($DaginfoData, true)));
+			$functie = "Daginfo.UpdateObject";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($DaginfoData, true)));
 			
 			if ($DaginfoData == null)
 				throw new Exception("406;Daginfo data moet ingevuld zijn;");	

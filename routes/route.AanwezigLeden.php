@@ -8,11 +8,12 @@ use Slim\Factory\AppFactory;
 /*
 Aanmaken van de database tabel. Indien FILLDATA == true, dan worden er ook voorbeeld records toegevoegd 
 */
-$app->post('/AanwezigLeden/CreateTable', function (Request $request, Response $response, $args) {
+$app->post(url_base() . 'AanwezigLeden/CreateTable', function (Request $request, Response $response, $args) {
     $obj = MaakObject("AanwezigLeden");
     try
     {
-        $fill = $request->getQueryParams()['FILLDATA'];
+        $params = $request->getQueryParams();
+        $fill = (isset($params['FILLDATA'])) ? $params['FILLDATA'] : null;
 
         $obj->CreateTable($fill);   // Hier staat de logica voor deze functie
         return $response->withStatus(intval(201));
@@ -33,7 +34,7 @@ $app->post('/AanwezigLeden/CreateTable', function (Request $request, Response $r
 /*
 Maak database views, als view al bestaat wordt deze overschreven
 */
-$app->post('/AanwezigLeden/CreateViews', function (Request $request, Response $response, $args) {
+$app->post(url_base() . 'AanwezigLeden/CreateViews', function (Request $request, Response $response, $args) {
     $obj = MaakObject("AanwezigLeden");
     try
     {
@@ -56,13 +57,14 @@ $app->post('/AanwezigLeden/CreateViews', function (Request $request, Response $r
 /*
 Haal een enkel record op uit de database
 */
-$app->get('/AanwezigLeden/GetObject', function (Request $request, Response $response, $args) {
+$app->get(url_base() . 'AanwezigLeden/GetObject', function (Request $request, Response $response, $args) {
     $obj = MaakObject("AanwezigLeden");
     try
     {
-        $id = $request->getQueryParams()['ID'];
-        $lid_id= $request->getQueryParams()['LID_ID'];
-        $datum = $request->getQueryParams()['DATUM'];
+        $params = $request->getQueryParams();
+        $id = (isset($params['ID'])) ? $params['ID'] : null;
+        $datum = (isset($params['DATUM'])) ? $params['DATUM'] : null;
+        $lid_id = (isset($params['LID_ID'])) ? $params['LID_ID'] : null;        
 
         $d = $obj->GetObject($id, $lid_id, $datum);  // Hier staat de logica voor deze functie
         if ($d === null)
@@ -91,7 +93,7 @@ $app->get('/AanwezigLeden/GetObject', function (Request $request, Response $resp
 /*
 Haal een dataset op met records als een array uit de database. 
 */
-$app->get('/AanwezigLeden/GetObjects', function (Request $request, Response $response, $args) {
+$app->get(url_base() . 'AanwezigLeden/GetObjects', function (Request $request, Response $response, $args) {
     $obj = MaakObject("AanwezigLeden");
     try
     {
@@ -118,14 +120,15 @@ $app->get('/AanwezigLeden/GetObjects', function (Request $request, Response $res
 Markeer een record in de database als verwijderd. Het record wordt niet fysiek verwijderd om er een link kan zijn naar andere tabellen.
 Het veld VERWIJDERD wordt op "1" gezet.
 */
-$app->delete('/AanwezigLeden/DeleteObject', function (Request $request, Response $response, $args) {
+$app->delete(url_base() . 'AanwezigLeden/DeleteObject', function (Request $request, Response $response, $args) {
     $obj = MaakObject("AanwezigLeden");
     try
     {
-        $id = $request->getQueryParams()['ID'];
-        $lidID = $request->getQueryParams()['LID_ID'];
-        $datum = $request->getQueryParams()['DATUM'];
-        $verificatie = $request->getQueryParams()['VERIFICATIE'];
+        $params = $request->getQueryParams();
+        $id = (isset($params['ID'])) ? $params['ID'] : null;
+        $lidID = (isset($params['LID_ID'])) ? $params['LID_ID'] : null;
+        $verificatie = (isset($params['VERIFICATIE'])) ? $params['VERIFICATIE'] : null;
+        $datum = (isset($params['DATUM'])) ? $params['DATUM'] : null;
 
         $obj->VerwijderObject($id, $lidID, $datum, $verificatie);     // Hier staat de logica voor deze functie
         return $response->withStatus(intval(204));
@@ -147,11 +150,12 @@ $app->delete('/AanwezigLeden/DeleteObject', function (Request $request, Response
 Haal een record terug dat verwijderd is . Het record was gelukkig niet fysiek verwijderd om er een link kan zijn naar andere tabellen.
 Het veld VERWIJDERD wordt terug op "0" gezet.
 */
-$app->patch('/AanwezigLeden/RestoreObject', function (Request $request, Response $response, $args) {
+$app->patch(url_base() . 'AanwezigLeden/RestoreObject', function (Request $request, Response $response, $args) {
     $obj = MaakObject("AanwezigLeden");
     try
     {
-        $id = $request->getQueryParams()['ID'];
+        $params = $request->getQueryParams();
+        $id = (isset($params['ID'])) ? $params['ID'] : null;
 
         $record = $obj->HerstelObject($id);     // Hier staat de logica voor deze functie
         return $response->withStatus(intval(202));
@@ -172,7 +176,7 @@ $app->patch('/AanwezigLeden/RestoreObject', function (Request $request, Response
 /*
 Aanamken van een record. Het is niet noodzakelijk om alle velden op te nemen in het verzoek
 */
-$app->post('/AanwezigLeden/SaveObject', function (Request $request, Response $response, $args) {
+$app->post(url_base() . 'AanwezigLeden/SaveObject', function (Request $request, Response $response, $args) {
     $obj = MaakObject("AanwezigLeden");
     try
     {
@@ -198,7 +202,7 @@ $app->post('/AanwezigLeden/SaveObject', function (Request $request, Response $re
 /*
 Aanpassen van een record. Het is niet noodzakelijk om alle velden op te nemen in het verzoek
 */
-$app->put('/AanwezigLeden/SaveObject', function (Request $request, Response $response, $args) {
+$app->put(url_base() . 'AanwezigLeden/SaveObject', function (Request $request, Response $response, $args) {
     $obj = MaakObject("AanwezigLeden");
     try
     {
@@ -224,7 +228,7 @@ $app->put('/AanwezigLeden/SaveObject', function (Request $request, Response $res
 /*
 Aanmelden van het lid als aanwezig. Maakt record aan als het niet bestaat of update bestaand record (ook al is het lid aanwezig)
 */
-$app->post('/AanwezigLeden/Aanmelden', function (Request $request, Response $response, $args) {
+$app->post(url_base() . 'AanwezigLeden/Aanmelden', function (Request $request, Response $response, $args) {
     $obj = MaakObject("AanwezigLeden");
     try
     {
@@ -250,7 +254,7 @@ $app->post('/AanwezigLeden/Aanmelden', function (Request $request, Response $res
 /*
 Afmelden van het lid als aanwezig. Update bestaand record. Lid moet aanwezig zijn
 */
-$app->post('/AanwezigLeden/Afmelden', function (Request $request, Response $response, $args) {
+$app->post(url_base() . 'AanwezigLeden/Afmelden', function (Request $request, Response $response, $args) {
     $obj = MaakObject("AanwezigLeden");
     try
     {
@@ -277,12 +281,13 @@ $app->post('/AanwezigLeden/Afmelden', function (Request $request, Response $resp
 /* 
 Welke potentiele vligers hebben we voor dit vliegtuig 
 */
-$app->get('/AanwezigLeden/PotentieelVliegers', function (Request $request, Response $response, $args) {
+$app->get(url_base() . 'AanwezigLeden/PotentieelVliegers', function (Request $request, Response $response, $args) {
     $obj = MaakObject("AanwezigLeden");
     try
     {
-        $vliegtuigID = $request->getQueryParams()['VLIEGTUIG_ID'];
-        $datum = $request->getQueryParams()['DATUM'];
+        $params = $request->getQueryParams();
+        $vliegtuigID = (isset($params['VLIEGTUIG_ID'])) ? $params['VLIEGTUIG_ID'] : null;
+        $datum = (isset($params['DATUM'])) ? $params['DATUM'] : null;        
 
         $vliegers = $obj->PotentieelVliegers($vliegtuigID, $datum);   // Hier staat de logica voor deze functie
         $response->getBody()->write(json_encode($vliegers));
