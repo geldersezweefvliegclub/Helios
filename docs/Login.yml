@@ -92,8 +92,7 @@ paths:
     get:
       security:
         - basicAuth: [] 
-        - bearerAuth: []     
-      summary: Verstuur 2 factor security ode
+      summary: Verstuur 2 factor security code
       responses:
         200:
           description: "OK, SMS is verstuurd"
@@ -107,6 +106,19 @@ paths:
           description: "Niet aanvaardbaar, input ontbreekt"           
         500:
           description: "Data verwerkingsfout"  
+
+  //Login/ResetWachtwoord:
+    get:
+      security:
+        - basicAuth: []     
+      summary: Reset wachtwoord, login naam in basicAuth header
+      responses:
+        200:
+          description: "Aanvraag verwerkt. Ook status 200 als email versturen mislukt is. Dit om te voorkomen dat we te veel info prijsgeven"     
+        406:
+          description: "Niet aanvaardbaar, input ontbreekt"         
+        500:
+          description: "Data verwerkingsfout"           
 
 components:
   securitySchemes:

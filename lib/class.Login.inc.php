@@ -3,6 +3,10 @@
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
+
 require ("include/PasswordHash.php");
 
 	class Login extends Helios
@@ -41,6 +45,7 @@ require ("include/PasswordHash.php");
 			{
 				$username = $_SERVER['PHP_AUTH_USER'];
 				
+				$l = MaakObject('Leden');
 				$lObj = $l->GetObjectByLoginNaam($username); 	// id van ingelode gebruiker via username
 				$id = $lObj['ID'];
 			}
@@ -154,7 +159,7 @@ require ("include/PasswordHash.php");
 		{
 			global $NoPasswordIP;
 
-			$functie = "Login.setSessionUser";	
+			$functie = "Login.heeftToegang";	
 			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, $token));
 
 			// Indien username en wachtwword gezet zijn, via basic authenticatie. Gaan we opnieuw authoriseren
@@ -287,7 +292,7 @@ require ("include/PasswordHash.php");
 			{
 				Debug(__FILE__, __LINE__, sprintf("URI: %s)", $_SERVER['REQUEST_URI']));	
 
-				// als we SMS gaan versturen, kunnen we verder
+				// als we SMS gaan versturen, of een wachtwoord reset doen, kunnen we verder
 				$uri = explode('/', $_SERVER['REQUEST_URI']);
 				if (count($uri) > 1)
 				{
@@ -569,7 +574,7 @@ require ("include/PasswordHash.php");
 		function sendSMS() 
 		{
 			$functie = "Login.sendSMS";	
-			Debug(__FILE__, __LINE__, "%s()", $functie);
+			Debug(__FILE__, __LINE__, sprintf("%s()", $functie));
 
 			global $app_settings;
 
@@ -650,6 +655,124 @@ require ("include/PasswordHash.php");
 
 			$isActief = session_status() === PHP_SESSION_ACTIVE ? TRUE : FALSE;
 			if ($isActief === FALSE ) session_start();
+		}
+
+		function resetWachtwoord() 
+		{
+			global $smtp_settings; 
+
+			$functie = "Login.resetWachtwoord";	
+			Debug(__FILE__, __LINE__, sprintf("%s()", $functie));
+
+			global $app_settings;
+
+			if (!array_key_exists('PHP_AUTH_USER', $_SERVER)) 
+			{
+				throw new Exception("406;Geen login naam in aanroep;");
+			}
+
+			try {
+				$l = MaakObject('Leden');
+				$lObj = $l->GetObjectByLoginNaam($_SERVER['PHP_AUTH_USER']); 
+			}
+			catch (Exception $e)
+			{
+				// Als we de inlognaam niet hebben kunnen vinden, dan is er een probleem. 
+				// Dit melden we niet aan de client. Als je dat wel doet, kun je met een brute force attack gaan uitzoeken 
+				// welke login namen bestaan en welke niet.
+				return;
+			}
+
+			$ascii = "<>?/~AaBbCcDeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz.$!@#$%^&*()";
+			$password = substr(str_shuffle($_SERVER['REMOTE_ADDR'] . $ascii), 0, 15);
+
+			Debug(__FILE__, __LINE__, sprintf("%s username:%s email:%s", $functie, $_SERVER['PHP_AUTH_USER'], $lObj['EMAIL'])); 
+			
+			$htmlMessage = '
+					<body>
+						<style>
+							body {
+								font-family: Arial, Helvetica, sans-serif;
+								
+							}
+						</style>
+				
+						<p>
+							Beste %s,
+						</p>
+						<p>
+							U heeft zojuist een aanvraag ingedient om uw wachtwoord te herstellen.  Natuurlijk kunnen we aan dit verzoek voldoen. Wij hebben het wachtwoord aangepast en daarom kunt u vanaf nu niet meer inloggen met het oude wachtwoord.
+						</p>
+				
+						<p>
+							Het nieuwe wachtwoord is <span style="padding: 5px; background-color: rgb(109, 109, 109); color: white; 
+							font-weight: bold;"> % s</span>
+						</p>
+				
+						<p>
+							U kunt het wachtwoord in uw profiel aanpassen. Wanneer u het wachtwoord aanpast, let dan op dat u een veilig wachtwoord gebruikt. Een veilig wachtwoord is:
+							<ul>
+								<li>Gebruik voor iedere website een uniek wachtwoord. Dus geen wachtwoorden hergebruiken.</li>
+								<li>Uw wachtwoord is geen naam, en staat niet in het woordenboek</li>
+								<li>U wachtwoord heeft tenminste een lengte van 8 tekens</li>
+								<li>U gebruikt hoofdletters en kleine letters in uw wachtwoord</li>
+								<li>U gebruikt minimaal 2 cijfers in uw wachtwoord</li>
+								<li>Het is geweldig als u ook een een leesteken toevoegd</li>
+							</ul>
+						</p>
+						<p>
+							Mocht het zo zijn dat u toch moeilijkheden blijft ondervinden om toegang te krijgen, neem dan contact met ons op. Dat kan door te reageren op deze email.
+						</p>
+						<p>
+							Met vriendelijke groet,
+						</p>
+						<p>
+							Uw systeem beheerder
+						</p>
+					</body>';
+
+			$plainMessage = 'Beste %s,\nUw nieuwe wachtwoord is %s\n\nMet vriendelijke groet\nUw systeem beheerder';
+
+			$mail = new PHPMailer(true);
+
+			try {
+				//Server settings
+				// $mail->SMTPDebug = SMTP::DEBUG_SERVER;                      //Enable verbose debug output
+				$mail->isSMTP();                                            //Send using SMTP
+				$mail->Host       =  $smtp_settings['smtphost'];            //Set the SMTP server to send through
+				$mail->SMTPAuth   = true;                                   //Enable SMTP authentication
+				$mail->Username   = $smtp_settings['smtpuser'];             //SMTP username
+				$mail->Password   = $smtp_settings['smtppass'];             //SMTP password
+				$mail->SMTPSecure = $smtp_settings['smtpsecure'];         	//Enable implicit TLS encryption
+				$mail->Port       = $smtp_settings['smtpport'];             //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
+			
+				//Recipients
+				$mail->setFrom($smtp_settings['from'], $smtp_settings['name']);
+				$mail->addAddress($lObj['EMAIL'], $lObj['NAAM']);     		//Add a recipient
+				$mail->addReplyTo($smtp_settings['from'], $smtp_settings['name']);
+			
+				//Content
+				$mail->isHTML(true);                                  		//Set email format to HTML
+				$mail->Subject = 'Wachtwoord herstel';
+				$mail->Body    = sprintf ($htmlMessage,  $lObj['NAAM'], $password);
+				$mail->AltBody = sprintf ($plainMessage, $lObj['NAAM'], $password);
+			
+				if(!$mail->Send()) {
+					Debug(__FILE__, __LINE__, "Herstel email fout: " . print_r($mail, true));
+
+				  } else {
+					Debug(__FILE__, __LINE__, "Herstel email succesvol verzonden: ");
+
+					$record = array();
+					$record['ID'] = $lObj['ID'];
+					$record['INLOGNAAM'] = $lObj['INLOGNAAM'];
+					$record['WACHTWOORD'] = $password;
+
+					$l->UpdateObject($record);
+				  }
+			} catch (Exception $e) {
+				Debug(__FILE__, __LINE__, "Herstel email niet verzonden: {$mail->ErrorInfo}");
+			}
 		}
 
 		/*

@@ -38,12 +38,13 @@ try
 {
     $token = (isset($_GET["token"])) ? $_GET["token"] : null;
 
-    if ($_SERVER['REQUEST_URI'] != "/Login/Login")     // Als we nog moeten inloggen, dan niet controleren of we toegang hebben
-        $l->heeftToegang($token);			// het stopt hier als de gebruiker niet ingelogd is	
+    if (($_SERVER['REQUEST_URI'] != "/Login/Login") &&  // Als we nog moeten inloggen, dan niet controleren of we toegang hebben
+        ($_SERVER['REQUEST_URI'] != "/Login/ResetWachtwoord")) 
+        $l->heeftToegang($token);			            // het stopt hier als de gebruiker niet ingelogd is	
 }
 catch(Exception $exception)
 {
-    Debug(__FILE__, __LINE__, "heeftToegang: " .$exception);
+    Debug(__FILE__, __LINE__, "Geen toegang: " .$exception);
 
     list($dummy, $exceptionMsg) = explode(": ", $exception);
     list($httpStatus, $message) = explode(";", $exceptionMsg);  // onze eigen formaat van een exceptie

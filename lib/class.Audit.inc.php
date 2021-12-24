@@ -216,7 +216,7 @@
 						{
 							$datum = isDATE($value, "DATUM");
 
-							$where .= " AND DATE(DV.DATUM) = ? ";
+							$where .= " AND DATE(DATUM) = ? ";
 							array_push($query_params, $datum);
 
 							Debug(__FILE__, __LINE__, sprintf("%s: DATUM='%s'", $functie, $datum));
@@ -226,7 +226,7 @@
                         {
                             $beginDatum = isDATE($value, "BEGIN_DATUM");
 
-                            $where .= " AND DATE(DV.DATUM) >= ? ";
+                            $where .= " AND DATE(DATUM) >= ? ";
                             array_push($query_params, $beginDatum);
 
                             Debug(__FILE__, __LINE__, sprintf("%s: BEGIN_DATUM='%s'", $functie, $beginDatum));
@@ -236,7 +236,7 @@
                         {
                             $eindDatum = isDATE($value, "EIND_DATUM");
 
-                            $where .= " AND DATE(DV.DATUM) <= ? ";
+                            $where .= " AND DATE(DATUM) <= ? ";
                             array_push($query_params, $eindDatum);
 
                             Debug(__FILE__, __LINE__, sprintf("%s: EIND_DATUM='%s'", $functie, $eindDatum));
@@ -244,9 +244,8 @@
                         }	                        
 					case "TABEL" : 
 						{
-							isCSV($value, "TABEL");
 							$where .= " AND TABEL IN(?)";
-							array_push($query_params, $trim($value));
+							array_push($query_params, trim($value));
 
 							Debug(__FILE__, __LINE__, sprintf("%s: TABEL='%s'", $functie, $value));
 							break;

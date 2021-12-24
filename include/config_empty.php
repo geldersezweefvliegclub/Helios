@@ -8,16 +8,17 @@ $db_info = array(
 	'dbPassword' => null
 );
 
-/* Voor de toekomst
+
 $smtp_settings = array (
 	 'smtpuser' => 'user@gmail.com', 
 	 'smtppass' => '<<password >>',
 	 'smtphost' => 'smtp.gmail.com',
 	 'smtpsecure' => 'tls',
 	 'smtpport' => '587',
-	 'from' => 'from@gmail.com'
+	 'from' => 'from@gmail.com',
+	 'name' => 'Uw systeem beheerder'
 );
-*/
+
 
 $app_settings = array(
 	'DbLogging' => true,			// Log database queries naar logfile

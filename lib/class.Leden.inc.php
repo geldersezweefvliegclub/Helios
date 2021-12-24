@@ -1031,7 +1031,7 @@
 				{
 					if (strlen($input['WACHTWOORD']) > 4)
 					{
-						$loginnaam = (isset($record['INLOGNAAM'])) ? $record['INLOGNAAM'] : $ld->INLOGNAAM;
+						$loginnaam = (isset($input['INLOGNAAM'])) ? $input['INLOGNAAM'] : $ld->INLOGNAAM;
 						$record['WACHTWOORD'] = sha1(strtolower ($loginnaam) . $input['WACHTWOORD']);
 					}
 					else 

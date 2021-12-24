@@ -821,7 +821,7 @@ components:
               description: Het lidtype van de inzittende zoals dat in ref_leden staat
               type: integer
               example: 601    
-            VERWIJDERD:
+            DDWV:
               description: Is deze vlucht op een DDWV dag uitgevoerd 
               type: boolean
               example: 0               

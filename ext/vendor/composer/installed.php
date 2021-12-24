@@ -5,7 +5,7 @@
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => '990d87f7b68e594e1fefa00d37c5a7f475fa702a',
+        'reference' => 'fe0168df89162985a0b8cc67e6ce86bdfdd9229c',
         'name' => '__root__',
         'dev' => true,
     ),
@@ -16,7 +16,7 @@
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => '990d87f7b68e594e1fefa00d37c5a7f475fa702a',
+            'reference' => 'fe0168df89162985a0b8cc67e6ce86bdfdd9229c',
             'dev_requirement' => false,
         ),
         'fig/http-message-util' => array(
@@ -53,6 +53,15 @@
             'install_path' => __DIR__ . '/../nikic/fast-route',
             'aliases' => array(),
             'reference' => '181d480e08d9476e61381e04a71b34dc0432e812',
+            'dev_requirement' => false,
+        ),
+        'phpmailer/phpmailer' => array(
+            'pretty_version' => 'v6.5.3',
+            'version' => '6.5.3.0',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../phpmailer/phpmailer',
+            'aliases' => array(),
+            'reference' => 'baeb7cde6b60b1286912690ab0693c7789a31e71',
             'dev_requirement' => false,
         ),
         'psr/container' => array(

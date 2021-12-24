@@ -23,6 +23,7 @@ class ComposerStaticInite39cdff3d4671ad6f7505052d4cd4b1c
             'Psr\\Http\\Server\\' => 16,
             'Psr\\Http\\Message\\' => 17,
             'Psr\\Container\\' => 14,
+            'PHPMailer\\PHPMailer\\' => 20,
         ),
         'M' => 
         array (
@@ -62,6 +63,10 @@ class ComposerStaticInite39cdff3d4671ad6f7505052d4cd4b1c
         'Psr\\Container\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/container/src',
+        ),
+        'PHPMailer\\PHPMailer\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/phpmailer/phpmailer/src',
         ),
         'MessageBird\\' => 
         array (
