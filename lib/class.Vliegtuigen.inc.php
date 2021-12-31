@@ -35,6 +35,9 @@
 					`SLEEPKIST` tinyint UNSIGNED NOT NULL DEFAULT '0',
 					`VOLGORDE` tinyint UNSIGNED DEFAULT NULL,
 					`INZETBAAR` tinyint UNSIGNED NOT NULL DEFAULT '1',
+					`URL` varchar(1024) DEFAULT NULL,
+					`BEVOEGDHEID_LOKAAL_ID` mediumint UNSIGNED DEFAULT NULL,
+					`BEVOEGDHEID_OVERLAND_ID` mediumint UNSIGNED DEFAULT NULL,
 					`OPMERKINGEN` text DEFAULT NULL,
 					`VERWIJDERD` tinyint UNSIGNED NOT NULL DEFAULT '0',
 					`LAATSTE_AANPASSING` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -47,7 +50,9 @@
 						INDEX (`VOLGORDE`), 
 						INDEX (`VERWIJDERD`),
 						
-					FOREIGN KEY (TYPE_ID) REFERENCES ref_types(ID)
+					FOREIGN KEY (TYPE_ID) REFERENCES ref_types(ID),
+					FOREIGN KEY (BEVOEGDHEID_LOKAAL_ID) REFERENCES ref_competenties(ID),
+					FOREIGN KEY (BEVOEGDHEID_OVERLAND_ID) REFERENCES ref_competenties(ID),
 				)", $this->dbTable);
 			parent::DbUitvoeren($query);
 			
@@ -100,10 +105,14 @@
 				SELECT 
 					v.*,
 					CONCAT(IFNULL(`v`.`REGISTRATIE`,''),' (',IFNULL(`v`.`CALLSIGN`,''),')') AS `REG_CALL`,
-					`t`.`OMSCHRIJVING` AS `VLIEGTUIGTYPE`
+					`t`.`OMSCHRIJVING` AS `VLIEGTUIGTYPE`,
+					`lkl`.`ONDERWERP` AS `BEVOEGDHEID_LOKAAL`,
+					`ovl`.`ONDERWERP` AS `BEVOEGDHEID_OVERLAND`
 				FROM
 					`%s` `v`    
 					LEFT JOIN `ref_types` `t` ON (`v`.`TYPE_ID` = `t`.`ID`)
+					LEFT JOIN `ref_competenties` `lkl` ON (`v`.`BEVOEGDHEID_LOKAAL_ID` = `lkl`.`ID`)
+					LEFT JOIN `ref_competenties` `ovl` ON (`v`.`BEVOEGDHEID_OVERLAND_ID` = `ovl`.`ID`)
 				WHERE
 					`v`.`VERWIJDERD` = %s
 				ORDER BY 
@@ -610,14 +619,25 @@
 				$record[$field] = isINT($input[$field], $field, true);
 
 			$field = 'INZETBAAR';
-				if (array_key_exists($field, $input))
-					$record[$field] = isBOOL($input[$field], $field);	
+			if (array_key_exists($field, $input))
+				$record[$field] = isBOOL($input[$field], $field);	
+
+			$field = 'BEVOEGDHEID_LOKAAL_ID';
+			if (array_key_exists($field, $input))
+				$record[$field] = isINT($input[$field], $field, true, "Competenties");		
+
+			$field = 'BEVOEGDHEID_OVERLAND_ID';
+			if (array_key_exists($field, $input))
+				$record[$field] = isINT($input[$field], $field, true, "Competenties");								
 
 			if (array_key_exists('FLARMCODE', $input))
 				$record['FLARMCODE'] = $input['FLARMCODE'];
 
 			if (array_key_exists('CALLSIGN', $input))
 				$record['CALLSIGN'] = $input['CALLSIGN'];
+
+			if (array_key_exists('URL', $input))
+				$record['URL'] = $input['URL'];
 
 			if (array_key_exists('OPMERKINGEN', $input))
 				$record['OPMERKINGEN'] = $input['OPMERKINGEN'];
@@ -644,7 +664,12 @@
 
 			if (isset($record['VOLGORDE']))
 				$retVal['VOLGORDE']  = $record['VOLGORDE'] * 1;		
-				
+			
+			if (isset($record['BEVOEGDHEID_LOKAAL_ID']))
+				$retVal['BEVOEGDHEID_LOKAAL_ID']  = $record['BEVOEGDHEID_LOKAAL_ID'] * 1;	
+
+			if (isset($record['BEVOEGDHEID_OVERLAND_ID']))
+				$retVal['BEVOEGDHEID_OVERLAND_ID']  = $record['BEVOEGDHEID_OVERLAND_ID'] * 1;
 				
 			// booleans	
 			if (isset($record['TMG']))

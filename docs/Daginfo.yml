@@ -329,7 +329,12 @@ components:
           description: Welke vliegveld vliegen we vandaag. Kan afwijken voor vliegkamp. Verwijzing naar type tabel.
           type: integer
           format: int32
-          example: 901                
+          example: 901     
+        BAAN_ID:
+          description: Welke baan is nu actief
+          type: integer
+          format: int32
+          example: 102                          
         STARTMETHODE_ID:
           description: De standard startmeody voor deze dag
           type: integer

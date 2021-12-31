@@ -382,6 +382,18 @@ components:
           description: Mag het vliegtuig vliegen?
           type: boolean
           example: 1
+        URL:
+          description: URL naar het handboek
+          type: string
+          example: 1  
+        BEVOEGDHEID_LOKAAL_ID:
+          description: Link naar comptentie om met deze kist lokaal te vliegen
+          type: integer
+          format: int32   
+        BEVOEGDHEID_OVERLAND_ID:
+          description: Link naar comptentie om met deze kist overland te vliegen
+          type: integer
+          format: int32             
         OPMERKINGEN:
           description: De opmerkingen die ingevoerd zijn
           type: string
@@ -417,8 +429,13 @@ components:
             REG_CALL: 
               description: Vliegtuig registratie en callsign
               type: string
-              example: PH-1076 (E2)      
-
+              example: PH-1076 (E2) 
+            BEVOEGDHEID_LOKAAL: 
+              description: Omschrijving van lokale bevoegdheid
+              type: string
+            BEVOEGDHEID_OVERLAND: 
+              description: Omschrijving van overland bevoegdheid
+              type: string
     view_vliegtuigen:
       type: object
       properties:

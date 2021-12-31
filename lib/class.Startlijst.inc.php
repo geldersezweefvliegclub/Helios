@@ -37,6 +37,7 @@
 					`SLEEPKIST_ID` mediumint UNSIGNED DEFAULT NULL,
 					`SLEEP_HOOGTE` smallint UNSIGNED DEFAULT NULL,
                     `VELD_ID` mediumint UNSIGNED DEFAULT NULL,
+					`BAAN_ID` mediumint UNSIGNED DEFAULT NULL,
 					`OPMERKINGEN` text DEFAULT NULL,
 					`EXTERNAL_ID` text DEFAULT NULL,
 					`PAX` tinyint UNSIGNED NOT NULL DEFAULT '0',
@@ -55,7 +56,8 @@
 					FOREIGN KEY (VLIEGER_ID) REFERENCES ref_leden(ID),	
 					FOREIGN KEY (INZITTENDE_ID) REFERENCES ref_leden(ID),	
 					FOREIGN KEY (SLEEPKIST_ID) REFERENCES ref_vliegtuigen(ID),	
-					FOREIGN KEY (VELD_ID) REFERENCES ref_types(ID)
+					FOREIGN KEY (VELD_ID) REFERENCES ref_types(ID),
+					FOREIGN KEY (BAAN_ID) REFERENCES ref_types(ID)
 				)", $this->dbTable);
 			parent::DbUitvoeren($query);
 
@@ -196,6 +198,7 @@
 					`sl`.`SLEEPKIST_ID`,
 					`sl`.`SLEEP_HOOGTE`,
                     `sl`.`VELD_ID`,
+					`sl`.`BAAN_ID`,
 					`sl`.`OPMERKINGEN`,
 					`sl`.`EXTERNAL_ID`,
 					`sl`.`VERWIJDERD`,
@@ -223,12 +226,14 @@
 					`di`.`DDWV` OR `rooster`.`DDWV` AS `DDWV`,
                     `sm`.`OMSCHRIJVING`   			AS `STARTMETHODE`,
                     `veld`.`OMSCHRIJVING` 			AS `VELD` 
+					`baan`.`CODE` 					AS `BAAN` 
                 FROM 
                     `%s` `sl` 
                     LEFT JOIN `ref_leden`       `vl`      ON `sl`.`VLIEGER_ID` = `vl`.`ID` 
                     LEFT JOIN `ref_leden`       `il`      ON `sl`.`INZITTENDE_ID` = `il`.`ID` 
                     LEFT JOIN `ref_vliegtuigen` `v`       ON `sl`.`VLIEGTUIG_ID` = `v`.`ID` 
                     LEFT JOIN `ref_types`       `veld`    ON `sl`.`VELD_ID` = `veld`.`ID` 
+					LEFT JOIN `ref_types`       `baan`    ON `sl`.`BAAN_ID` = `baan`.`ID` 
 					LEFT JOIN `ref_types`       `sm`      ON `sl`.`STARTMETHODE_ID` = `sm`.`ID` 
                     LEFT JOIN `oper_daginfo`    `di`      ON `sl`.`DATUM` = `di`.`DATUM` 
 					LEFT JOIN `oper_rooster`    `rooster` ON `sl`.`DATUM` = `rooster`.`DATUM` 
@@ -2145,6 +2150,10 @@
 			$field = 'VELD_ID';
 			if (array_key_exists($field, $input))
 				$record[$field] = isINT($input[$field], $field, true, 'Types');
+
+			$field = 'BAAN_ID';
+			if (array_key_exists($field, $input))
+				$record[$field] = isINT($input[$field], $field, true, 'Types');
 							
 			if (array_key_exists('OPMERKINGEN', $input))
 				$record['OPMERKINGEN'] = $input['OPMERKINGEN']; 
@@ -2189,6 +2198,9 @@
 
 			if (isset($record['VELD_ID']))
 				$retVal['VELD_ID']  = $record['VELD_ID'] * 1;	
+
+			if (isset($record['BAAN_ID']))
+				$retVal['BAAN_ID']  = $record['BAAN_ID'] * 1;	
 
 			if (isset($record['VLIEGER_LIDTYPE_ID']))
 				$retVal['VLIEGER_LIDTYPE_ID']  = $record['VLIEGER_LIDTYPE_ID'] * 1;

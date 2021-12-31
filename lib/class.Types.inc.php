@@ -156,17 +156,13 @@
 					(1204, 12, 'Stoot', 'Wind stoten', NULL, 0), 
 
 					(1300, 13, '< 2',   'Minder dan 2 kilometer', NULL, 0), 
-					(1301, 13, '2-4', 	'Tussen 2 en 4 kilometer', NULL, 0), 
-					(1302, 13, '4-6', 	'Tussen 4 en 6 kilometer', NULL, 0), 
-					(1303, 13, '6-8', 	'Tussen 6 en 8 kilometer', NULL, 0), 
-					(1304, 13, '8-10', 	'Tussen 8 en 10 kilometer', NULL, 0), 
-					(1305, 13, '> 10', 	'Meer dan 10 kilometer', NULL, 0), 
+					(1301, 13, '2-5', 	'Tussen 2 en 5 kilometer', NULL, 0), 
+					(1302, 13, '5-10', 	'Tussen 5 en 10 kilometer', NULL, 0), 
+					(1303, 13, '> 10', 	'Meer dan 10 kilometer', NULL, 0), 
 
-					(1401, 14, 'A', 	'Terlet A', NULL, 0),
-					(1402, 14, 'B', 	'Terlet B', NULL, 0),
-					(1403, 14, 'C', 	'Terlet C', NULL, 0),
-					(1404, 14, 'D', 	'Terlet D', NULL, 0),
-					(1405, 14, 'CTR', 	'Deelen CTR', NULL, 0),
+					(1401, 14, 'A', 	'Terlet 1', NULL, 0),
+					(1402, 14, 'B', 	'Terlet 2', NULL, 0),
+					(1403, 14, 'C', 	'Terlet 3', NULL, 0),
 					(1406, 14, 'R9', 	'EH-R9', NULL, 0),
 
 					(1550, 15, 'GeZC',  'GeZC', NULL, 0),

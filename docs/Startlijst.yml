@@ -747,7 +747,11 @@ components:
         VELD_ID: 
           description: Op welk veld is er gestart. Verwijzing naar type tabel
           type: integer
-          example: 901            
+          example: 901       
+        BAAN_ID: 
+          description: Start strip. Verwijzing naar type tabel
+          type: integer
+          example: 102                    
         OPMERKINGEN:
           description: Extra text om opmerkingen toe te voegen
           type: string
@@ -832,7 +836,11 @@ components:
             VELD:
               description: Naam van het vliegveld waarop gestart is
               type: string
-              example: Terlet         
+              example: Terlet  
+            Baan:
+              description: Startstrip
+              type: string
+              example: 22R        
 
     view_startlijst:
       type: object
@@ -940,7 +948,11 @@ components:
         VELD:
           description: Vliegveld waar gestart is
           type: string
-          example: Terlet          
+          example: Terlet    
+        BAAN:
+          description: Start strip
+          type: string
+          example: 22R                    
         OPMERKINGEN:
           description: De opmerkingen die ingevoerd zijn
           type: string

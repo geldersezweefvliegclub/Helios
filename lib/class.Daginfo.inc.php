@@ -26,6 +26,7 @@
                     `ID` mediumint  UNSIGNED NOT NULL AUTO_INCREMENT,
                     `DATUM` date NOT NULL,
                     `VELD_ID` mediumint UNSIGNED DEFAULT NULL,
+					`BAAN_ID` mediumint UNSIGNED DEFAULT NULL,
                     `STARTMETHODE_ID` mediumint UNSIGNED DEFAULT NULL,
                     `INCIDENTEN` text DEFAULT NULL,  
 					`VLIEGBEDRIJF` text DEFAULT NULL,
@@ -44,6 +45,7 @@
 						INDEX (`VERWIJDERD`),
 						
 					FOREIGN KEY (VELD_ID) REFERENCES ref_types(ID),	
+					FOREIGN KEY (BAAN_ID) REFERENCES ref_types(ID),	
 					FOREIGN KEY (STARTMETHODE_ID) REFERENCES ref_types(ID)
 				)", $this->dbTable);
 			parent::DbUitvoeren($query);
@@ -110,12 +112,15 @@
 			SELECT 
 				di.*,
 				`T_Veld`.`CODE` AS `VELD_CODE`,
-				`T_Veld`.`OMSCHRIJVING` AS  `VELD_OMS`,        
+				`T_Veld`.`OMSCHRIJVING` AS  `VELD_OMS`,  
+				`T_Baan`.`CODE` AS `BAAN_CODE`,
+				`T_Baan`.`OMSCHRIJVING` AS  `BAAN_OMS`,       
 				`T_Startmethode`.`CODE` AS `STARTMETHODE_CODE`,
 				`T_Startmethode`.`OMSCHRIJVING` AS  `STARTMETHODE_OMS`
 			FROM
 				`%s` `di`
 				LEFT JOIN `ref_types` `T_Veld` ON (`di`.`VELD_ID` = `T_Veld`.`ID`)
+				LEFT JOIN `ref_types` `T_Baan` ON (`di`.`BAAN_ID` = `T_BAAN`.`ID`)
 				LEFT JOIN `ref_types` `T_Startmethode` ON (`di`.`STARTMETHODE_ID` = `T_Startmethode`.`ID`)
 			WHERE
 				`di`.`VERWIJDERD` = %d
@@ -605,6 +610,9 @@
 
 			if (isset($record['VELD_ID']))
 				$retVal['VELD_ID']  = $record['VELD_ID'] * 1;
+
+			if (isset($record['BAAN_ID']))
+				$retVal['BAAN_ID']  = $record['BAAN_ID'] * 1;				
 	
 			if (isset($record['STARTMETHODE_ID']))
 				$retVal['STARTMETHODE_ID']  = $record['STARTMETHODE_ID'] * 1;					
