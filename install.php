@@ -15,6 +15,7 @@ Hieronder geen wijzingen aanbrengen !!
 
 
 $classes = array("Types", 
+                 "Competenties",
                  "Vliegtuigen", 
                  "Leden", 
                  "Rooster", 
@@ -23,7 +24,6 @@ $classes = array("Types",
                  "Startlijst", 
                  "AanwezigVliegtuigen", 
                  "AanwezigLeden", 
-                 "Competenties", 
                  "Progressie", 
                  "Tracks",
                  "Reservering",

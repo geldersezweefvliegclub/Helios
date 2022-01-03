@@ -143,67 +143,6 @@
 			$functie = "Tracks.GetObjects";
 			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($params, true)));		
 
-			// ******************************************************************************************************************************
-			// TIJDELIJK OM OUDE TRACKS UIT FORUM OP TE HALEN
-/*
-			$lid_id = 0; 
-			foreach ($params as $key => $value)
-			{
-				switch ($key)
-				{
-                    case "LID_ID" : 
-                        {
-                            if (false === $l = isINT($value))
-                                throw new Exception("405;LID_ID moet een integer zijn;");
-
-							$lid_id = $l;
-
-                            Debug(__FILE__, __LINE__, sprintf("%s: LID_ID='%s'", $functie, $value));
-                            break;
-                        }						
-				}
-			}
-			$l = MaakObject('Leden');
-			$obj = $l->GetObject($lid_id);
-
-			$servername = "localhost";
-			$username = "gezc_org_ledendb";
-			$password = "56cKA_heqA-C=7*L";
-			$dbname = "gezc_org_ledendb";
-			
-			// Create connection
-			$conn = new mysqli($servername, $username, $password, $dbname);
-			// Check connection
-			if ($conn->connect_error) {
-				die("Connection failed: " . $conn->connect_error);
-			} 
-			
-			$conn->query('SET CHARACTER SET utf8');
-			$sql = sprintf("SELECT body, from_unixtime(poster_time,'%%d-%%m-%%Y') as tijd FROM `vms` INNER JOIN `smf_members` as member ON member.id_member = vms.id_member INNER JOIN `smf_messages` as msg ON msg.id_topic = vms.id_topic WHERE   member_name = '%s' order by poster_time DESC", $obj['INLOGNAAM']);
-			Debug(__FILE__, __LINE__, $sql);
-			$result = $conn->query($sql);
-			
-			$retValue = array();
-			$retValue['total'] = $result->num_rows;
-			$retValue['dataset'] =  array();
-
-			if ($result->num_rows > 0) {
-				// output data of each row
-				while($row = $result->fetch_assoc()) {
-					$tekst = preg_replace("/\[.*?b\]/", "", $row["body"]);
-
-					array_push ($retValue['dataset'], array ('TEKST' => $tekst, 'INGEVOERD' => $row["tijd"]));
-				}
-			} else {
-				echo "0 results";
-			}
-			$conn->close();
-			return $retValue;
-
-			// EINDE TIJDELIJKE CODE
-			// ******************************************************************************************************************************			
-*/
-
 			$where = ' WHERE 1=1 ';
 			$orderby = "";
 			$alleenLaatsteAanpassing = false;

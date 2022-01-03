@@ -41,6 +41,7 @@
 					`OPMERKINGEN` text DEFAULT NULL,
 					`EXTERNAL_ID` text DEFAULT NULL,
 					`PAX` tinyint UNSIGNED NOT NULL DEFAULT '0',
+					`INSTRUCTIEVLUCHT` tinyint UNSIGNED NOT NULL DEFAULT '0',
 					`VERWIJDERD` tinyint UNSIGNED NOT NULL DEFAULT '0',
 					`LAATSTE_AANPASSING` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 					 
@@ -225,7 +226,7 @@
                     `il`.`LIDTYPE_ID`     			AS `INZITTENDE_LIDTYPE_ID`,
 					`di`.`DDWV` OR `rooster`.`DDWV` AS `DDWV`,
                     `sm`.`OMSCHRIJVING`   			AS `STARTMETHODE`,
-                    `veld`.`OMSCHRIJVING` 			AS `VELD` 
+                    `veld`.`OMSCHRIJVING` 			AS `VELD`, 
 					`baan`.`CODE` 					AS `BAAN` 
                 FROM 
                     `%s` `sl` 
@@ -1530,7 +1531,7 @@
 			$this->StartLandingTijdenValidatie($d);
 
 			$id = parent::DbToevoegen($d);
-			Debug(__FILE__, __LINE__, sprintf("Daginfo toegevoegd id=%d", $id));
+			Debug(__FILE__, __LINE__, sprintf("Start toegevoegd id=%d", $id));
 
 			$record = $this->GetObject($id);
 			try 
@@ -1589,7 +1590,6 @@
 				if (isDATE($d['DATUM']) != date("Y-m-d"))		// starttoren mag alleen vandaag invoeren
 					throw new Exception("401;Geen schrijfrechten;");
 			}
-
 			$this->StartLandingTijdenValidatie($d);
 
 			parent::DbAanpassen($id, $d);
@@ -2089,6 +2089,28 @@
 				return 1;		
 		}
 
+		/*
+		Als er een intructeur achterin zit, is het een instructie vlucht
+		*/
+		function InstructieVlucht($record)
+		{
+			$retVal = $record;
+			if (array_key_exists('INZITTENDE_ID', $input))
+			{
+				if ($record['INZITTENDE_ID'] == null) 
+				{
+					$retVal['INSTRUCTIEVLUCHT'] = false;
+				}
+				else 
+				{
+					$refLeden = MaakObject('Leden');
+					$lid = $refLeden->GetObject($record['INZITTENDE_ID']);
+
+					$retVal['INSTRUCTIEVLUCHT'] = ($lid['INSTRUCTEUR'] == 1) ? true : false;
+				}
+			}
+			return $retVal;
+		}
 
 		/*
 		Copieer data van request naar velden van het record 
@@ -2161,6 +2183,11 @@
 			if (array_key_exists('EXTERNAL_ID', $input))
 				$record['EXTERNAL_ID'] = $input['EXTERNAL_ID']; 
 
+			if (array_key_exists('INSTRUCTIEVLUCHT', $input))
+				throw new Exception("405;INSTRUCTIEVLUCHT kan niet extern gezet worden;");
+			else 
+				$record = $this->InstructieVlucht($record);	
+
 			return $record;
         }
 
@@ -2225,8 +2252,11 @@
 				$retVal['DDWV']  = $record['DDWV'] == "1" ? true : false;
 
 			if (isset($record['PAX']))
-				$retVal['PAX']  = $record['PAX'] == "1" ? true : false;				
-
+				$retVal['PAX']  = $record['PAX'] == "1" ? true : false;	
+				
+			if (isset($record['INSTRUCTIEVLUCHT']))
+				$retVal['INSTRUCTIEVLUCHT']  = $record['INSTRUCTIEVLUCHT'] == "1" ? true : false;					
+				
 			return $retVal;
 		}		
 	}

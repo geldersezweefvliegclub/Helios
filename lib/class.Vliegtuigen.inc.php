@@ -52,7 +52,7 @@
 						
 					FOREIGN KEY (TYPE_ID) REFERENCES ref_types(ID),
 					FOREIGN KEY (BEVOEGDHEID_LOKAAL_ID) REFERENCES ref_competenties(ID),
-					FOREIGN KEY (BEVOEGDHEID_OVERLAND_ID) REFERENCES ref_competenties(ID),
+					FOREIGN KEY (BEVOEGDHEID_OVERLAND_ID) REFERENCES ref_competenties(ID)
 				)", $this->dbTable);
 			parent::DbUitvoeren($query);
 			

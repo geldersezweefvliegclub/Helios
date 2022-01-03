@@ -751,7 +751,7 @@ components:
         BAAN_ID: 
           description: Start strip. Verwijzing naar type tabel
           type: integer
-          example: 102                    
+          example: 102                         
         OPMERKINGEN:
           description: Extra text om opmerkingen toe te voegen
           type: string
@@ -765,7 +765,11 @@ components:
         PAX:
           description: Is dit een passagiers start
           type: boolean
-          example: 0                       
+          example: 0     
+        INSTRUCTIEVLUCHT:
+          description: Is dit een instructie vlucht
+          type: boolean
+          example: 0                                 
 
     oper_startlijst:
       type: object
