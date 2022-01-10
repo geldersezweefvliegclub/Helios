@@ -256,7 +256,7 @@ require ("include/PasswordHash.php");
 			try 
 			{ 
 				$lObj = $l->GetObjectByLoginNaam($username); 
-				Debug(__FILE__, __LINE__, sprintf("Login(%s) = %s, LIDTYPE_ID=%s", $username, $lObj["NAAM"], $lObj['LIDTYPE_ID']));
+				Debug(__FILE__, __LINE__, sprintf("%s(%s) = %s, LIDTYPE_ID=%s", $functie, $username, $lObj["NAAM"], $lObj['LIDTYPE_ID']));
 			}
 			catch(Exception $exception) 
 			{
@@ -284,9 +284,11 @@ require ("include/PasswordHash.php");
 			$skip2Factor = false;
 			if (isset($_COOKIE['2FACTOR']))
 			{
+				Debug(__FILE__, __LINE__, sprintf("%s: 2Factor cookie exits, ID=%s", $functie, $_COOKIE['2FACTOR'] )); 
 				if ($_COOKIE['2FACTOR'] == base64_encode($lObj['ID']))	// Cookie bevat ID ten tijde van de SMS
 					$skip2Factor = true;
 			}
+			Debug(__FILE__, __LINE__, sprintf("%s: skip2Factor=%s, Auth=%d", $functie, $skip2Factor ? "true" : "false", $lObj['AUTH'])); 
 
 			if (($lObj['AUTH'] == "1") && (empty($token)) && $skip2Factor == false) 
 			{
@@ -322,6 +324,8 @@ require ("include/PasswordHash.php");
 					} 
 					else // via Google authenticator
 					{
+						Debug(__FILE__, __LINE__, sprintf("%s: 2Factor via google authenticator", $functie)); 
+
 						$ga = new PHPGangsta_GoogleAuthenticator();
 						$checkResult = $ga->verifyCode($lObj['SECRET'], $token, 2);    // 2 = 2*30sec clock tolerance
 
@@ -336,6 +340,7 @@ require ("include/PasswordHash.php");
 						}
 					}
 
+					Debug(__FILE__, __LINE__, sprintf("%s: 2Factor succes = ", $function, $twoFactorSuccess ? "true" : "false")); 
 					if ($twoFactorSuccess === true)
 					{
 						// We willen gebruikersvriendelijk zijn en SMS kosten besparen, dus niet ieder inlog poging om 2 factor authenticatie vragen
@@ -361,18 +366,6 @@ require ("include/PasswordHash.php");
 				{
 					$this->setSessionUser($lObj['ID']);	
 					return $this->JWT($lObj);
-				}
-			}
-			else if ($lObj['LIDTYPE_ID'] == "625")			// 625 = DDWV heeft andere password codering
-			{
-				$phpass = new PasswordHash(10, true);
-				$ok= $phpass->CheckPassword($password, $lObj['WACHTWOORD']);
-				
-				if ($ok == true) 
-				{
-					Debug(__FILE__, __LINE__, sprintf("Toegang toegestaan DDWV (%s)", $username));	
-					$this->setSessionUser($lObj['ID']);	
-					return $this->JWT($lObj);							
 				}
 			}
 			
@@ -608,7 +601,7 @@ require ("include/PasswordHash.php");
 
 				session_set_cookie_params(["SameSite" => "None"]); //none, lax, strict
 				setcookie("ID", $verifyResult->getId(), [
-					'expires' => time()+ 60,
+					'expires' => time()+ 300,
 					'path' => '/',
 					'secure' => true,
 					'samesite' => 'None',

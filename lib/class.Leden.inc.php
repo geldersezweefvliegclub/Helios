@@ -893,7 +893,8 @@
 			$secret = (isset($lid['SECRET'] )) ? $lid['SECRET'] : null;
 			if ($secret != null) {
 				if (($l->isBeheerder() === true) ||
-					($l->isBeheerderDDWV() === true)) 
+					($l->isBeheerderDDWV() === true) ||
+					($lid['ID'] ==  $l->getUserFromSession())) 
 				{
 					$ga = new PHPGangsta_GoogleAuthenticator();
 					$lid['SECRET'] = $ga->getQRCodeGoogleUrl($lid['INLOGNAAM'], $lid['SECRET'], $app_settings['Vereniging']);

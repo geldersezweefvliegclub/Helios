@@ -15,7 +15,6 @@ Hieronder geen wijzingen aanbrengen !!
 
 
 $classes = array("Types", 
-                 "Competenties",
                  "Vliegtuigen", 
                  "Leden", 
                  "Rooster", 
@@ -24,6 +23,7 @@ $classes = array("Types",
                  "Startlijst", 
                  "AanwezigVliegtuigen", 
                  "AanwezigLeden", 
+                 "Competenties", 
                  "Progressie", 
                  "Tracks",
                  "Reservering",
@@ -76,6 +76,12 @@ if (!file_exists("installer_account.php"))
     $file = fopen("installer_account.php", "w") or die("Unable to open installer_account.php file!");
     fwrite($file, $file_content);
     fclose($file);
+
+    if ($toonCredentials) 
+    {
+        $output = array ('username' => $username , 'password' => $password);
+        echo json_encode($output);
+    }
        
 }
 
@@ -216,13 +222,5 @@ foreach ($classes as $c)
     $obj = MaakObject($c);
     $obj->CreateViews();
 }
-
-if ($toonCredentials) 
-{
-    $output = array ('username' => $username , 'password' => $password);
-    echo json_encode($output);
-}
-
-
 
 ?>

@@ -1687,7 +1687,7 @@
 					$retVal['UREN_DRIE_MND'] += intval(substr($vlucht['DUUR'],0,2)) * 60 + intval(substr($vlucht['DUUR'],3,2));
 				}
 
-				if ($diff <= (21*7)) // laaste 6 maanden = 21 weken
+				if ($diff <= (26*7)) // laaste 6 maanden = 26 weken
 				{
 					$retVal['STARTS_BAROMETER']++;				
 					$retVal['UREN_BAROMETER'] += intval(substr($vlucht['DUUR'],0,2)) * 60 + intval(substr($vlucht['DUUR'],3,2));
@@ -2183,10 +2183,8 @@
 			if (array_key_exists('EXTERNAL_ID', $input))
 				$record['EXTERNAL_ID'] = $input['EXTERNAL_ID']; 
 
-			if (array_key_exists('INSTRUCTIEVLUCHT', $input))
-				throw new Exception("405;INSTRUCTIEVLUCHT kan niet extern gezet worden;");
-			else 
-				$record = $this->InstructieVlucht($record);	
+
+			$record = $this->InstructieVlucht($record);	
 
 			return $record;
         }

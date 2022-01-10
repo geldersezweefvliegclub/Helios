@@ -120,7 +120,7 @@
 			FROM
 				`%s` `di`
 				LEFT JOIN `ref_types` `T_Veld` ON (`di`.`VELD_ID` = `T_Veld`.`ID`)
-				LEFT JOIN `ref_types` `T_Baan` ON (`di`.`BAAN_ID` = `T_BAAN`.`ID`)
+				LEFT JOIN `ref_types` `T_Baan` ON (`di`.`BAAN_ID` = `T_Baan`.`ID`)
 				LEFT JOIN `ref_types` `T_Startmethode` ON (`di`.`STARTMETHODE_ID` = `T_Startmethode`.`ID`)
 			WHERE
 				`di`.`VERWIJDERD` = %d
