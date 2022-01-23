@@ -29,7 +29,9 @@ $app_settings = array(
 	'DemoMode' => true,
 	'ApiKeySMS' => 'API key here',	// api key voor messagebird
 	'KeyJWT' => '480f4p*%ghouiEWf*DXKz22Vy7RDzFeaBlw329zMyHh*o',	// versleutel JWT token, AANPASSEN voor productie !!!
-	'dataNotModified' => 304
+	'dataNotModified' => 304,
+	'2Factor' => true				// 2Factor authenticatie aan (true) of uit (false)
+	'PaxBevoegdheid' => 271			// CompetentieID van pax. Let op !!  CreateViews aanroepen, na wijzigen. Dit zit namelijk in database views
 );
 
 // dataNotModified heeft uitleg nodig. Wanneer client data opvraagt van server met een hash, dan wordt gekeken of de hash van de opgehaalde dataset

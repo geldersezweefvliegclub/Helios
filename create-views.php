@@ -59,11 +59,29 @@ Inloggen
 -----------------------------------------------------------------------------------------------------------
 */
 
+// Als we ID als parameter meegegeven, dan gebruiken we die om username & wachtwoord te bepalen
+if (isset($_GET["id"])) 
+{
+    $decodedString = base64_decode($_GET["id"], true);
+
+    if ($decodedString !== false) 
+    {
+        $parts = explode(',', $decodedString); 
+
+        if (count($parts) == 2)
+        {
+            $username = $parts[0];
+            $password = $parts[1];
+        }
+    }
+}
+
 $key = sha1(strtolower ($username) . $password);
 
 if (($username != $installer_account['username']) || ($key != $installer_account['password']))
 {	
     header('HTTP/1.0 401 Unauthorized');
+    echo "Geen toegang";
     die();    
 }
 
@@ -79,6 +97,7 @@ $l->verkrijgToegang($username, $password);
 
 foreach ($classes as $c)
 {
+    echo "$c" . "</br>";
     $obj = MaakObject($c);
     $obj->CreateViews();
 }

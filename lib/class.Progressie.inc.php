@@ -526,6 +526,10 @@
 			if (!array_key_exists('COMPETENTIE_ID', $ProgressieData))
 				throw new Exception("406;COMPETENTIE_ID is verplicht;");
 			
+			$l = MaakObject('Login');
+			if ($l->getUserFromSession() == $ProgressieData["LID_ID"])	
+				throw new Exception("401;Mag geen eigen progressie toevoegen;");
+
 			// Neem data over uit aanvraag
 			$t = $this->RequestToRecord($ProgressieData);
 	

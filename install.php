@@ -15,6 +15,7 @@ Hieronder geen wijzingen aanbrengen !!
 
 
 $classes = array("Types", 
+                 "Competenties", 
                  "Vliegtuigen", 
                  "Leden", 
                  "Rooster", 
@@ -23,7 +24,6 @@ $classes = array("Types",
                  "Startlijst", 
                  "AanwezigVliegtuigen", 
                  "AanwezigLeden", 
-                 "Competenties", 
                  "Progressie", 
                  "Tracks",
                  "Reservering",
@@ -61,17 +61,18 @@ if (!file_exists("installer_account.php"))
     }
     
     $key = sha1(strtolower ($username) . $password);
+    $id = base64_encode($username . "," . $password);
     
     $file_content = sprintf(
         "<?php
     
         \$installer_account = array(
-            'id' => 0,
+            'id' => '%s',
             'username' => '%s',
             'password' => '%s'
         );
         
-        ?>", $username, $key);
+        ?>", $id,  $username, $key);
     
     $file = fopen("installer_account.php", "w") or die("Unable to open installer_account.php file!");
     fwrite($file, $file_content);
@@ -79,8 +80,9 @@ if (!file_exists("installer_account.php"))
 
     if ($toonCredentials) 
     {
-        $output = array ('username' => $username , 'password' => $password);
-        echo json_encode($output);
+        echo "id = '" . $id . "'<br>";
+        echo "username = '" . $username . "'<br>";
+        echo "password = '" . $password . "'<br>";
     }
        
 }

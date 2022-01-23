@@ -766,6 +766,10 @@ components:
           description: Is dit een passagiers start
           type: boolean
           example: 0     
+        CHECKSTART:
+          description: Is dit een trainingsvlucht start
+          type: boolean
+          example: 0               
         INSTRUCTIEVLUCHT:
           description: Is dit een instructie vlucht
           type: boolean

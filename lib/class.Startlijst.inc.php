@@ -41,6 +41,7 @@
 					`OPMERKINGEN` text DEFAULT NULL,
 					`EXTERNAL_ID` text DEFAULT NULL,
 					`PAX` tinyint UNSIGNED NOT NULL DEFAULT '0',
+					`CHECKSTART` tinyint UNSIGNED NOT NULL DEFAULT '0',
 					`INSTRUCTIEVLUCHT` tinyint UNSIGNED NOT NULL DEFAULT '0',
 					`VERWIJDERD` tinyint UNSIGNED NOT NULL DEFAULT '0',
 					`LAATSTE_AANPASSING` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -738,7 +739,7 @@
 					LANDINGSTIJD,
 					DUUR,
 					IF (`VLIEGERNAAM` IS NULL, `VLIEGERNAAM_LID` , CONCAT(`VLIEGERNAAM_LID`, '(', `VLIEGERNAAM`, ')')) AS `VLIEGERNAAM`,
-					IF (`INZITTENDENAAM` IS NULL, `INZITTENDENAAM_LID` , CONCAT(`INZITTENDENAAM_LID`, '(', `INZITTENDENAAM`, ')')) AS `INZITTENDENAAM`,
+					IF (`INZITTENDENAAM` IS NULL, `INZITTENDENAAM_LID`, `INZITTENDENAAM`) AS `INZITTENDENAAM`,
 					VLIEGER_ID AS  VLIEGER_ID,
 					INZITTENDE_ID AS INZITTENDE_ID,
 					STARTMETHODE, VELD, OPMERKINGEN AS OPMERKINGEN";	
@@ -2095,7 +2096,7 @@
 		function InstructieVlucht($record)
 		{
 			$retVal = $record;
-			if (array_key_exists('INZITTENDE_ID', $input))
+			if (array_key_exists('INZITTENDE_ID', $record))
 			{
 				if ($record['INZITTENDE_ID'] == null) 
 				{
@@ -2118,6 +2119,7 @@
 		function RequestToRecord($input)
 		{
 			$record = array();
+			$l = MaakObject('Login');
 
 			$field = 'ID';
 			if (array_key_exists($field, $input))
@@ -2167,7 +2169,15 @@
 
 			$field = 'PAX';
 			if (array_key_exists($field, $input))
-				$record[$field] = isBOOL($input[$field], $field, true);					
+				$record[$field] = isBOOL($input[$field], $field, true);		
+				
+
+			if (($l->isBeheerder()) || ($l->isCIMT()) || ($l->isInstructeur() == true)) 
+			{
+				$field = 'CHECKSTART';
+				if (array_key_exists($field, $input))
+					$record[$field] = isBOOL($input[$field], $field, true);	
+			}
 
 			$field = 'VELD_ID';
 			if (array_key_exists($field, $input))
@@ -2248,6 +2258,9 @@
 
 			if (isset($record['DDWV']))
 				$retVal['DDWV']  = $record['DDWV'] == "1" ? true : false;
+
+			if (isset($record['CHECKSTART']))
+				$retVal['CHECKSTART']  = $record['CHECKSTART'] == "1" ? true : false;
 
 			if (isset($record['PAX']))
 				$retVal['PAX']  = $record['PAX'] == "1" ? true : false;	

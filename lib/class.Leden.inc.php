@@ -39,6 +39,7 @@
 					`LIDTYPE_ID` mediumint UNSIGNED NOT NULL,
 					`STATUSTYPE_ID` mediumint UNSIGNED NULL,
 					`ZUSTERCLUB_ID` mediumint UNSIGNED DEFAULT NULL,
+					`BUDDY_ID` mediumint UNSIGNED NULL,
                     `LIERIST` tinyint UNSIGNED NOT NULL DEFAULT 0,
                     `STARTLEIDER` tinyint UNSIGNED NOT NULL DEFAULT 0,
 					`INSTRUCTEUR` tinyint UNSIGNED NOT NULL DEFAULT 0,
@@ -74,7 +75,8 @@
 						INDEX (`VERWIJDERD`),
 
 						FOREIGN KEY (LIDTYPE_ID) REFERENCES ref_types(ID),
-						FOREIGN KEY (ZUSTERCLUB_ID) REFERENCES %s(ID) 				
+						FOREIGN KEY (ZUSTERCLUB_ID) REFERENCES %s(ID),
+						FOREIGN KEY (BUDDY_ID) REFERENCES %s(ID) 			
 				)", $this->dbTable, $this->dbTable);
 			parent::DbUitvoeren($query);
 
@@ -152,6 +154,14 @@
 		*/		
 		function CreateViews()
 		{
+			global $app_settings;
+
+			$paxBevoegdheid = 271;
+			if (isset($app_settings['PaxBevoegdheid']))
+			{
+				$paxBevoegdheid = $app_settings['PaxBevoegdheid'];
+			}
+
 			$l = MaakObject('Login');
 			if ($l->isInstaller() == false)
 				throw new Exception("401;Geen installer;");
@@ -159,24 +169,27 @@
 			$query = "CREATE VIEW `%s` AS
 				SELECT 
 					l.*,
+					IF ((SELECT count(*) FROM `oper_progressie` WHERE `LID_ID` = l.ID AND `COMPETENTIE_ID` = %d) = 0, 0, 1) AS PAX,
 					`t`.`OMSCHRIJVING` AS `LIDTYPE`,
 					`s`.`OMSCHRIJVING` AS `STATUS`,
-					`z`.`NAAM` AS `ZUSTERCLUB`
+					`z`.`NAAM` AS `ZUSTERCLUB`,
+					`b`.`NAAM` AS `BUDDY`
 				FROM
 					`%s` `l`    
 					LEFT JOIN `ref_types` `t` ON (`l`.`LIDTYPE_ID` = `t`.`ID`)
 					LEFT JOIN `ref_types` `s` ON (`l`.`STATUSTYPE_ID` = `s`.`ID`)
 					LEFT JOIN `ref_leden` `z` ON (`l`.`ZUSTERCLUB_ID` = `z`.`ID`)
+					LEFT JOIN `ref_leden` `b` ON (`l`.`BUDDY_ID` = `b`.`ID`)
 				WHERE
 					`l`.`VERWIJDERD` = %d
 				ORDER BY 
 					ACHTERNAAM, VOORNAAM;";
 								
 			parent::DbUitvoeren("DROP VIEW IF EXISTS leden_view");							
-			parent::DbUitvoeren(sprintf($query, "leden_view", $this->dbTable, 0));
+			parent::DbUitvoeren(sprintf($query, "leden_view", $paxBevoegdheid, $this->dbTable, 0));
 
 			parent::DbUitvoeren("DROP VIEW IF EXISTS verwijderd_leden_view");
-			parent::DbUitvoeren(sprintf($query, "verwijderd_leden_view", $this->dbTable, 1));	
+			parent::DbUitvoeren(sprintf($query, "verwijderd_leden_view", $paxBevoegdheid, $this->dbTable, 1));	
 		}
 
 		/*
@@ -1093,7 +1106,11 @@
 
 				$field = 'STATUSTYPE_ID';
 				if (array_key_exists($field, $input))
-					$record[$field] = isINT($input[$field], $field, true, "Types");				
+					$record[$field] = isINT($input[$field], $field, true, "Types");		
+					
+				$field = 'BUDDY_ID';
+				if (array_key_exists($field, $input))
+					$record[$field] = isINT($input[$field], $field, true, 'Leden');	
 			}
 			
 			if ($l->isBeheerder() == true)
@@ -1167,6 +1184,9 @@
 			
 			if (isset($record['ZUSTERCLUB_ID']))
 				$retVal['ZUSTERCLUB_ID']  = $record['ZUSTERCLUB_ID'] * 1;	
+
+			if (isset($record['BUDDY_ID']))
+				$retVal['BUDDY_ID']  = $record['BUDDY_ID'] * 1;					
 				
 			// booleans	
 			if (isset($record['LIERIST']))
@@ -1210,6 +1230,9 @@
 				
 			if (isset($record['PRIVACY']))
 				$retVal['PRIVACY']  = $record['PRIVACY'] == "1" ? true : false;
+
+			if (isset($record['PAX']))
+				$retVal['PAX']  = $record['PAX'] == "1" ? true : false;
 				
 			if (isset($record['VERWIJDERD']))
 				$retVal['VERWIJDERD']  = $record['VERWIJDERD'] == "1" ? true : false;

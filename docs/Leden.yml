@@ -450,7 +450,12 @@ components:
           description: Zusterclub lidmaatschap van lid. Nodig voor DDWV.
           type: integer
           format: int32
-          example: 603              
+          example: 1205    
+        BUDDY_ID: 
+          description: Buddy van de vlieger, leeftijdsbeleid 
+          type: integer
+          format: int32
+          example: 811                       
         LIERIST:
           description: Mag dit lid lieren? 
           type: boolean
@@ -575,6 +580,10 @@ components:
         - $ref: '#/components/schemas/ref_leden'
         - type: object
           properties:
+            PAX: 
+              description: Heeft lid PAX competentie behaald 
+              type: boolean
+              example: true    
             LIDTYPE: 
               description: Lidtype in text
               type: string
@@ -586,7 +595,11 @@ components:
             ZUSTERCLUB: 
               description: Naam van de zusterclub
               type: string
-              example: "De buren"       
+              example: "De buren"   
+            BUDDY: 
+              description: Naam van de buddy
+              type: string
+              example: "Mr Broekhuis"       
 
     view_leden:
       type: object

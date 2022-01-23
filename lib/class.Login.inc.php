@@ -290,7 +290,8 @@ require ("include/PasswordHash.php");
 			}
 			Debug(__FILE__, __LINE__, sprintf("%s: skip2Factor=%s, Auth=%d", $functie, $skip2Factor ? "true" : "false", $lObj['AUTH'])); 
 
-			if (($lObj['AUTH'] == "1") && (empty($token)) && $skip2Factor == false) 
+			// $app_settings['2Factor'] geeft aan of we uberhaupt gebruik maken van 2 factor authenticatie
+			if (($lObj['AUTH'] == "1") && (empty($token)) && $skip2Factor == false && ($app_settings['2Factor'] !== false)) 
 			{
 				Debug(__FILE__, __LINE__, sprintf("URI: %s)", $_SERVER['REQUEST_URI']));	
 
@@ -310,7 +311,8 @@ require ("include/PasswordHash.php");
 			{		
 				Debug(__FILE__, __LINE__, sprintf("Toegang toegestaan (%s)", $username));	
 
-				if (($lObj['AUTH'] == "1") && ($skip2Factor == false))			// 2 factor authenticatie
+				// $app_settings['2Factor'] geeft aan of we uberhaupt gebruik maken van 2 factor authenticatie
+				if (($lObj['AUTH'] == "1") && ($skip2Factor == false) && ($app_settings['2Factor'] !== false))			// 2 factor authenticatie
 				{
 					// we hebben 2 mogelijkheden om 2factor te doen, via google authenticator of via SMS
 					// voor SMS gebruiken 2 factor verfication van messagebird (zie https://developers.messagebird.com/quickstarts/verify-overview/)
@@ -631,10 +633,12 @@ require ("include/PasswordHash.php");
 				Debug(__FILE__, __LINE__, sprintf("ValideerCode response: %s", print_r($verifyResult, true))); 
 				setcookie("ID", "", time()-3600);	// cookie is nu niet meer nodig
 				return true;
+				/*
 			} catch (\MessageBird\Exceptions\RequestException $e) {
 				Debug(__FILE__, __LINE__, "token incorrect"); 	
 			} catch (\MessageBird\Exceptions\AuthenticateException $e) {
-				Debug(__FILE__, __LINE__, "wrong login, accessKey is unknown"); 	
+				Debug(__FILE__, __LINE__, "wrong login, accessKey is unknown"); 
+				*/	
 			} catch (\Exception $e) {
 				Debug(__FILE__, __LINE__, $e->getMessage());
 			}		
