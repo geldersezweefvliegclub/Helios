@@ -2111,7 +2111,7 @@
 				else 
 				{
 					$refLeden = MaakObject('Leden');
-					$lid = $refLeden->GetObject($record['INZITTENDE_ID']);
+					$lid = $refLeden->GetObject($record['INZITTENDE_ID'], true);
 
 					$retVal['INSTRUCTIEVLUCHT'] = ($lid['INSTRUCTEUR'] == 1) ? true : false;
 				}

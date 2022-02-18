@@ -198,8 +198,9 @@
 
 		/*
 		Haal een enkel record op uit de database
+		toegangControleOverslaan is toegevoegd voor interne reden, zie InstructieVlucht() in Startlijst
 		*/
-		function GetObject($ID)
+		function GetObject($ID, $toegangControleOverslaan = false)
 		{
 			$functie = "Leden.GetObject";
 			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, $ID));	
@@ -210,9 +211,9 @@
 			$conditie = array();
 			$conditie['ID'] = isINT($ID, "ID");
 			
-			// ophalen mag alleen door ingelogde gebruiker of beheerder
+			// ophalen mag alleen door ingelogde gebruiker of beheerder, of vanuit een interne functie
 			$l = MaakObject('Login');
-			if ($l->getUserFromSession() != $ID)
+			if (($l->getUserFromSession() != $ID) && ($toegangControleOverslaan == false))
 			{
 				if (!$this->heeftDataToegang() && !$l->isBeheerderDDWV() && !$l->isRooster())
 					throw new Exception("401;Geen leesrechten;");
