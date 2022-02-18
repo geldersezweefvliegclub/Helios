@@ -781,12 +781,6 @@
 			if ((array_key_exists('AFWEZIG', $input)) && ($record['AFWEZIG'] == true)) 
                 $record['AANWEZIG'] = false;    
 
-            if (array_key_exists('INGEVOERD_DOOR_ID', $input))
-				throw new Exception("405;INGEVOERD_DOOR_ID kan niet extern gezet worden;");
-
-            if (array_key_exists('ROOSTER_ID', $input))
-				throw new Exception("405;ROOSTER_ID kan niet extern gezet worden;");
-
 			return $record;
 		}	
 

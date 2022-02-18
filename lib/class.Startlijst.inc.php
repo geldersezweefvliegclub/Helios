@@ -201,6 +201,7 @@
 					`sl`.`SLEEP_HOOGTE`,
                     `sl`.`VELD_ID`,
 					`sl`.`BAAN_ID`,
+					`vt`.`OMSCHRIJVING` AS `VLIEGTUIGTYPE`,
 					`sl`.`OPMERKINGEN`,
 					`sl`.`EXTERNAL_ID`,
 					`sl`.`VERWIJDERD`,
@@ -235,6 +236,7 @@
                     LEFT JOIN `ref_leden`       `il`      ON `sl`.`INZITTENDE_ID` = `il`.`ID` 
                     LEFT JOIN `ref_vliegtuigen` `v`       ON `sl`.`VLIEGTUIG_ID` = `v`.`ID` 
                     LEFT JOIN `ref_types`       `veld`    ON `sl`.`VELD_ID` = `veld`.`ID` 
+					LEFT JOIN `ref_types`       `vt`      ON `v`.`TYPE_ID` = `vt`.`ID` 
 					LEFT JOIN `ref_types`       `baan`    ON `sl`.`BAAN_ID` = `baan`.`ID` 
 					LEFT JOIN `ref_types`       `sm`      ON `sl`.`STARTMETHODE_ID` = `sm`.`ID` 
                     LEFT JOIN `oper_daginfo`    `di`      ON `sl`.`DATUM` = `di`.`DATUM` 

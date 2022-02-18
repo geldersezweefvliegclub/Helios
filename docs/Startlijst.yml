@@ -960,7 +960,11 @@ components:
         BAAN:
           description: Start strip
           type: string
-          example: 22R                    
+          example: 22R      
+        VLIEGTUIGTYPE:
+          description: Vliegtuig type 
+          type: string
+          example: LS8                            
         OPMERKINGEN:
           description: De opmerkingen die ingevoerd zijn
           type: string
