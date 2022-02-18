@@ -33,14 +33,21 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
 
-$l = MaakObject('Login');
+Debug(__FILE__, __LINE__, $_SERVER['REQUEST_METHOD']  . " URL: " .$_SERVER['REQUEST_URI']);
 try
 {
-    $token = (isset($_GET["token"])) ? $_GET["token"] : null;
+    $loginURL = "/Login/Login";
+    $resetWachtwoordURL = "/Login/ResetWachtwoord";
+    
+    // Als we nog moeten inloggen, dan niet controleren of we toegang hebben
+    if ((substr($_SERVER['REQUEST_URI'], 0,  strlen($loginURL)) != $loginURL) &&  
+        (substr($_SERVER['REQUEST_URI'], 0, strlen($resetWachtwoordURL)) != $resetWachtwoordURL)) 
+    {
+        $token = (isset($_GET["token"])) ? $_GET["token"] : null;
 
-    if (($_SERVER['REQUEST_URI'] != "/Login/Login") &&  // Als we nog moeten inloggen, dan niet controleren of we toegang hebben
-        ($_SERVER['REQUEST_URI'] != "/Login/ResetWachtwoord")) 
+        $l = MaakObject('Login');
         $l->heeftToegang($token);			            // het stopt hier als de gebruiker niet ingelogd is	
+    }
 }
 catch(Exception $exception)
 {

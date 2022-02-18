@@ -194,8 +194,12 @@
 					(266, 07,  1004,  260,  NULL,  'ASG-29',  NULL),	
 					(267, 08,  1004,  260,  NULL,  'Arcus',  NULL),		
 					
-					(270, 01,  1004,  NULL, NULL,  'Passagiers',  NULL),
-					(271, 01,  1004,  270,  NULL,  'Passagiers vliegen',  NULL),
+					(270, 01,  1004,  NULL, NULL,  'Aantekeningen',  NULL),
+					(271, 04,  1004,  270,  NULL,  'Passagiers vliegen',  NULL),
+					(272, 01,  1004,  270,  NULL,  'Lieren',  NULL),
+					(272, 02,  1004,  270,  NULL,  'Slepen',  NULL),
+					(272, 03,  1004,  270,  NULL,  'Zelfstart',  NULL),
+					(272, 05,  1004,  270,  NULL,  'Kunstvliegen',  NULL),					
 
 					(280, 01,  1004,  NULL, NULL,  'Overige bevoegdheden',  NULL),
 					(281, 02,  1004,  280,  NULL,  'Tiplopen',  'Zie EVO 1.3'),

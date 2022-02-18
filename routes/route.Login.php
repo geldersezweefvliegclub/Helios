@@ -105,7 +105,7 @@ $app->get(url_base() . 'Login/Login', function (Request $request, Response $resp
     }
     catch(Exception $exception)
     {
-        Debug(__FILE__, __LINE__, "/Login/HeeftToegang: " .$exception);
+        Debug(__FILE__, __LINE__, "/Login/Login exception: " .$exception);
 
         list($dummy, $exceptionMsg) = explode(": ", $exception);
         list($httpStatus, $message) = explode(";", $exceptionMsg);  // onze eigen formaat van een exceptie

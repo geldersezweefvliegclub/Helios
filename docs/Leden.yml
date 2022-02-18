@@ -499,7 +499,11 @@ components:
         CLUBBLAD_POST:
           description: Moet clubblad per post verstuurd worden    
           type: boolean
-          example: true                                     
+          example: true        
+        RAPPORTEUR:
+          description: Heeft lid toegang tot alle starts / logboeken voor rapportage    
+          type: boolean
+          example: true                                            
         MEDICAL:
           description: Verloopdatum van het medical 
           type: string
@@ -546,7 +550,17 @@ components:
           description: Het serienummner van sleutel 2 (SNZT)
           type: string
           maxLength: 25
-          example: 88AB021EC04                           
+          example: 88AB021EC04       
+        KNVVL_LIDNUMMER: 
+          description: Het lidmaatschapsnummer van de KNVVL
+          type: string
+          maxLength: 25
+          example: 158700    
+        BREVET_NUMMER: 
+          description: Het nummer van het brevet
+          type: string
+          maxLength: 25
+          example: A78BB001                                            
         OPMERKINGEN:
           description: Extra text om opmerkingen toe te voegen
           type: string

@@ -37,7 +37,7 @@ paths:
       parameters:
         - in: query
           name: token
-          description: bearer token 
+          description: token van SMS of Google Authenticator
           required: true
           schema:
             type: string
@@ -345,7 +345,11 @@ components:
             isStarttoren:
               description: Is de ingelogde gebruiker de starttoren?
               type: boolean
-              example: true      
+              example: true     
+            isRapporteur:
+              description: Is de ingelogde gebruiker verantwoordelijk voor start rapportage & logboeken
+              type: boolean
+              example: true                   
             isDDWVCrew:
               description: Maakt de ingelogde gebruiker onderdeel uit van de DDWV crew ?
               type: boolean

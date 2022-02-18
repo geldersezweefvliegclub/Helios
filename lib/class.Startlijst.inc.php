@@ -313,7 +313,7 @@
 				// als installer mogen we alleen laatste aanpassing ophalen
 				$alleenLaatsteAanpassing = true;		
 			}
-			elseif (!$this->heeftDataToegang() && !$l->isStarttoren())
+			elseif (!$this->heeftDataToegang() && !$l->isStarttoren() && !$l->isRapporteur())
 			{
 				$w = sprintf("(VLIEGER_ID = '%d') OR (INZITTENDE_ID = '%d')", $l->getUserFromSession(), $l->getUserFromSession());
 
@@ -654,7 +654,7 @@
 							// privacy check
 							$l = MaakObject('Login');
 
-							if ($value != $l->getUserFromSession())
+							if ($value != $l->getUserFromSession() && !$l->isRapporteur())
 							{
 								if (!$this->heeftDataToegang())
 									throw new Exception("401;Gebruiker mag geen logboek van ander lid opvragen;");	
@@ -808,7 +808,7 @@
 
 							if ($value != $l->getUserFromSession())
 							{
-								if (!$this->heeftDataToegang())
+								if (!$this->heeftDataToegang() && !$l->isRapporteur())
 								{
 									throw new Exception("401;Gebruiker mag geen logboek van ander lid opvragen;");
 								}									
@@ -1057,6 +1057,9 @@
 			
 			if ($l->isStarttoren())
 				$privacyCheck = false;
+
+			if ($l->isRapporteur())
+				$privacyCheck = false;	
 			
 			if ($l->isInstructeur() || $l->isInstructeur())
 				$privacyCheck = false;
@@ -1251,6 +1254,9 @@
 			
 			if ($l->isStarttoren())
 				$privacyCheck = false;
+
+			if ($l->isRapporteur())
+				$privacyCheck = false;					
 			
 			if ($l->isInstructeur() || $l->isInstructeur())
 				$privacyCheck = false;
@@ -1632,7 +1638,7 @@
 			$l = MaakObject('Login');
 			if ($vliegerID != $l->getUserFromSession())
 			{
-				if (!$this->heeftDataToegang())
+				if (!$this->heeftDataToegang() && !$l->isRapporteur())
 					throw new Exception("401;Geen leesrechten;");
 			}
 
@@ -1775,7 +1781,7 @@
 			// Als ingelogde gebruiker geen bijzonder functie heeft, worden alleen zijn vliegdagen opgehaald
 			$l = MaakObject('Login');
 
-			if (!$this->heeftDataToegang())
+			if (!$this->heeftDataToegang() && !$l->isRapporteur())
 			{
 				$w = sprintf("(VLIEGER_ID = '%d') OR (INZITTENDE_ID = '%d')", $l->getUserFromSession(), $l->getUserFromSession());
 

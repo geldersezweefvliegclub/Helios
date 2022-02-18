@@ -147,6 +147,7 @@ require ("include/PasswordHash.php");
 				$Userinfo['isRooster'] 			= $l->isPermissie("ROOSTER", $LidData['ID'], $LidData);
 				$Userinfo['isStarttoren'] 		= $l->isPermissie("STARTTOREN", $LidData['ID'], $LidData);
 				$Userinfo['isDDWVCrew'] 		= $l->isPermissie("DDWV_CREW", $LidData['ID'], $LidData);
+				$Userinfo['isRapporteur'] 		= $l->isPermissie("RAPPORTEUR", $LidData['ID'], $LidData);
 
 				$Userinfo['isClubVlieger'] 		= $l->isClubVlieger($LidData['ID'], $LidData);
 				$Userinfo['isDDWV'] 			= $l->isDDWV($LidData['ID'], $LidData);
@@ -211,8 +212,8 @@ require ("include/PasswordHash.php");
 			global $installer_account;
 			
 			$functie = "Login.verkrijgToegang";	
-			Debug(__FILE__, __LINE__, sprintf("%s(%s, %s, %s)", $functie, $username, "??", $token)); 
-
+			Debug(__FILE__, __LINE__, sprintf("%s(%s, %s, %s)", $functie, $username, "??", $token));
+			
 			$this->startSession();
 			
 			// Als username & wachtwoord niet zijn meegegeven, dan ophalen uit de aanvraag
@@ -342,15 +343,15 @@ require ("include/PasswordHash.php");
 						}
 					}
 
-					Debug(__FILE__, __LINE__, sprintf("%s: 2Factor succes = ", $function, $twoFactorSuccess ? "true" : "false")); 
+					Debug(__FILE__, __LINE__, sprintf("%s: 2Factor succes = %s", $functie, $twoFactorSuccess ? "true" : "false")); 
 					if ($twoFactorSuccess === true)
 					{
 						// We willen gebruikersvriendelijk zijn en SMS kosten besparen, dus niet ieder inlog poging om 2 factor authenticatie vragen
 						// De startstoren en beheerder max 1 SMS perdag, alle andere gebruikers max 1x per week
 
-						$verlopen = time()+ 60 * 60 * 24 * 7;	// na week nieuwe SMS nodig
+						$verlopen = time()+ 60 * 60 * 24 * 31;	// na maand nieuwe SMS nodig
 						if (($lObj['STARTTOREN'] ==  1) || ($lObj['BEHEERDER'] ==  1)) 
-							$verlopen = $timestamp = strtotime('today midnight') +  60 * 60 * 24;	// iedere dag nieuwe SMS nodig
+						$verlopen = time()+ 60 * 60 * 24 * 7;	// na week nieuwe SMS nodig
 
 						session_set_cookie_params(["SameSite" => "None"]); //none, lax, strict
 						setcookie("2FACTOR", base64_encode($lObj['ID']), [
@@ -489,6 +490,13 @@ require ("include/PasswordHash.php");
 			$key = 'isDDWV';
 			return $this->sessiePermissie($key);
 		}
+
+		// Deze data komt uit de sessie, bij het inloggen is de sessie data gezet
+		function isRapporteur()
+		{	
+			$key = 'isRapporteur';
+			return $this->sessiePermissie($key);
+		}	
 
 		// Deze data komt uit de sessie, bij het inloggen is de sessie data gezet
 		function isClubVlieger()
@@ -633,12 +641,6 @@ require ("include/PasswordHash.php");
 				Debug(__FILE__, __LINE__, sprintf("ValideerCode response: %s", print_r($verifyResult, true))); 
 				setcookie("ID", "", time()-3600);	// cookie is nu niet meer nodig
 				return true;
-				/*
-			} catch (\MessageBird\Exceptions\RequestException $e) {
-				Debug(__FILE__, __LINE__, "token incorrect"); 	
-			} catch (\MessageBird\Exceptions\AuthenticateException $e) {
-				Debug(__FILE__, __LINE__, "wrong login, accessKey is unknown"); 
-				*/	
 			} catch (\Exception $e) {
 				Debug(__FILE__, __LINE__, $e->getMessage());
 			}		

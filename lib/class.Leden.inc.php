@@ -50,6 +50,7 @@
 					`STARTTOREN` tinyint UNSIGNED NOT NULL DEFAULT 0,
 					`ROOSTER` tinyint UNSIGNED NOT NULL DEFAULT 0,
 					`SLEEPVLIEGER` tinyint UNSIGNED NOT NULL DEFAULT 0,
+					`RAPPORTEUR` tinyint UNSIGNED NOT NULL DEFAULT 0,
 					`CLUBBLAD_POST` tinyint UNSIGNED NOT NULL DEFAULT 0,
 					`MEDICAL` date DEFAULT NULL,
 					`GEBOORTE_DATUM` date DEFAULT NULL,
@@ -62,6 +63,8 @@
 					`PRIVACY` tinyint UNSIGNED NOT NULL DEFAULT 0,
 					`SLEUTEL1` varchar(25) DEFAULT NULL,
 					`SLEUTEL2` varchar(25) DEFAULT NULL,
+					`KNVVL_LIDNUMMER` varchar(25) DEFAULT NULL,
+					`BREVET_NUMMER` varchar(25) DEFAULT NULL,
 					`OPMERKINGEN` text DEFAULT NULL,
                     `VERWIJDERD` tinyint UNSIGNED NOT NULL DEFAULT 0,
 					`LAATSTE_AANPASSING` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -1020,6 +1023,10 @@
 				if (array_key_exists($field, $input))
 					$record[$field] = isBOOL($input[$field], $field);
 
+				$field = 'RAPPORTEUR';
+				if (array_key_exists($field, $input))
+					$record[$field] = isBOOL($input[$field], $field);
+
 				$field = 'GEBOORTE_DATUM';
 				if (array_key_exists($field, $input))
 					$record[$field]= isDATE($input[$field], $field, true);	
@@ -1038,7 +1045,13 @@
 					$record['SLEUTEL1'] = $input['SLEUTEL1']; 		
 					
 				if (array_key_exists('SLEUTEL2', $input))
-					$record['SLEUTEL2'] = $input['SLEUTEL2']; 						
+					$record['SLEUTEL2'] = $input['SLEUTEL2']; 	
+
+				if (array_key_exists('KNVVL_LIDNUMMER', $input))
+					$record['KNVVL_LIDNUMMER'] = $input['KNVVL_LIDNUMMER']; 
+
+				if (array_key_exists('BREVET_NUMMER', $input))
+					$record['BREVET_NUMMER'] = $input['BREVET_NUMMER']; 
 
 				$ld = $l->lidData();
 				if (array_key_exists('WACHTWOORD', $input))
@@ -1221,6 +1234,9 @@
 				
 			if (isset($record['CLUBBLAD_POST']))
 				$retVal['CLUBBLAD_POST']  = $record['CLUBBLAD_POST'] == "1" ? true : false;
+
+			if (isset($record['RAPPORTEUR']))
+				$retVal['RAPPORTEUR']  = $record['RAPPORTEUR'] == "1" ? true : false;				
 
 			if (isset($record['AUTH']))
 				$retVal['AUTH']  = $record['AUTH'] == "1" ? true : false;
