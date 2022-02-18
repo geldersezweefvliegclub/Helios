@@ -201,6 +201,9 @@
 
 					(1811, 18, NULL,   	'2e Ochtend Startleider',   6, 0),
 					(1812, 18, NULL,   	'2e Middag Startleider', 	12, 0),
+
+					(1813, 18, NULL,   	'1e Gastenvlieger',   20, 0),
+					(1814, 18, NULL,   	'2e Gastenvlieger', 	 21, 0),
 					
 					(1901, 19, 'DBO',    'DBO', NULL, 0),
 					(1902, 19, 'SOLIST', 'Solist', NULL, 0),

@@ -264,7 +264,15 @@ components:
         CLUBBLAD_POST:
           description: Moet clubblad per post verstuurd worden    
           type: boolean
-          example: true                                     
+          example: true   
+        RAPPORTEUR:
+          description: Heeft lid toegang tot alle starts / logboeken voor rapportage    
+          type: boolean
+          example: true 
+        GASTENVLIEGER:
+          description: Wordt dit lid ingedeeld om gasten te vliegen   
+          type: boolean
+          example: true                                                     
         MEDICAL:
           description: Verloopdatum van het medical 
           type: string

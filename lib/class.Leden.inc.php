@@ -51,6 +51,7 @@
 					`ROOSTER` tinyint UNSIGNED NOT NULL DEFAULT 0,
 					`SLEEPVLIEGER` tinyint UNSIGNED NOT NULL DEFAULT 0,
 					`RAPPORTEUR` tinyint UNSIGNED NOT NULL DEFAULT 0,
+					`GASTENVLIEGER` tinyint UNSIGNED NOT NULL DEFAULT 0,
 					`CLUBBLAD_POST` tinyint UNSIGNED NOT NULL DEFAULT 0,
 					`MEDICAL` date DEFAULT NULL,
 					`GEBOORTE_DATUM` date DEFAULT NULL,
@@ -1103,7 +1104,11 @@
 			
 				$field = 'SLEEPVLIEGER';
 				if (array_key_exists($field, $input))
-					$record[$field] = isBOOL($input[$field], $field);						
+					$record[$field] = isBOOL($input[$field], $field);		
+				
+				$field = 'GASTENVLIEGER';
+				if (array_key_exists($field, $input))
+					$record[$field] = isBOOL($input[$field], $field);		
 			}
 
 			if (($l->isBeheerder()) || ($l->isRooster()) || $l->isCIMT())  {
@@ -1236,7 +1241,10 @@
 				$retVal['CLUBBLAD_POST']  = $record['CLUBBLAD_POST'] == "1" ? true : false;
 
 			if (isset($record['RAPPORTEUR']))
-				$retVal['RAPPORTEUR']  = $record['RAPPORTEUR'] == "1" ? true : false;				
+				$retVal['RAPPORTEUR']  = $record['RAPPORTEUR'] == "1" ? true : false;	
+				
+			if (isset($record['GASTENVLIEGER']))
+				$retVal['GASTENVLIEGER']  = $record['GASTENVLIEGER'] == "1" ? true : false;					
 
 			if (isset($record['AUTH']))
 				$retVal['AUTH']  = $record['AUTH'] == "1" ? true : false;
