@@ -199,6 +199,9 @@
 					`sl`.`INZITTENDENAAM`,
 					`sl`.`SLEEPKIST_ID`,
 					`sl`.`SLEEP_HOOGTE`,
+					`sl`.`PAX`,
+					`sl`.`CHECKSTART`,
+					`sl`.`INSTRUCTIEVLUCHT`,
                     `sl`.`VELD_ID`,
 					`sl`.`BAAN_ID`,
 					`vt`.`OMSCHRIJVING` AS `VLIEGTUIGTYPE`,
@@ -210,6 +213,7 @@
                     `v`.`REGISTRATIE`   AS `REGISTRATIE`,
                     `v`.`CALLSIGN`      AS `CALLSIGN`,
 					`v`.`CLUBKIST`      AS `CLUBKIST`,
+					`v`.`TYPE_ID`      	AS `VLIEGTUIG_TYPE_ID`,
                     CONCAT(IFNULL(`v`.`REGISTRATIE`,''),' (',IFNULL(`v`.`CALLSIGN`,''),')') AS `REG_CALL`,
                     CASE WHEN `sl`.`DATUM` = cast(current_timestamp() AS date) 
                         THEN 
@@ -321,7 +325,7 @@
 
 				// Startlijst voor beheerder DDWV is ook op DDWV dagen bechikbaar
 				if ($l->isBeheerderDDWV() == true)
-					$w .= " OR (DDWV = 1))";
+					$w .= " OR (DDWV = 1)";
 
 				// Startlijst voor DDWV crew is mogen ook DDWV dagen zien waar ze zelf dienst hadden
 				if ($l->isDDWVCrew() == true)
@@ -744,7 +748,7 @@
 					IF (`INZITTENDENAAM` IS NULL, `INZITTENDENAAM_LID`, `INZITTENDENAAM`) AS `INZITTENDENAAM`,
 					VLIEGER_ID AS  VLIEGER_ID,
 					INZITTENDE_ID AS INZITTENDE_ID,
-					STARTMETHODE, VELD, OPMERKINGEN AS OPMERKINGEN";	
+					STARTMETHODE, VELD, PAX, INSTRUCTIEVLUCHT, CHECKSTART, VLIEGTUIGTYPE, OPMERKINGEN AS OPMERKINGEN";	
 					
 				$rquery = sprintf($query, $velden);
 				parent::DbOpvraag($rquery, $query_params);
@@ -837,7 +841,7 @@
 			$lid = $l->getObject($lidID);
 			if ($lid['INSTRUCTEUR'] == 1)		// Voor instructeurs tellen ook de instructie starts mee
 			{
-				$where .= sprintf(" AND ((VLIEGER_ID = '%d') OR (INZITTENDE_ID = %d))", $lidID, $lidID);	
+				$where .= sprintf(" AND ((VLIEGER_ID = '%d') OR ((INZITTENDE_ID = %d) AND INSTRUCTIEVLUCHT=1))", $lidID, $lidID);	
 				$isInstructeur = true; 
 			}
 			else
@@ -1454,7 +1458,7 @@
 			{
 				// We mogen alleen vluchten van onszelf verwijderen
 				$l = MaakObject('Login');
-				if (($start[VLIEGER_ID] != $l->getUserFromSession()) && ($start[VLIEGER_ID] != $l->getUserFromSession()))
+				if (($start['VLIEGER_ID'] != $l->getUserFromSession()) && ($start['VLIEGER_ID'] != $l->getUserFromSession()))
 					throw new Exception("401;Geen schrijfrechten;");
 			}
 
@@ -1478,7 +1482,7 @@
 			{
 				// We mogen alleen vluchten van onszelf verwijderen
 				$l = MaakObject('Login');
-				if (($start[VLIEGER_ID] != $l->getUserFromSession()) && ($start[VLIEGER_ID] != $l->getUserFromSession()))
+				if (($start['VLIEGER_ID'] != $l->getUserFromSession()) && ($start['VLIEGER_ID'] != $l->getUserFromSession()))
 					throw new Exception("401;Geen schrijfrechten;");
 			}
 			parent::HerstelVerwijderd($id);
@@ -1560,7 +1564,7 @@
 			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($StartlijstData, true)));
 			
 			if ($StartlijstData == null)
-				throw new Exception("406;Daginfo data moet ingevuld zijn;");	
+				throw new Exception("406;Start data moet ingevuld zijn;");	
 
 			if (!array_key_exists('ID', $StartlijstData))
 				throw new Exception("406;ID moet ingevuld zijn;");
@@ -1733,8 +1737,8 @@
 				$retVal['STARTS_INSTRUCTIE'] = 0;	
 				$fromDateTime = new DateTime($dateTime->format("Y-m-d"));
 				$fromDateTime->modify('-3 year');
-
-				$where = sprintf("DATUM > '%s' AND DATUM <= '%s' AND STARTTIJD IS NOT NULL AND LANDINGSTIJD IS NOT NULL AND (INZITTENDE_ID = %s) ",	
+			
+				$where = sprintf("DATUM > '%s' AND DATUM <= '%s' AND STARTTIJD IS NOT NULL AND LANDINGSTIJD IS NOT NULL AND INSTRUCTIEVLUCHT=1 AND (INZITTENDE_ID = %s) ",	
 					$fromDateTime->format("Y-m-d"), 
 					$dateTime->format("Y-m-d"), 
 					$vliegerID);
@@ -2015,9 +2019,11 @@
 			{
 				if  (isINT($startData['VLIEGER_ID']) !== false)
 				{
+					Debug(__FILE__, __LINE__, sprintf("%s VLIEGER_ID=%s", $functie, $startData['VLIEGER_ID']));
 					if (($this->heeftDataToegang($startData['DATUM'])) || ($startData['VLIEGER_ID'] == $login->getUserFromSession()))
 					{
-						$rlObj = $refLeden->GetObject($startData['VLIEGER_ID']);
+						$rlObj = $refLeden->GetObject($startData['VLIEGER_ID'], true);
+						Debug(__FILE__, __LINE__, sprintf("%s LIDTYPE_ID=%s", $functie, $rlObj['LIDTYPE_ID']));
 
 						switch($rlObj['LIDTYPE_ID'])
 						{
@@ -2046,11 +2052,13 @@
 			
 			if (array_key_exists('INZITTENDE_ID', $startData))
 			{
-				if (($this->heeftDataToegang($startData['DATUM'])) || ($startData['INZITTENDE_ID'] == $login->getUserFromSession()))
+				if  (isINT($startData['INZITTENDE_ID']) !== false)
 				{
-					if  (isINT($startData['INZITTENDE_ID']) !== false)
+					Debug(__FILE__, __LINE__, sprintf("%s INZITTENDE_ID=%s", $functie, $startData['INZITTENDE_ID']));
+					if (($this->heeftDataToegang($startData['DATUM'])) || ($startData['INZITTENDE_ID'] == $login->getUserFromSession()))
 					{
-						$rlObj = $refLeden->GetObject($startData['INZITTENDE_ID']);
+						$rlObj = $refLeden->GetObject($startData['INZITTENDE_ID'], true);
+						Debug(__FILE__, __LINE__, sprintf("%s LIDTYPE_ID=%s", $functie, $rlObj['LIDTYPE_ID']));
 
 						switch($rlObj['LIDTYPE_ID'])
 						{
@@ -2101,23 +2109,58 @@
 		/*
 		Als er een intructeur achterin zit, is het een instructie vlucht
 		*/
-		function InstructieVlucht($record)
+		function InstructieVlucht($input, $record)
 		{
-			$retVal = $record;
-			if (array_key_exists('INZITTENDE_ID', $record))
-			{
-				if ($record['INZITTENDE_ID'] == null) 
-				{
-					$retVal['INSTRUCTIEVLUCHT'] = false;
-				}
-				else 
-				{
-					$refLeden = MaakObject('Leden');
-					$lid = $refLeden->GetObject($record['INZITTENDE_ID'], true);
+			$functie = "Startlijst.InstructieVlucht";
+			Debug(__FILE__, __LINE__, sprintf("%s(%s, %s)", $functie, print_r($input, true), print_r($record, true)));			
 
-					$retVal['INSTRUCTIEVLUCHT'] = ($lid['INSTRUCTEUR'] == 1) ? true : false;
+
+			$retVal = $record;
+
+			$zitplaatsen = -1;
+			if (array_key_exists('VLIEGTUIG_ID', $record)) 
+			{
+				$rv = MaakObject('Vliegtuigen');
+				$rvObj = $rv->GetObject($record['VLIEGTUIG_ID']);
+				$zitplaatsen = $rvObj['ZITPLAATSEN'] * 1;
+			}
+
+			if ($zitplaatsen == 1) 
+			{
+				$retVal['INSTRUCTIEVLUCHT'] = 0;
+			}
+			else
+			{
+				$field = 'INSTRUCTIEVLUCHT';
+				if (array_key_exists($field, $input))
+				{
+					$retVal[$field] = isBOOL($input[$field], $field, true);	
+			
+					$inzittende_id = -1;
+					if (array_key_exists('INZITTENDE_ID', $record))
+					{
+						$inzittende_id = $record['INZITTENDE_ID'];
+					}
+					else if (array_key_exists('ID', $record))
+					{
+						$start = $this->GetObject($record['ID']);
+						$inzittende_id = $start['INZITTENDE_ID'];
+					}
+
+
+					if ($inzittende_id > 0)
+					{
+						$refLeden = MaakObject('Leden');
+						$lid = $refLeden->GetObject($inzittende_id, true);
+
+						if (($lid['INSTRUCTEUR'] != true) && ($retVal['INSTRUCTIEVLUCHT'] == 1))
+						{
+							throw new Exception("409;Instructie vlucht kan alleen door instructeur worden gedaan"); 
+						}
+					}
 				}
 			}
+			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($record, true)));			
 			return $retVal;
 		}
 
@@ -2136,6 +2179,10 @@
 			$field = 'DATUM';
 			if (array_key_exists($field, $input))
 				$record[$field] = isDATE($input[$field], $field);
+
+			$field = 'DAGNUMMER';
+			if (array_key_exists($field, $input))
+				$record[$field] = isINT($input[$field], $field);	
 
 			$field = 'VLIEGTUIG_ID';
 			if (array_key_exists($field, $input))
@@ -2177,9 +2224,10 @@
 
 			$field = 'PAX';
 			if (array_key_exists($field, $input))
-				$record[$field] = isBOOL($input[$field], $field, true);		
+			{
+				$record[$field] = isBOOL($input[$field], $field, true);
+			}
 				
-
 			if (($l->isBeheerder()) || ($l->isCIMT()) || ($l->isInstructeur() == true)) 
 			{
 				$field = 'CHECKSTART';
@@ -2202,7 +2250,7 @@
 				$record['EXTERNAL_ID'] = $input['EXTERNAL_ID']; 
 
 
-			$record = $this->InstructieVlucht($record);	
+			$record = $this->InstructieVlucht($input, $record);	
 
 			return $record;
         }
@@ -2249,7 +2297,10 @@
 				$retVal['VLIEGER_LIDTYPE_ID']  = $record['VLIEGER_LIDTYPE_ID'] * 1;
 
 			if (isset($record['INZITTENDE_LIDTYPE_ID']))
-				$retVal['INZITTENDE_LIDTYPE_ID']  = $record['INZITTENDE_LIDTYPE_ID'] * 1;				
+				$retVal['INZITTENDE_LIDTYPE_ID']  = $record['INZITTENDE_LIDTYPE_ID'] * 1;
+
+			if (isset($record['VLIEGTUIG_TYPE_ID']))
+				$retVal['VLIEGTUIG_TYPE_ID']  = $record['VLIEGTUIG_TYPE_ID'] * 1;
 
 			if (isset($record['STARTTIJD']))
 				$retVal['STARTTIJD'] = substr($record['STARTTIJD'] , 0, 5);	// alleen hh:mm

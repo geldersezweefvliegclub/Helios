@@ -114,9 +114,25 @@
 					(SELECT 
 						GROUP_CONCAT(CODE) FROM ref_types 
 					WHERE GROEP = 4 AND VOORKEUR_VLIEGTUIG_TYPE LIKE CONCAT('%%',ID,'%%') ) AS VLIEGTUIGTYPE_CODE, 
+
 					(SELECT 
 						GROUP_CONCAT(OMSCHRIJVING) FROM ref_types 
-					WHERE GROEP = 4 AND VOORKEUR_VLIEGTUIG_TYPE LIKE CONCAT('%%',ID,'%%') ) AS VLIEGTUIGTYPE_OMS, 					 
+					WHERE GROEP = 4 AND VOORKEUR_VLIEGTUIG_TYPE LIKE CONCAT('%%',ID,'%%') ) AS VLIEGTUIGTYPE_OMS, 
+
+					(SELECT 
+						time_format(sec_to_time(sum(
+							time_to_sec(
+							timediff(ifnull(LANDINGSTIJD,curtime()),STARTTIJD)))
+							),'%%H:%%i')  FROM oper_startlijst 
+					WHERE `VERWIJDERD`= 0 AND DATUM = `al`.`DATUM` AND `STARTTIJD` IS NOT NULL AND VLIEGER_ID = `al`.`LID_ID`) AS VLIEGTIJD,
+
+					(SELECT 
+						COUNT(*)  FROM oper_startlijst 
+					WHERE `VERWIJDERD`= 0 AND DATUM = `al`.`DATUM` AND VLIEGER_ID = `al`.`LID_ID`) AS STARTS,
+
+					(SELECT 
+						COUNT(*)  FROM oper_startlijst 
+					WHERE `VERWIJDERD`= 0 AND DATUM = `al`.`DATUM` AND `STARTTIJD` IS NOT NULL AND `LANDINGSTIJD` IS NULL AND VLIEGER_ID = `al`.`LID_ID` LIMIT 1) AS VLIEGT,
 
 					CONCAT(IFNULL(`v`.`REGISTRATIE`,''),' (',IFNULL(`v`.`CALLSIGN`,''),')') AS `REG_CALL`,
 					`l`.`NAAM`,
@@ -389,6 +405,13 @@
 							Debug(__FILE__, __LINE__, sprintf("%s: EIND_DATUM='%s'", $functie, $eindDatum));
 							break;
 						}	
+					case "NIET_VERTROKKEN" : 
+						{
+							$alleenAanwezig = isBOOL($value, "NIET_VERTROKKEN");
+							if ($alleenAanwezig)
+								$where .= " AND VERTREK IS NULL ";
+							break;
+						}	
 					default:
 						{
 							throw new Exception(sprintf("405;%s is een onjuiste parameter;", $key));
@@ -419,15 +442,10 @@
 					`####aanwezig_leden_view`" . $where . $orderby;
 			$query = str_replace("####", ($alleenVerwijderd ? "verwijderd_" : "") , $query);			
 			
-			$retVal = array();
+			$retVal = array(); 
 
 			$retVal['totaal'] = $this->Count($query, $query_params);		// totaal aantal of record in de database
 			$retVal['laatste_aanpassing']=  $this->LaatsteAanpassing($query, $query_params);
-			$retVal['hash'] = dechex((str_replace(":", "", substr($retVal['laatste_aanpassing'], -8)) * 1000) + ($retVal['totaal'] * 1));
-			Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s, HASH=%s", $retVal['totaal'], $retVal['laatste_aanpassing'], $retVal['hash']));
-
-			if ($retVal['hash'] == $hash)
-				throw new Exception(sprintf("%d;Dataset ongewijzigd;", $app_settings['dataNotModified']));
 
 			if ($alleenLaatsteAanpassing)
 			{
@@ -447,17 +465,39 @@
 				parent::DbOpvraag($rquery, $query_params);
 				$retVal['dataset'] = parent::DbData();
 
+				$starts = 0;
+				$vliegtijd = 0;
 				$ledenObj = MaakObject('Leden');
 				for ($i=0; $i < count($retVal['dataset']) ; $i++) 
 				{
+					$starts += ($retVal['dataset'][$i]['STARTS'] * 1); 
+					$vliegtijd += (str_replace(":", "", $retVal['dataset'][$i]['VLIEGTIJD']) * 1);
+
 					if (array_key_exists('REG_CALL', $retVal['dataset'][$i]))
 					{
 						if (isINT($retVal['dataset'][$i]['OVERLAND_VLIEGTUIG_ID']) == false)
 							$retVal['dataset'][$i]['REG_CALL'] = null;		// view geeft "()" als vliegtuig null is. Dit is workarround
 					}
+					$opmerking = $retVal['dataset'][$i]['OPMERKINGEN'];
 					$retVal['dataset'][$i] = $this->RecordToOutput($retVal['dataset'][$i]);	
-					$retVal['dataset'][$i] = $ledenObj->privacyMask($retVal['dataset'][$i]);
+					$retVal['dataset'][$i] = $ledenObj->privacyMask($retVal['dataset'][$i]);	// deze functie verwijderd OPMERKING
+					$retVal['dataset'][$i]['OPMERKINGEN'] = $opmerking;							// en zo lossen we dat op
 				}
+
+				$retVal['hash'] = dechex(
+									$vliegtijd * 1000000 + $starts +
+									(str_replace(":", "", substr($retVal['laatste_aanpassing'], -8)) * 1000) + ($retVal['totaal'] * 1));
+	
+				Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, VLIEGTIJD=%s STARTS=%s LAATSTE_AANPASSING=%s, HASH=%s", 
+														$retVal['totaal'], 
+														$vliegtijd, 
+														$starts, 
+														$retVal['laatste_aanpassing'], 
+														$retVal['hash']));
+	
+				if ($retVal['hash'] == $hash)
+					throw new Exception(sprintf("%d;Dataset ongewijzigd;", $app_settings['dataNotModified']));
+
 				return $retVal;
 			}
 			return null;  // Hier komen we nooit :-)
@@ -608,7 +648,11 @@
             // De datum kan niet aangepast worden. 
 			if (array_key_exists('DATUM', $AanwezigLedenData))
 			{
-				if ($AanwezigLedenData['DATUM'] !== $db_record['DATUM'])
+				// we  moeten leading 0 plaatsen voor de datum, dan gaat 2020-4-2 ook goed. Dit wordt dan 2020-04-02
+				$aanwezigDate = datetime::createfromformat('Y-m-d',$AanwezigLedenData['DATUM']);	
+				$dbDate = datetime::createfromformat('Y-m-d',$db_record['DATUM']);
+			
+				if ($aanwezigDate->format("Y-m-d") !== $dbDate->format("Y-m-d"))
 					throw new Exception("409;Datum kan niet gewijzigd worden;");
 			}
 
@@ -665,6 +709,7 @@
 			$dateParts = explode('-', isDATE($AanmeldenLedenData['DATUM'], 'DATUM'));
 			$datetime->setDate($dateParts[0], $dateParts[1], $dateParts[2]);
 			
+			// Check of lid al eerder voor deze dag is aangemeld. Zo ja, dan wordt id ingevuld
 			$id = null;
 			try
 			{
@@ -749,6 +794,26 @@
 			
 			if (!array_key_exists('AANKOMST', $AanmeldenLedenData))	
 				$AanmeldenLedenData['AANKOMST'] = $datetime->format('H:i:00');
+
+			// Achteraan aan de lijst van aanwezigen toevoegen, dit doe je door POSITIE te zetten
+			if (!array_key_exists('POSITIE', $AanmeldenLedenData))	
+			{
+				$aanwezigen = $this->GetObjects(array(
+					'BEGIN_DATUM' => $AanmeldenLedenData['DATUM'],
+					'EIND_DATUM' => $AanmeldenLedenData['DATUM'],
+					'VELDEN' => "POSITIE",		// Alleen POSITIE is nodig
+					'SORT' => "POSITIE DESC",	// Sorteer op POSITIE aflopenend, hoogte POSITIE staat bovenaan
+					'MAX' => 1,					// Dan hebben we ook maar 1 record nodig
+				));
+
+				$pos = 1;	// default, als er nog niemand aanwezig is
+				if ($aanwezigen['totaal'] > 0) 	// Er zijn leden aanwezig
+				{
+					$pos = $aanwezigen['dataset'][0]['POSITIE'] + 1;
+				}
+				$AanmeldenLedenData['POSITIE'] = $pos;
+			}			
+			
 
 			$aangemeld = $this->AddObject($AanmeldenLedenData);
 
@@ -943,7 +1008,7 @@
 				list($httpStatus, $message) = explode(";", $exceptionMsg);  // onze eigen formaat van een exceptie
 
 				if ($httpStatus != "404")
-					throw new Exception($e);
+					throw new Exception($exception);
 			}
 
 			$ll = MaakObject('Leden');	
@@ -1053,11 +1118,14 @@
 			if (isset($record['ZUSTERCLUB_ID']))
 				$retVal['ZUSTERCLUB_ID']  = $record['ZUSTERCLUB_ID'] * 1;	
 
+			if (isset($record['STARTS']))
+				$retVal['STARTS']  = $record['STARTS'] * 1;		
+
 			// booleans	
 			if (isset($record['VOORAANMELDING']))
 				$retVal['VOORAANMELDING']  = $record['VOORAANMELDING'] == "1" ? true : false;
 
-				if (isset($record['LIERIST']))
+			if (isset($record['LIERIST']))
 				$retVal['LIERIST']  = $record['LIERIST'] == "1" ? true : false;
 
 			if (isset($record['STARTLEIDER']))
@@ -1095,6 +1163,9 @@
 				
 			if (isset($record['PRIVACY']))
 				$retVal['PRIVACY']  = $record['PRIVACY'] == "1" ? true : false;
+
+			if (isset($record['VLIEGT']))
+				$retVal['VLIEGT']  = $record['VLIEGT'] == "1" ? true : false;
 				
 			if (isset($record['VERWIJDERD']))
 				$retVal['VERWIJDERD']  = $record['VERWIJDERD'] == "1" ? true : false;			
