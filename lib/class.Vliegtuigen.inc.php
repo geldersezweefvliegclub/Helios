@@ -35,6 +35,7 @@
 					`SLEEPKIST` tinyint UNSIGNED NOT NULL DEFAULT '0',
 					`VOLGORDE` tinyint UNSIGNED DEFAULT NULL,
 					`INZETBAAR` tinyint UNSIGNED NOT NULL DEFAULT '1',
+					`TRAINER` tinyint UNSIGNED NOT NULL DEFAULT '0',
 					`URL` varchar(1024) DEFAULT NULL,
 					`BEVOEGDHEID_LOKAAL_ID` mediumint UNSIGNED DEFAULT NULL,
 					`BEVOEGDHEID_OVERLAND_ID` mediumint UNSIGNED DEFAULT NULL,
@@ -583,6 +584,7 @@
 					$record['REGISTRATIE'] = $input['REGISTRATIE']; 
 			}
 
+			$zitplaatsen = -1;
 			$field = 'ZITPLAATSEN';
 			if (array_key_exists($field, $input))
 			{
@@ -621,6 +623,15 @@
 			$field = 'INZETBAAR';
 			if (array_key_exists($field, $input))
 				$record[$field] = isBOOL($input[$field], $field);	
+
+			$field = 'TRAINER';
+			if (array_key_exists($field, $input))
+			{
+				if ($zitplaatsen == 1) 
+					$record[$field] = 0;	// eenzitters zijn geen DBO vliegtuigen
+				else
+					$record[$field] = isBOOL($input[$field], $field);
+			}					
 
 			$field = 'BEVOEGDHEID_LOKAAL_ID';
 			if (array_key_exists($field, $input))
@@ -686,6 +697,9 @@
 
 			if (isset($record['INZETBAAR']))
 				$retVal['INZETBAAR']  = $record['INZETBAAR'] == "1" ? true : false;	
+
+			if (isset($record['TRAINER']))
+				$retVal['TRAINER']  = $record['TRAINER'] == "1" ? true : false;	
 
 			if (isset($record['VERWIJDERD']))
 				$retVal['VERWIJDERD']  = $record['VERWIJDERD'] == "1" ? true : false;

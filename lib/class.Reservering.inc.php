@@ -119,6 +119,7 @@
 			$conditie = array();
 			$conditie['DATUM'] = isDate($datum, "Datum");
             $conditie['VLIEGTUIG_ID'] = isINT($vliegtuigID, "vliegtuigID");
+			$conditie['VERWIJDERD'] = 0; 
 			
 			$obj = parent::GetSingleObject($conditie);
 			Debug(__FILE__, __LINE__, print_r($obj, true));

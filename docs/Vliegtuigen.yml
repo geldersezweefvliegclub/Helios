@@ -368,6 +368,10 @@ components:
           description: Is het een sleepvliegtuig? 
           type: boolean
           example: 0
+        TRAINER:
+          description: Wordt vliegtuig ingezet voor DBO opleiding
+          type: boolean
+          example: 1          
         TYPE_ID:
           description: Link naar vliegtuig type tabel. Alleen nodig voor clubvliegtuigen
           type: integer

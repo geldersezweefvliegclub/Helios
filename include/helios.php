@@ -49,7 +49,11 @@ abstract class Helios
 		}
 		else if ($l->isStarttoren())
 		{
-			return ($datum == date("Y-m-d"));
+			// we  moeten leading 0 plaatsen voor de datum, dan gaat 2020-4-2 ook goed. Dit wordt dan 2020-04-02
+			$date = datetime::createfromformat('Y-m-d',$datum);	
+			Debug(__FILE__, __LINE__, sprintf("isStarttoren, %s %s", $date->format("Y-m-d"), date("Y-m-d")));
+
+			return ($date->format("Y-m-d") == date("Y-m-d"));
 		}
 		else if ($l->isBeheerderDDWV())
 		{

@@ -106,14 +106,23 @@
 					`v`.`CLUBKIST`, 
 					`v`.`FLARMCODE`, 
 					`v`.`TYPE_ID`, 
+					`t`.`OMSCHRIJVING` AS `VLIEGTUIGTYPE_OMS`, 
 					`v`.`TMG`, 
 					`v`.`ZELFSTART`, 
 					`v`.`SLEEPKIST`, 
 					`v`.`VOLGORDE`, 
+					`v`.`INZETBAAR`, 
+					`v`.`TRAINER`, 
+					`v`.`OPMERKINGEN`, 
+					(SELECT 
+						COUNT(*)  FROM oper_startlijst 
+					WHERE `VERWIJDERD`= 0 AND DATUM = `av`.`DATUM` AND `STARTTIJD` IS NOT NULL AND `LANDINGSTIJD` IS NULL AND VLIEGTUIG_ID = `av`.`VLIEGTUIG_ID` LIMIT 1) AS VLIEGT,
+
 					CONCAT(IFNULL(`v`.`REGISTRATIE`,''),' (',IFNULL(`v`.`CALLSIGN`,''),')') AS `REG_CALL`
 				FROM
 					`%s` `av`
 					LEFT JOIN `ref_vliegtuigen` `v` ON (`av`.`VLIEGTUIG_ID` = `v`.`ID`)
+					LEFT JOIN `ref_types` `t` ON (`v`.`TYPE_ID` = `t`.`ID`)
 				WHERE
 					`av`.`VERWIJDERD` = %d  
 				ORDER BY 
@@ -313,6 +322,13 @@
 							array_push($query_params, $vliegtuigID);
 
 							Debug(__FILE__, __LINE__, sprintf("%s: VLIEGTUIG_ID='%s'", $functie, $vliegtuigID));
+							break;
+						}	
+					case "NIET_VERTROKKEN" : 
+						{
+							$alleenAanwezig = isBOOL($value, "NIET_VERTROKKEN");
+							if ($alleenAanwezig)
+								$where .= " AND VERTREK IS NULL ";
 							break;
 						}	
 					default:
@@ -522,7 +538,11 @@
             // De datum kan niet aangepast worden. 
 			if (array_key_exists('DATUM', $AanwezigVliegtuigData))
 			{
-				if ($AanwezigVliegtuigData['DATUM'] !== $db_record['DATUM'])
+				// we  moeten leading 0 plaatsen voor de datum, dan gaat 2020-4-2 ook goed. Dit wordt dan 2020-04-02
+				$aanwezigDate = datetime::createfromformat('Y-m-d',$AanwezigVliegtuigData['DATUM']);	
+				$dbDate = datetime::createfromformat('Y-m-d',$db_record['DATUM']);
+			
+				if ($aanwezigDate->format("Y-m-d") !== $dbDate->format("Y-m-d"))
 					throw new Exception("409;Datum kan niet gewijzigd worden;");
 			}
 
@@ -568,6 +588,7 @@
 			$datetime->setDate($dateParts[0], $dateParts[1], $dateParts[2]);
 
 
+			// Check of vliegtuig al eerder voor deze dag is aangemeld. Zo ja, dan wordt id ingevuld
 			$id = null;
 			try
 			{
@@ -631,7 +652,7 @@
 
 			$aangemeld = $this->AddObject($AanmeldenVliegtuigData);
 
-			Debug(__FILE__, __LINE__, sprintf("AanwezigLeden toegevoegd id=%d", $aangemeld['ID']));
+			Debug(__FILE__, __LINE__, sprintf("AanwezigVliegtuigen toegevoegd id=%d", $aangemeld['ID']));
 			return $this->GetObject($aangemeld['ID']);
 		}
 
@@ -768,6 +789,12 @@
 			if (isset($record['CLUBKIST']))
 				$retVal['CLUBKIST']  = $record['CLUBKIST'] == "1" ? true : false;
 
+			if (isset($record['INZETBAAR']))
+				$retVal['INZETBAAR']  = $record['INZETBAAR'] == "1" ? true : false;	
+
+			if (isset($record['TRAINER']))
+				$retVal['TRAINER']  = $record['TRAINER'] == "1" ? true : false;		
+
 			if (isset($record['TMG']))
 				$retVal['TMG']  = $record['TMG'] == "1" ? true : false;
 
@@ -776,6 +803,9 @@
 
 			if (isset($record['SLEEPKIST']))
 				$retVal['SLEEPKIST']  = $record['SLEEPKIST'] == "1" ? true : false;
+			
+			if (isset($record['VLIEGT']))
+				$retVal['VLIEGT']  = $record['VLIEGT'] == "1" ? true : false;
 
 			return $retVal;
 		}

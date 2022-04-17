@@ -7,6 +7,8 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
+include('../include/GoogleAuthenticator.php');
+
 // ophalen van de vluchten van vandaag
 $curl_session = null;
 
@@ -25,6 +27,8 @@ function heliosInit($url, $http_method = "GET")
     }
     else
     {
+        // inloggen
+
         $cookieFile = uniqid();
 
         // init curl sessie
@@ -37,6 +41,29 @@ function heliosInit($url, $http_method = "GET")
         curl_setopt ($curl_session, CURLOPT_COOKIEFILE, "/tmp/$cookieFile"); 
 
         curl_setopt($curl_session, CURLOPT_USERPWD, $helios_settings['username'] . ":" . $helios_settings['password']);  // basic auth
+
+        if (isset($helios_settings['secret'])) 
+        {
+            $ga = new PHPGangsta_GoogleAuthenticator();
+            $urlToken = $ga->getCode($helios_settings['secret']);
+
+            $loginUrl = $helios_settings['url'] . "/Login/Login?token=" . $urlToken;
+        }
+        else 
+        {
+            $loginUrl = $helios_settings['url'] . "/Login/Login";
+        }
+        curl_setopt($curl_session, CURLOPT_URL, $loginUrl);
+        curl_setopt($curl_session , CURLOPT_CUSTOMREQUEST, $http_method); 
+
+        $result = curl_exec($curl_session);
+        $status_code = curl_getinfo($curl_session, CURLINFO_HTTP_CODE); //get status code
+        list($header, $body) = returnHeaderBody($result);
+
+        if ($status_code == 200)
+        {
+            heliosInit($url, $http_method);
+        }
     }
     $full_url = sprintf("%s/%s", $helios_settings['url'], $url);
 

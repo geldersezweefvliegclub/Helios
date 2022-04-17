@@ -1,0 +1,854 @@
+2022-02-21 19:53:53:SQL: [282] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= ?  AND DATE(DATUM) <= ? 
+Sent SQL: [304] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= '2022-02-21'  AND DATE(DATUM) <= '2022-02-21' 
+Params:  2
+Key: Position #0:
+paramno=0
+name=[0] ""
+is_param=1
+param_type=2
+Key: Position #1:
+paramno=1
+name=[0] ""
+is_param=1
+param_type=2
+
+SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') AND DATE(DATUM) >= '2022-02-21'  AND DATE(DATUM) <= '2022-02-21'' at line 4
+2022-02-23 07:07:06:SQL: [282] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= ?  AND DATE(DATUM) <= ? 
+Sent SQL: [304] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= '2022-02-23'  AND DATE(DATUM) <= '2022-02-23' 
+Params:  2
+Key: Position #0:
+paramno=0
+name=[0] ""
+is_param=1
+param_type=2
+Key: Position #1:
+paramno=1
+name=[0] ""
+is_param=1
+param_type=2
+
+SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') AND DATE(DATUM) >= '2022-02-23'  AND DATE(DATUM) <= '2022-02-23'' at line 4
+2022-03-12 06:46:45:SQL: [282] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= ?  AND DATE(DATUM) <= ? 
+Sent SQL: [304] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09' 
+Params:  2
+Key: Position #0:
+paramno=0
+name=[0] ""
+is_param=1
+param_type=2
+Key: Position #1:
+paramno=1
+name=[0] ""
+is_param=1
+param_type=2
+
+SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09'' at line 4
+2022-03-12 06:51:45:SQL: [282] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= ?  AND DATE(DATUM) <= ? 
+Sent SQL: [304] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09' 
+Params:  2
+Key: Position #0:
+paramno=0
+name=[0] ""
+is_param=1
+param_type=2
+Key: Position #1:
+paramno=1
+name=[0] ""
+is_param=1
+param_type=2
+
+SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09'' at line 4
+2022-03-12 06:56:46:SQL: [282] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= ?  AND DATE(DATUM) <= ? 
+Sent SQL: [304] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09' 
+Params:  2
+Key: Position #0:
+paramno=0
+name=[0] ""
+is_param=1
+param_type=2
+Key: Position #1:
+paramno=1
+name=[0] ""
+is_param=1
+param_type=2
+
+SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09'' at line 4
+2022-03-12 07:01:47:SQL: [282] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= ?  AND DATE(DATUM) <= ? 
+Sent SQL: [304] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09' 
+Params:  2
+Key: Position #0:
+paramno=0
+name=[0] ""
+is_param=1
+param_type=2
+Key: Position #1:
+paramno=1
+name=[0] ""
+is_param=1
+param_type=2
+
+SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09'' at line 4
+2022-03-12 07:06:48:SQL: [282] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= ?  AND DATE(DATUM) <= ? 
+Sent SQL: [304] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09' 
+Params:  2
+Key: Position #0:
+paramno=0
+name=[0] ""
+is_param=1
+param_type=2
+Key: Position #1:
+paramno=1
+name=[0] ""
+is_param=1
+param_type=2
+
+SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09'' at line 4
+2022-03-12 07:12:44:SQL: [282] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= ?  AND DATE(DATUM) <= ? 
+Sent SQL: [304] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09' 
+Params:  2
+Key: Position #0:
+paramno=0
+name=[0] ""
+is_param=1
+param_type=2
+Key: Position #1:
+paramno=1
+name=[0] ""
+is_param=1
+param_type=2
+
+SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09'' at line 4
+2022-03-12 07:18:44:SQL: [282] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= ?  AND DATE(DATUM) <= ? 
+Sent SQL: [304] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09' 
+Params:  2
+Key: Position #0:
+paramno=0
+name=[0] ""
+is_param=1
+param_type=2
+Key: Position #1:
+paramno=1
+name=[0] ""
+is_param=1
+param_type=2
+
+SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09'' at line 4
+2022-03-12 07:23:44:SQL: [282] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= ?  AND DATE(DATUM) <= ? 
+Sent SQL: [304] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09' 
+Params:  2
+Key: Position #0:
+paramno=0
+name=[0] ""
+is_param=1
+param_type=2
+Key: Position #1:
+paramno=1
+name=[0] ""
+is_param=1
+param_type=2
+
+SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09'' at line 4
+2022-03-12 07:29:44:SQL: [282] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= ?  AND DATE(DATUM) <= ? 
+Sent SQL: [304] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09' 
+Params:  2
+Key: Position #0:
+paramno=0
+name=[0] ""
+is_param=1
+param_type=2
+Key: Position #1:
+paramno=1
+name=[0] ""
+is_param=1
+param_type=2
+
+SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09'' at line 4
+2022-03-12 07:34:44:SQL: [282] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= ?  AND DATE(DATUM) <= ? 
+Sent SQL: [304] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09' 
+Params:  2
+Key: Position #0:
+paramno=0
+name=[0] ""
+is_param=1
+param_type=2
+Key: Position #1:
+paramno=1
+name=[0] ""
+is_param=1
+param_type=2
+
+SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09'' at line 4
+2022-03-12 07:40:44:SQL: [282] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= ?  AND DATE(DATUM) <= ? 
+Sent SQL: [304] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09' 
+Params:  2
+Key: Position #0:
+paramno=0
+name=[0] ""
+is_param=1
+param_type=2
+Key: Position #1:
+paramno=1
+name=[0] ""
+is_param=1
+param_type=2
+
+SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09'' at line 4
+2022-03-12 07:45:44:SQL: [282] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= ?  AND DATE(DATUM) <= ? 
+Sent SQL: [304] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09' 
+Params:  2
+Key: Position #0:
+paramno=0
+name=[0] ""
+is_param=1
+param_type=2
+Key: Position #1:
+paramno=1
+name=[0] ""
+is_param=1
+param_type=2
+
+SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09'' at line 4
+2022-03-12 07:51:44:SQL: [282] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= ?  AND DATE(DATUM) <= ? 
+Sent SQL: [304] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09' 
+Params:  2
+Key: Position #0:
+paramno=0
+name=[0] ""
+is_param=1
+param_type=2
+Key: Position #1:
+paramno=1
+name=[0] ""
+is_param=1
+param_type=2
+
+SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09'' at line 4
+2022-03-12 07:57:44:SQL: [282] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= ?  AND DATE(DATUM) <= ? 
+Sent SQL: [304] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09' 
+Params:  2
+Key: Position #0:
+paramno=0
+name=[0] ""
+is_param=1
+param_type=2
+Key: Position #1:
+paramno=1
+name=[0] ""
+is_param=1
+param_type=2
+
+SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09'' at line 4
+2022-03-12 08:02:44:SQL: [282] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= ?  AND DATE(DATUM) <= ? 
+Sent SQL: [304] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09' 
+Params:  2
+Key: Position #0:
+paramno=0
+name=[0] ""
+is_param=1
+param_type=2
+Key: Position #1:
+paramno=1
+name=[0] ""
+is_param=1
+param_type=2
+
+SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09'' at line 4
+2022-03-12 08:08:44:SQL: [282] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= ?  AND DATE(DATUM) <= ? 
+Sent SQL: [304] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09' 
+Params:  2
+Key: Position #0:
+paramno=0
+name=[0] ""
+is_param=1
+param_type=2
+Key: Position #1:
+paramno=1
+name=[0] ""
+is_param=1
+param_type=2
+
+SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09'' at line 4
+2022-03-12 08:13:44:SQL: [282] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= ?  AND DATE(DATUM) <= ? 
+Sent SQL: [304] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09' 
+Params:  2
+Key: Position #0:
+paramno=0
+name=[0] ""
+is_param=1
+param_type=2
+Key: Position #1:
+paramno=1
+name=[0] ""
+is_param=1
+param_type=2
+
+SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09'' at line 4
+2022-03-12 08:19:44:SQL: [282] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= ?  AND DATE(DATUM) <= ? 
+Sent SQL: [304] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09' 
+Params:  2
+Key: Position #0:
+paramno=0
+name=[0] ""
+is_param=1
+param_type=2
+Key: Position #1:
+paramno=1
+name=[0] ""
+is_param=1
+param_type=2
+
+SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09'' at line 4
+2022-03-12 08:25:44:SQL: [282] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= ?  AND DATE(DATUM) <= ? 
+Sent SQL: [304] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09' 
+Params:  2
+Key: Position #0:
+paramno=0
+name=[0] ""
+is_param=1
+param_type=2
+Key: Position #1:
+paramno=1
+name=[0] ""
+is_param=1
+param_type=2
+
+SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09'' at line 4
+2022-03-12 08:30:44:SQL: [282] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= ?  AND DATE(DATUM) <= ? 
+Sent SQL: [304] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09' 
+Params:  2
+Key: Position #0:
+paramno=0
+name=[0] ""
+is_param=1
+param_type=2
+Key: Position #1:
+paramno=1
+name=[0] ""
+is_param=1
+param_type=2
+
+SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09'' at line 4
+2022-03-12 08:36:44:SQL: [282] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= ?  AND DATE(DATUM) <= ? 
+Sent SQL: [304] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09' 
+Params:  2
+Key: Position #0:
+paramno=0
+name=[0] ""
+is_param=1
+param_type=2
+Key: Position #1:
+paramno=1
+name=[0] ""
+is_param=1
+param_type=2
+
+SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09'' at line 4
+2022-03-12 08:42:44:SQL: [282] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= ?  AND DATE(DATUM) <= ? 
+Sent SQL: [304] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09' 
+Params:  2
+Key: Position #0:
+paramno=0
+name=[0] ""
+is_param=1
+param_type=2
+Key: Position #1:
+paramno=1
+name=[0] ""
+is_param=1
+param_type=2
+
+SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09'' at line 4
+2022-03-12 23:35:23:SQL: [247] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND ID=?
+Sent SQL: [253] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND ID='38595'
+Params:  1
+Key: Position #0:
+paramno=0
+name=[0] ""
+is_param=1
+param_type=2
+
+SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') AND ID='38595'' at line 4
+2022-03-12 23:35:32:SQL: [247] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND ID=?
+Sent SQL: [253] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND ID='38595'
+Params:  1
+Key: Position #0:
+paramno=0
+name=[0] ""
+is_param=1
+param_type=2
+
+SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') AND ID='38595'' at line 4
+2022-03-12 23:35:41:SQL: [247] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND ID=?
+Sent SQL: [253] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND ID='38595'
+Params:  1
+Key: Position #0:
+paramno=0
+name=[0] ""
+is_param=1
+param_type=2
+
+SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') AND ID='38595'' at line 4
+2022-03-12 23:35:45:SQL: [247] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND ID=?
+Sent SQL: [253] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND ID='38595'
+Params:  1
+Key: Position #0:
+paramno=0
+name=[0] ""
+is_param=1
+param_type=2
+
+SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') AND ID='38595'' at line 4
+2022-03-12 23:35:58:SQL: [282] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= ?  AND DATE(DATUM) <= ? 
+Sent SQL: [304] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= '2022-03-12'  AND DATE(DATUM) <= '2022-03-12' 
+Params:  2
+Key: Position #0:
+paramno=0
+name=[0] ""
+is_param=1
+param_type=2
+Key: Position #1:
+paramno=1
+name=[0] ""
+is_param=1
+param_type=2
+
+SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') AND DATE(DATUM) >= '2022-03-12'  AND DATE(DATUM) <= '2022-03-12'' at line 4
+2022-03-12 23:37:18:SQL: [282] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= ?  AND DATE(DATUM) <= ? 
+Sent SQL: [304] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09' 
+Params:  2
+Key: Position #0:
+paramno=0
+name=[0] ""
+is_param=1
+param_type=2
+Key: Position #1:
+paramno=1
+name=[0] ""
+is_param=1
+param_type=2
+
+SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09'' at line 4
+2022-03-12 23:37:25:SQL: [282] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= ?  AND DATE(DATUM) <= ? 
+Sent SQL: [304] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09' 
+Params:  2
+Key: Position #0:
+paramno=0
+name=[0] ""
+is_param=1
+param_type=2
+Key: Position #1:
+paramno=1
+name=[0] ""
+is_param=1
+param_type=2
+
+SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') AND DATE(DATUM) >= '2022-03-09'  AND DATE(DATUM) <= '2022-03-09'' at line 4
+2022-03-12 23:37:27:SQL: [282] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= ?  AND DATE(DATUM) <= ? 
+Sent SQL: [304] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND DATE(DATUM) >= '2022-03-12'  AND DATE(DATUM) <= '2022-03-12' 
+Params:  2
+Key: Position #0:
+paramno=0
+name=[0] ""
+is_param=1
+param_type=2
+Key: Position #1:
+paramno=1
+name=[0] ""
+is_param=1
+param_type=2
+
+SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') AND DATE(DATUM) >= '2022-03-12'  AND DATE(DATUM) <= '2022-03-12'' at line 4
+2022-03-17 08:50:09:SQL: [247] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND ID=?
+Sent SQL: [253] 
+				SELECT 
+					COUNT(*) AS totaal
+				FROM
+					`startlijst_view` WHERE 1=1  AND ((VLIEGER_ID = '10624') OR (INZITTENDE_ID = '10624') OR (DDWV = 1)) OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = 10624)) AND (DDWV = 1))) AND ID='38595'
+Params:  1
+Key: Position #0:
+paramno=0
+name=[0] ""
+is_param=1
+param_type=2
+
+SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') AND ID='38595'' at line 4
+2022-03-24 19:29:39:CREATE VIEW `aanwezig_vliegtuigen_view` AS
+				SELECT 
+					`av`.`ID`,
+                    `av`.`DATUM`,
+                    `av`.`VLIEGTUIG_ID`,
+					time_format(`av`.`AANKOMST`,'%H:%i') AS `AANKOMST`,
+					time_format(`av`.`VERTREK`,'%H:%i') AS `VERTREK`,
+					`av`.`LATITUDE`,
+					`av`.`LONGITUDE`,
+                    `av`.`HOOGTE`,
+                    `av`.`SNELHEID`,
+					`av`.`VERWIJDERD`,
+					`av`.`LAATSTE_AANPASSING`, 
+					`v`.`REGISTRATIE`, 
+					`v`.`CALLSIGN`, 
+					`v`.`ZITPLAATSEN`, 
+					`v`.`CLUBKIST`, 
+					`v`.`FLARMCODE`, 
+					`v`.`TYPE_ID`, 
+					`t`.`OMSCHRIJVING` AS `VLIEGTUIGTYPE_OMS`, 
+					`v`.`TMG`, 
+					`v`.`ZELFSTART`, 
+					`v`.`SLEEPKIST`, 
+					`v`.`VOLGORDE`, 
+					`v`.`INZETBAAR`, 
+					`v`.`OPMERKINGEN`, 
+					(SELECT 
+						COUNT(*)  FROM oper_startlijst 
+					WHERE `VERWIJDERD`= 0 AND DATUM = `av`.`DATUM` AND `STARTTIJD` IS NOT NULL AND `LANDINGDSTIJD` IS NULL AND VLIEGTUIG_ID = `av`.`VLIEGTUIG_ID` LIMIT 1) AS VLIEGT,
+
+					CONCAT(IFNULL(`v`.`REGISTRATIE`,''),' (',IFNULL(`v`.`CALLSIGN`,''),')') AS `REG_CALL`
+				FROM
+					`oper_aanwezig_vliegtuigen` `av`
+					LEFT JOIN `ref_vliegtuigen` `v` ON (`av`.`VLIEGTUIG_ID` = `v`.`ID`)
+					LEFT JOIN `ref_types` `t` ON (`v`.`TYPE_ID` = `t`.`ID`)
+				WHERE
+					`av`.`VERWIJDERD` = 0  
+				ORDER BY 
+					DATUM DESC, CLUBKIST, VOLGORDE, ID;
+SQLSTATE[42S22]: Column not found: 1054 Unknown column 'LANDINGDSTIJD' in 'where clause'
+2022-03-24 19:30:32:CREATE VIEW `aanwezig_vliegtuigen_view` AS
+				SELECT 
+					`av`.`ID`,
+                    `av`.`DATUM`,
+                    `av`.`VLIEGTUIG_ID`,
+					time_format(`av`.`AANKOMST`,'%H:%i') AS `AANKOMST`,
+					time_format(`av`.`VERTREK`,'%H:%i') AS `VERTREK`,
+					`av`.`LATITUDE`,
+					`av`.`LONGITUDE`,
+                    `av`.`HOOGTE`,
+                    `av`.`SNELHEID`,
+					`av`.`VERWIJDERD`,
+					`av`.`LAATSTE_AANPASSING`, 
+					`v`.`REGISTRATIE`, 
+					`v`.`CALLSIGN`, 
+					`v`.`ZITPLAATSEN`, 
+					`v`.`CLUBKIST`, 
+					`v`.`FLARMCODE`, 
+					`v`.`TYPE_ID`, 
+					`t`.`OMSCHRIJVING` AS `VLIEGTUIGTYPE_OMS`, 
+					`v`.`TMG`, 
+					`v`.`ZELFSTART`, 
+					`v`.`SLEEPKIST`, 
+					`v`.`VOLGORDE`, 
+					`v`.`INZETBAAR`, 
+					`v`.`OPMERKINGEN`, 
+					(SELECT 
+						COUNT(*)  FROM oper_startlijst 
+					WHERE `VERWIJDERD`= 0 AND DATUM = `av`.`DATUM` AND `STARTTIJD` IS NOT NULL AND `LANDINGDSTIJD` IS NULL AND VLIEGTUIG_ID = `av`.`VLIEGTUIG_ID` LIMIT 1) AS VLIEGT,
+
+					CONCAT(IFNULL(`v`.`REGISTRATIE`,''),' (',IFNULL(`v`.`CALLSIGN`,''),')') AS `REG_CALL`
+				FROM
+					`oper_aanwezig_vliegtuigen` `av`
+					LEFT JOIN `ref_vliegtuigen` `v` ON (`av`.`VLIEGTUIG_ID` = `v`.`ID`)
+					LEFT JOIN `ref_types` `t` ON (`v`.`TYPE_ID` = `t`.`ID`)
+				WHERE
+					`av`.`VERWIJDERD` = 0  
+				ORDER BY 
+					DATUM DESC, CLUBKIST, VOLGORDE, ID;
+SQLSTATE[42S22]: Column not found: 1054 Unknown column 'LANDINGDSTIJD' in 'where clause'
+2022-03-24 19:30:36:CREATE VIEW `aanwezig_vliegtuigen_view` AS
+				SELECT 
+					`av`.`ID`,
+                    `av`.`DATUM`,
+                    `av`.`VLIEGTUIG_ID`,
+					time_format(`av`.`AANKOMST`,'%H:%i') AS `AANKOMST`,
+					time_format(`av`.`VERTREK`,'%H:%i') AS `VERTREK`,
+					`av`.`LATITUDE`,
+					`av`.`LONGITUDE`,
+                    `av`.`HOOGTE`,
+                    `av`.`SNELHEID`,
+					`av`.`VERWIJDERD`,
+					`av`.`LAATSTE_AANPASSING`, 
+					`v`.`REGISTRATIE`, 
+					`v`.`CALLSIGN`, 
+					`v`.`ZITPLAATSEN`, 
+					`v`.`CLUBKIST`, 
+					`v`.`FLARMCODE`, 
+					`v`.`TYPE_ID`, 
+					`t`.`OMSCHRIJVING` AS `VLIEGTUIGTYPE_OMS`, 
+					`v`.`TMG`, 
+					`v`.`ZELFSTART`, 
+					`v`.`SLEEPKIST`, 
+					`v`.`VOLGORDE`, 
+					`v`.`INZETBAAR`, 
+					`v`.`OPMERKINGEN`, 
+					(SELECT 
+						COUNT(*)  FROM oper_startlijst 
+					WHERE `VERWIJDERD`= 0 AND DATUM = `av`.`DATUM` AND `STARTTIJD` IS NOT NULL AND `LANDINGDSTIJD` IS NULL AND VLIEGTUIG_ID = `av`.`VLIEGTUIG_ID` LIMIT 1) AS VLIEGT,
+
+					CONCAT(IFNULL(`v`.`REGISTRATIE`,''),' (',IFNULL(`v`.`CALLSIGN`,''),')') AS `REG_CALL`
+				FROM
+					`oper_aanwezig_vliegtuigen` `av`
+					LEFT JOIN `ref_vliegtuigen` `v` ON (`av`.`VLIEGTUIG_ID` = `v`.`ID`)
+					LEFT JOIN `ref_types` `t` ON (`v`.`TYPE_ID` = `t`.`ID`)
+				WHERE
+					`av`.`VERWIJDERD` = 0  
+				ORDER BY 
+					DATUM DESC, CLUBKIST, VOLGORDE, ID;
+SQLSTATE[42S22]: Column not found: 1054 Unknown column 'LANDINGDSTIJD' in 'where clause'

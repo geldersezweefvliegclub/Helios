@@ -203,7 +203,7 @@
 		function GetObject($ID, $toegangControleOverslaan = false)
 		{
 			$functie = "Leden.GetObject";
-			Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, $ID));	
+			Debug(__FILE__, __LINE__, sprintf("%s(%s, %s)", $functie, $ID, $toegangControleOverslaan ? "true" : "false"));	
 
 			if (!isset($ID))
 				throw new Exception("406;Geen ID in aanroep;");
@@ -940,8 +940,11 @@
 						$lid['GEBOORTE_DATUM'] 	= "****";
 					}
 
-					$lid['MEDICAL'] 		= null;
-					$lid['NOODNUMMER'] 		= null;
+					if ($l->isStarttoren() == false)
+					{
+						$lid['MEDICAL'] 		= null;
+						$lid['NOODNUMMER'] 		= null;
+					}
 					$lid['HEEFT_BETAALD'] 	= null;
 					$lid['OPMERKINGEN'] 	= null;
 				}
@@ -968,7 +971,12 @@
 			$record = array();
 			$l = MaakObject('Login');
 
-			if (($l->getUserFromSession() == $input["ID"]) || ($l->isBeheerder()))
+			$ikBenHetZelf = false;
+			if (array_key_exists("ID", $input)) {
+				$ikBenHetZelf = ($l->getUserFromSession() == $input["ID"]);
+			}
+
+			if ($ikBenHetZelf || ($l->isBeheerder()))
 			{
 				$field = 'ID';
 				if (array_key_exists($field, $input))

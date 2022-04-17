@@ -161,8 +161,66 @@
 			// Als ingelogde gebruiker geen bijzonder functie heeft, worden beperkte dataset opgehaald
 			$l = MaakObject('Login');
 			if (!$this->heeftDataToegang()) 
-				$where .= sprintf(" AND (LID_ID = '%d') ", $l->getUserFromSession());
-		
+			{
+				if ($l->isStarttoren()) 	// starttoren mag beperkt opvragen
+				{
+					// bouw CSV string met competenties om op vliegtuigen te vliegen, starttoren is niet geintresseerd in andere behaalde progressies
+					$rv = MaakObject('Vliegtuigen');
+					$rvObjs = $rv->GetObjects(
+						array(
+							'CLUBKIST' => true,			
+							'VELDEN' => 'BEVOEGDHEID_LOKAAL_ID, BEVOEGDHEID_OVERLAND_ID' 
+						));
+	
+					$csvCompetenties = "";	
+					for ($i=0 ; $i < count($rvObjs['dataset']); $i++)
+					{
+						
+						if (isset($rvObjs['dataset'][$i]['BEVOEGDHEID_LOKAAL_ID'])) 
+						{
+							if ($csvCompetenties != "") {
+								$csvCompetenties .= ",";
+							}
+
+							$csvCompetenties .= $rvObjs['dataset'][$i]['BEVOEGDHEID_LOKAAL_ID'];
+						}
+						
+						if (isset($rvObjs['dataset'][$i]['BEVOEGDHEID_OVERLAND_ID'])) 
+						{
+							if ($csvCompetenties != "") {
+								$csvCompetenties .= ",";
+							}
+
+							$csvCompetenties .= $rvObjs['dataset'][$i]['BEVOEGDHEID_OVERLAND_ID'];
+						}
+					}
+					// done
+
+					// Welke vliegers zijn vandaag aanwezig, starttoren mag alleen opvragen van aanwezige leden
+					$al = MaakObject('AanwezigLeden');
+					$laObjs = $al->GetObjects(
+						array(
+							'BEGIN_DATUM' => date('Y-m-d'),	
+							'EIND_DATUM' => date('Y-m-d')
+						));
+
+					$csvLeden = "";
+					for ($i=0 ; $i < count($laObjs['dataset']); $i++)
+					{
+						if ($csvLeden != "") {
+							$csvLeden .= ",";
+						}
+						$csvLeden .= $laObjs['dataset'][$i]['LID_ID'];
+					}	
+					// done
+
+					$where .= sprintf(" AND LID_ID IN (%s) AND COMPETENTIE_ID IN(%s) ", $csvLeden, $csvCompetenties);
+				}
+				else
+				{
+					$where .= sprintf(" AND (LID_ID = '%d') ", $l->getUserFromSession());
+				}
+			}
 
 			foreach ($params as $key => $value)
 			{
@@ -249,7 +307,7 @@
 
 							if ($lidID != $l->getUserFromSession())
 							{
-								if (!$this->heeftDataToegang())
+								if ((!$this->heeftDataToegang()) && !$l->isStarttoren())
 									throw new Exception("401;Gebruiker mag geen progressie van ander lid opvragen;");								
 							}
 							

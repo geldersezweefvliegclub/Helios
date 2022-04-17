@@ -177,6 +177,12 @@ paths:
           schema:
             type: string
             format: date
+        - in: query
+          name: NIET_VERTROKKEN
+          description: Toon alleen leden die nog niet vertrokken zijn
+          required: false
+          schema:
+            type: boolean
                                                          
       responses:
         200:
@@ -579,7 +585,18 @@ components:
             description: Vliegtuig registratie en callsign van overland vliegtuig
             type: string
             example: PH-1076 (E2)  
-
+          STARTS: 
+            description: Het aantal starts voor dit lid op deze dag
+            type: integer
+            example: 3 
+          VLIEGTIJD: 
+            description: Totale vliegtijd 
+            type: string
+            example: 03:17  
+          VLIEGT:
+            description: Vliegt het lid op dit moment     
+            type: boolean
+            example: true   
           NAAM: 
             description: De volledige naam van het lid
             type: string
@@ -685,7 +702,7 @@ components:
           CLUBBLAD_POST:
             description: Moet clubblad per post verstuurd worden    
             type: boolean
-            example: 0                                      
+            example: false                                      
           MEDICAL:
             description: Verloopdatum van het medical 
             type: string

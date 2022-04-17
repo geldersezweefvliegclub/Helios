@@ -68,7 +68,11 @@ $result      = curl_exec($curl_session);
 $status_code = curl_getinfo($curl_session, CURLINFO_HTTP_CODE); //get status code
 list($header, $body) = returnHeaderBody($result);
 
-if ($status_code != 200) // We verwachten een status code van 200
+if ($status_code == 404) 
+{
+    // er is geen daginfo, doei .....
+}
+else if ($status_code != 200) // We verwachten een status code van 200
 {
     // email naar beheerder
     $mail = emailInit();

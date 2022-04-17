@@ -563,7 +563,7 @@
 				throw new Exception("406;ID moet ingevuld zijn;");
 
 			$id = isINT($DienstData['ID'], "ID");
-			$ddb = $this->magVerwijderenAanpassen($id, $DienstData['DATUM']);
+			$ddb = $this->magVerwijderenAanpassen($id, array_key_exists('DATUM', $DienstData) ? $DienstData['DATUM'] : null);
 
             $Datum = $ddb['DATUM'];
             $Dienst = $ddb['TYPE_DIENST_ID'];

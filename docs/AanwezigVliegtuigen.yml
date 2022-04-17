@@ -66,7 +66,13 @@ paths:
           schema:
             type: string
             format: date
-            example: "1999-01-01"                     
+            example: "1999-01-01"  
+        - in: query
+          name: NIET_VERTROKKEN
+          description: Toon alleen vliegtuigen die nog niet vertrokken zijn
+          required: false
+          schema:
+            type: boolean                       
       responses:
         200:
           description: "OK, data succesvol opgehaald"
@@ -524,11 +530,31 @@ components:
               type: integer
               format: int32   
               example: 12   
+            VLIEGTUIGTYPE_OMS:
+              description: Vliegtuigtype omschrijving
+              type: string
+              example: ASK21              
             VOLGORDE:
               description: Volgorde van vliegtuiglijst, bedoeld voor club vliegtuigen
               type: integer
               format: int32   
-              example: 12                           
+              example: 12   
+            INZETBAAR:
+              description: Mag het vliegtuig vliegen?
+              type: boolean
+              example: true 
+            TRAINER:
+              description: Is het vliegtuig een DBO trainer
+              type: boolean
+              example: true   
+            VLIEGT:
+              description: Vliegt het lid op dit moment     
+              type: boolean
+              example: true   
+            OPMERKINGEN:
+              description: Opermerkingen over vliegtuig
+              type: string
+              example: Radio op stand 10 zetten                          
             REG_CALL: 
               description: Vliegtuig registratie en callsign van het vliegtuig
               type: string
