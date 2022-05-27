@@ -66,6 +66,7 @@
 					`SLEUTEL2` varchar(25) DEFAULT NULL,
 					`KNVVL_LIDNUMMER` varchar(25) DEFAULT NULL,
 					`BREVET_NUMMER` varchar(25) DEFAULT NULL,
+					`EMAIL_DAGINFO` tinyint UNSIGNED NOT NULL DEFAULT 0,
 					`OPMERKINGEN` text DEFAULT NULL,
                     `VERWIJDERD` tinyint UNSIGNED NOT NULL DEFAULT 0,
 					`LAATSTE_AANPASSING` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -460,7 +461,17 @@
 
 							Debug(__FILE__, __LINE__, sprintf("%s: DDWV_CREW='%s'", $functie, $alleenDDWV));
 							break;
-						}							
+						}		
+						case "BEHEERDERS" : 
+							{
+								$alleenBeheerder = isBOOL($value, "BEHEERDER");
+	
+								if ($alleenBeheerder)
+									$where .= sprintf(" AND BEHEERDER = 1 ");
+	
+								Debug(__FILE__, __LINE__, sprintf("%s: BEHEERDER='%s'", $functie, $alleenBeheerder));
+								break;
+							}												
 					case "LIERISTEN" : 
 						{
 							$alleenLieristen = isBOOL($value, "LIERISTEN");
@@ -564,6 +575,9 @@
 		{
 			$functie = "Leden.HerstelObject";
 			Debug(__FILE__, __LINE__, sprintf("%s('%s')", $functie, $id));
+
+			// schrijven mag alleen door (DDWV) beheerder
+			$l = MaakObject('Login');
 
 			if (!$this->heeftDataToegang(null, false) && !$l->isBeheerderDDWV())
 				throw new Exception("401;Geen schrijfrechten;");
@@ -961,6 +975,19 @@
 			return $lid;
 		}
 	
+		
+		function specialeRol($record, $dbLid, $field)
+		{
+			if (array_key_exists($field, $record)) 
+				return ($record[$field] == 1);
+
+			if (array_key_exists($field, $dbLid)) 
+				return ($dbLid[$field] == 1);
+			
+			// er is geen info beschikbaar in record, en ook niet in de database. We nemen geen risico
+			return true; 		
+		}
+
 		/*
 		Copieer data van request naar velden van het record 
 		*/
@@ -970,123 +997,18 @@
 
 			$record = array();
 			$l = MaakObject('Login');
+			$dbLid = null;
 
 			$ikBenHetZelf = false;
 			if (array_key_exists("ID", $input)) {
 				$ikBenHetZelf = ($l->getUserFromSession() == $input["ID"]);
-			}
 
-			if ($ikBenHetZelf || ($l->isBeheerder()))
-			{
-				$field = 'ID';
-				if (array_key_exists($field, $input))
-					$record[$field] = isINT($input[$field], $field);
-
-				if (array_key_exists('NAAM', $input)) {
-					$record['NAAM'] = $input['NAAM']; 
-				}
-				elseif ((array_key_exists('VOORNAAM', $input)) && (array_key_exists('ACHTERNAAM', $input)))
+				// We halen lid op uit de database, 
+				try 	// Geeft exceptie als het niet bestaat. We gaan wel door
 				{
-					$record['NAAM'] = "";
-
-					if (array_key_exists('VOORNAAM', $input))
-						$record['NAAM'] .= $input['VOORNAAM'] . " "; 
-
-					if (array_key_exists('TUSSENVOEGSEL', $input))
-						$record['NAAM'] .= $input['TUSSENVOEGSEL'] . " "; 
-
-					if (array_key_exists('ACHTERNAAM', $input))	
-						$record['NAAM'] .= $input['ACHTERNAAM']; 	
+					$dbLid = $this->GetObject($input["ID"]);
 				}
-
-				if (array_key_exists('VOORNAAM', $input))
-					$record['VOORNAAM'] = $input['VOORNAAM']; 
-
-				if (array_key_exists('TUSSENVOEGSEL', $input))
-					$record['TUSSENVOEGSEL'] = $input['TUSSENVOEGSEL']; 
-
-				if (array_key_exists('ACHTERNAAM', $input))
-					$record['ACHTERNAAM'] = $input['ACHTERNAAM']; 
-
-				if (array_key_exists('ADRES', $input))
-					$record['ADRES'] = $input['ADRES']; 	
-					
-				if (array_key_exists('POSTCODE', $input))
-					$record['POSTCODE'] = $input['POSTCODE']; 	
-					
-				if (array_key_exists('WOONPLAATS', $input))
-					$record['WOONPLAATS'] = $input['WOONPLAATS']; 				
-
-				if (array_key_exists('TELEFOON', $input))
-					$record['TELEFOON'] = $input['TELEFOON']; 
-
-				if (array_key_exists('MOBIEL', $input))
-					$record['MOBIEL'] = $input['MOBIEL']; 
-
-				if (array_key_exists('NOODNUMMER', $input))
-					$record['NOODNUMMER'] = $input['NOODNUMMER']; 
-
-				if (array_key_exists('EMAIL', $input))
-					$record['EMAIL'] = $input['EMAIL']; 
-
-				$field = 'CLUBBLAD_POST';
-				if (array_key_exists($field, $input))
-					$record[$field] = isBOOL($input[$field], $field);
-
-				$field = 'RAPPORTEUR';
-				if (array_key_exists($field, $input))
-					$record[$field] = isBOOL($input[$field], $field);
-
-				$field = 'GEBOORTE_DATUM';
-				if (array_key_exists($field, $input))
-					$record[$field]= isDATE($input[$field], $field, true);	
-
-				$field = 'MEDICAL';
-				if (array_key_exists($field, $input))
-					$record[$field]= isDATE($input[$field], $field, true);		
-
-				if ($app_settings['DemoMode'] === false)		// in demo mode mogen we de login naam niet aanpassen
-				{
-					if (array_key_exists('INLOGNAAM', $input))
-						$record['INLOGNAAM'] = $input['INLOGNAAM']; 	
-				}
-
-				if (array_key_exists('SLEUTEL1', $input))
-					$record['SLEUTEL1'] = $input['SLEUTEL1']; 		
-					
-				if (array_key_exists('SLEUTEL2', $input))
-					$record['SLEUTEL2'] = $input['SLEUTEL2']; 	
-
-				if (array_key_exists('KNVVL_LIDNUMMER', $input))
-					$record['KNVVL_LIDNUMMER'] = $input['KNVVL_LIDNUMMER']; 
-
-				if (array_key_exists('BREVET_NUMMER', $input))
-					$record['BREVET_NUMMER'] = $input['BREVET_NUMMER']; 
-
-				$ld = $l->lidData();
-				if (array_key_exists('WACHTWOORD', $input))
-				{
-					if (strlen($input['WACHTWOORD']) > 4)
-					{
-						$loginnaam = (isset($input['INLOGNAAM'])) ? $input['INLOGNAAM'] : $ld->INLOGNAAM;
-						$record['WACHTWOORD'] = sha1(strtolower ($loginnaam) . $input['WACHTWOORD']);
-					}
-					else 
-					{
-						if (strlen($input['WACHTWOORD']) > 0) {
-							throw new Exception("406;Wachtwoord voldoet niet;");
-						}
-					}
-				}
-				if (array_key_exists('WACHTWOORD_HASH', $input))
-				{
-					if (strlen($input['WACHTWOORD_HASH']) > 0)
-						$record['WACHTWOORD'] = $input['WACHTWOORD_HASH'];
-				}			
-
-				$field = 'PRIVACY';
-				if (array_key_exists($field, $input))
-					$record[$field] = isBOOL($input[$field], $field);
+				catch (Exception $exception) { }
 			}
 
 			// onderstaande velden zijn beperkt aanpasbaar
@@ -1177,7 +1099,7 @@
 						$record[$field] = isBOOL($input[$field], $field);
 				}
 
-				$field = 'AUTH';
+				$field = 'RAPPORTEUR';
 				if (array_key_exists($field, $input))
 					$record[$field] = isBOOL($input[$field], $field);
 
@@ -1188,6 +1110,153 @@
 				// url naar extern bestand
 				if (array_key_exists('AVATAR', $input))
 					$record['AVATAR'] = $input['AVATAR']; 	
+			}
+
+			if ($ikBenHetZelf || ($l->isBeheerder()))
+			{
+				$field = 'ID';
+				if (array_key_exists($field, $input))
+					$record[$field] = isINT($input[$field], $field);
+
+				if (array_key_exists('NAAM', $input)) {
+					$record['NAAM'] = $input['NAAM']; 
+				}
+				elseif ((array_key_exists('VOORNAAM', $input)) && (array_key_exists('ACHTERNAAM', $input)))
+				{
+					$record['NAAM'] = "";
+
+					if (array_key_exists('VOORNAAM', $input))
+						$record['NAAM'] .= $input['VOORNAAM'] . " "; 
+
+					if (array_key_exists('TUSSENVOEGSEL', $input))
+						$record['NAAM'] .= $input['TUSSENVOEGSEL'] . " "; 
+
+					if (array_key_exists('ACHTERNAAM', $input))	
+						$record['NAAM'] .= $input['ACHTERNAAM']; 	
+				}
+
+				if (array_key_exists('VOORNAAM', $input))
+					$record['VOORNAAM'] = $input['VOORNAAM']; 
+
+				if (array_key_exists('TUSSENVOEGSEL', $input))
+					$record['TUSSENVOEGSEL'] = $input['TUSSENVOEGSEL']; 
+
+				if (array_key_exists('ACHTERNAAM', $input))
+					$record['ACHTERNAAM'] = $input['ACHTERNAAM']; 
+
+				if (array_key_exists('ADRES', $input))
+					$record['ADRES'] = $input['ADRES']; 	
+					
+				if (array_key_exists('POSTCODE', $input))
+					$record['POSTCODE'] = $input['POSTCODE']; 	
+					
+				if (array_key_exists('WOONPLAATS', $input))
+					$record['WOONPLAATS'] = $input['WOONPLAATS']; 				
+
+				if (array_key_exists('TELEFOON', $input))
+					$record['TELEFOON'] = $input['TELEFOON']; 
+
+				if (array_key_exists('MOBIEL', $input))
+					$record['MOBIEL'] = $input['MOBIEL']; 
+
+				if (array_key_exists('NOODNUMMER', $input))
+					$record['NOODNUMMER'] = $input['NOODNUMMER']; 
+
+				if (array_key_exists('EMAIL', $input))
+					$record['EMAIL'] = $input['EMAIL']; 
+
+				$field = 'CLUBBLAD_POST';
+				if (array_key_exists($field, $input))
+					$record[$field] = isBOOL($input[$field], $field);
+
+				$field = 'GEBOORTE_DATUM';
+				if (array_key_exists($field, $input))
+					$record[$field]= isDATE($input[$field], $field, true);	
+
+				$field = 'MEDICAL';
+				if (array_key_exists($field, $input))
+					$record[$field]= isDATE($input[$field], $field, true);		
+
+				if ($app_settings['DemoMode'] === false)		// in demo mode mogen we de login naam niet aanpassen
+				{
+					if (array_key_exists('INLOGNAAM', $input))
+						$record['INLOGNAAM'] = $input['INLOGNAAM']; 	
+				}
+
+				if (array_key_exists('SLEUTEL1', $input))
+					$record['SLEUTEL1'] = $input['SLEUTEL1']; 		
+					
+				if (array_key_exists('SLEUTEL2', $input))
+					$record['SLEUTEL2'] = $input['SLEUTEL2']; 	
+
+				if (array_key_exists('KNVVL_LIDNUMMER', $input))
+					$record['KNVVL_LIDNUMMER'] = $input['KNVVL_LIDNUMMER']; 
+
+				if (array_key_exists('BREVET_NUMMER', $input))
+					$record['BREVET_NUMMER'] = $input['BREVET_NUMMER']; 
+
+				$ld = $l->lidData();
+				if (array_key_exists('WACHTWOORD', $input))
+				{
+					if (strlen($input['WACHTWOORD']) > 4)
+					{
+						$loginnaam = (isset($input['INLOGNAAM'])) ? $input['INLOGNAAM'] : $ld->INLOGNAAM;
+						$record['WACHTWOORD'] = sha1(strtolower ($loginnaam) . $input['WACHTWOORD']);
+					}
+					else 
+					{
+						if (strlen($input['WACHTWOORD']) > 0) {
+							throw new Exception("406;Wachtwoord voldoet niet;");
+						}
+					}
+				}
+				if (array_key_exists('WACHTWOORD_HASH', $input))
+				{
+					if (strlen($input['WACHTWOORD_HASH']) > 0)
+						$record['WACHTWOORD'] = $input['WACHTWOORD_HASH'];
+				}			
+
+				$field = 'PRIVACY';
+				if (array_key_exists($field, $input))
+					$record[$field] = isBOOL($input[$field], $field);	
+
+				// Auth kan niet uitgezet worden voor bijzondere rollen
+				$isSpeciaal = false;
+				$isSpeciaal =  	$this->specialeRol($record, $dbLid, 'CIMT') ||
+				  			 	$this->specialeRol($record, $dbLid, 'INSTRUCTEUR') ||  
+					  			$this->specialeRol($record, $dbLid, 'BEHEERDER');
+				  				$this->specialeRol($record, $dbLid, 'DDWV_BEHEERDER') ||  
+					  			$this->specialeRol($record, $dbLid, 'DDWV_CREW');
+				 				$this->specialeRol($record, $dbLid, 'STARTTOREN') ||  
+								$this->specialeRol($record, $dbLid, 'ROOSTER') ||  
+								$this->specialeRol($record, $dbLid, 'RAPPORTEUR');																					
+				$field = 'AUTH';
+				if ($isSpeciaal == true) 
+				{
+					$record[$field] = 1;
+				}
+				else
+				{
+					if (array_key_exists($field, $input))
+						$record[$field] = isBOOL($input[$field], $field);
+				}
+
+				$isSpeciaal = false;
+				$isSpeciaal = 	$this->specialeRol($record, $dbLid, 'CIMT') || 
+ 								$this->specialeRol($record, $dbLid, 'INSTRUCTEUR')|| 
+  								$this->specialeRol($record, $dbLid, 'BEHEERDER');				
+
+				// Email van de daginfo mag alleen als je beheerder, CIMT of instructeur bent
+				$field = 'EMAIL_DAGINFO';
+				if ($isSpeciaal == false) 
+				{
+					$record[$field] = 0;
+				}
+				else
+				{
+					if (array_key_exists($field, $input))
+						$record[$field] = isBOOL($input[$field], $field);
+				}
 			}
 			return $record;				
 		}
@@ -1266,6 +1335,9 @@
 
 			if (isset($record['PAX']))
 				$retVal['PAX']  = $record['PAX'] == "1" ? true : false;
+
+			if (isset($record['EMAIL_DAGINFO']))
+				$retVal['EMAIL_DAGINFO']  = $record['EMAIL_DAGINFO'] == "1" ? true : false;	
 				
 			if (isset($record['VERWIJDERD']))
 				$retVal['VERWIJDERD']  = $record['VERWIJDERD'] == "1" ? true : false;

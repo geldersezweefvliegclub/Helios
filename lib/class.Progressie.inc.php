@@ -214,7 +214,10 @@
 					}	
 					// done
 
-					$where .= sprintf(" AND LID_ID IN (%s) AND COMPETENTIE_ID IN(%s) ", $csvLeden, $csvCompetenties);
+					if ($csvLeden != "")
+						$where .= sprintf(" AND LID_ID IN (%s) ", $csvLeden);
+
+					$where .= sprintf(" AND COMPETENTIE_ID IN(%s) ", $csvCompetenties);
 				}
 				else
 				{

@@ -78,7 +78,7 @@ if ($status_code != 200) // We verwachten een status code van 200
     // email naar beheerder
     $mail = emailInit();
 
-    $mail->Subject = 'Helios API call mislukt';
+    $mail->Subject = "Helios API call mislukt: $status_code";
     $mail->Body    = "Startlijst/GetObjects?" . $url_args . "\n";
     $mail->Body   .= "HEADER :\n";
     $mail->Body   .= print_r($header, true);

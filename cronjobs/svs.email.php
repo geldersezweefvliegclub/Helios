@@ -27,12 +27,11 @@ In onze startadministratie staan op <b>%s</b> onderstaande sleepvluchten genotee
             <th> Vliegtuig </th>
             <th> Vliegveld </th>
             <th> Start methode </th>
+            <th> Sleep vliegtuig </th>
             <th> Sleep hoogte </th>
             <th> Vlieger </th>
             <th> Inzittende </th>
             <th> Starttijd </th>
-            <th> Landingstijd </th>
-            <th> Duur </th>
             <th> Opmerkingen </th>
         </tr>
     </thead>
@@ -61,7 +60,7 @@ if ($status_code != 200) // We verwachten een status code van 200
     // email naar beheerder
     $mail = emailInit();
 
-    $mail->Subject = 'Helios API call mislukt';
+    $mail->Subject = "Helios API call mislukt: $status_code";
     $mail->Body    = "Startlijst/GetObjects?" . $url_args . "\n";
     $mail->Body   .= "HEADER :\n";
     $mail->Body   .= print_r($header, true);
@@ -112,18 +111,16 @@ else
                 <td>%s</td>
                 <td>%s</td>
                 <td>%s</td>
-                <td>%s</td>
             </tr>",
             $d[2]*1, $d[1]*1, $d[0],
             $start['REG_CALL'],
             $start['VELD'],
             $start['STARTMETHODE'],
+            $start['SLEEPKIST'],
             $start['SLEEP_HOOGTE'],
             $start['VLIEGERNAAM_LID'],
             $start['INZITTENDENAAM_LID'],
             $start['STARTTIJD'],
-            $start['LANDINGSTIJD'],
-            $start['DUUR'],
             $start['OPMERKINGEN']);
     }
 

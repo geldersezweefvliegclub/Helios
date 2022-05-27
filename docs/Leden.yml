@@ -499,7 +499,11 @@ components:
         CLUBBLAD_POST:
           description: Moet clubblad per post verstuurd worden    
           type: boolean
-          example: true        
+          example: true    
+        EMAIL_DAGINFO:
+          description: Verstuur het dagrapport per email    
+          type: boolean
+          example: false      
         RAPPORTEUR:
           description: Heeft lid toegang tot alle starts / logboeken voor rapportage    
           type: boolean

@@ -358,6 +358,7 @@ require ("include/PasswordHash.php");
 							'expires' => $verlopen,
 							'path' => '/',
 							'secure' => true,
+							'domain' => $_SERVER['HTTP_HOST'],
 							'samesite' => 'None',
 						]);  	// stoppen ID in cookie
 

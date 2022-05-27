@@ -198,6 +198,7 @@
 					`sl`.`VLIEGERNAAM`,
 					`sl`.`INZITTENDENAAM`,
 					`sl`.`SLEEPKIST_ID`,
+					CONCAT(IFNULL(`sv`.`REGISTRATIE`,''),' (',IFNULL(`sv`.`CALLSIGN`,''),')') AS `SLEEPKIST`,
 					`sl`.`SLEEP_HOOGTE`,
 					`sl`.`PAX`,
 					`sl`.`CHECKSTART`,
@@ -239,6 +240,7 @@
                     LEFT JOIN `ref_leden`       `vl`      ON `sl`.`VLIEGER_ID` = `vl`.`ID` 
                     LEFT JOIN `ref_leden`       `il`      ON `sl`.`INZITTENDE_ID` = `il`.`ID` 
                     LEFT JOIN `ref_vliegtuigen` `v`       ON `sl`.`VLIEGTUIG_ID` = `v`.`ID` 
+					LEFT JOIN `ref_vliegtuigen` `sv`      ON `sl`.`SLEEPKIST_ID` = `sv`.`ID` 
                     LEFT JOIN `ref_types`       `veld`    ON `sl`.`VELD_ID` = `veld`.`ID` 
 					LEFT JOIN `ref_types`       `vt`      ON `v`.`TYPE_ID` = `vt`.`ID` 
 					LEFT JOIN `ref_types`       `baan`    ON `sl`.`BAAN_ID` = `baan`.`ID` 

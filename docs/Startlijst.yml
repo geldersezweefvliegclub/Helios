@@ -808,7 +808,11 @@ components:
             CLUBKIST:
               description: Is het een club vliegtuig? 
               type: boolean
-              example: 1                                   
+              example: 1   
+            SLEEPKIST: 
+              description: Combinatie van registratie en callsign van het sleepvliegtuig
+              type: string
+              example: PH-ELT (ELT)                                 
             REG_CALL: 
               description: Combinatie van registratie en callsign van het vliegtuig waarop gevlogen is
               type: string

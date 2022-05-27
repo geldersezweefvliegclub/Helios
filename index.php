@@ -6,15 +6,14 @@ include('include/GoogleAuthenticator.php');
 
 require __DIR__ . '/ext/vendor/autoload.php';
 
+session_set_cookie_params(["SameSite" => "None", 'domain' => $_SERVER['HTTP_HOST'], "Secure" => "true"]); 
+
 // Allow from any origin
 if (isset($_SERVER['HTTP_ORIGIN'])) 
 {
     header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
     header('Access-Control-Allow-Credentials: true');
     header('Access-Control-Max-Age: 86400');    // cache for 1 day
-
-    session_set_cookie_params(["SameSite" => "None"]); //none, lax, strict
-    session_set_cookie_params(["Secure" => "true"]); //false, true
 }
 
 // Access-Control headers are received during OPTIONS requests

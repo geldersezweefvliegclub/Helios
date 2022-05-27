@@ -648,17 +648,17 @@
 					throw new Exception("401;Geen schrijfrechten (l1);");
 
 				// nieuwe record moet ook van de ingelogde gebruiker zijn
-				if (array_key_exists('LID_ID', $DienstData) && ($DienstData['LID_ID'] != $l->getUserFromSession()))
+				if (array_key_exists('LID_ID', $ddb) && ($ddb['LID_ID'] != $l->getUserFromSession()))
 					throw new Exception("401;Geen schrijfrechten (l2);");					
 
-				$datetime1 = strtotime(ddb['DATUM']);
+				$datetime1 = strtotime($ddb['DATUM']);
 				$now = new DateTime();
 				
 				$secs = $now - $datetime1;	// seconds between the two times
 				$days = $secs / 86400;
 
-				if (days < 60) {	// tot 2 maanden mag je sowieso wijzgen
-					$datetime1 = strtotime(ddb['LAATSTE_AANPASSING']);
+				if ($days < 60) {	// tot 2 maanden mag je sowieso wijzgen
+					$datetime1 = strtotime($ddb['LAATSTE_AANPASSING']);
 
 					$secs = $now - $datetime1;	// seconds between the two times
 					$hours = $secs / 3600;

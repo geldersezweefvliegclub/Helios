@@ -9,8 +9,8 @@ use PHPMailer\PHPMailer\Exception;
 
 include('../include/GoogleAuthenticator.php');
 
-// ophalen van de vluchten van vandaag
-$curl_session = null;
+
+$curl_session;
 
 //======================================================================================
 // Algemene functies 
@@ -20,7 +20,6 @@ function heliosInit($url, $http_method = "GET")
     global $curl_session;
     global $helios_settings;
 
-
     if (isset($curl_session))
     {
         curl_setopt($curl_session, CURLOPT_USERPWD, null);  // basic auth niet meer nodig, gebruik vanaf nu php session cookie
@@ -28,11 +27,11 @@ function heliosInit($url, $http_method = "GET")
     else
     {
         // inloggen
-
         $cookieFile = uniqid();
 
         // init curl sessie
         $curl_session = curl_init();
+        
         curl_setopt($curl_session, CURLOPT_TIMEOUT, 10);  
         curl_setopt($curl_session, CURLOPT_RETURNTRANSFER,1);
         curl_setopt($curl_session, CURLOPT_HEADER, true);      // curl response bevat header info
@@ -55,7 +54,6 @@ function heliosInit($url, $http_method = "GET")
         }
         curl_setopt($curl_session, CURLOPT_URL, $loginUrl);
         curl_setopt($curl_session , CURLOPT_CUSTOMREQUEST, $http_method); 
-
         $result = curl_exec($curl_session);
         $status_code = curl_getinfo($curl_session, CURLINFO_HTTP_CODE); //get status code
         list($header, $body) = returnHeaderBody($result);
