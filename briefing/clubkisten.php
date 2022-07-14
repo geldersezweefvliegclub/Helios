@@ -1,20 +1,34 @@
+<html>
+    <head>
+        <style>
+            .centreer {
+                width:100%;
+                display: flex;
+                justify-content: center;
+            }
+
+            .titel {
+                font-family: Arial, Helvetica, sans-serif; 
+                font-size:20px;
+            }
+
+            .inhoud {
+                font-family: Arial, Helvetica, sans-serif; 
+                font-size:30px;
+            }
+        </style>
+    </head>
+    <body style="background-color: rgba(222,235,247,1)">
+        <img src='logo.jpg' width="100%"></img>
+        <div class='centreer'>
+            <div>
+
 <?php
 
 include "../cronjobs/config.php";
 include "../cronjobs/functions.php";
 
-$htmlContent = "
-<html>
-<body style='font-family: Arial, Helvetica, sans-serif; font-size:12px;'>
-
-<h1>Status club vliegtuigen</h1>
-
-<table>
-%s
-</table>
-
-</body></html>";
-
+$htmlContent = "<div class='titel'><h1>Status club vliegtuigen</h1></div><div><table>%s</table></div>";
 
 $url_args = "CLUBKIST=true&VELDEN=REG_CALL,INZETBAAR,OPMERKINGEN";
 heliosInit("Vliegtuigen/GetObjects?" . $url_args);
@@ -57,11 +71,20 @@ else
     {
         $inzetbaar = ($vliegtuig['INZETBAAR'] == true) ? "Inzetbaar" : "<div style='color:red;'><b>NIET</b> inzetbaar</div>";
 
-        $tabel .= "<tr>";
+        $tabel .= "<tr  class='inhoud'>";
         $tabel .= "<td style='padding-right:25px;'>" . $vliegtuig['REG_CALL'] . "</td>";
-        $tabel .= "<td>" . $inzetbaar . "</td>";
+        $tabel .= "<td style='padding-right:25px;'>" . $inzetbaar . "</td>";
+        $tabel .= "<td>" . $vliegtuig['OPMERKINGEN'] . "</td>";
         $tabel .= "</tr>";
     }
 
     echo sprintf($htmlContent, $tabel);
 }
+
+
+?>
+
+            </div>
+        </div>
+    </body>
+</html>

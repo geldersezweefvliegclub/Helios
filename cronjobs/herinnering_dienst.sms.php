@@ -11,7 +11,7 @@ include "../include/config.php";
 
 $smsContent = "Beste %s,
 
-Morgen %s staat voor jouw de dienst %s ingeroosterd is. 
+Morgen %s staat voor jouw de dienst %s ingeroosterd. 
 Deze SMS sturen we als herinnering.
 
 Tot morgen";
@@ -99,6 +99,8 @@ else
 
     $datumString .= date('d-m-Y', strtotime('+1 days'));
 
+    echo "Herinnering SMS gestuurd voor " . $datumString . "\n";
+
     foreach ($diensten['dataset'] as $dienst)
     {
         $url_args = "ID=" . $dienst['LID_ID'];
@@ -117,5 +119,6 @@ else
         $Message->body = sprintf($smsContent, $lid['VOORNAAM'], $datumString, $dienst['TYPE_DIENST']);
         
         $reponse = $MessageBird->messages->create($Message);
+        echo sprintf("%s: %s [%s]\n", $dienst['TYPE_DIENST'], $lid['NAAM'], $lid['MOBIEL']);
     }
 }

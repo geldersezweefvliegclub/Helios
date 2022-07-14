@@ -1,20 +1,35 @@
+
+<html>
+    <head>
+        <style>
+            .centreer {
+                width:100%;
+                display: flex;
+                justify-content: center;
+            }
+
+            .titel {
+                font-family: Arial, Helvetica, sans-serif; 
+                font-size:20px;
+            }
+
+            .inhoud {
+                font-family: Arial, Helvetica, sans-serif; 
+                font-size:30px;
+            }
+        </style>
+    </head>
+    <body style="background-color: rgba(222,235,247,1)">
+        <img src='logo.jpg' width="100%"></img>
+        <div class='centreer'>
+            <div>
+
 <?php
 
 include "../cronjobs/config.php";
 include "../cronjobs/functions.php";
 
-$htmlContent = "
-<html>
-<body style='font-family: Arial, Helvetica, sans-serif; font-size:12px;'>
-
-<h1>Ingeroosterde diensten voor %s</h1>
-
-<table>
-%s
-</table>
-
-</body></html>";
-
+$htmlContent = "<div class='titel'><h1>Ingeroosterde diensten voor %s</h1></div><div><table>%s</table></div>";
 
 $datum = date('Y-m-d');
 $url_args = "DATUM=$datum";
@@ -68,7 +83,7 @@ else
 
     foreach ($diensten['dataset'] as $dienst)
     {
-        $tabel .= "<tr>";
+        $tabel .= "<tr  class='inhoud'>";
         $tabel .= "<td style='padding-right:25px;'>" . $dienst['NAAM'] . "</td>";
         $tabel .= "<td>" . $dienst['TYPE_DIENST'] . "</td>";
         $tabel .= "</tr>";
@@ -76,3 +91,10 @@ else
 
     echo sprintf($htmlContent, $datumString, $tabel);
 }
+
+?>
+
+            </div>
+        </div>
+    </body>
+</html>

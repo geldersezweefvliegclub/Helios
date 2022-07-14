@@ -147,6 +147,47 @@ paths:
         500:
           description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"          
 
+  /Competenties/CompetentiesBoom:
+    get:
+      security:
+        - basicAuth: [] 
+        - bearerAuth: []     
+      summary: Haal alle comptenties een zet deze in een boom structuur, structuur is hetzelfde als progressie boom
+      parameters:              
+        - in: query
+          name: LAATSTE_AANPASSING
+          description: Laatste aanpassing op basis van records in dataset. Bedoeld om data verbruik te verminderen. Dataset is daarom leeg
+          required: false
+          schema:
+            type: boolean
+        - in: query
+          name: HASH
+          description: HASH van laatste GetObjects aanroep. Indien bij nieuwe aanroep dezelfde data bevat, dan volgt http status code 304. In geval dataset niet hetzelfde is, dan komt de nieuwe dataset terug. Ook bedoeld om dataverbruik te vermindereren. Er wordt alleen data verzonden als het nodig is.
+          required: false
+          schema:
+            type: string                
+        - in: query        
+          name: VELDEN
+          description: Welke velden moet opgenomen worden in de dataset
+          required: false
+          schema:
+            type: string                                                                                      
+      responses:
+        200:
+          description: "OK, data succesvol opgehaald"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/progressie_boom'
+        304:
+          description: "Data niet gemodificeerd, HASH in aanroep == hash in dataset"                     
+        405:
+          description: "Methode niet toegestaan, input validatie error"  
+        500:
+          description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"          
+
   /Competenties/DeleteObject:
     delete:
       security:
@@ -367,3 +408,160 @@ components:
           type: array
           items: 
             $ref: '#/components/schemas/view_competenties_dataset'
+
+    progressie_kaart:
+      type: object
+      properties:
+        totaal:
+          description: Aantal records dat voldoet aan de criteria in de database
+          type: integer
+          format: int32
+          example: 287
+        laatste_aanpassing:
+          description: Tijdstempel van laaste aanpassing in de database van de records dat voldoet aan de criteria
+          type: string
+          format: date-time 
+          example: "2021-05-29T13:44:05Z" 
+        hash: 
+          description: hash van de dataset
+          type: string
+          example: "4440baa"    
+        dataset:
+          description: De dataset met records
+          type: array
+          items: 
+            type: object
+            $ref: '#/components/schemas/progressie_kaart_dataset'
+
+    progressie_kaart_dataset:
+      type: object
+      properties:
+        ID:
+          description: Database ID van het record
+          type: integer
+          format: int32
+          example: 12871
+        VOLGORDE:
+          description: Volgorde van weergave
+          type: integer
+          format: int16
+          example: 1          
+        LEERFASE_ID:
+          description: In welke leerfase zit deze competentie. Verwijzing naar ref_types
+          type: integer
+          format: int32
+          example: 1
+        LEERFASE:
+          description: Omschrijving uit de types tabel
+          type: string
+          example: "VVO"                 
+        BLOK:
+          description: Volgnummer
+          type: string
+          maxLength: 7
+          example: "3.4"
+        BLOK_ID:
+          description: Verwijzing naar bovenliggend record van boom structuur
+          type: integer
+          format: int32
+          example: 300          
+        ONDERWERP:
+          description: Volledige omschrijving van de compententie
+          type: string
+          maxLength: 75
+          example: Uitstap procedure
+        DOCUMENTATIE:
+          description: Verwijzing naar de volledige documentie
+          type: string
+          maxLength: 75
+          example: "VVO1.14"
+        VERWIJDERD:
+          description: Is dit record gemarkeerd als verwijderd?  
+          type: boolean
+          example: 0        
+        LAATSTE_AANPASSING:
+          description: Tijdstempel van laaste aanpassing in de database
+          type: string
+          format: date-time 
+          example: "2019-05-01 16:42:00"   
+        PROGRESSIE_ID:
+          description: ID van progressie record
+          type: integer
+          format: int32
+          example: 12871
+        INGEVOERD:
+          description: Tijdstempel wanneer record is toegevoegd
+          type: integer
+          format: date-time 
+          example: "2018-02-28T15:04:40Z"
+        INSTRUCTEUR_NAAM:
+          description: De volledige naam van de instrcuteur die de competentie heeft toegevoegd
+          type: string
+          example: "Lowieke de Vos"       
+        OPMERKINGEN:
+          description: Opmerking over de behaalde competentie
+          type: string
+          example: "Heeft aangetoond dat de vaardigheden volledig beheerst"             
+
+# Onderstaande is een kopie van de progressie kaart, onderstaande strcutuur niet aanpassen, maar kopieren vanuit progressie !!
+    progressie_boom:
+      type: object
+      properties:
+        LEERFASE_ID:
+          description: In welke leerfase zit deze competentie. Verwijzing naar ref_types
+          type: integer
+          format: int32
+          example: 1      
+        COMPETENTIE_ID:
+          description: Comptententie ID
+          type: integer
+          format: int32
+          example: 12871
+        BLOK_ID:
+          description: Verwijzing naar bovenliggend record van boom structuur
+          type: integer
+          format: int32
+          example: 300  
+        BLOK:
+          description: Volgnummer
+          type: string
+          maxLength: 7
+          example: "3.4"          
+        ONDERWERP:
+          description: Volledige omschrijving van de compententie
+          type: string
+          maxLength: 75
+          example: Uitstap procedure
+        DOCUMENTATIE:
+          description: Verwijzing naar de volledige documentie
+          type: string
+          maxLength: 75
+          example: "VVO1.14"
+        PROGRESSIE_ID:
+          description: ID van progressie record
+          type: integer
+          format: int32
+          example: 12871
+        IS_BEHAALD:
+          description: Is comptententie behaald, 0 = niet behaald, 1 = gedeeltelijk van onderliggende, 2 = gehaald, ook alle onderliggende
+          type: number
+          format: int32
+          example: "1"
+        INGEVOERD:
+          description: Tijdstempel wanneer record is toegevoegd
+          type: string
+          format: date-time 
+          example: "2018-02-28T15:04:40Z"
+        INSTRUCTEUR_NAAM:
+          description: De volledige naam van de instrcuteur die de competentie heeft toegevoegd
+          type: string
+          example: "Lowieke de Vos"       
+        OPMERKINGEN:
+          description: Opmerking over de behaalde competentie
+          type: string
+          example: "Heeft aangetoond dat de vaardigheden volledig beheerst" 
+        children: 
+          type: array
+          items: 
+            type: object
+            $ref: '#/components/schemas/progressie_boom'

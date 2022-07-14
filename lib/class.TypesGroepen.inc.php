@@ -1,12 +1,12 @@
 <?php
-class Types extends Helios
+class TypesGroepen extends Helios
 {
 	function __construct() 
 	{
 		parent::__construct();
-		$this->dbTable = "ref_types";
-		$this->dbView = "types_view";
-		$this->Naam = "Types";
+		$this->dbTable = "ref_types_groepen";
+		$this->dbView = "types_groepen_view";
+		$this->Naam = "Types groepen";
 	}
 	
 	/*
@@ -24,7 +24,6 @@ class Types extends Helios
 		$query = sprintf ("
 			CREATE TABLE `%s` (
 				`ID` mediumint  UNSIGNED NOT NULL AUTO_INCREMENT,
-				`GROEP` smallint UNSIGNED NOT NULL,
 				`CODE` varchar(10) DEFAULT NULL,
 				`EXT_REF` varchar(25) DEFAULT NULL,
 				`OMSCHRIJVING` varchar(75) NOT NULL,
@@ -42,187 +41,36 @@ class Types extends Helios
 		if (isset($FillData))
 		{
 			$inject = "
-				(101, 1, '14L',     '14L', NULL, 0),
-				(102, 1, '32L',     '32L', NULL, 0),
-				(103, 1, '04R',     '04R', NULL, 0),
-				(104, 1, '22L',     '22L', NULL, 0),
-				(105, 1, '14',      '14', NULL, 0),
-				(106, 1, '12',      '12', NULL, 0),
-				(107, 1, '30R',     '30R', NULL, 0),
-				(108, 1, '04L',     '04L', NULL, 0),
-				(109, 1, '22R',     '22R', NULL, 0),
-
-				(201, 2, 'N',       'Noord', NULL, 0),
-				(202, 2, 'NNO',     'NNO', NULL, 1),
-				(203, 2, 'NO',      'Noordoost', NULL, 0),
-				(204, 2, 'ONO',     'ONO', NULL, 1),
-				(205, 2, 'O',       'Oost', NULL, 0),
-				(206, 2, 'OZO',     'OZO', NULL, 1),
-				(207, 2, 'ZO',      'Zuidoost', NULL, 0),
-				(208, 2, 'ZZO',     'ZZO', NULL, 1),
-				(209, 2, 'Z',       'Zuid', NULL, 0),
-				(210, 2, 'ZZW',     'ZZW', NULL, 1),
-				(211, 2, 'ZW',      'Zuidwest', NULL, 0),
-				(212, 2, 'WZV',     'WZW', NULL, 1),
-				(213, 2, 'W',       'West', NULL, 0),
-				(214, 2, 'WNW',     'WNW', NULL, 1),
-				(215, 2, 'NW',      'Noordwest', NULL, 0),
-				(216, 2, 'NNW',     'NNW', NULL, 1),
-
-				(301, 3,  NULL,     'Windkracht 1 (1-3 kn)', NULL, 0),
-				(302, 3,  NULL,     'Windkracht 2 (4-6 kn)', NULL, 0),
-				(303, 3,  NULL,     'Windkracht 3 (7-10 kn)', NULL, 0),
-				(304, 3,  NULL,     'Windkracht 4 (11-15 kn)', NULL, 0),
-				(305, 3,  NULL,     'Windkracht 5 (16 - 21 kn)', NULL, 0),
-				(306, 3,  NULL,     'Windkracht 6 (22 - 27 kn)', NULL, 0),
-				(307, 3,  NULL,     'Windkracht 7 (28 - 33 kn)', NULL, 0),
-				(308, 3,  NULL,     'Windkracht 8 (34 - 40 kn)', NULL, 0),
-				(300, 3,  NULL,     'Windkracht 0 (0 - 1 kn)', NULL, 0),
-
-				(401, 4, 'DIS',     'Discus CS', 4, 0),
-				(402, 4, 'LS4',     'LS 4', 3, 0),
-				(403, 4, 'LS6',     'LS 6-18 w', NULL, 1),
-				(404, 4, 'LS8',     'LS8', 5, 0),
-				(405, 4, 'Duo',     'Duo Discus', 7, 0),
-				(406, 4, 'ASK21',   'ASK 21', 1, 0),
-				(407, 4, 'ASK23',   'ASK 23 B', 2, 1),
-				(408, 4, 'ASG29',   'ASG-29', 6, 0),
-				(409, 4, 'ARC',   	'Arcus', 6, 0),
-
-				(501, 5, 'slp',     'Slepen', NULL, 0),
-				(502, 5, 'slm',     'Slepen (sleepkist)', NULL, 1),
-				(506, 5, 'zel',     'Zelfstart', NULL, 0),
-				(507, 5, 'tmg',     'Zelfstart (TMG)', NULL, 1),
-				(508, 5, 'vfr',     'Overig motorkisten', NULL, 1),
-				(550, 5, 'gezc',    'Lierstart', NULL, 0),
-				(551, 5, 'cct',     'Lierstart CCT', NULL, 1),
-				(552, 5, 'zcrd',    'Lierstart ZCD/ZCR', NULL, 1),
-				(553, 5, 'gae',     'Lierstart GAE', NULL, 1),
-
-				(600, 6, '0',       'Diverse (Bijvoorbeeld bedrijven- of jongerendag)', NULL, 0),
-				(601, 6, '1',       'Erelid', NULL, 0),
-				(602, 6, '2',       'Lid', NULL, 0),
-				(603, 6, '3',       'Jeugdlid', NULL, 0),
-				(606, 6, '6',       'Donateur', NULL, 0),
-				(607, 6, 'zus',     'Zusterclub', NULL, 0),
-				(608, 6, '8',       '5-rittenkaarthouder', NULL, 0),
-				(609, 6, '9',       'Nieuw lid, nog niet verwerkt in ledenadministratie', NULL, 0),
-				(610, 6,  NULL,     'Oprotkabel', NULL, 0),
-				(611, 6, '9',       'Cursist', NULL, 0),
-				(612, 6,  NULL,     'Penningmeester', NULL, 0),
-				(613, 6,  NULL,     'Systeem account', NULL, 0),
-				(625, 6, '9',       'DDWV vlieger', NULL, 0),
-
-				(701, 7,  NULL,     'Club bedrijf', NULL, 0),
-				(702, 7,  NULL,     'Kamp + DDWV', NULL, 0),
-				(703, 7,  NULL,     'DDWV', NULL, 0),
-
-				(801, 8,  NULL,     'Passagierstart (kosten voor pax)', NULL, 0),
-				(802, 8,  NULL,     'Relatiestart', NULL, 0),
-				(803, 8,  NULL,     'Start zusterclub', NULL, 0),
-				(804, 8,  NULL,     'Oprotkabel', NULL, 0),
-				(805, 8,  NULL,     'Normale GeZC start', NULL, 0),
-				(806, 8,  NULL,     'Proefstart privekist eenzitter', NULL, 0),
-				(807, 8,  NULL,     'Privestart', NULL, 0),
-				(809, 8,  NULL,     'Instructie of checkvlucht', NULL, 0),
-				(810, 8,  NULL,     'Solostart met tweezitter', NULL, 0),
-				(811, 8, 'dis',     'Invliegen, Dienststart', NULL, 0),
-				(812, 8,  NULL,     'Donateursstart', NULL, 0),
-				(813, 8,  NULL,     '5- of 10-rittenkaarthouder', NULL, 0),
-				(814, 8, 'mid',     'DDWV: Midweekvliegen', NULL, 0),
-				(815, 8,  NULL,     'Sleepkist, Dienststart', NULL, 0),
-
-				(901, 9, 'EHTL',    'Terlet', NULL, 0),
-				(902, 9, 'EHDL',    'Deelen', NULL, 0),
-				(903, 9, 'EHSB',    'Soesterberg', NULL, 0),
-				(904, 9, 'ELDERS',  'Elders ...', NULL, 0),
-
-				(1000,10,  NULL,    'Theorie examens', NULL, 0),
-				(1001,10, 'EVO',    'Elementaire vliegopleiding', NULL, 0),
-				(1002,10, 'VVO-1',  'Voortgezette vliegopleiding 1', NULL, 0),
-				(1003,10, 'VVO-2',  'Overlandvliegen', NULL, 0),
-				(1004,10, 'GeZC',   'GeZC vinkjeslijst', NULL, 0),
-
-				(1100,11, 'Geen',   'Geen bewolking', NULL, 0),
-				(1101,11, 'Laag',   'Lage bewolking', NULL, 0),
-				(1102,11, 'Middel', 'Middelbare bewolking', NULL, 0),
-				(1103,11, 'Hoge', 	'Hoge bewolking', NULL, 0),
-				(1104,11, 'Vert',	'Verticale ontwikkelde bewolking (cumulus)', NULL, 0),
-
-				(1200, 12, 'Var', 	'Variabele wind', NULL, 0), 
-				(1201, 12, 'Krimp', 'Krimpende wind', NULL, 0), 
-				(1202, 12, 'Ruim',  'Ruimende wind', NULL, 0), 
-				(1203, 12, 'Vlag',  'Wind vlagen', NULL, 0), 
-				(1204, 12, 'Stoot', 'Wind stoten', NULL, 0), 
-
-				(1300, 13, '< 2',   'Minder dan 2 kilometer', NULL, 0), 
-				(1301, 13, '2-5', 	'Tussen 2 en 5 kilometer', NULL, 0), 
-				(1302, 13, '5-10', 	'Tussen 5 en 10 kilometer', NULL, 0), 
-				(1303, 13, '> 10', 	'Meer dan 10 kilometer', NULL, 0), 
-
-				(1401, 14, 'A', 	'Terlet 1', NULL, 0),
-				(1402, 14, 'B', 	'Terlet 2', NULL, 0),
-				(1403, 14, 'C', 	'Terlet 3', NULL, 0),
-				(1406, 14, 'R9', 	'EH-R9', NULL, 0),
-
-				(1550, 15, 'GeZC',  'GeZC', NULL, 0),
-				(1551, 15, 'CCT',   'CCT', NULL, 0),
-				(1552, 15, 'ZCRD',  'ZCD/ZCR', NULL, 0),
-				(1553, 15, 'GAE',   'GAE', NULL, 0),
-				(1590, 15, 'ANDERS','Anders ...', NULL, 0),
-				
-				(1601, 16, '0',   	'0 m/s stijgen', NULL, 0),
-				(1602, 16, '0-1',   '0-1 m/s stijgen', NULL, 0),
-				(1603, 16, '1-2',   '1-2 m/s stijgen', NULL, 0),
-				(1604, 16, '2-3',   '2-3 m/s stijgen', NULL, 0),
-				(1605, 16, '> 3',   'meer dan 3 m/s stijgen', NULL, 0),
-				
-				(1700, 17, '0/8',   '0/8 bewolking', NULL, 0),
-				(1701, 17, '1/8',   '1/8 bewolking', NULL, 0),
-				(1702, 17, '2/8',   '2/8 bewolking', NULL, 0),
-				(1703, 17, '3/8',   '3/8 bewolking', NULL, 0),
-				(1704, 17, '4/8',   '4/8 bewolking', NULL, 0),
-				(1705, 17, '5/8',   '5/8 bewolking', NULL, 0),
-				(1706, 17, '6/8',   '6/8 bewolking', NULL, 0),
-				(1707, 17, '7/8',   '7/8 bewolking', NULL, 0),
-				(1708, 17, '8/8',   '8/8 bewolking', NULL, 0),
-
-				(1800, 18, NULL,   	'Ochtend DDI', 			 1, 0),
-				(1801, 18, NULL,   	'Ochtend Insructeur', 	 2, 0),
-				(1802, 18, NULL,   	'Ochtend Lierist',   	 3, 0),
-				(1803, 18, NULL,   	'Ochtend Hulplierist', 	 4, 0),
-				(1804, 18, NULL,   	'Ochtend Startleider',   5, 0),
-				(1805, 18, NULL,   	'Middag DDI', 			 7, 0),
-				(1806, 18, NULL,   	'Middag Instructeur', 	 8, 0),
-				(1807, 18, NULL,   	'Middag Lierist', 	 	 9, 0),
-				(1808, 18, NULL,   	'Middag Hulplierist', 	10, 0),
-				(1809, 18, NULL,   	'Middag Startleider', 	11, 0),
-				(1810, 18, NULL,   	'Sleepvlieger vd dag', 	13, 0),
-
-				(1811, 18, NULL,   	'2e Ochtend Startleider',   6, 0),
-				(1812, 18, NULL,   	'2e Middag Startleider', 	12, 0),
-
-				(1813, 18, NULL,   	'1e Gastenvlieger',   20, 0),
-				(1814, 18, NULL,   	'2e Gastenvlieger', 	 21, 0),
-				
-				(1901, 19, 'DBO',    'DBO', NULL, 0),
-				(1902, 19, 'SOLIST', 'Solist', NULL, 0),
-				(1903, 19, 'BREVET', 'Brevethouder', NULL, 0);";
+				(9, 'Vliegveld',1,1),
+				(1, 'Banen',2,0),
+				(2, 'Windrichting',32,0),
+				(3, 'Windkracht',33,0),
+				(4, 'Vliegtuig types',10,0),
+				(5, 'Start methodes',11,1),
+				(6, 'Lidmaatschap', 12,1),
+				(7, 'Bedrijf',20,1),                    
+				(10, 'Opleidingsblok',35,0),
+				(11, 'Bewolking',36,0),
+				(12, 'Windontwikkeling',34,0),
+				(13, 'Zicht',31,0),
+				(14, 'Luchtruim',30,0),
+				(15, 'Veldleiding',21,0),
+				(16, 'Termiek',38,0),
+				(17, 'Bewolking dekking',37,0),
+				(18, 'Diensten',14,1),
+				(19, 'Status',13,1);";
 
 			$query = sprintf("
 					INSERT INTO `%s` (
-						`ID`, 
-						`GROEP`, 
-						`CODE`, 
+						`ID`,  
 						`OMSCHRIJVING`, 
 						`SORTEER_VOLGORDE`, 
-						`VERWIJDERD`) 
+						`READ_ONLY`) 
 					VALUES
 						%s;", $this->dbTable, $inject);
 		
 			parent::DbUitvoeren($query);					
 		}
-		
 	}
 
 	/*
@@ -236,19 +84,19 @@ class Types extends Helios
 			
 		$query = "CREATE VIEW `%s` AS
 			SELECT 
-				types.*
+				groepen.*
 			FROM
-				`%s` `types`
+				`%s` `groepen`
 			WHERE
-				`types`.`VERWIJDERD` = %d
+				`groepen`.`VERWIJDERD` = %d
 			ORDER BY 
-				GROEP, SORTEER_VOLGORDE, ID;";		
+				SORTEER_VOLGORDE, ID;";		
 						
-		parent::DbUitvoeren("DROP VIEW IF EXISTS types_view");							
-		parent::DbUitvoeren(sprintf($query, "types_view", $this->dbTable, 0));
+		parent::DbUitvoeren("DROP VIEW IF EXISTS types_groepen_view");							
+		parent::DbUitvoeren(sprintf($query, "types_groepen_view", $this->dbTable, 0));
 
-		parent::DbUitvoeren("DROP VIEW IF EXISTS verwijderd_types_view");
-		parent::DbUitvoeren(sprintf($query, "verwijderd_types_view", $this->dbTable, 1));
+		parent::DbUitvoeren("DROP VIEW IF EXISTS verwijderd_types_groepen_view");
+		parent::DbUitvoeren(sprintf($query, "verwijderd_types_groepen_view", $this->dbTable, 1));
 	}
 
 	/*
@@ -256,7 +104,7 @@ class Types extends Helios
 	*/		
 	function GetObject($ID)
 	{
-		$functie = "Types.GetObject";
+		$functie = "TypesGroepen.GetObject";
 		Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, $ID));	
 
 		if ($ID == null)
@@ -282,7 +130,7 @@ class Types extends Helios
 	{
 		global $app_settings;
 
-		$functie = "Types.GetObjects";
+		$functie = "TypesGroepen.GetObjects";
 		Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($params, true)));		
 		
 		$where = ' WHERE 1=1 ';
@@ -374,15 +222,6 @@ class Types extends Helios
 						}
 						break;
 					}			
-				case "GROEP" : 
-					{
-						$groep = isINT($value, "GROEP");
-						$where .= " AND GROEP=?";	
-						array_push($query_params, $groep);
-						
-						Debug(__FILE__, __LINE__, sprintf("%s: GROEP='%s'", $functie, $groep));
-						break;	   
-					}
 				default:
 					{
 						throw new Exception(sprintf("405;%s is een onjuiste parameter;", $key));
@@ -395,7 +234,7 @@ class Types extends Helios
 			SELECT 
 				%s
 			FROM
-				`####types_view` " . $where; // . $orderby;
+				`####types_groepen_view` " . $where; // . $orderby;
 		$query = str_replace("####", ($alleenVerwijderd ? "verwijderd_" : "") , $query);		
 		
 		$retVal = array();
@@ -421,7 +260,7 @@ class Types extends Helios
 			$rquery = sprintf($query, $velden);
 			parent::DbOpvraag($rquery, $query_params);
 			$retVal['dataset'] = parent::DbData();
-			
+
 			$retVal['hash'] = hash("crc32", json_encode($retVal));
 			Debug(__FILE__, __LINE__, sprintf("HASH=%s", $retVal['hash']));	
 
@@ -443,7 +282,7 @@ class Types extends Helios
 	*/
 	function VerwijderObject($id = null, $verificatie = true)
 	{
-		$functie = "Types.VerwijderObject";
+		$functie = "TypesGroepen.VerwijderObject";
 		Debug(__FILE__, __LINE__, sprintf("%s('%s', %s)", $functie, $id, (($verificatie === false) ? "False" :  $verificatie)));
 
 		if (!$this->heeftDataToegang(null, false))
@@ -461,7 +300,7 @@ class Types extends Helios
 	*/
 	function HerstelObject($id)
 	{
-		$functie = "Types.HerstelObject";
+		$functie = "TypesGroepen.HerstelObject";
 		Debug(__FILE__, __LINE__, sprintf("%s('%s')", $functie, $id));
 
 		if (!$this->heeftDataToegang(null, false))
@@ -479,7 +318,7 @@ class Types extends Helios
 	*/		
 	function AddObject($TypeData)
 	{
-		$functie = "Types.AddObject";
+		$functie = "TypesGroepen.AddObject";
 		Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($TypeData, true)));
 		
 		if (!$this->heeftDataToegang(null, false))
@@ -502,9 +341,6 @@ class Types extends Helios
 			if (parent::NumRows() > 0)
 				throw new Exception(sprintf("409;Record met ID=%s bestaat al;", $id));									
 		}
-
-		if (!array_key_exists('GROEP', $TypeData))
-			throw new Exception("406;Groep is verplicht;");
 		
 		if (!array_key_exists('OMSCHRIJVING', $TypeData))
 			throw new Exception("406;Omschrijving is verplicht;");
@@ -523,7 +359,7 @@ class Types extends Helios
 	*/		
 	function UpdateObject($TypeData)
 	{
-		$functie = "Types.UpdateObject";
+		$functie = "TypesGroepen.UpdateObject";
 		Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($TypeData, true)));
 		
 		if (!$this->heeftDataToegang(null, false))
@@ -557,10 +393,6 @@ class Types extends Helios
 		if (array_key_exists($field, $input))
 			$record[$field] = isINT($input[$field], $field);
 
-		$field = 'GROEP';
-		if (array_key_exists($field, $input))
-			$record[$field] = isINT($input[$field], $field);
-
 		$field = 'SORTEER_VOLGORDE';
 		if (array_key_exists($field, $input))
 			$record[$field] = isINT($input[$field], $field, true);
@@ -591,9 +423,6 @@ class Types extends Helios
 		// vermengvuldigen met 1 converteer naar integer
 		if (isset($record['ID']))
 			$retVal['ID']  = $record['ID'] * 1;	
-
-		if (isset($record['GROEP']))
-			$retVal['GROEP']  = $record['GROEP'] * 1;	
 
 		if (isset($record['SORTEER_VOLGORDE']))
 			$retVal['SORTEER_VOLGORDE']  = $record['SORTEER_VOLGORDE'] * 1;		

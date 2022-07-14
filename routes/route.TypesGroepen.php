@@ -8,8 +8,8 @@ use Slim\Factory\AppFactory;
 /*
 Aanmaken van de database tabel. Indien FILLDATA == true, dan worden er ook voorbeeld records toegevoegd 
 */
-$app->post(url_base() . 'Competenties/CreateTable', function (Request $request, Response $response, $args) {
-    $obj = MaakObject("Competenties");
+$app->post(url_base() . 'TypesGroepen/CreateTable', function (Request $request, Response $response, $args) {
+    $obj = MaakObject("TypesGroepen");
     try
     {
         $params = $request->getQueryParams();
@@ -20,7 +20,7 @@ $app->post(url_base() . 'Competenties/CreateTable', function (Request $request, 
     }
     catch(Exception $exception)
     {
-        Debug(__FILE__, __LINE__, "/Competenties/CreateTable: " .$exception);
+        Debug(__FILE__, __LINE__, "/TypesGroepen/CreateTable: " .$exception);
 
         list($dummy, $exceptionMsg) = explode(": ", $exception);
         list($httpStatus, $message) = explode(";", $exceptionMsg);  // onze eigen formaat van een exceptie
@@ -34,8 +34,8 @@ $app->post(url_base() . 'Competenties/CreateTable', function (Request $request, 
 /*
 Maak database views, als view al bestaat wordt deze overschreven
 */
-$app->post(url_base() . 'Competenties/CreateViews', function (Request $request, Response $response, $args) {
-    $obj = MaakObject("Competenties");
+$app->post(url_base() . 'TypesGroepen/CreateViews', function (Request $request, Response $response, $args) {
+    $obj = MaakObject("TypesGroepen");
     try
     {
         $obj->CreateViews();    // Hier staat de logica voor deze functie
@@ -43,7 +43,7 @@ $app->post(url_base() . 'Competenties/CreateViews', function (Request $request, 
     }
     catch(Exception $exception)
     {
-        Debug(__FILE__, __LINE__, "/Competenties/CreateViews: " .$exception);
+        Debug(__FILE__, __LINE__, "/TypesGroepen/CreateViews: " .$exception);
 
         list($dummy, $exceptionMsg) = explode(": ", $exception);
         list($httpStatus, $message) = explode(";",  $exceptionMsg);  // onze eigen formaat van een exceptie
@@ -57,8 +57,8 @@ $app->post(url_base() . 'Competenties/CreateViews', function (Request $request, 
 /*
 Haal een enkel record op uit de database
 */
-$app->get(url_base() . 'Competenties/GetObject', function (Request $request, Response $response, $args) {
-    $obj = MaakObject("Competenties");
+$app->get(url_base() . 'TypesGroepen/GetObject', function (Request $request, Response $response, $args) {
+    $obj = MaakObject("TypesGroepen");
     try
     {
         $params = $request->getQueryParams();
@@ -77,7 +77,7 @@ $app->get(url_base() . 'Competenties/GetObject', function (Request $request, Res
     }
     catch(Exception $exception)
     {
-        Debug(__FILE__, __LINE__, "/Competenties/GetObject: " .$exception);
+        Debug(__FILE__, __LINE__, "/TypesGroepen/GetObject: " .$exception);
 
         list($dummy, $exceptionMsg) = explode(": ", $exception);
         list($httpStatus, $message) = explode(";", $exceptionMsg);  // onze eigen formaat van een exceptie
@@ -91,8 +91,8 @@ $app->get(url_base() . 'Competenties/GetObject', function (Request $request, Res
 /*
 Haal een dataset op met records als een array uit de database. 
 */
-$app->get(url_base() . 'Competenties/GetObjects', function (Request $request, Response $response, $args) {
-    $obj = MaakObject("Competenties");
+$app->get(url_base() . 'TypesGroepen/GetObjects', function (Request $request, Response $response, $args) {
+    $obj = MaakObject("TypesGroepen");
     try
     {
         $parameters = $request->getQueryParams();
@@ -103,33 +103,7 @@ $app->get(url_base() . 'Competenties/GetObjects', function (Request $request, Re
     }
     catch(Exception $exception)
     {
-        Debug(__FILE__, __LINE__, "/Competenties/GetObjects: " .$exception);
-
-        list($dummy, $exceptionMsg) = explode(": ", $exception);
-        list($httpStatus, $message) = explode(";", $exceptionMsg);   // onze eigen formaat van een exceptie
-
-        header("X-Error-Message: $message", true, intval($httpStatus));
-        header("Content-Type: text/plain");
-        die;
-    }
-});
-
-/*
-Haal competenties op in een boomstructuur, dan heeft de client minder werk
-*/
-$app->get(url_base() . 'Competenties/CompetentiesBoom', function (Request $request, Response $response, $args) {
-    $obj = MaakObject("Competenties");
-    try
-    {
-        $parameters = $request->getQueryParams();
-        $t = $obj->CompetentiesBoom($parameters); // Hier staat de logica voor deze functie
-
-        $response->getBody()->write(json_encode($t));
-        return $response->withHeader('Content-Type', 'application/json');
-    }
-    catch(Exception $exception)
-    {
-        Debug(__FILE__, __LINE__, "/Competenties/CompetentiesBoom: " .$exception);
+        Debug(__FILE__, __LINE__, "/TypesGroepen/GetObjects: " .$exception);
 
         list($dummy, $exceptionMsg) = explode(": ", $exception);
         list($httpStatus, $message) = explode(";", $exceptionMsg);   // onze eigen formaat van een exceptie
@@ -144,8 +118,8 @@ $app->get(url_base() . 'Competenties/CompetentiesBoom', function (Request $reque
 Markeer een record in de database als verwijderd. Het record wordt niet fysiek verwijderd om er een link kan zijn naar andere tabellen.
 Het veld VERWIJDERD wordt op "1" gezet.
 */
-$app->delete(url_base() . 'Competenties/DeleteObject', function (Request $request, Response $response, $args) {
-    $obj = MaakObject("Competenties");
+$app->delete(url_base() . 'TypesGroepen/DeleteObject', function (Request $request, Response $response, $args) {
+    $obj = MaakObject("TypesGroepen");
     try
     {
         $params = $request->getQueryParams();
@@ -157,7 +131,7 @@ $app->delete(url_base() . 'Competenties/DeleteObject', function (Request $reques
     }
     catch(Exception $exception)
     {
-        Debug(__FILE__, __LINE__, "/Competenties/DeleteObject: " .$exception);
+        Debug(__FILE__, __LINE__, "/TypesGroepen/DeleteObject: " .$exception);
 
         list($dummy, $exceptionMsg) = explode(": ", $exception);
         list($httpStatus, $message) = explode(";", $exceptionMsg);  // onze eigen formaat van een exceptie
@@ -172,8 +146,8 @@ $app->delete(url_base() . 'Competenties/DeleteObject', function (Request $reques
 Haal een record terug dat verwijderd is . Het record was gelukkig niet fysiek verwijderd om er een link kan zijn naar andere tabellen.
 Het veld VERWIJDERD wordt terug op "0" gezet.
 */
-$app->patch(url_base() . 'Competenties/RestoreObject', function (Request $request, Response $response, $args) {
-    $obj = MaakObject("Competenties");
+$app->patch(url_base() . 'TypesGroepen/RestoreObject', function (Request $request, Response $response, $args) {
+    $obj = MaakObject("TypesGroepen");
     try
     {
         $params = $request->getQueryParams();
@@ -184,7 +158,7 @@ $app->patch(url_base() . 'Competenties/RestoreObject', function (Request $reques
     }
     catch(Exception $exception)
     {
-        Debug(__FILE__, __LINE__, "/Competenties/RestoreObject: " .$exception);
+        Debug(__FILE__, __LINE__, "/TypesGroepen/RestoreObject: " .$exception);
 
         list($dummy, $exceptionMsg) = explode(": ", $exception);
         list($httpStatus, $message) = explode(";", $exceptionMsg);  // onze eigen formaat van een exceptie
@@ -193,13 +167,13 @@ $app->patch(url_base() . 'Competenties/RestoreObject', function (Request $reques
         header("Content-Type: text/plain");
         die;
     }  
-}); 
+});
 
 /*
 Aanmaken van een record. Het is niet noodzakelijk om alle velden op te nemen in het verzoek
 */
-$app->post(url_base() . 'Competenties/SaveObject', function (Request $request, Response $response, $args) {
-    $obj = MaakObject("Competenties");
+$app->post(url_base() . 'TypesGroepen/SaveObject', function (Request $request, Response $response, $args) {
+    $obj = MaakObject("TypesGroepen");
     try
     {
         $data = json_decode($request->getBody(), true);
@@ -210,7 +184,7 @@ $app->post(url_base() . 'Competenties/SaveObject', function (Request $request, R
     }
     catch(Exception $exception)
     {
-        Debug(__FILE__, __LINE__, "/Competenties/SaveObject: " .$exception);
+        Debug(__FILE__, __LINE__, "/TypesGroepen/SaveObject: " .$exception);
 
         list($dummy, $exceptionMsg) = explode(": ", $exception);
         list($httpStatus, $message) = explode(";", $exceptionMsg);  // onze eigen formaat van een exceptie
@@ -224,8 +198,8 @@ $app->post(url_base() . 'Competenties/SaveObject', function (Request $request, R
 /*
 Aanpassen van een record. Het is niet noodzakelijk om alle velden op te nemen in het verzoek
 */
-$app->put(url_base() . 'Competenties/SaveObject', function (Request $request, Response $response, $args) {
-    $obj = MaakObject("Competenties");
+$app->put(url_base() . 'TypesGroepen/SaveObject', function (Request $request, Response $response, $args) {
+    $obj = MaakObject("TypesGroepen");
     try
     {
         $data = json_decode($request->getBody(), true);
@@ -236,7 +210,7 @@ $app->put(url_base() . 'Competenties/SaveObject', function (Request $request, Re
     }
     catch(Exception $exception)
     {
-        Debug(__FILE__, __LINE__, "/Competenties/SaveObject: " .$exception);
+        Debug(__FILE__, __LINE__, "/TypesGroepen/SaveObject: " .$exception);
 
         list($dummy, $exceptionMsg) = explode(": ", $exception);
         list($httpStatus, $message) = explode(";", $exceptionMsg);  // onze eigen formaat van een exceptie

@@ -240,7 +240,7 @@ else
         $htmlBody =  str_replace("[VLIEGEND]",$dagInfo['dataset'][0]['VLIEGENDMATERIEEL'], $htmlBody);
         $htmlBody =  str_replace("[ROLLEND]",$dagInfo['dataset'][0]['ROLLENDMATERIEEL'], $htmlBody);
         $htmlBody =  str_replace("[VERSLAG]",$dagInfo['dataset'][0]['VERSLAG'], $htmlBody);
-        $htmlBody =  str_replace("[INCIDENTEN]",$dagInfo['dataset'][0]['VERSLAG'], $htmlBody);
+        $htmlBody =  str_replace("[INCIDENTEN]",$dagInfo['dataset'][0]['INCIDENTEN'], $htmlBody);
 
         $bedrijf = "";
         $bedrijf .= ($dagInfo['dataset'][0]['DDWV'] == true) ? "DDWV" : "";

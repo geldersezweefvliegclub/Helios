@@ -541,8 +541,8 @@ components:
           description: 2Factor authenticatie voor deze gebruiker  
           type: boolean
           example: true    
-        HEEFT_BETAALD: 
-          description: Heef het lid de factuur van dit jaar betaald?  
+        STARTVERBOD: 
+          description: Heef het lid een startverbod?  
           type: boolean
           example: false  
         PRIVACY: 

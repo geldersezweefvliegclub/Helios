@@ -46,8 +46,6 @@ $schemaDDWV = "DDWV dagen beginnen we om 9:00 en eindigd de dienst om 15:00";
 $datum = Date('Y-m-d', strtotime('+3 days'));
 $url_args = "DATUM=$datum";
 
-echo $url_args;
-
 heliosInit("Rooster/GetObject?" . $url_args);
 
 $result      = curl_exec($curl_session);
@@ -123,6 +121,7 @@ else
 
     $datumString .= date('d-m-Y', strtotime('+3 days'));
 
+    echo "Herinnering email gestuurd voor " . $datumString . "\n";
     foreach ($diensten['dataset'] as $dienst)
     {
         $url_args = "ID=" . $dienst['LID_ID'];
@@ -147,8 +146,13 @@ else
         $mail->SetFrom($smtp_settings['from'], $smtp_settings['name']);
 
         echo $lid['EMAIL'] . "<br>";
-        if(!$mail->Send()) {
+        
+        if($mail->Send()) {
+            echo sprintf("%s: %s [%s]\n", $dienst['TYPE_DIENST'], $lid['NAAM'], $lid['EMAIL']);
+        }
+        else  {
             print_r($mail);
         }
+    
     }
 }

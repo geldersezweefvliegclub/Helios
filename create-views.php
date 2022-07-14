@@ -7,7 +7,8 @@ Hieronder geen wijzingen aanbrengen !!
 */
 
 
-$classes = array("Types", 
+$classes = array("TypesGroepen",
+                 "Types", 
                  "Competenties",
                  "Vliegtuigen", 
                  "Leden", 
