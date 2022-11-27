@@ -148,6 +148,26 @@ paths:
         500:
           description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"          
 
+  /Types/GetClubVliegtuigenTypes:
+    get:
+      security:
+        - basicAuth: [] 
+        - bearerAuth: []     
+      summary: Haal een lijst met club vliegtuig types op uit de database. 
+      responses:
+        200:
+          description: "OK, data succesvol opgehaald"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/view_types'
+        304:
+          description: "Data niet gemodificeerd, HASH in aanroep == hash in dataset"                     
+        405:
+          description: "Methode niet toegestaan, input validatie error"  
+        500:
+          description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"  
+
   /Types/DeleteObject:
     delete:
       security:

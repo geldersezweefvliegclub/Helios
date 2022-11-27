@@ -465,7 +465,11 @@ components:
           description: Snelheid van het vliegtuig in km/h
           type: number
           format: int
-          example: 95         
+          example: 95    
+        VELD_ID: 
+          description: Op welk veld is dit vliegtuig aangemeld
+          type: integer
+          example: 901          
 
     oper_aanwezig_vliegtuigen:
       type: object
@@ -554,7 +558,12 @@ components:
             OPMERKINGEN:
               description: Opermerkingen over vliegtuig
               type: string
-              example: Radio op stand 10 zetten                          
+              example: Radio op stand 10 zetten     
+            VELD: 
+              description: Vliegveld waar vliegtuig aangemeld is
+              type: string
+              maxLength: 255
+              example: Terlet                             
             REG_CALL: 
               description: Vliegtuig registratie en callsign van het vliegtuig
               type: string

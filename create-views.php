@@ -10,7 +10,8 @@ Hieronder geen wijzingen aanbrengen !!
 $classes = array("TypesGroepen",
                  "Types", 
                  "Competenties",
-                 "Vliegtuigen", 
+                 "Vliegtuigen",
+                 "Gasten", 
                  "Leden", 
                  "Rooster", 
                  "Diensten", 
@@ -21,6 +22,7 @@ $classes = array("TypesGroepen",
                  "Progressie", 
                  "Tracks",
                  "Reservering",
+                 "Transacties",
                  "Audit");
 
 include('include/functions.php');

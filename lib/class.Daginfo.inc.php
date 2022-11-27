@@ -618,7 +618,7 @@ class Daginfo extends Helios
 
 		if (isset($record['STARTMETHODE_ID']))
 			$retVal['STARTMETHODE_ID']  = $record['STARTMETHODE_ID'] * 1;					
-			
+
 		// booleans	
 		if (isset($record['DDWV']))
 			$retVal['DDWV']  = $record['DDWV'] == "1" ? true : false;

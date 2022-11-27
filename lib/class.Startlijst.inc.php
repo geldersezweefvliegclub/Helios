@@ -504,7 +504,7 @@ class Startlijst extends Helios
 						Debug(__FILE__, __LINE__, sprintf("%s: DDWV='%s'", $functie, $alleenVerwijderd));
 
 						if ($alleenDDWV) {
-							$where .= " AND (di.DDWV=1 OR rooster.DDWV=1)";
+							$where .= " AND (DDWV=1)";
 						}
 						break;
 					}													
@@ -2030,6 +2030,7 @@ class Startlijst extends Helios
 
 		$aVliegtuigen = MaakObject('AanwezigVliegtuigen');
 		$record['VLIEGTUIG_ID'] = $startData['VLIEGTUIG_ID'];
+		$record['VELD_ID'] = $startData['VELD_ID'];
 		$aVliegtuigen->Aanmelden($record);	
 		unset ($record['VLIEGTUIG_ID']); 	// varibale VLIEGTUIG_ID is niet meer nodig
 
@@ -2053,6 +2054,7 @@ class Startlijst extends Helios
 						case "612": break; 	// Penningmeester, niet aanmelden
 						default:
 							$record['LID_ID'] = $startData['VLIEGER_ID'];
+							$record['VELD_ID'] = $startData['VELD_ID'];
 
 							$refVliegtuigen = MaakObject('Vliegtuigen');
 							$rvObj = $refVliegtuigen->GetObject($startData['VLIEGTUIG_ID']);
@@ -2092,12 +2094,81 @@ class Startlijst extends Helios
 							unset($record['VOORKEUR_VLIEGTUIG_TYPE']);
 
 							$record['LID_ID'] = $startData['INZITTENDE_ID'];
+							$record['VELD_ID'] = $startData['VELD_ID'];
 							$aLeden->Aanmelden($record);	
 							break;
 					}		
 				}	
 			}	
-		}						
+		}	
+		
+		// Als er losse namen zijn ingevoerd, dan opslaan als gast voor de vliegdag
+		// maakt het invoeren voor de volgende starts makkelijker
+		if (array_key_exists('VLIEGER_NAAM', $startData))
+		{
+			if (isset($startData['VLIEGER_NAAM'])) 
+			{
+				$g = MaakObject('Gasten');
+				$gasten = $g->GetObjects(array (
+					'BEGIN_DATUM' => $startData['DATUM'], 
+					'EIND_DATUM' => $startData['DATUM'] 
+				));
+				$gevonden = false;
+				foreach ($gasten['dataset'] as $gast)
+				{
+					if ($gast == $startData['VLIEGER_NAAM'])
+					{
+						$gevonden = true;
+						break;
+					} 
+				}
+				if (!$gevonden) 
+				{
+					$record = array();
+					$record['DATUM'] = $startData['DATUM'];
+					$record['NAAM'] = $startData['VLIEGER_NAAM'];
+					$record['VELD_ID'] = $startData['VELD_ID'];
+
+					if (array_key_exists('OPMERKINGEN', $startData))
+						$record['OPMERKINGEN'] = $startData['OPMERKINGEN'];
+
+					$g->AddObject($record);
+				}
+			}
+		}
+
+		if (array_key_exists('INZITTENDE_NAAM', $startData))
+		{
+			if (isset($startData['INZITTENDE_NAAM'])) 
+			{
+				$g = MaakObject('Gasten');
+				$gasten = $g->GetObjects(array (
+					'BEGIN_DATUM' => $startData['DATUM'], 
+					'EIND_DATUM' => $startData['DATUM'] 
+				));
+				$gevonden = false;
+				foreach ($gasten['dataset'] as $gast)
+				{
+					if ($gast == $startData['INZITTENDE_NAAM'])
+					{
+						$gevonden = true;
+						break;
+					} 
+				}
+				if (!$gevonden) 
+				{
+					$record = array();
+					$record['DATUM'] = $startData['DATUM'];
+					$record['NAAM'] = $startData['INZITTENDE_NAAM'];
+					$record['VELD_ID'] = $startData['VELD_ID'];
+
+					if (array_key_exists('OPMERKINGEN', $startData))
+						$record['OPMERKINGEN'] = $startData['OPMERKINGEN'];
+
+					$g->AddObject($record);
+				}
+			}
+		}
 	}
 
 	// ------------------------------------------------------------------

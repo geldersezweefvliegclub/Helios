@@ -30,9 +30,10 @@ $app_settings = array(
 	'ApiKeySMS' => 'API key here',	// api key voor messagebird
 	'KeyJWT' => '480f4p*%ghouiEWf*DXKz22Vy7RDzFeaBlw329zMyHh*o',	// versleutel JWT token, AANPASSEN voor productie !!!
 	'dataNotModified' => 304,
-	'2Factor' => true				// 2Factor authenticatie aan (true) of uit (false)
+	'2Factor' => true,				// 2Factor authenticatie aan (true) of uit (false)
 	'PaxBevoegdheid' => 271			// CompetentieID van pax. Let op !!  CreateViews aanroepen, na wijzigen. Dit zit namelijk in database views
 );
+
 
 // dataNotModified heeft uitleg nodig. Wanneer client data opvraagt van server met een hash, dan wordt gekeken of de hash van de opgehaalde dataset
 // hetzelfde is. Zo ja, dan heeft de client al de laatste data en hoeft de data niet nogmaals naar de client gestuurd te worden. 
@@ -51,6 +52,27 @@ $app_settings = array(
 
 // Optie 0 moet worden gedaan door je internet provider, optie 2 is niet altijd mogelijk of wenselijk, blijft over optie 2
 // Omdat (op termijn) optie 0 van toepassing kan zijn, is de status code 304 configureerbaar. Bijvoorbeeld 704 als custom error status
+
+$strippen = array(
+	0 => array(
+		'STRIPPEN' => 12,
+		'BEDRAG' => 48,
+		'KOSTEN' => 1,
+        'OMSCHRIJVING' => '12 strippen, € 48.00 plus € 1.00 transactiekosten'
+    ),
+    1 => array(
+		'STRIPPEN' => 25,
+		'BEDRAG' => 100,
+		'KOSTEN' => 1,
+        'OMSCHRIJVING' => '25 strippen, € 100.00 plus € 1.00 transactiekosten'
+    ),
+	2 => array(
+		'STRIPPEN' => 50,
+		'BEDRAG' => 200,
+		'KOSTEN' => 1,
+        'OMSCHRIJVING' => '50 strippen, € 200.00 plus € 1.00 transactiekosten'
+    ),
+);
 
 
 // Wachtwoord om te installeren

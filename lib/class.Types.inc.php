@@ -188,7 +188,7 @@ class Types extends Helios
 				(1708, 17, '8/8',   '8/8 bewolking', NULL, 0),
 
 				(1800, 18, NULL,   	'Ochtend DDI', 			 1, 0),
-				(1801, 18, NULL,   	'Ochtend Insructeur', 	 2, 0),
+				(1801, 18, NULL,   	'Ochtend Instructeur', 	 2, 0),
 				(1802, 18, NULL,   	'Ochtend Lierist',   	 3, 0),
 				(1803, 18, NULL,   	'Ochtend Hulplierist', 	 4, 0),
 				(1804, 18, NULL,   	'Ochtend Startleider',   5, 0),
@@ -205,9 +205,9 @@ class Types extends Helios
 				(1813, 18, NULL,   	'1e Gastenvlieger',   20, 0),
 				(1814, 18, NULL,   	'2e Gastenvlieger', 	 21, 0),
 				
-				(1901, 19, 'DBO',    'DBO', NULL, 0),
-				(1902, 19, 'SOLIST', 'Solist', NULL, 0),
-				(1903, 19, 'BREVET', 'Brevethouder', NULL, 0);";
+				(1901, 19, 'D',    	'DBO', NULL, 3),
+				(1902, 19, 'S', 	'Solist', NULL, 2),
+				(1903, 19, 'B', 	'Brevethouder', NULL, 1);";
 
 			$query = sprintf("
 					INSERT INTO `%s` (
@@ -436,6 +436,60 @@ class Types extends Helios
 		}
 		return null;  // Hier komen we nooit :-)
 	}	
+
+	/*
+	Haal een dataset op met records als een array uit de database. 
+	*/		
+	function GetClubVliegtuigenTypes()
+	{
+		global $app_settings;
+
+		$functie = "Types.GetClubVliegtuigenTypes";
+		Debug(__FILE__, __LINE__, sprintf("%s()", $functie));		
+		
+		$where = ' WHERE ID IN (SELECT TYPE_ID FROM ref_vliegtuigen WHERE CLUBKIST=1) ';
+		$orderby = "";
+		$alleenLaatsteAanpassing = false;
+		$hash = null;
+
+			
+		$query = "
+			SELECT 
+				*
+			FROM
+				`types_view` " . $where; // . $orderby;	
+		
+		$retVal = array();
+
+		$retVal['totaal'] = $this->Count($query);		// totaal aantal of record in de database
+		$retVal['laatste_aanpassing']=  $this->LaatsteAanpassing($query);
+		Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s", $retVal['totaal'], $retVal['laatste_aanpassing']));	
+
+		if ($alleenLaatsteAanpassing)
+		{
+			$retVal['dataset'] = null;
+			return $retVal;
+		}
+		else
+		{			
+			parent::DbOpvraag($query);
+			$retVal['dataset'] = parent::DbData();
+			
+			$retVal['hash'] = hash("crc32", json_encode($retVal));
+			Debug(__FILE__, __LINE__, sprintf("HASH=%s", $retVal['hash']));	
+
+			if ($retVal['hash'] == $hash)
+				throw new Exception(sprintf("%d;Dataset ongewijzigd;", $app_settings['dataNotModified']));
+
+			for ($i=0 ; $i < count($retVal['dataset']) ; $i++)
+			{
+				$retVal['dataset'][$i] = $this->RecordToOutput($retVal['dataset'][$i]);
+			}
+			return $retVal;
+		}
+		return null;  // Hier komen we nooit :-)
+	}	
+
 
 	/*
 	Markeer een record in de database als verwijderd. Het record wordt niet fysiek verwijderd om er een link kan zijn naar andere tabellen.

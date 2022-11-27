@@ -41,6 +41,7 @@ class Leden extends Helios
 				`ZUSTERCLUB_ID` mediumint UNSIGNED DEFAULT NULL,
 				`BUDDY_ID` mediumint UNSIGNED NULL,
 				`LIERIST` tinyint UNSIGNED NOT NULL DEFAULT 0,
+				`LIERIST_IO` tinyint UNSIGNED NOT NULL DEFAULT 0,
 				`STARTLEIDER` tinyint UNSIGNED NOT NULL DEFAULT 0,
 				`INSTRUCTEUR` tinyint UNSIGNED NOT NULL DEFAULT 0,
 				`CIMT` tinyint UNSIGNED NOT NULL DEFAULT 0,
@@ -68,6 +69,7 @@ class Leden extends Helios
 				`BREVET_NUMMER` varchar(25) DEFAULT NULL,
 				`EMAIL_DAGINFO` tinyint UNSIGNED NOT NULL DEFAULT 0,
 				`OPMERKINGEN` text DEFAULT NULL,
+				`TEGOED` FLOAT NOT NULL DEFAULT 0,
 				`VERWIJDERD` tinyint UNSIGNED NOT NULL DEFAULT 0,
 				`LAATSTE_AANPASSING` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
@@ -82,7 +84,7 @@ class Leden extends Helios
 					FOREIGN KEY (LIDTYPE_ID) REFERENCES ref_types(ID),
 					FOREIGN KEY (ZUSTERCLUB_ID) REFERENCES %s(ID),
 					FOREIGN KEY (BUDDY_ID) REFERENCES %s(ID) 			
-			)", $this->dbTable, $this->dbTable);
+			)", $this->dbTable, $this->dbTable, $this->dbTable);
 		parent::DbUitvoeren($query);
 
 		if (isset($FillData))
@@ -206,18 +208,24 @@ class Leden extends Helios
 		$functie = "Leden.GetObject";
 		Debug(__FILE__, __LINE__, sprintf("%s(%s, %s)", $functie, $ID, $toegangControleOverslaan ? "true" : "false"));	
 
+		$privacyMasker = false;
+
 		if (!isset($ID))
 			throw new Exception("406;Geen ID in aanroep;");
 
 		$conditie = array();
 		$conditie['ID'] = isINT($ID, "ID");
-		
+	
+
 		// ophalen mag alleen door ingelogde gebruiker of beheerder, of vanuit een interne functie
 		$l = MaakObject('Login');
 		if (($l->getUserFromSession() != $ID) && ($toegangControleOverslaan == false))
 		{
 			if (!$this->heeftDataToegang() && !$l->isBeheerderDDWV() && !$l->isRooster())
 				throw new Exception("401;Geen leesrechten;");
+
+			$rlObj = $this->GetObject($l->getUserFromSession());
+			$privacyMasker = $rlObj['PRIVACY'];
 		}
 		$obj = parent::GetSingleObject($conditie);
 		Debug(__FILE__, __LINE__, print_r($obj, true));
@@ -226,7 +234,7 @@ class Leden extends Helios
 			throw new Exception("404;Record niet gevonden;");
 					
 		$obj = $this->RecordToOutput($obj);
-		$obj = $this->privacyMask($obj); // privacy maskering
+		$obj = $this->privacyMask($obj, $privacyMasker); // privacy maskering
 		return $obj;				
 	}
 
@@ -304,6 +312,7 @@ class Leden extends Helios
 		$start = -1;
 		$velden = "*";
 		$alleenVerwijderd = false;
+		$privacyMasker = false;
 		$query_params = array();
 
 		$l = MaakObject('Login');
@@ -324,6 +333,9 @@ class Leden extends Helios
 			$where .= " AND LIDTYPE_ID IN (601, 602,603, 606, 625)";  
 		}
 
+		$rlObj = $this->GetObject($l->getUserFromSession());
+		$privacyMasker = $rlObj['PRIVACY'];
+		
 		foreach ($params as $key => $value)
 		{
 			switch ($key)
@@ -462,16 +474,16 @@ class Leden extends Helios
 						Debug(__FILE__, __LINE__, sprintf("%s: DDWV_CREW='%s'", $functie, $alleenDDWV));
 						break;
 					}		
-					case "BEHEERDERS" : 
-						{
-							$alleenBeheerder = isBOOL($value, "BEHEERDER");
+				case "BEHEERDERS" : 
+					{
+						$alleenBeheerder = isBOOL($value, "BEHEERDER");
 
-							if ($alleenBeheerder)
-								$where .= sprintf(" AND BEHEERDER = 1 ");
+						if ($alleenBeheerder)
+							$where .= sprintf(" AND BEHEERDER = 1 ");
 
-							Debug(__FILE__, __LINE__, sprintf("%s: BEHEERDER='%s'", $functie, $alleenBeheerder));
-							break;
-						}												
+						Debug(__FILE__, __LINE__, sprintf("%s: BEHEERDER='%s'", $functie, $alleenBeheerder));
+						break;
+					}												
 				case "LIERISTEN" : 
 					{
 						$alleenLieristen = isBOOL($value, "LIERISTEN");
@@ -482,6 +494,16 @@ class Leden extends Helios
 						Debug(__FILE__, __LINE__, sprintf("%s: LIERISTEN='%s'", $functie, $alleenLieristen));
 						break;
 					}	
+				case "LIO" : 
+						{
+							$alleenLIO = isBOOL($value, "LIO");
+	
+							if ($alleenLIO)
+								$where .= sprintf(" AND LIERIST_IO = 1 ");
+	
+							Debug(__FILE__, __LINE__, sprintf("%s: LIERISTEN_IO='%s'", $functie, $alleenLIO));
+							break;
+						}	
 				case "STARTLEIDERS" : 
 					{
 						$alleenStartleiders = isBOOL($value, "STARTLEIDERS");
@@ -542,7 +564,7 @@ class Leden extends Helios
 				$retVal['dataset'][$i] = $this->RecordToOutput($retVal['dataset'][$i]);
 
 				// privacy maskering
-				$retVal['dataset'][$i] = $this->privacyMask($retVal['dataset'][$i]);	
+				$retVal['dataset'][$i] = $this->privacyMask($retVal['dataset'][$i], $privacyMasker);	
 			}
 			return $retVal;
 		}
@@ -911,7 +933,7 @@ class Leden extends Helios
 	}						
 
 	// privacy maskering
-	function privacyMask($lid)
+	function privacyMask($lid, $privacy = false)
 	{
 		global $app_settings;
 
@@ -945,15 +967,19 @@ class Leden extends Helios
 			if (($l->isBeheerder() === false) &&
 				($l->isBeheerderDDWV() === false) &&
 				($l->isInstructeur() === false) &&
+				($l->isStarttoren() == false) &&
 				($l->isCIMT() === false))					
 			{
-				if ($lid['PRIVACY'] === true) {
+				if (($lid['PRIVACY'] === true) || ($privacy)) 	// dit lid heeft privacy aan, of we MOETEN privicay mask toepassen
+				{				
 					$lid['TELEFOON'] 		= "****";
 					$lid['MOBIEL'] 			= "****";
 					$lid['ADRES'] 			= "****";
 					$lid['POSTCODE'] 		= "****";
 					$lid['WOONPLAATS'] 		= "****";
 					$lid['GEBOORTE_DATUM'] 	= "****";
+
+					$lid['AVATAR'] 			= null;
 				}
 
 				if ($l->isStarttoren() == false)
@@ -984,7 +1010,7 @@ class Leden extends Helios
 		if (array_key_exists($field, $record)) 
 			return ($record[$field] == 1);
 
-		if (array_key_exists($field, $dbLid)) 
+		if (isset($dbLid) && array_key_exists($field, $dbLid))
 			return ($dbLid[$field] == 1);
 		
 		// er is geen info beschikbaar in record, en ook niet in de database. We nemen geen risico
@@ -1031,6 +1057,10 @@ class Leden extends Helios
 			$field = 'LIERIST';
 			if (array_key_exists($field, $input))
 				$record[$field] = isBOOL($input[$field], $field);
+
+			$field = 'LIERIST_IO';
+			if (array_key_exists($field, $input))
+				$record[$field] = isBOOL($input[$field], $field);	
 
 			$field = 'STARTLEIDER';
 			if (array_key_exists($field, $input))
@@ -1113,6 +1143,13 @@ class Leden extends Helios
 			// url naar extern bestand
 			if (array_key_exists('AVATAR', $input))
 				$record['AVATAR'] = $input['AVATAR']; 	
+		}
+
+		if ($ikBenHetZelf || $l->isBeheerder() || $l->isBeheerderDDWV())
+		{
+			$field = 'TEGOED';
+			if (array_key_exists($field, $input))
+				$record[$field] = isNUM($input[$field], $field);
 		}
 
 		if ($ikBenHetZelf || ($l->isBeheerder()))
@@ -1287,10 +1324,20 @@ class Leden extends Helios
 		if (isset($record['BUDDY_ID']))
 			$retVal['BUDDY_ID']  = $record['BUDDY_ID'] * 1;					
 			
+		if (isset($record['TEGOED']))
+			$retVal['TEGOED']  = $record['TEGOED'] * 1;	
+
 		// booleans	
 		if (isset($record['LIERIST']))
 			$retVal['LIERIST']  = $record['LIERIST'] == "1" ? true : false;
 
+		if ((isset($record['LIERIST_IO'])) || ($retVal['LIERIST'] == true))
+		{ 
+			if ($retVal['LIERIST'] == true) 	// als je lierist bent, ben je niet meer LIO
+				$retVal['LIERIST_IO'] = false;
+			else
+				$retVal['LIERIST_IO']  = $record['LIERIST_IO'] == "1" ? true : false;	
+		}
 		if (isset($record['STARTLEIDER']))
 			$retVal['STARTLEIDER']  = $record['STARTLEIDER'] == "1" ? true : false;
 

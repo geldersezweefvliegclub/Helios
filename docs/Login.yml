@@ -38,7 +38,7 @@ paths:
         - in: query
           name: token
           description: token van SMS of Google Authenticator
-          required: true
+          required: false
           schema:
             type: string
       responses:
@@ -63,7 +63,7 @@ paths:
         - in: query
           name: token
           description: bearer token 
-          required: true
+          required: false
           schema:
             type: string
       responses:
@@ -215,7 +215,12 @@ components:
           description: Het soort lid (jeugdlid, lid, donateur). Verwijzing naar type tabel
           type: integer
           format: int32
-          example: 603      
+          example: 603     
+        STATUSTYPE_ID: 
+          description: De vliegstatus van het lid (DBO, solist, brevethouder), NULL indien niet van toepassing 
+          type: integer
+          format: int32
+          example: 1901      
         ZUSTERCLUB_ID: 
           description: Zusterclub lidmaatschap van lid. Nodig voor DDWV.
           type: integer

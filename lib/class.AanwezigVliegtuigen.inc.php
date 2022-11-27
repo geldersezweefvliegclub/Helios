@@ -32,6 +32,7 @@ class AanwezigVliegtuigen extends Helios
 				`LONGITUDE` decimal(8,5) DEFAULT NULL,
 				`HOOGTE` smallint DEFAULT NULL,
 				`SNELHEID` smallint DEFAULT NULL,
+				`VELD_ID` mediumint UNSIGNED DEFAULT NULL,
 				`VERWIJDERD` tinyint NOT NULL DEFAULT '0',
 				`LAATSTE_AANPASSING` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 				
@@ -92,12 +93,14 @@ class AanwezigVliegtuigen extends Helios
 				`av`.`ID`,
 				`av`.`DATUM`,
 				`av`.`VLIEGTUIG_ID`,
+				`av`.`VELD_ID`,
 				time_format(`av`.`AANKOMST`,'%%H:%%i') AS `AANKOMST`,
 				time_format(`av`.`VERTREK`,'%%H:%%i') AS `VERTREK`,
 				`av`.`LATITUDE`,
 				`av`.`LONGITUDE`,
 				`av`.`HOOGTE`,
 				`av`.`SNELHEID`,
+				`vt`.`OMSCHRIJVING` AS `VELD`,
 				`av`.`VERWIJDERD`,
 				`av`.`LAATSTE_AANPASSING`, 
 				`v`.`REGISTRATIE`, 
@@ -123,6 +126,7 @@ class AanwezigVliegtuigen extends Helios
 				`%s` `av`
 				LEFT JOIN `ref_vliegtuigen` `v` ON (`av`.`VLIEGTUIG_ID` = `v`.`ID`)
 				LEFT JOIN `ref_types` `t` ON (`v`.`TYPE_ID` = `t`.`ID`)
+				LEFT JOIN `ref_types` `vt` ON (`av`.`VELD_ID` = `vt`.`ID`)
 			WHERE
 				`av`.`VERWIJDERD` = %d  
 			ORDER BY 
@@ -745,6 +749,10 @@ class AanwezigVliegtuigen extends Helios
 		if (array_key_exists($field, $input))
 			$record[$field] = isINT($input[$field], $field, true);
 
+		$field = 'VELD_ID';
+		if (array_key_exists($field, $input))
+			$record[$field] = isINT($input[$field], $field, true, 'Types');	
+
 		return $record;
 	}
 
@@ -781,7 +789,10 @@ class AanwezigVliegtuigen extends Helios
 			$retVal['VOLGORDE']  = $record['VOLGORDE'] * 1;	
 
 		if (isset($record['TYPE_ID']))
-			$retVal['TYPE_ID']  = $record['TYPE_ID'] * 1;								
+			$retVal['TYPE_ID']  = $record['TYPE_ID'] * 1;	
+		
+		if (isset($record['VELD_ID']))
+			$retVal['VELD_ID']  = $record['VELD_ID'] * 1;	
 
 		// booleans	
 		if (isset($record['VERWIJDERD']))

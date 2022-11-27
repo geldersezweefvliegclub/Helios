@@ -334,6 +334,16 @@ components:
           description: Is er een clubbedrijf 
           type: boolean
           example: 1      
+        MIN_SLEEPSTART:
+          description: Minimaal aantal aanmeldingen voordat we gaan slepen (alleen DDWV)
+          type: integer
+          format: int32
+          example: 3     
+        MIN_LIERSTART:
+          description: Minimaal aantal aanmeldingen voordat we gaan lieren (alleen DDWV)
+          type: integer
+          format: int32
+          example: 10      
         OPMERKINGEN:
           description: De opmerkingen die voor deze dag van toepassing zijn
           type: string

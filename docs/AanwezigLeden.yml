@@ -545,7 +545,11 @@ components:
         VOORKEUR_VLIEGTUIG_TYPE:
           description: Op welke type wil dit lid vandaag vliegen? Types als CSV formaat
           type: string
-          example: 404, 405     
+          example: 404, 405    
+        VELD_ID: 
+          description: Op welk veld is dit lid aangemeld
+          type: integer
+          example: 901     
         OPMERKINGEN:
           description: Opmerking over de vliegdag 
           type: string
@@ -730,7 +734,32 @@ components:
           PRIVACY: 
             description: Staat privacy mode (AVG / GDPR) uit/aan 
             type: boolean
-            example: 0     
+            example: 0   
+          STATUSTYPE_ID: 
+            description: De vliegstatus van het lid (DBO, solist, brevethouder), NULL indien niet van toepassing 
+            type: integer
+            format: int32
+            example: 1901    
+          STATUS: 
+            description: Vliegstatus van aangemeld lid
+            type: string
+            maxLength: 255
+            example: Brevethouder  
+          STATUS_BAROMETER: 
+            description: Kleur van de barometer rood / geel / groen
+            type: string
+            maxLength: 255
+            example: rood   
+          STATUS_SORTEER_VOLGORDE:
+            description: Volgorde in de HMI
+            type: integer
+            format: int32
+            example: 7  
+          VELD: 
+            description: Vliegveld waar lid aangemeld is
+            type: string
+            maxLength: 255
+            example: Terlet             
 
     view_aanwezig_leden:
       type: object

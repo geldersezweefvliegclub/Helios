@@ -170,6 +170,12 @@ paths:
           schema:
             type: boolean    
         - in: query
+          name: LIO
+          description: Wanneer 'true', toon alleen de lieristen in opleiding
+          required: false
+          schema:
+            type: boolean               
+        - in: query
           name: STARTLEIDERS
           description: Wanneer 'true', toon alleen de startleiders
           required: false
@@ -459,7 +465,11 @@ components:
         LIERIST:
           description: Mag dit lid lieren? 
           type: boolean
-          example: false            
+          example: false     
+        LIERIST_IO:
+          description: Lierist in opleiding
+          type: boolean
+          example: false                    
         STARTLEIDER: 
           description: Kan dit lid het startbedrijf leiden?  
           type: boolean
@@ -573,8 +583,11 @@ components:
           description: Extra text om opmerkingen toe te voegen
           type: string
           maxLength: 255
-          example: Voorkeur om 's morgens lierdienst te doen                                
-
+          example: Voorkeur om 's morgens lierdienst te doen    
+        TEGOED:
+          description: DDWV tegoed
+          type: number
+          example: 22.05
     ref_leden:
       type: object
       allOf:

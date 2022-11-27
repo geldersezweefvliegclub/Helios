@@ -14,7 +14,7 @@ $htmlContent = "
 <body style='font-family: Arial, Helvetica, sans-serif; font-size:12px;'>
 
 <p>
-    Beste DDWV beheerder,
+    Beste SVS beheerder,
 </p>
 <p>
 In onze startadministratie staan op <b>%s</b> onderstaande sleepvluchten genoteerd. U wordt verzocht om onderstaande vluchten te controleren op juistheid en volledigheid. Via de startadmin@gezc.org of ddwv@gezc.org kunt meer informatie verkrijgen.

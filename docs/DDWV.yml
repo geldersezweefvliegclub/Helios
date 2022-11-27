@@ -1,0 +1,94 @@
+openapi: 3.0.2
+info:
+  title: DDWV
+  description: DDWV
+  version: '1.0'
+       
+paths: 
+  /DDWV/GetConfiguratie:
+    get:
+      security:
+        - basicAuth: [] 
+        - bearerAuth: []     
+      summary: De DDWV configuratie
+
+      responses:
+        200:
+          description: "OK, data succesvol opgehaald"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ddwv_config'
+     
+
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+      description: Eerst inloggen voordat API beschikbaar is
+    bearerAuth:            
+      type: http
+      scheme: bearer
+      bearerFormat: JWT         
+
+  schemas:
+    ddwv_config:
+      type: object
+      properties:
+        DDWV: 
+          description: Is DDWV software actief
+          type: boolean
+        START: 
+          description: Eerte DDWV dag van het seizoen
+          type: string
+        EIND: 
+          type: string
+        MAX_STRIPPEN: 
+          type: integer
+          format: int32
+        STRIPPEN_RETOUR_OP_VLIEGDAG: 
+          type: integer
+          format: int32
+        TARIEVEN: 
+          description: De dataset met records
+          type: array
+          items: 
+            $ref: '#/components/schemas/ddwv_tarieven'
+        AANSCHAF:
+          description: De dataset met records
+          type: array
+          items: 
+            $ref: '#/components/schemas/ddwv_bestelInfo'
+
+    ddwv_tarieven:
+      type: object
+      properties:
+        TIJDSTIP: 
+          description: Moment van boeken DDWV dag
+          type: string
+          example: 3  
+        EENHEDEN: 
+          description: Aantal strippen die afgeschrev worden
+          type: integer
+          example: 8  
+
+    ddwv_bestelInfo:
+      type: object
+      properties:
+        EENHEDEN: 
+          description: Aantal strippen dat aangeschaft wordt
+          type: integer
+          example: 3  
+        BEDRAG: 
+          description: Aantal Euro die van de bank afgeschreven worden
+          type: number
+          example: 8      
+        KOSTEN: 
+          description: Kosten van de bank transactie
+          type: number
+          example: 1.10                
+        OMSCHRIJVING: 
+          description: Omschrijving in tekst
+          type: string
+          example: 12 strippen, € 48.00 plus € 1.00 transactiekosten 

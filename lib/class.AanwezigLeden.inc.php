@@ -32,6 +32,7 @@ class AanwezigLeden extends Helios
 				`VERTREK` time DEFAULT NULL,
 				`OVERLAND_VLIEGTUIG_ID` mediumint UNSIGNED DEFAULT NULL,
 				`VOORKEUR_VLIEGTUIG_TYPE` text(100) DEFAULT NULL,
+				`VELD_ID` mediumint UNSIGNED DEFAULT NULL,
 				`OPMERKINGEN` text DEFAULT NULL,
 				`VERWIJDERD` tinyint UNSIGNED NOT NULL DEFAULT '0',
 				`LAATSTE_AANPASSING` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -42,6 +43,7 @@ class AanwezigLeden extends Helios
 					INDEX (`VERWIJDERD`),
 
 				FOREIGN KEY (LID_ID) REFERENCES ref_leden(ID),
+				FOREIGN KEY (VELD_ID) REFERENCES ref_types(ID),
 				FOREIGN KEY (OVERLAND_VLIEGTUIG_ID) REFERENCES ref_vliegtuigen(ID) 
 			)", $this->dbTable);
 		parent::DbUitvoeren($query);
@@ -102,6 +104,7 @@ class AanwezigLeden extends Helios
 				`al`.`DATUM`,
 				`al`.`POSITIE`,
 				`al`.`LID_ID`,
+				`al`.`VELD_ID`,
 				`al`.`VOORAANMELDING`,
 				time_format(`al`.`AANKOMST`,'%%H:%%i') AS `AANKOMST`,
 				time_format(`al`.`VERTREK`,'%%H:%%i') AS `VERTREK`,
@@ -165,10 +168,16 @@ class AanwezigLeden extends Helios
 				`l`.`SECRET`,  
 				`l`.`AVATAR`,        
 				`l`.`STARTVERBOD`,
-				`l`.`PRIVACY`
+				`l`.`PRIVACY`,
+				`l`.`STATUSTYPE_ID`,
+				`t`.`OMSCHRIJVING` AS `VELD`,
+				`s`.`CODE` AS `STATUS`,
+				`s`.`SORTEER_VOLGORDE` AS `STATUS_SORTEER_VOLGORDE`
 			FROM
 				`%s` `al`
-				LEFT JOIN `ref_leden` `l` ON `al`.`LID_ID` = `l`.`ID`
+				LEFT JOIN `ref_leden` `l` ON (`al`.`LID_ID` = `l`.`ID`)
+				LEFT JOIN `ref_types` `t` ON (`al`.`VELD_ID` = `t`.`ID`)
+				LEFT JOIN `ref_types` `s` ON (`l`.`STATUSTYPE_ID` = `s`.`ID`)
 				LEFT JOIN `ref_vliegtuigen` `v` ON (`al`.`OVERLAND_VLIEGTUIG_ID` = `v`.`ID`)
 			WHERE
 				`al`.`VERWIJDERD` = %d 
@@ -224,7 +233,8 @@ class AanwezigLeden extends Helios
 		{
 			// is ingelogde gebruiker de persoon zelf? Nee, dan geen toegang
 			$l = MaakObject('Login');
-			if (($obj['LID_ID'] !== $l->getUserFromSession()))
+		
+			if (($obj['LID_ID'] != $l->getUserFromSession()))
 				throw new Exception("401;Geen leesrechten;");
 		}
 		$obj = $this->RecordToOutput($obj);
@@ -253,29 +263,20 @@ class AanwezigLeden extends Helios
 
 		// Als ingelogde gebruiker geen bijzonder functie heeft, worden beperkte dataset opgehaald
 		$l = MaakObject('Login');
-		if (($l->isBeheerder() == true) || ($l->isInstaller() == true) || ($l->isInstructeur() == true) || ($l->isCIMT() == true))
-		{
-			// geen beperkingen voor deze gebruikers
-		}
-		else if ($l->isStarttoren() == true)
+
+		if ($l->isStarttoren() == true)
 		{
 			// starttoren mag alleen vandaag opvragen
 			$where .= sprintf (" AND DATUM = '%s'", date("Y-m-d"));		
 		}
-		else if (($l->isBeheerderDDWV() == true) || ($l->isDDWVCrew() == true))
-		{
-			// Daginfo voor DDWV is alleen op DDWV dagen bechikbaar
-			$where .= " AND (DATUM IN (select DATUM from oper_rooster WHERE DDWV = 1))";	
 
-			if ($l->isDDWVCrew() == true) 
-			{
-				// DDWV crew mag alleen DDWV dagen zien waar ze zelf dienst hadden
-				$where .= sprintf(" AND (DATUM IN (select DATUM from oper_diensten WHERE LID_ID = %d))", $l->getUserFromSession());	
-			}
-		}
-		else 
+		$rl = MaakObject('Leden');
+		$rlObj = $rl->GetObject($l->getUserFromSession());
+		$privacyMasker = $rlObj['PRIVACY'];
+
+		if ($rlObj['LIDTYPE_ID'] == 625) 	// DDWV'er mogen alleen DDWV dagen opvragen
 		{
-			$where .= sprintf(" AND (LID_ID = '%d') ", $l->getUserFromSession());
+			$where .= " AND (SELECT count(*) FROM oper_rooster AS `or` WHERE `or`.`DATUM` = `aanwezig_leden_view`.`DATUM` AND `or`.`DDWV` = 1) = 1";
 		}
 
 		$query_params = array();
@@ -422,6 +423,8 @@ class AanwezigLeden extends Helios
 
 		// Als er geen datum is meegegeven dan alleen vandaag
 		if ((strpos($where, 'DATUM') === false) && (strpos($where, 'ID') === false)) {
+			$beginDatum = date("Y-m-d");
+			$eindDatum = date("Y-m-d");
 			$where .= sprintf (" AND DATUM = '%s'", date("Y-m-d"));
 		}
 
@@ -465,9 +468,38 @@ class AanwezigLeden extends Helios
 			parent::DbOpvraag($rquery, $query_params);
 			$retVal['dataset'] = parent::DbData();
 
-			$starts = 0;
-			$vliegtijd = 0;
-			$ledenObj = MaakObject('Leden');
+			$lid = $rl->GetObject($l->getUserFromSession());
+
+			// Haal het rooster op. Tijdens kamp dagen zijn er DDWV en clubleden. DDWV'ers mogen geen clubleden zien tijdens kamp 
+			if (!isset($beginDatum) || !isset($eindDatum))
+			{
+				// als begin en einddatum niet bekend zijn, dan via dataset bepalen
+				$b = new DateTime("2100-01-01");
+				$e = new DateTime("1900-01-01");
+
+				foreach ($retVal['dataset'] as $a)
+				{
+					if (new DateTime($a['DATUM']) < $b)
+						$b = new DateTime($a['DATUM']);
+					if (new DateTime($a['DATUM']) > $e)
+						$e = new DateTime($a['DATUM']);	
+				}
+				$beginDatum = $b->format("Y-m-d");
+				$eindDatum = $e->format("Y-m-d");
+			}
+
+			$r = MaakObject('Rooster');
+			$robjs = $r->GetObjects(array (
+				'BEGIN_DATUM' => $beginDatum, 
+				'EIND_DATUM' => $eindDatum, 
+			));
+			$rooster = array();
+			foreach ($robjs['dataset'] as $dag)	// maak named array, handig voor later
+				$rooster[$dag['DATUM']] = $dag;
+
+			Debug(__FILE__, __LINE__, sprintf("%s: rooster = %s)", $functie, print_r($rooster, true)));	
+			// klaar met rooster ophalen
+
 			for ($i=0; $i < count($retVal['dataset']) ; $i++) 
 			{
 				if (array_key_exists('REG_CALL', $retVal['dataset'][$i]))
@@ -475,10 +507,29 @@ class AanwezigLeden extends Helios
 					if (isINT($retVal['dataset'][$i]['OVERLAND_VLIEGTUIG_ID']) == false)
 						$retVal['dataset'][$i]['REG_CALL'] = null;		// view geeft "()" als vliegtuig null is. Dit is workarround
 				}
+
+				// Voor DDWV'ers laten we geen namen leden zien op clubdagen (bijv op kamp dagen)
+				// de namen van DDWV'ers mogen we wel tonen
+				$verberg = false;
+				if ($lid['LIDTYPE_ID'] == 625 && $retVal['dataset'][$i]['LIDTYPE_ID'] != 625) {
+					$verberg = $rooster[$retVal['dataset'][$i]['DATUM']]['CLUB_BEDRIJF'];
+				}
+				
 				$opmerking = $retVal['dataset'][$i]['OPMERKINGEN'];
 				$retVal['dataset'][$i] = $this->RecordToOutput($retVal['dataset'][$i]);	
-				$retVal['dataset'][$i] = $ledenObj->privacyMask($retVal['dataset'][$i]);	// deze functie verwijderd OPMERKING
-				$retVal['dataset'][$i]['OPMERKINGEN'] = $opmerking;							// en zo lossen we dat op
+				$retVal['dataset'][$i] = $this->privacyMask($retVal['dataset'][$i], $privacyMasker || $verberg);	// privacy mask voor aanmeldingen
+				$retVal['dataset'][$i] = $rl->privacyMask($retVal['dataset'][$i], $privacyMasker);				// deze functie verwijderd OPMERKING
+				$retVal['dataset'][$i]['OPMERKINGEN'] = $opmerking;												// en zo lossen we dat op
+
+				$l = MaakObject('Login');
+				if ((($l->isBeheerder() === true)  || ($l->isInstructeur() === true) || ($l->isCIMT() === true)) && 
+					  isset($retVal['dataset'][$i]['LID_ID']))	
+					{
+						$sl = MaakObject('Startlijst');
+
+						$barometer = $sl->GetRecency($retVal['dataset'][$i]['LID_ID']);
+						$retVal['dataset'][$i]['STATUS_BAROMETER'] = $barometer['STATUS_BAROMETER'];
+					}
 			}
 
 			$retVal['hash'] = hash("crc32", json_encode($retVal));	
@@ -737,7 +788,7 @@ class AanwezigLeden extends Helios
 				}
 			}
 
-			if (is_null($db_data['AANKOMST']))
+			if (($AanmeldenLedenData['DATUM'] === date('Y-m-d')) && (is_null($db_data['AANKOMST'])))
 				$AanmeldenLedenData['AANKOMST'] = $datetime->format('H:i:00');
 
 			if (!is_null($db_data['VERTREK']))
@@ -784,7 +835,7 @@ class AanwezigLeden extends Helios
 		if (!array_key_exists('DATUM', $AanmeldenLedenData))
 			$AanmeldenLedenData['DATUM'] = $datetime->format('Y-m-d');
 		
-		if (!array_key_exists('AANKOMST', $AanmeldenLedenData))	
+		if (($AanmeldenLedenData['DATUM'] === date('Y-m-d')) && (!array_key_exists('AANKOMST', $AanmeldenLedenData)))	
 			$AanmeldenLedenData['AANKOMST'] = $datetime->format('H:i:00');
 
 		// Achteraan aan de lijst van aanwezigen toevoegen, dit doe je door POSITIE te zetten
@@ -806,7 +857,6 @@ class AanwezigLeden extends Helios
 			$AanmeldenLedenData['POSITIE'] = $pos;
 		}			
 		
-
 		$aangemeld = $this->AddObject($AanmeldenLedenData);
 
 		Debug(__FILE__, __LINE__, sprintf("AanwezigLeden toegevoegd id=%d", $aangemeld['ID']));
@@ -1034,7 +1084,35 @@ class AanwezigLeden extends Helios
 		return true;
 	}
 
-			/*
+	// privacy maskering
+	function privacyMask($aanmelding, $privacy) 
+	{
+		$l = MaakObject('Login');
+		if (($l->isBeheerder() === true) ||
+			($l->isBeheerderDDWV() === true) ||
+			($l->isInstructeur() === true) ||
+			($l->isStarttoren() == true) ||
+			($l->isCIMT() === true))	
+		{
+			return $aanmelding;
+		}
+
+		
+		if (($aanmelding['LID_ID'] != $l->getUserFromSession()) &&  ($aanmelding['PRIVACY'] || $privacy))
+		{
+			$aanmelding['VOORNAAM'] 		= "****";
+			$aanmelding['TUSSENVOEGSEL'] 	= "****";
+			$aanmelding['ACHTERNAAM'] 		= "****";
+			$aanmelding['NAAM'] 			= "****";
+			$aanmelding['INLOGNAAM'] 		= "****";
+			$aanmelding['EMAIL'] 			= "****";
+			$aanmelding['LIDNR'] 			= "****";
+		}
+
+		return $aanmelding;
+	}
+
+	/*
 	Copieer data van request naar velden van het record 
 	*/
 	function RequestToRecord($input)
@@ -1056,6 +1134,10 @@ class AanwezigLeden extends Helios
 		$field = 'LID_ID';
 		if (array_key_exists($field, $input))
 			$record[$field] = isINT($input[$field], $field, false, 'Leden');
+
+		$field = 'VELD_ID';
+		if (array_key_exists($field, $input))
+			$record[$field] = isINT($input[$field], $field, true, 'Types');
 
 		$field = 'VOORAANMELDING';
 		if (array_key_exists($field, $input))
@@ -1112,6 +1194,9 @@ class AanwezigLeden extends Helios
 
 		if (isset($record['STARTS']))
 			$retVal['STARTS']  = $record['STARTS'] * 1;		
+
+		if (isset($record['VELD_ID']))
+			$retVal['VELD_ID']  = $record['VELD_ID'] * 1;	
 
 		// booleans	
 		if (isset($record['VOORAANMELDING']))

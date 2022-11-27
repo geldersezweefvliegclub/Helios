@@ -106,7 +106,7 @@ class Audit extends Helios
 	{
 		global $app_settings;
 
-		$functie = "Rooster.GetObjects";
+		$functie = "Audit.GetObjects";
 		Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($params, true)));		
 		
 		$where = ' WHERE 1=1 ';
@@ -123,7 +123,6 @@ class Audit extends Helios
 		$l = MaakObject('Login');
 		if (!$l->isBeheerder())
 		{
-			// DDWV'ers mogen alleen rooster van DDWV dagen zien
 			Debug(__FILE__, __LINE__, sprintf("%s: %s is geen beheerder, beperk query", $functie, $l->getUserFromSession()));
 
 			$where .= sprintf(" AND LID_ID=%d", $l->getUserFromSession());

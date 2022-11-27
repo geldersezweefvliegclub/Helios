@@ -27,6 +27,8 @@ class Rooster extends Helios
 				`DATUM` date NOT NULL,
 				`DDWV` tinyint UNSIGNED NOT NULL DEFAULT 0,
 				`CLUB_BEDRIJF` tinyint UNSIGNED NOT NULL DEFAULT 1,
+				`MIN_SLEEPSTART` tinyint UNSIGNED NOT NULL DEFAULT 3,
+				`MIN_LIERSTART` tinyint UNSIGNED NOT NULL DEFAULT 10,
 				`OPMERKINGEN` text DEFAULT NULL,
 				`VERWIJDERD` tinyint UNSIGNED NOT NULL DEFAULT '0',
 				`LAATSTE_AANPASSING` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -398,35 +400,35 @@ class Rooster extends Helios
 		$roosterDatum = isDATE($RoosterData['DATUM'], "DATUM");
 		$weekday = DateTime::createFromFormat('Y-m-d', $roosterDatum)->format('N');
 
+		// check of het een clubdag is
+		$clubBedrijf = false;
+		$dateparts = explode('-', $roosterDatum);
+		$dateValue = $dateparts[1] * 100 + $dateparts[2]*1; 	// Maak maand & dag nummeric
+
+		Debug(__FILE__, __LINE__, sprintf("%s dateValue=%d", $functie, $dateValue));
+
+		// alleen tussen 1 maart & 1 november is er een clubbedrijf
+		if (($dateValue >= 301) && ($dateValue < 1101) && ($weekday >= 6)) 
+			$clubBedrijf = true;		
+
+		$ddwv = MaakObject('DDWV');
 		$l = MaakObject('Login');
 		if ($this->heeftDataToegang(null, false) || $l->isBeheerderDDWV() || $l->isRooster())
 		{
-			// een gewone gebruiker mag alleen default aanmaken
-			$RoosterData['OPMERKINGEN'] = null;
-			if ($weekday <= 5) {
-				$RoosterData['DDWV'] = true;
-			}
-			if ($weekday >= 6) {
-				$RoosterData['CLUB_BEDRIJF'] = true;
-			}
+			// Beheerders en roostermaker mogen velden vullen
+			if (!array_key_exists('CLUB_BEDRIJF', $RoosterData))
+				$RoosterData['CLUB_BEDRIJF'] = $clubBedrijf;
+				
+			if (!array_key_exists('DDWV', $RoosterData))				
+				$RoosterData['DDWV'] = $ddwv->dagIsDDWV($roosterDatum);		
 		}
 		else
 		{
-			// Beheerders en roostermaker mogen velden vullen
-			if (!array_key_exists('CLUB_BEDRIJF', $RoosterData))
-			{
-				if ($weekday >= 6) {
-					$RoosterData['CLUB_BEDRIJF'] = true;
-				}
-			}
-				
-			if (!array_key_exists('DDWV', $RoosterData))
-			{				
-				if ($weekday <= 5) {
-					$RoosterData['DDWV'] = true;
-				}
-			}	
-		}			
+			// een gewone gebruiker mag alleen default aanmaken
+			$RoosterData['OPMERKINGEN'] = null;
+			$RoosterData['DDWV'] = $ddwv->dagIsDDWV($roosterDatum);
+			$RoosterData['CLUB_BEDRIJF'] = $clubBedrijf;
+		}		
 
 		// Voorkom dat datum meerdere keren voorkomt in de tabel
 		try 	// Als record niet bestaat, krijgen we een exception
@@ -519,6 +521,14 @@ class Rooster extends Helios
 		if (array_key_exists($field, $input))
 			$record[$field] = isBOOL($input[$field], $field);
 
+		$field = 'MIN_SLEEPSTART';		// minimaal aantal aanmeldingen voordat we gaan slepen (alleen DDWV)
+		if (array_key_exists($field, $input))
+			$record[$field] = isINT($input[$field], $field);
+
+		$field = 'MIN_LIERSTART';		// minimaal aantal aanmeldingen voordat we gaan lieren (alleen DDWV)
+		if (array_key_exists($field, $input))
+			$record[$field] = isINT($input[$field], $field);
+
 		if (array_key_exists('OPMERKINGEN', $input))
 			$record['OPMERKINGEN'] = $input['OPMERKINGEN']; 
 
@@ -535,6 +545,12 @@ class Rooster extends Helios
 		// vermengvuldigen met 1 converteer naar integer
 		if (isset($record['ID']))
 			$retVal['ID']  = $record['ID'] * 1;		
+
+		if (isset($record['MIN_SLEEPSTART']))
+			$retVal['MIN_SLEEPSTART']  = $record['MIN_SLEEPSTART'] * 1;
+
+		if (isset($record['MIN_LIERSTART']))
+			$retVal['MIN_LIERSTART']  = $record['MIN_LIERSTART'] * 1;
 
 		// booleans				
 		if (isset($record['CLUB_BEDRIJF']))

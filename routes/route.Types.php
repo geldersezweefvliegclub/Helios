@@ -115,6 +115,31 @@ $app->get(url_base() . 'Types/GetObjects', function (Request $request, Response 
 });
 
 /*
+Haal een dataset op met club vliegtuig types
+*/
+$app->get(url_base() . 'Types/GetClubVliegtuigenTypes', function (Request $request, Response $response, $args) {
+    $obj = MaakObject("Types");
+    try
+    {
+        $t = $obj->GetClubVliegtuigenTypes(); // Hier staat de logica voor deze functie
+
+        $response->getBody()->write(json_encode($t));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+    catch(Exception $exception)
+    {
+        Debug(__FILE__, __LINE__, "/Types/GetObjects: " .$exception);
+
+        list($dummy, $exceptionMsg) = explode(": ", $exception);
+        list($httpStatus, $message) = explode(";", $exceptionMsg);   // onze eigen formaat van een exceptie
+
+        header("X-Error-Message: $message", true, intval($httpStatus));
+        header("Content-Type: text/plain");
+        die;
+    }
+});
+
+/*
 Markeer een record in de database als verwijderd. Het record wordt niet fysiek verwijderd om er een link kan zijn naar andere tabellen.
 Het veld VERWIJDERD wordt op "1" gezet.
 */
