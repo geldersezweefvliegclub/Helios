@@ -14,3 +14,5 @@ log/exec.txt
 log/insert.txt
 .gitignore
 cronjobs/config.php
+
+log/

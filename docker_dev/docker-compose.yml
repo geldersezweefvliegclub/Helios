@@ -5,18 +5,18 @@ volumes:
     driver: local
 
 services:
-  php:
+  php_dev:
     build: ./
     restart: always
-    container_name: php
+    container_name: php_dev
     ports:
       - 8081:80
     volumes:
       - ../:/var/www/html
       - ./php.ini:/usr/local/etc/php/php.ini
     depends_on:
-      - mariadb
-  mariadb:
+      - mariadb_dev
+  mariadb_dev:
     image: mariadb:10.10.2
     container_name: mariadb
     restart: always
@@ -27,8 +27,9 @@ services:
       MYSQL_TCP_PORT: 3306
     volumes:
       - db_data:/var/lib/mysql
-  phpmyadmin:
+  phpmyadmin_dev:
     image: phpmyadmin
+    container_name: phpmyadmin_dev
     restart: always
     ports:
       - 8080:80
@@ -37,4 +38,5 @@ services:
     environment:
       - "PMA_HOST=mariadb"
       - "PMA_PORT=3306"
-
+    depends_on:
+      - mariadb_productie

@@ -5,36 +5,40 @@ volumes:
     driver: local
 
 services:
-  php:
-    build: ./
+  helios_productie:
+    build:
+      context: ..
+      dockerfile: docker_productie/php.Dockerfile
+    image: 301167/gezc-dto:helios
     restart: always
-    container_name: php
+    container_name: helios_productie
     ports:
       - 8081:80
-    volumes:
-      - ../:/var/www/html
-      - ./php.ini:/usr/local/etc/php/php.ini
     depends_on:
-      - mariadb
-  mariadb:
+      - mariadb_productie
+  mariadb_productie:
     image: mariadb:10.10.2
-    container_name: mariadb
+    container_name: mariadb_productie
     restart: always
     ports:
       - 3306:3306
     environment:
-      MYSQL_ROOT_PASSWORD: rootroot
+      MYSQL_ROOT_PASSWORD: FnCaeP9J!Y@zD
       MYSQL_TCP_PORT: 3306
     volumes:
       - db_data:/var/lib/mysql
-  phpmyadmin:
-    image: phpmyadmin
+  phpmyadmin_productie:
+    build:
+      context: .
+      dockerfile: phpMyAdmin.Dockerfile
+    image: 301167/gezc-dto:phpMyAdmin
+    container_name: phpmyadmin_productie
     restart: always
     ports:
       - 8080:80
-    volumes:
-      - ./php.ini:/usr/local/etc/php/php.ini
     environment:
       - "PMA_HOST=mariadb"
       - "PMA_PORT=3306"
+    depends_on:
+      - mariadb_productie
 
