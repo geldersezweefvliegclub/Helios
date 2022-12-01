@@ -37,9 +37,11 @@ try
 {
     $loginURL = "/Login/Login";
     $resetWachtwoordURL = "/Login/ResetWachtwoord";
+    $callbackIdeal = "/Transacties/ValideerIDealTransactie";
     
     // Als we nog moeten inloggen, dan niet controleren of we toegang hebben
-    if ((substr($_SERVER['REQUEST_URI'], 0,  strlen($loginURL)) != $loginURL) &&  
+    if ((substr($_SERVER['REQUEST_URI'], 0, strlen($loginURL)) != $loginURL) &&
+        (substr($_SERVER['REQUEST_URI'], 0, strlen($callbackIdeal)) != $callbackIdeal) &&
         (substr($_SERVER['REQUEST_URI'], 0, strlen($resetWachtwoordURL)) != $resetWachtwoordURL)) 
     {
         $token = (isset($_GET["token"])) ? $_GET["token"] : null;

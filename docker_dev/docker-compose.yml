@@ -39,4 +39,4 @@ services:
       - "PMA_HOST=mariadb"
       - "PMA_PORT=3306"
     depends_on:
-      - mariadb_productie
+      - mariadb_dev

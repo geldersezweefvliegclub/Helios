@@ -338,7 +338,16 @@ components:
           description: Is dit record (met ID) hard gecodeerd in de source code. Zo ja, dan niet aanpassen. 
           type: boolean
           example: 0
-
+        BEDRAG:
+          description: Het bedrag in Euro's
+          type: number
+          format: double
+          example: 0
+        EENHEDEN:
+          description: Bij bestellen van strippen, of afschrijven strippen
+          type: integer
+          format: numeric
+          example: 10115
     ref_types:
       type: object
       allOf:

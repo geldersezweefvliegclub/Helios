@@ -19,7 +19,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ddwv_config'
-     
 
 components:
   securitySchemes:
@@ -55,11 +54,6 @@ components:
           type: array
           items: 
             $ref: '#/components/schemas/ddwv_tarieven'
-        AANSCHAF:
-          description: De dataset met records
-          type: array
-          items: 
-            $ref: '#/components/schemas/ddwv_bestelInfo'
 
     ddwv_tarieven:
       type: object
@@ -71,24 +65,4 @@ components:
         EENHEDEN: 
           description: Aantal strippen die afgeschrev worden
           type: integer
-          example: 8  
-
-    ddwv_bestelInfo:
-      type: object
-      properties:
-        EENHEDEN: 
-          description: Aantal strippen dat aangeschaft wordt
-          type: integer
-          example: 3  
-        BEDRAG: 
-          description: Aantal Euro die van de bank afgeschreven worden
-          type: number
-          example: 8      
-        KOSTEN: 
-          description: Kosten van de bank transactie
-          type: number
-          example: 1.10                
-        OMSCHRIJVING: 
-          description: Omschrijving in tekst
-          type: string
-          example: 12 strippen, € 48.00 plus € 1.00 transactiekosten 
+          example: 8

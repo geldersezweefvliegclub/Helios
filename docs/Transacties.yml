@@ -51,7 +51,15 @@ paths:
           schema:
             type: integer
             format: int32
-            example: 82                
+            example: 82
+        - in: query
+          name: EXT_ID
+          description: External ID
+          required: false
+          schema:
+            type: integer
+            format: int32
+            example: 9723156
         - in: query
           name: LAATSTE_AANPASSING
           description: Laatste aanpassing op basis van records in dataset. Bedoeld om data verbruik te verminderen. Dataset is daarom leeg
@@ -145,12 +153,67 @@ paths:
           content:
             application/json:
               schema:
-                properties:
-                  OMSCHRIJVING:
-                    description: HTML options for select
-                    type: string
-                    example: "<option value='0721'>ING</option><option value='0031'>ABN Amro</option>"  
-               
+                $ref: '#/components/schemas/banken'
+
+  /Transacties/StartIDealTransactie:
+    get:
+      security:
+        - basicAuth: []
+        - bearerAuth: []
+      summary: Start de iDeal transactie
+      parameters:
+        - in: query
+          name: LID_ID
+          description: Database ID van het lid die betaalt
+          required: true
+          schema:
+            type: integer
+            format: int32        -
+        - in: query
+          name: BESTEL_ID
+          description: Bestelling ID
+          required: true
+          schema:
+            type: integer
+            format: int32
+            example: 2
+        - in: query
+          name: BANK_ID
+          description: Code van de bank
+          required: true
+          schema:
+            type: string
+            example: ABNANL2A
+      responses:
+        200:
+          description: "OK, transactie goed gestart"
+          content:
+            application/json:
+              schema:
+                URL:
+                  description: URL van ideal
+                  type: string
+                  example: "https://xyz.com"
+  /Tranacties/Validatie:
+    - get:
+        summary: Verficatie of de betaling gelukt is.
+        parameters:
+          - in: query
+            name: trxid
+            description: Het id van de transactie
+            required: true
+            schema:
+              type: integer
+              format: int32
+          - in: query
+            name: idealtrxid
+            description: Het ideal id van de transactie
+            required: true
+            schema:
+              type: integer
+              format: int32
+
+
 components:
   securitySchemes:
     basicAuth:
@@ -163,6 +226,18 @@ components:
       bearerFormat: JWT         
 
   schemas:
+    banken:
+        type: object
+        properties:
+          ID:
+            description: ID van de bank
+            type: string
+            example: "ABNANL2A"
+          NAAM:
+            description: Naam van de bank
+            type: string
+            example: "ABN AMRO"
+
     oper_transactie_in:
       type: object
       properties:
@@ -229,8 +304,7 @@ components:
         BETAALD_URL:
           description: Verwijzing naar extern url van de bank 
           type: string
-          example: "https://www.xyz.com/url"
-                                        
+          example: https://pay.digiwallet.nl/test-transaction?transactionID=190210863&paymethod=IDE&hash=9c416bdd18cb1"
 
     oper_transactie:
       type: object

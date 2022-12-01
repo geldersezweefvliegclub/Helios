@@ -58,7 +58,9 @@ class TypesGroepen extends Helios
 				(16, 'Termiek',38,0),
 				(17, 'Bewolking dekking',37,0),
 				(18, 'Diensten',14,1),
-				(19, 'Status',13,1);";
+				(19, 'Status',13,1),
+				(20, 'DDWV strippen',20,1),
+				(21, 'iDeal bestellen',21,1);";
 
 			$query = sprintf("
 					INSERT INTO `%s` (

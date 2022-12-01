@@ -2,7 +2,7 @@
 
 class Boom 
 {
-		// Allerhoogste niveau om de progressie kaart te tonen
+    // Allerhoogste niveau om de progressie kaart te tonen
 	// De hoofgroepen komen uit de types tabel
 	public static function bouwBoom($dbdata)
 	{
@@ -180,7 +180,7 @@ class EnkeleCompetentie
 			$leerfaseID, 
 	
 			$competentieID,
-			$progressieID = null,
+			$progressieID,
 			$blokID,
 			$blok,
 			$onderwerp,

@@ -123,7 +123,7 @@ $app->get(url_base() . 'Transacties/GetBanken', function (Request $request, Resp
     {
         $banken = $obj->GetBanken();     // Hier staat de logica voor deze functie
 
-        $response->getBody()->write($banken);
+        $response->getBody()->write(json_encode($banken));
         return $response->withHeader('Content-Type', 'application/json');
     }
     catch(Exception $exception)
@@ -138,6 +138,57 @@ $app->get(url_base() . 'Transacties/GetBanken', function (Request $request, Resp
         die;
     }
 });
+
+/*
+Welke banken gebruiken ideal
+*/
+$app->post(url_base() . 'Transacties/StartIDealTransactie', function (Request $request, Response $response, $args) {
+    $obj = MaakObject("Transacties");
+    try
+    {
+        $data = json_decode($request->getBody(), true);
+        $url = $obj->StartIDealTransactie($data);     // Hier staat de logica voor deze functie
+
+        $response->getBody()->write(json_encode($url));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+    catch(Exception $exception)
+    {
+        Debug(__FILE__, __LINE__, "/Transacties/StartTransactie: " .$exception);
+
+        list($dummy, $exceptionMsg) = explode(": ", $exception);
+        list($httpStatus, $message) = explode(";", $exceptionMsg);   // onze eigen formaat van een exceptie
+
+        header("X-Error-Message: $message", true, intval($httpStatus));
+        header("Content-Type: text/plain");
+        die;
+    }
+});
+
+
+$app->post(url_base() . 'Transacties/ValideerIDealTransactie', function (Request $request, Response $response, $args) {
+    $obj = MaakObject("Transacties");
+    try
+    {
+        $data = $request->getParsedBody();
+        $v = $obj->ValideerIDealTransactie($data);     // Hier staat de logica voor deze functie
+
+        $response->getBody()->write(json_encode($v));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+    catch(Exception $exception)
+    {
+        Debug(__FILE__, __LINE__, "/Transacties/ValideerIDealTransactie: " .$exception);
+
+        list($dummy, $exceptionMsg) = explode(": ", $exception);
+        list($httpStatus, $message) = explode(";", $exceptionMsg);   // onze eigen formaat van een exceptie
+
+        header("X-Error-Message: $message", true, intval($httpStatus));
+        header("Content-Type: text/plain");
+        die;
+    }
+});
+
 
 /*
 Markeer een record in de database als verwijderd. Het record wordt niet fysiek verwijderd om er een link kan zijn naar andere tabellen.

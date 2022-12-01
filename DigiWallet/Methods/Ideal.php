@@ -63,11 +63,13 @@ class Ideal extends Transaction
         }
         else {
             $issuersObj = new SimpleXMLElement($xml);
-            foreach ($issuersObj->issuers as $issuer) {
-                $issuers[$issuer->id] = (string)$issuer;
+
+            foreach ($issuersObj->issuer as $issuer) {
+                $id = (string)$issuer->attributes()['id'];
+                $value = (string)$issuer;
+                array_push($issuers, (object)array( 'ID' => $id, 'NAAM' => $value));
             }
         }
-
         return $issuers;
     }
 

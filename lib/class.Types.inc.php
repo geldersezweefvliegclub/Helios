@@ -29,7 +29,9 @@ class Types extends Helios
 				`EXT_REF` varchar(25) DEFAULT NULL,
 				`OMSCHRIJVING` varchar(75) NOT NULL,
 				`SORTEER_VOLGORDE` tinyint UNSIGNED DEFAULT NULL,
-				`READ_ONLY` tinyint UNSIGNED NOT NULL DEFAULT '0',       
+				`READ_ONLY` tinyint UNSIGNED NOT NULL DEFAULT '0', 
+                `BEDRAG` DECIMAL(6,2) UNSIGNED NULL,
+                `EENHEDEN` DECIMAL(6,2) UNSIGNED NULL,
 				`VERWIJDERD` tinyint UNSIGNED NOT NULL DEFAULT '0',
 				`LAATSTE_AANPASSING` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
@@ -39,9 +41,8 @@ class Types extends Helios
 				)", $this->dbTable);
 		parent::DbUitvoeren($query);
 
-		if (isset($FillData))
-		{
-			$inject = "
+		if (isset($FillData)) {
+            $inject = "
 				(101, 1, '14L',     '14L', NULL, 0),
 				(102, 1, '32L',     '32L', NULL, 0),
 				(103, 1, '04R',     '04R', NULL, 0),
@@ -201,7 +202,6 @@ class Types extends Helios
 
 				(1811, 18, NULL,   	'2e Ochtend Startleider',   6, 0),
 				(1812, 18, NULL,   	'2e Middag Startleider', 	12, 0),
-
 				(1813, 18, NULL,   	'1e Gastenvlieger',   20, 0),
 				(1814, 18, NULL,   	'2e Gastenvlieger', 	 21, 0),
 				
@@ -209,7 +209,7 @@ class Types extends Helios
 				(1902, 19, 'S', 	'Solist', NULL, 2),
 				(1903, 19, 'B', 	'Brevethouder', NULL, 1);";
 
-			$query = sprintf("
+            $query = sprintf("
 					INSERT INTO `%s` (
 						`ID`, 
 						`GROEP`, 
@@ -219,10 +219,50 @@ class Types extends Helios
 						`VERWIJDERD`) 
 					VALUES
 						%s;", $this->dbTable, $inject);
-		
-			parent::DbUitvoeren($query);					
-		}
-		
+            parent::DbUitvoeren($query);
+
+            $query = "
+                INSERT INTO  ref_types  (ID, OMSCHRIJVING, EENHEDEN, GROEP,READ_ONLY) VALUES (2003,'Afboeken bij aanmelden op de vliegdag',-8,20,1);
+                INSERT INTO  ref_types  (ID, OMSCHRIJVING, EENHEDEN, GROEP,READ_ONLY) VALUES (2004,'Cancelen vliegdag',7,20,1);
+                INSERT INTO  ref_types  (ID, OMSCHRIJVING, EENHEDEN, GROEP,READ_ONLY) VALUES (2005,'Automatisch terugstorten bij annuleren vliegdag',0,20,1);
+                INSERT INTO  ref_types  (ID, OMSCHRIJVING, EENHEDEN, GROEP,READ_ONLY) VALUES (2006,'Uitbetalen Crew',15,20,1);
+                INSERT INTO  ref_types  (ID, OMSCHRIJVING, EENHEDEN, GROEP,READ_ONLY) VALUES (2010,'Afboeken bij niet aanmelden',-8,20,1);
+                INSERT INTO  ref_types  (ID, OMSCHRIJVING, EENHEDEN, GROEP,READ_ONLY) VALUES (2011,'Ondersteunende Crewdiensten',10,20,0);
+                INSERT INTO  ref_types  (ID, OMSCHRIJVING, EENHEDEN, GROEP,READ_ONLY) VALUES (2018,'Individueel lidmaatschap',0,20,0);
+                INSERT INTO  ref_types  (ID, OMSCHRIJVING, EENHEDEN, GROEP,READ_ONLY) VALUES (2030,'Eerste strip Sleepdag',5,20,0);
+                INSERT INTO  ref_types  (ID, OMSCHRIJVING, EENHEDEN, GROEP,READ_ONLY) VALUES (2031,'Derde lierstart',-2,20,0);
+                INSERT INTO  ref_types  (ID, OMSCHRIJVING, EENHEDEN, GROEP,READ_ONLY) VALUES (2035,'Sleep direct afgerekend',0,20,0);
+                INSERT INTO  ref_types  (ID, OMSCHRIJVING, EENHEDEN, GROEP,READ_ONLY) VALUES (2040,'Sleep 400 mtr',-10,20,0);
+                INSERT INTO  ref_types  (ID, OMSCHRIJVING, EENHEDEN, GROEP,READ_ONLY) VALUES (2041,'Sleep 500 mtr',-11,20,0);
+                INSERT INTO  ref_types  (ID, OMSCHRIJVING, EENHEDEN, GROEP,READ_ONLY) VALUES (2042,'Sleep 600 mtr',-12,20,0);
+                INSERT INTO  ref_types  (ID, OMSCHRIJVING, EENHEDEN, GROEP,READ_ONLY) VALUES (2043,'Sleep 700 mtr / laagsleep',-13,20,0);
+                INSERT INTO  ref_types  (ID, OMSCHRIJVING, EENHEDEN, GROEP,READ_ONLY) VALUES (2044,'Sleep 800 mtr',-14,20,0);
+                INSERT INTO  ref_types  (ID, OMSCHRIJVING, EENHEDEN, GROEP,READ_ONLY) VALUES (2045,'Sleep 900 Mtr',-15,20,0);
+                INSERT INTO  ref_types  (ID, OMSCHRIJVING, EENHEDEN, GROEP,READ_ONLY) VALUES (2046,'Sleep 1000 Mtr',-16,20,0);
+                INSERT INTO  ref_types  (ID, OMSCHRIJVING, EENHEDEN, GROEP,READ_ONLY) VALUES (2047,'Sleep 1100 Mtr',-17,20,0);
+                INSERT INTO  ref_types  (ID, OMSCHRIJVING, EENHEDEN, GROEP,READ_ONLY) VALUES (2048,'Sleep 1200 Mtr',-18,20,0);
+                INSERT INTO  ref_types  (ID, OMSCHRIJVING, EENHEDEN, GROEP,READ_ONLY) VALUES (2049,'Sleep 1300 Mtr',-19,20,0);
+                INSERT INTO  ref_types  (ID, OMSCHRIJVING, EENHEDEN, GROEP,READ_ONLY) VALUES (2050,'Sleep 1400 Mtr',-20,20,0);
+                INSERT INTO  ref_types  (ID, OMSCHRIJVING, EENHEDEN, GROEP,READ_ONLY) VALUES (2051,'Sleep 1500 Mtr',-21,20,0);
+                INSERT INTO  ref_types  (ID, OMSCHRIJVING, EENHEDEN, GROEP,READ_ONLY) VALUES (2060,'Verrekening derden',0,20,0);
+                INSERT INTO  ref_types  (ID, OMSCHRIJVING, EENHEDEN, GROEP,READ_ONLY) VALUES (2061,'Verrekening iov Penningmeester',0,20,0);
+                INSERT INTO  ref_types  (ID, OMSCHRIJVING, EENHEDEN, GROEP,READ_ONLY) VALUES (2062,'Correctieboeking DDWV Coordinator',0,20,0);
+                INSERT INTO  ref_types  (ID, OMSCHRIJVING, EENHEDEN, GROEP,READ_ONLY) VALUES (2063,'Kredietstrip',0,20,0);
+                INSERT INTO  ref_types  (ID, OMSCHRIJVING, EENHEDEN, GROEP,READ_ONLY) VALUES (2070,'Verrekening niet DDWV Club',-6,20,0);
+                INSERT INTO  ref_types  (ID, OMSCHRIJVING, EENHEDEN, GROEP,READ_ONLY) VALUES (2071,'Onderling verrekentarief',0,20,0);
+                INSERT INTO  ref_types  (ID, OMSCHRIJVING, EENHEDEN, GROEP,READ_ONLY) VALUES (2080,'Afkoop zelfstarters',0,20,0);
+                INSERT INTO  ref_types  (ID, OMSCHRIJVING, EENHEDEN, GROEP,READ_ONLY) VALUES (2090,'Goodwill',0,20,0);
+                INSERT INTO  ref_types  (ID, OMSCHRIJVING, EENHEDEN, GROEP,READ_ONLY) VALUES (2095,'Beginsaldo',0,20,0);
+                INSERT INTO  ref_types  (ID, OMSCHRIJVING, EENHEDEN, GROEP,READ_ONLY) VALUES (2096,'Eindsaldo',0,20,0);";
+            parent::DbUitvoeren($query);
+
+            $query = "
+                INSERT INTO `ref_types` (`ID`, `OMSCHRIJVING`, `EENHEDEN`, `BEDRAG`, `GROEP`) VALUES (2101,'12 strippen, € 48.00 plus € 1.00 transactiekosten',12,49,21);
+                INSERT INTO `ref_types` (`ID`, `OMSCHRIJVING`, `EENHEDEN`, `BEDRAG`, `GROEP`) VALUES (2102,'25 strippen, € 100.00 plus € 1.00 transactiekosten',25,101,21);
+                INSERT INTO `ref_types` (`ID`, `OMSCHRIJVING`, `EENHEDEN`, `BEDRAG`, `GROEP`) VALUES (2103,'50 strippen, € 200.00 plus € 1.00 transactiekosten',50,201,21);
+                INSERT INTO `ref_types` (`ID`, `OMSCHRIJVING`, `EENHEDEN`, `BEDRAG`, `GROEP`) VALUES (2104,'Afkoop zelfstart, € 100.00 plus € 1.00 transactiekosten',0,101,21);";
+            parent::DbUitvoeren($query);
+        }
 	}
 
 	/*
@@ -630,8 +670,16 @@ class Types extends Helios
 			$record['CODE'] = $input['CODE']; 
 
 		if (array_key_exists('EXT_REF', $input))
-			$record['EXT_REF'] = $input['EXT_REF']; 
-			
+			$record['EXT_REF'] = $input['EXT_REF'];
+
+        $field = 'BEDRAG';
+        if (array_key_exists($field, $input))
+            $record[$field] = isNUM($input[$field], $field);
+
+        $field = 'EENHEDEN';
+        if (array_key_exists($field, $input))
+            $record[$field] = isNUM($input[$field], $field);
+
 		return $record;
 	}
 
@@ -647,7 +695,13 @@ class Types extends Helios
 			$retVal['ID']  = $record['ID'] * 1;	
 
 		if (isset($record['GROEP']))
-			$retVal['GROEP']  = $record['GROEP'] * 1;	
+			$retVal['GROEP']  = $record['GROEP'] * 1;
+
+        if (isset($record['EENHEDEN']))
+            $retVal['EENHEDEN']  = $record['EENHEDEN'] * 1;
+
+        if (isset($record['BEDRAG']))
+            $retVal['BEDRAG']  = $record['BEDRAG'] * 1;
 
 		if (isset($record['SORTEER_VOLGORDE']))
 			$retVal['SORTEER_VOLGORDE']  = $record['SORTEER_VOLGORDE'] * 1;		

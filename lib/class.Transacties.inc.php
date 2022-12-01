@@ -1,4 +1,9 @@
 <?php
+
+require_once __DIR__.'/../DigiWallet/autoload.php';
+use DigiWallet as DigiWallet;
+
+
 class Transacties extends Helios
 {
 	function __construct() 
@@ -80,6 +85,34 @@ class Transacties extends Helios
 	}
 
     /*
+    Haal een enkel record op uit de database
+    */
+    function GetObject($ID,$EXT_REF)
+    {
+        $functie = "Transacties.GetObject";
+        Debug(__FILE__, __LINE__, sprintf("%s(%s, %s)", $functie, $ID, $EXT_REF));
+
+        if (($ID == null) && ($EXT_REF == null))
+            throw new Exception("406;Geen ID, EXT_REF in aanroep;");
+
+        $conditie = array();
+        if ($ID !== null)
+            $conditie['ID'] = isINT($ID, "ID");
+
+        if ($EXT_REF !== null)
+            $conditie['EXT_REF'] = isINT($EXT_REF, "EXT_ID");
+
+        $obj = parent::GetSingleObject($conditie);
+        Debug(__FILE__, __LINE__, print_r($obj, true));
+
+        if ($obj == null)
+            throw new Exception("404;Record niet gevonden;");
+
+        $obj = $this->RecordToOutput($obj);
+        return $obj;
+    }
+
+    /*
 	Haal een dataset op met records als een array uit de database. 
 	*/		
 	function GetObjects($params)
@@ -121,8 +154,17 @@ class Transacties extends Helios
 
 						Debug(__FILE__, __LINE__, sprintf("%s: ID='%s'", $functie, $id));
 						break;
-					}	
-				case "LAATSTE_AANPASSING" : 
+					}
+                case "EXT_REF" :
+                {
+                    $id = isINT($value, "EXT_REF");
+                    $where .= " AND EXT_REF=?";
+                    array_push($query_params, $id);
+
+                    Debug(__FILE__, __LINE__, sprintf("%s: EXT_REF='%s'", $functie, $id));
+                    break;
+                }
+                case "LAATSTE_AANPASSING" :
 					{
 						$alleenLaatsteAanpassing = isBOOL($value, "LAATSTE_AANPASSING");
 
@@ -225,7 +267,6 @@ class Transacties extends Helios
 				default:
 					{
 						throw new Exception(sprintf("405;%s is een onjuiste parameter;", $key));
-						break;
 					}																																				
 			}
 		}
@@ -304,7 +345,6 @@ class Transacties extends Helios
 
 		$id = parent::DbToevoegen($record);
 
-
 		// Opslaan tegoed bij het lid
 		$ld = array();
 		$ld['ID'] = $record['LID_ID'];
@@ -317,9 +357,122 @@ class Transacties extends Helios
 	// haal de banken op die iDeal ondersteunen
 	function GetBanken()
 	{
-		global $bankenUrl;
-		return file_get_contents($bankenUrl);
+		$digiWallet = DigiWallet\Transaction::model("Ideal");
+		return $digiWallet->bankList();
 	}
+
+    // start de ideal transactie
+    function StartIDealTransactie($TransactieData)
+    {
+        global $iDeal;
+
+        $functie = "Transacties.StartIDealTransactie";
+        Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($TransactieData, true)));
+
+        if ($TransactieData == null)
+            throw new Exception("406;Transactie data moet ingevuld zijn;");
+
+        if (!array_key_exists('BESTELLING_ID', $TransactieData))
+            throw new Exception("406;BESTELLING_ID moet ingevuld zijn;");
+
+        if (!array_key_exists('BANK_ID', $TransactieData))
+            throw new Exception("406;BANK_ID moet ingevuld zijn;");
+
+        if (!array_key_exists('LID_ID', $TransactieData))
+            throw new Exception("406;LID_ID moet ingevuld zijn;");
+
+        $bestellingID = isINT($TransactieData['BESTELLING_ID'], "BESTELLING_ID");
+        $lidID = isINT($TransactieData['LID_ID'], "LID_ID", false, 'Leden');
+
+        $l = MaakObject('Login');
+        $lObj = MaakObject('Leden');
+        $tObj = MaakObject('Types');
+        $LidData = $lObj->getObject($lidID);
+        $bestelInfo = $tObj->getObject($bestellingID);
+
+        $startPaymentResult = DigiWallet\Transaction::model("Ideal")
+            ->outletId($iDeal['outletId'])
+            ->amount(100 * $bestelInfo['BEDRAG'])
+            ->description($bestelInfo['OMSCHRIJVING'])
+            ->returnUrl($iDeal['returnUrl'])
+            ->cancelUrl($iDeal['cancelUrl'])
+            ->reportUrl($iDeal['reportUrl'])
+            ->bank($TransactieData['BANK_ID'])
+            ->start();
+
+        if (isset($startPaymentResult->error))
+        {
+            HeliosError(__FILE__, __LINE__, $startPaymentResult->error);
+            throw new Exception("500;" . $startPaymentResult->error . ";");
+        }
+        $record = array();
+
+        $record['BETAALD'] = 0;
+        $record['INGEVOERD_ID'] = $l->getUserFromSession();
+        $record['LID_ID'] = $lidID;
+        $record['EENHEDEN'] = $bestelInfo['EENHEDEN'];
+        $record['BEDRAG'] = 1*$bestelInfo['BEDRAG'];
+        $record['OMSCHRIJVING'] = $bestelInfo['OMSCHRIJVING'];
+        $record['EXT_REF'] = $startPaymentResult->transactionId;
+
+        $id = parent::DbToevoegen($record);
+
+        Debug(__FILE__, __LINE__, sprintf("%s url=%s", $functie, $startPaymentResult->url));
+        return $startPaymentResult->url;
+    }
+
+    /*
+     Check of betaling ook echt gedaan is
+     */
+    function ValideerIDealTransactie($PaymentResult)
+    {
+        global $iDeal;
+
+        $functie = "Transacties.ValideerIDealTransactie";
+        Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($PaymentResult, true)));
+
+        $dbData = $this->GetObject(null, $PaymentResult['trxid']);
+
+        $l = MaakObject('Login');
+        $l->setSessionUser($dbData['LID_ID']);    // deze functie wordt zonder inloggen aangeroepen, dus vertellen wie we zijn
+
+        // check of bedrag is aangepast
+        if (1*$dbData['BEDRAG'] != 1*$PaymentResult['amount'])
+        {
+            $dbData['REFERENTIE'] = print_r($PaymentResult, true);
+            parent::DbAanpassen($dbData['ID'], $dbData);
+            parent::MarkeerAlsVerwijderd($dbData['ID']);
+        }
+
+        $checkPaymentResult = DigiWallet\Transaction::model("Ideal")
+            ->outletId($iDeal['outletId'])
+            ->transactionId($PaymentResult['trxid'])
+            ->check();
+
+        Debug(__FILE__, __LINE__, sprintf("%s checkPaymentResult %s", $functie, print_r($checkPaymentResult, true)));
+
+        if ($checkPaymentResult->status !== true)
+        {
+            HeliosError(__FILE__, __LINE__, $checkPaymentResult->error);
+            throw new Exception("500;" . $checkPaymentResult->error . ";");
+        }
+
+        $lObj = MaakObject('Leden');
+        $LidData = $lObj->getObject($dbData['LID_ID']);
+
+        // update van transactie record wat aangemaakt is, bij het starten van iDeal
+        $dbData['BETAALD'] = 1;
+        $dbData['SALDO_VOOR'] = 1*$LidData['TEGOED'];
+        $dbData['SALDO_NA'] = 1*$LidData['TEGOED'] + 1*$dbData['EENHEDEN'];
+        $dbData['REFERENTIE'] = print_r($PaymentResult, true);
+        $dbData['EXT_REF'] =  $PaymentResult['idealtrxid'];
+        parent::DbAanpassen($dbData['ID'], $dbData);
+
+        // update saldo in profiel
+        $ld['ID'] = $dbData['LID_ID'];
+        $ld['TEGOED'] = $dbData['SALDO_NA'];
+        $lObj->UpdateObject($ld);
+    }
 
     /*
 	Copieer data van request naar velden van het record 

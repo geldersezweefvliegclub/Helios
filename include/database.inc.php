@@ -111,10 +111,7 @@ if (!IsSet($GLOBALS['DATABASE_INCLUDED']))
 						$sth->debugDumpParams();
 						$q = ob_get_clean();
 
-						if ($app_settings['LogDir'] == "syslog")
-							error_log(date("Y-m-d H:i:s") . ":" . $q  . "\n" . $e->getMessage());
-						else
-							error_log(date("Y-m-d H:i:s") . ":" . $q  . "\n" . $e->getMessage() . "\n", 3, $app_settings['LogDir'] . "error.txt");
+						HeliosError(__FILE__, __LINE__,  $q  . "\n" . $e->getMessage());
 					}
 					die;
 				}
@@ -164,16 +161,7 @@ if (!IsSet($GLOBALS['DATABASE_INCLUDED']))
 					}
 					
 					if ($app_settings['DbError'])
-					{
-						if ($app_settings['LogDir'] == "syslog")
-						{
-							error_log(date("Y-m-d H:i:s") . ":" . $query  . "\n" . $e->getMessage());
-						}
-						else
-						{
-							error_log(date("Y-m-d H:i:s") . ":" . $query  . "\n" . $e->getMessage() . "\n", 3, $app_settings['LogDir'] . "error.txt");	
-						}
-					}						
+						HeliosError(__FILE__, __LINE__,  $q  . "\n" . $e->getMessage());
 					die;
 				}
 				$this->ClearCache();
@@ -265,14 +253,8 @@ if (!IsSet($GLOBALS['DATABASE_INCLUDED']))
 					if ($app_settings['DbError'])
 					{
 						if ($app_settings['LogDir'] == "syslog")
-						{
-							error_log(date("Y-m-d H:i:s") . ":" . $query  . "\n" . $e->getMessage());
-						}
-						else
-						{						
-							error_log(date("Y-m-d H:i:s") . ":" . $query  . "\n" . $e->getMessage() . "\n", 3, $app_settings['LogDir'] . "error.txt");
-						}
-					}						
+							HeliosError(__FILE__, __LINE__,  $query  . "\n" . $e->getMessage());
+					}
 					die;
 				}
 				
@@ -371,14 +353,7 @@ if (!IsSet($GLOBALS['DATABASE_INCLUDED']))
 					
 					if ($app_settings['DbError'])
 					{
-						if ($app_settings['LogDir'] == "syslog")
-						{
-							error_log(date("Y-m-d H:i:s") . ":" . $query  . "\n" . $e->getMessage());
-						}
-						else
-						{	
-							error_log(date("Y-m-d H:i:s") . ":" . $query  . "\n" . $e->getMessage() . "\n", 3, $app_settings['LogDir'] . "error.txt");	
-						}
+						HeliosError(__FILE__, __LINE__,  $query  . "\n" . $e->getMessage());
 					}						
 					die;
 				}
