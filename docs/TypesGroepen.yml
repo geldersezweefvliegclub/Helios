@@ -307,6 +307,10 @@ components:
           description: Is dit record (met ID) hard gecodeerd in de source code. Zo ja, dan niet aanpassen. 
           type: boolean
           example: 0
+        BEDRAG_EENHEDEN:
+          description: Zijn bedrag en eenheid van toepasssing voor deze groep.
+          type: boolean
+          example: 0
 
     ref_types:
       type: object

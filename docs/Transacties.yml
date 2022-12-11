@@ -260,7 +260,12 @@ components:
           description: Door wie is deze transactie aangemaakt
           type: integer
           format: int32
-          example: 10115          
+          example: 10115
+        TYPE_ID:
+          description: Type voor transactie, verwijzing naar type tabel
+          type: integer
+          format: int32
+          example: 2004
         BETAALD:
             description: Een bijschrijving van eenheden (betaald via bank)
             type: boolean
@@ -294,9 +299,9 @@ components:
           type: string
           example: "vliegdag 2022-04-01"
         EXT_REF:
-          description: Een externe referentie van bank transactie
+          description: Een externe referentie van de ideal transactie
           type: string
-          example: "RABO 0648 904881"
+          example: "0112 8854 9854488"
         OMSCHRIJVING:
           description: Omschrijving van handmatige correctie
           type: string
@@ -332,7 +337,15 @@ components:
               description: De naam van het lid voor deze transactie
               type: string
               example: Momfer de Mol       
-              
+            INGEVOERD:
+              description: De naam van het lid voor deze transactie
+              type: string
+              example: Momfer de Mol
+            TYPE:
+              description: Omschrijving van het type transactie
+              type: string
+              example: Cancelen vliegdag
+
     view_transactie:
       type: object
       properties:

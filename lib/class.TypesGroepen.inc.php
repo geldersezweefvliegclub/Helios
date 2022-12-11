@@ -29,11 +29,11 @@ class TypesGroepen extends Helios
 				`OMSCHRIJVING` varchar(75) NOT NULL,
 				`SORTEER_VOLGORDE` tinyint UNSIGNED DEFAULT NULL,
 				`READ_ONLY` tinyint UNSIGNED NOT NULL DEFAULT '0',       
+				`BEDRAG_EENHEDEN` tinyint UNSIGNED NOT NULL DEFAULT '0',  
 				`VERWIJDERD` tinyint UNSIGNED NOT NULL DEFAULT '0',
 				`LAATSTE_AANPASSING` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
 				CONSTRAINT ID_PK PRIMARY KEY (ID),
-					INDEX (`GROEP`), 
 					INDEX (`VERWIJDERD`)
 				)", $this->dbTable);
 		parent::DbUitvoeren($query);
@@ -71,7 +71,10 @@ class TypesGroepen extends Helios
 					VALUES
 						%s;", $this->dbTable, $inject);
 		
-			parent::DbUitvoeren($query);					
+			parent::DbUitvoeren($query);
+
+            $query = sprintf("UPDATE %s SET BEDRAG_EENHEDEN=1 WHERE ID IN(20, 21)", $this->dbTable);
+            parent::DbUitvoeren($query);
 		}
 	}
 
@@ -402,6 +405,10 @@ class TypesGroepen extends Helios
 		$field = 'READ_ONLY';
 		if (array_key_exists($field, $input))
 			$record[$field] = isBOOL($input[$field], $field);
+
+        $field = 'BEDRAG_EENHEDEN';
+        if (array_key_exists($field, $input))
+            $record[$field] = isBOOL($input[$field], $field);
 					
 		if (array_key_exists('OMSCHRIJVING', $input))
 			$record['OMSCHRIJVING'] = $input['OMSCHRIJVING']; 
@@ -432,6 +439,9 @@ class TypesGroepen extends Helios
 		// booleans	
 		if (isset($record['READ_ONLY']))
 			$retVal['READ_ONLY']  = $record['READ_ONLY'] == "1" ? true : false;
+
+        if (isset($record['BEDRAG_EENHEDEN']))
+            $retVal['BEDRAG_EENHEDEN']  = $record['BEDRAG_EENHEDEN'] == "1" ? true : false;
 
 		if (isset($record['VERWIJDERD']))
 			$retVal['VERWIJDERD']  = $record['VERWIJDERD'] == "1" ? true : false;

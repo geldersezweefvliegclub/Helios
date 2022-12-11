@@ -13,7 +13,6 @@ services:
       - 8081:80
     volumes:
       - ../:/var/www/html
-      - ./php.ini:/usr/local/etc/php/php.ini
     depends_on:
       - mariadb_dev
   mariadb_dev:

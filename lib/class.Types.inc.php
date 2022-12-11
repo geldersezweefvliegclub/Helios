@@ -30,8 +30,8 @@ class Types extends Helios
 				`OMSCHRIJVING` varchar(75) NOT NULL,
 				`SORTEER_VOLGORDE` tinyint UNSIGNED DEFAULT NULL,
 				`READ_ONLY` tinyint UNSIGNED NOT NULL DEFAULT '0', 
-                `BEDRAG` DECIMAL(6,2) UNSIGNED NULL,
-                `EENHEDEN` DECIMAL(6,2) UNSIGNED NULL,
+                `BEDRAG` DECIMAL(6,2) NULL,
+                `EENHEDEN` DECIMAL(6,2) NULL,
 				`VERWIJDERD` tinyint UNSIGNED NOT NULL DEFAULT '0',
 				`LAATSTE_AANPASSING` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
@@ -222,11 +222,13 @@ class Types extends Helios
             parent::DbUitvoeren($query);
 
             $query = "
-                INSERT INTO  ref_types  (ID, OMSCHRIJVING, EENHEDEN, GROEP,READ_ONLY) VALUES (2003,'Afboeken bij aanmelden op de vliegdag',-8,20,1);
-                INSERT INTO  ref_types  (ID, OMSCHRIJVING, EENHEDEN, GROEP,READ_ONLY) VALUES (2004,'Cancelen vliegdag',7,20,1);
-                INSERT INTO  ref_types  (ID, OMSCHRIJVING, EENHEDEN, GROEP,READ_ONLY) VALUES (2005,'Automatisch terugstorten bij annuleren vliegdag',0,20,1);
-                INSERT INTO  ref_types  (ID, OMSCHRIJVING, EENHEDEN, GROEP,READ_ONLY) VALUES (2006,'Uitbetalen Crew',15,20,1);
-                INSERT INTO  ref_types  (ID, OMSCHRIJVING, EENHEDEN, GROEP,READ_ONLY) VALUES (2010,'Afboeken bij niet aanmelden',-8,20,1);
+                INSERT INTO  ref_types  (ID, OMSCHRIJVING, EENHEDEN, GROEP,READ_ONLY) VALUES (2000,'Aanmelden op de vliegdag',-9,20,1);
+                INSERT INTO  ref_types  (ID, OMSCHRIJVING, EENHEDEN, GROEP,READ_ONLY) VALUES (2001,'Voorinschrijving DDWV tarief 1 ',-7,20,1);
+                INSERT INTO  ref_types  (ID, OMSCHRIJVING, EENHEDEN, GROEP,READ_ONLY) VALUES (2002,'Voorinschrijving DDWV tarief 2 ',-6,20,1);
+                INSERT INTO  ref_types  (ID, OMSCHRIJVING, EENHEDEN, GROEP,READ_ONLY) VALUES (2004,'Uitschrijven voor vliegdag ',0,20,1);
+                INSERT INTO  ref_types  (ID, OMSCHRIJVING, EENHEDEN, GROEP,READ_ONLY) VALUES (2005,'Uitschrijven op vliegdag ',4,20,1);
+                INSERT INTO  ref_types  (ID, OMSCHRIJVING, EENHEDEN, GROEP,READ_ONLY) VALUES (2006,'Automatisch terugstorten bij annuleren vliegdag',0,20,1);
+                INSERT INTO  ref_types  (ID, OMSCHRIJVING, EENHEDEN, GROEP,READ_ONLY) VALUES (2007,'Uitbetalen Crew',15,20,1);
                 INSERT INTO  ref_types  (ID, OMSCHRIJVING, EENHEDEN, GROEP,READ_ONLY) VALUES (2011,'Ondersteunende Crewdiensten',10,20,0);
                 INSERT INTO  ref_types  (ID, OMSCHRIJVING, EENHEDEN, GROEP,READ_ONLY) VALUES (2018,'Individueel lidmaatschap',0,20,0);
                 INSERT INTO  ref_types  (ID, OMSCHRIJVING, EENHEDEN, GROEP,READ_ONLY) VALUES (2030,'Eerste strip Sleepdag',5,20,0);
@@ -495,7 +497,7 @@ class Types extends Helios
 			
 		$query = "
 			SELECT 
-				*
+				%s
 			FROM
 				`types_view` " . $where; // . $orderby;	
 		
@@ -512,7 +514,7 @@ class Types extends Helios
 		}
 		else
 		{			
-			parent::DbOpvraag($query);
+			parent::DbOpvraag(sprintf($query, "*"));
 			$retVal['dataset'] = parent::DbData();
 			
 			$retVal['hash'] = hash("crc32", json_encode($retVal));
@@ -674,11 +676,11 @@ class Types extends Helios
 
         $field = 'BEDRAG';
         if (array_key_exists($field, $input))
-            $record[$field] = isNUM($input[$field], $field);
+            $record[$field] = isNUM($input[$field], $field, true);
 
         $field = 'EENHEDEN';
         if (array_key_exists($field, $input))
-            $record[$field] = isNUM($input[$field], $field);
+            $record[$field] = isNUM($input[$field], $field, true);
 
 		return $record;
 	}

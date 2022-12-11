@@ -461,7 +461,12 @@ components:
           description: Buddy van de vlieger, leeftijdsbeleid 
           type: integer
           format: int32
-          example: 811                       
+          example: 811
+        BUDDY_ID2:
+          description: Buddy van de vlieger, leeftijdsbeleid
+          type: integer
+          format: int32
+          example: 1233
         LIERIST:
           description: Mag dit lid lieren? 
           type: boolean
@@ -634,7 +639,11 @@ components:
             BUDDY: 
               description: Naam van de buddy
               type: string
-              example: "Mr Broekhuis"       
+              example: "Mr Broekhuis"
+            BUDDY2:
+              description: Naam van de buddy
+              type: string
+              example: "Mevr Bonensteek"
 
     view_leden:
       type: object
@@ -659,4 +668,3 @@ components:
           items: 
             type: object
             $ref: '#/components/schemas/view_leden_dataset'
-                   

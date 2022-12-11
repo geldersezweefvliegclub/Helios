@@ -1,6 +1,12 @@
 <?php
 
-require_once __DIR__.'/../DigiWallet/autoload.php';
+
+if (is_file(__DIR__.'/../DigiWallet/autoload.php')) // wanneer hosted bij TransIP
+    require_once __DIR__.'/../DigiWallet/autoload.php';
+
+if (is_file('/DigiWallet/autoload.php'))            // wanneer hosted in a docker
+    require_once '/DigiWallet/autoload.php';
+
 use DigiWallet as DigiWallet;
 
 
@@ -32,11 +38,12 @@ class Transacties extends Helios
 				`DATUM` datetime  NOT NULL default CURRENT_TIMESTAMP,
 				`LID_ID` mediumint UNSIGNED NOT NULL,
 				`INGEVOERD_ID` mediumint UNSIGNED NOT NULL,
+				`TYPE_ID` mediumint UNSIGNED NOT NULL,
                 `DDWV` tinyint UNSIGNED NOT NULL DEFAULT '0',
                 `BEDRAG` numeric NULL,
                 `EENHEDEN` numeric NULL,
-                `SALDO_VOOR` numeric UNSIGNED NULL,
-                `SALDO_NA` numeric UNSIGNED NULL,
+                `SALDO_VOOR` numeric NULL,
+                `SALDO_NA` numeric NULL,
                 `REFERENTIE` varchar(50) DEFAULT NULL,
 				`EXT_REF` varchar(50) DEFAULT NULL,
 				`OMSCHRIJVING` varchar(150) NOT NULL,
@@ -50,7 +57,8 @@ class Transacties extends Helios
 					INDEX (`LID_ID`),
 					
 				FOREIGN KEY (LID_ID) REFERENCES ref_leden(ID),
-				FOREIGN KEY (INGEVOERD_ID) REFERENCES ref_leden(ID)
+				FOREIGN KEY (INGEVOERD_ID) REFERENCES ref_leden(ID),
+				FOREIGN KEY (TYPE_ID) REFERENCES ref_types(ID)
 			)", $this->dbTable);
 		parent::DbUitvoeren($query);
 	}
@@ -68,9 +76,11 @@ class Transacties extends Helios
 		SELECT 
             t.*,
 			`l`.`NAAM` AS `NAAM`,
-			`i`.`NAAM` AS `INGEVOERD`
+			`i`.`NAAM` AS `INGEVOERD`,
+			`types`.`OMSCHRIJVING` AS `TYPE`
 		FROM
 			`%s` `t`
+			LEFT JOIN `ref_types` `types` ON (`t`.`TYPE_ID` = `types`.`ID`)
 			LEFT JOIN `ref_leden` `l` ON (`t`.`LID_ID` = `l`.`ID`)
 			LEFT JOIN `ref_leden` `i` ON (`t`.`INGEVOERD_ID` = `i`.`ID`)
 		WHERE
@@ -87,7 +97,7 @@ class Transacties extends Helios
     /*
     Haal een enkel record op uit de database
     */
-    function GetObject($ID,$EXT_REF)
+    function GetObject($ID,$EXT_REF=null)
     {
         $functie = "Transacties.GetObject";
         Debug(__FILE__, __LINE__, sprintf("%s(%s, %s)", $functie, $ID, $EXT_REF));
@@ -324,14 +334,16 @@ class Transacties extends Helios
 	{
 		$functie = "Transacties.AddObject";
 		Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($Transactie, true)));
-											
-		$l = MaakObject('Login');
-		if (!$l->isBeheerder() && !$l->isBeheerderDDWV())
-		{
-			throw new Exception("401;Geen beheerder;");
-		}
+
 		if (!array_key_exists('LID_ID', $Transactie))
 			throw new Exception("406;LID_ID moet ingevuld zijn;");
+
+        $l = MaakObject('Login');
+
+        if (!$l->isBeheerder() && !$l->isBeheerderDDWV() && ($Transactie['LID_ID'] != $l->getUserFromSession()))
+        {
+            throw new Exception("401;Geen rechten;");
+        }
 
 		// Neem data over uit aanvraag
 		$record = $this->RequestToRecord($Transactie);
@@ -352,6 +364,7 @@ class Transacties extends Helios
 		$lObj->UpdateObject($ld);
 
 		Debug(__FILE__, __LINE__, sprintf("Transactie toegevoegd id=%d, %s", $id, $LidData['NAAM']));
+        return $id;
 	}    
 
 	// haal de banken op die iDeal ondersteunen
@@ -412,6 +425,7 @@ class Transacties extends Helios
         $record['LID_ID'] = $lidID;
         $record['EENHEDEN'] = $bestelInfo['EENHEDEN'];
         $record['BEDRAG'] = 1*$bestelInfo['BEDRAG'];
+        $record['TYPE_ID'] = $bestellingID;
         $record['OMSCHRIJVING'] = $bestelInfo['OMSCHRIJVING'];
         $record['EXT_REF'] = $startPaymentResult->transactionId;
 
@@ -483,11 +497,19 @@ class Transacties extends Helios
 
 		$field = 'LID_ID';
 		if (array_key_exists($field, $input))
-			$record[$field] = isINT($input[$field], $field, false, "Leden");	
-	
+			$record[$field] = isINT($input[$field], $field, false, "Leden");
+
+        $field = 'TYPE_ID';
+        if (array_key_exists($field, $input))
+            $record[$field] = isINT($input[$field], $field, false, "Types");
+
 		$field = 'EENHEDEN';
 		if (array_key_exists($field, $input))
-			$record[$field] = isNUM($input[$field], $field);				
+			$record[$field] = isNUM($input[$field], $field);
+
+        $field = 'DDWV';
+        if (array_key_exists($field, $input))
+            $record[$field] = isBOOL($input[$field], $field);
 
 		$field = 'BEDRAG';
 		if (array_key_exists($field, $input))
@@ -512,6 +534,9 @@ class Transacties extends Helios
 
 		if (isset($record['LID_ID']))
 			$retVal['LID_ID']  = $record['LID_ID'] * 1;
+
+        if (isset($record['TYPE_ID']))
+            $retVal['TYPE_ID']  = $record['TYPE_ID'] * 1;
 		
 		if (isset($record['INGEVOERD_ID']))
 			$retVal['INGEVOERD_ID']  = $record['INGEVOERD_ID'] * 1;	

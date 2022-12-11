@@ -40,6 +40,7 @@ class Leden extends Helios
 				`STATUSTYPE_ID` mediumint UNSIGNED NULL,
 				`ZUSTERCLUB_ID` mediumint UNSIGNED DEFAULT NULL,
 				`BUDDY_ID` mediumint UNSIGNED NULL,
+				`BUDDY_ID2` mediumint UNSIGNED NULL,
 				`LIERIST` tinyint UNSIGNED NOT NULL DEFAULT 0,
 				`LIERIST_IO` tinyint UNSIGNED NOT NULL DEFAULT 0,
 				`STARTLEIDER` tinyint UNSIGNED NOT NULL DEFAULT 0,
@@ -83,7 +84,8 @@ class Leden extends Helios
 
 					FOREIGN KEY (LIDTYPE_ID) REFERENCES ref_types(ID),
 					FOREIGN KEY (ZUSTERCLUB_ID) REFERENCES %s(ID),
-					FOREIGN KEY (BUDDY_ID) REFERENCES %s(ID) 			
+					FOREIGN KEY (BUDDY_ID) REFERENCES %s(ID),
+					FOREIGN KEY (BUDDY_ID2) REFERENCES %s(ID)  			
 			)", $this->dbTable, $this->dbTable, $this->dbTable);
 		parent::DbUitvoeren($query);
 
@@ -180,13 +182,15 @@ class Leden extends Helios
 				`t`.`OMSCHRIJVING` AS `LIDTYPE`,
 				`s`.`OMSCHRIJVING` AS `STATUS`,
 				`z`.`NAAM` AS `ZUSTERCLUB`,
-				`b`.`NAAM` AS `BUDDY`
+				`b`.`NAAM` AS `BUDDY`,
+				`b2`.`NAAM` AS `BUDDY2`
 			FROM
 				`%s` `l`    
 				LEFT JOIN `ref_types` `t` ON (`l`.`LIDTYPE_ID` = `t`.`ID`)
 				LEFT JOIN `ref_types` `s` ON (`l`.`STATUSTYPE_ID` = `s`.`ID`)
 				LEFT JOIN `ref_leden` `z` ON (`l`.`ZUSTERCLUB_ID` = `z`.`ID`)
 				LEFT JOIN `ref_leden` `b` ON (`l`.`BUDDY_ID` = `b`.`ID`)
+				LEFT JOIN `ref_leden` `b2` ON (`l`.`BUDDY_ID` = `b2`.`ID`)
 			WHERE
 				`l`.`VERWIJDERD` = %d
 			ORDER BY 
@@ -945,6 +949,13 @@ class Leden extends Helios
 			else
 				$lid['WACHTWOORD'] 	= "****";
 		}
+
+        // We mogen tegoeden van leden alleen opvragen als beheerder of DDWV beheerder
+        if (array_key_exists("TEGOED", $lid))
+        {
+            if (($l->isBeheerder() !== true) && ($l->isBeheerderDDWV() !== true) && ($lid['ID'] !==  $l->getUserFromSession()))
+                $lid['TEGOED'] 	= "-1";
+        }
 		
 		$secret = (isset($lid['SECRET'] )) ? $lid['SECRET'] : null;
 		if ($secret != null) {
@@ -1092,8 +1103,12 @@ class Leden extends Helios
 				
 			$field = 'BUDDY_ID';
 			if (array_key_exists($field, $input))
-				$record[$field] = isINT($input[$field], $field, true, 'Leden');	
-		}
+				$record[$field] = isINT($input[$field], $field, true, 'Leden');
+
+            $field = 'BUDDY_ID2';
+            if (array_key_exists($field, $input))
+                $record[$field] = isINT($input[$field], $field, true, 'Leden');
+        }
 		
 		if ($l->isBeheerder() == true)
 		{
@@ -1322,9 +1337,12 @@ class Leden extends Helios
 			$retVal['ZUSTERCLUB_ID']  = $record['ZUSTERCLUB_ID'] * 1;	
 
 		if (isset($record['BUDDY_ID']))
-			$retVal['BUDDY_ID']  = $record['BUDDY_ID'] * 1;					
-			
-		if (isset($record['TEGOED']))
+			$retVal['BUDDY_ID']  = $record['BUDDY_ID'] * 1;
+
+        if (isset($record['BUDDY_ID2']))
+            $retVal['BUDDY_ID2']  = $record['BUDDY_ID2'] * 1;
+
+        if (isset($record['TEGOED']))
 			$retVal['TEGOED']  = $record['TEGOED'] * 1;	
 
 		// booleans	

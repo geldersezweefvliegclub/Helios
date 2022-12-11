@@ -54,11 +54,13 @@ catch(Exception $exception)
 {
     Debug(__FILE__, __LINE__, "Geen toegang: " .$exception);
 
-    list($dummy, $exceptionMsg) = explode(": ", $exception);
-    list($httpStatus, $message) = explode(";", $exceptionMsg);  // onze eigen formaat van een exceptie
+    if ((str_contains($exception, ":")) && (str_contains($exception, ";"))) {
+        list($dummy, $exceptionMsg) = explode(": ", $exception);
+        list($httpStatus, $message) = explode(";", $exceptionMsg);  // onze eigen formaat van een exceptie
 
-    header("X-Error-Message: $message", true, intval($httpStatus));
-    header("Content-Type: text/plain");
+        header("X-Error-Message: $message", true, intval($httpStatus));
+        header("Content-Type: text/plain");
+    }
     die;
 }  
 

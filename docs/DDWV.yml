@@ -51,8 +51,7 @@ components:
           format: int32
         TARIEVEN: 
           description: De dataset met records
-          type: array
-          items: 
+          additionalProperties:
             $ref: '#/components/schemas/ddwv_tarieven'
 
     ddwv_tarieven:
@@ -63,6 +62,6 @@ components:
           type: string
           example: 3  
         EENHEDEN: 
-          description: Aantal strippen die afgeschrev worden
+          description: Aantal strippen die afgeschreven worden
           type: integer
           example: 8

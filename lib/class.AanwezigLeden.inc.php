@@ -32,6 +32,7 @@ class AanwezigLeden extends Helios
 				`VERTREK` time DEFAULT NULL,
 				`OVERLAND_VLIEGTUIG_ID` mediumint UNSIGNED DEFAULT NULL,
 				`VOORKEUR_VLIEGTUIG_TYPE` text(100) DEFAULT NULL,
+				`TRANSACTIE_ID` mediumint UNSIGNED DEFAULT NULL,
 				`VELD_ID` mediumint UNSIGNED DEFAULT NULL,
 				`OPMERKINGEN` text DEFAULT NULL,
 				`VERWIJDERD` tinyint UNSIGNED NOT NULL DEFAULT '0',
@@ -44,6 +45,7 @@ class AanwezigLeden extends Helios
 
 				FOREIGN KEY (LID_ID) REFERENCES ref_leden(ID),
 				FOREIGN KEY (VELD_ID) REFERENCES ref_types(ID),
+				FOREIGN KEY (TRANSACTIE_ID) REFERENCES oper_transacties(ID),
 				FOREIGN KEY (OVERLAND_VLIEGTUIG_ID) REFERENCES ref_vliegtuigen(ID) 
 			)", $this->dbTable);
 		parent::DbUitvoeren($query);
@@ -550,27 +552,14 @@ class AanwezigLeden extends Helios
 	Markeer een record in de database als verwijderd. Het record wordt niet fysiek verwijderd om er een link kan zijn naar andere tabellen.
 	Het veld VERWIJDERD wordt op "1" gezet.
 	*/
-	function VerwijderObject($id = null, $lid_id = null, $datum = null, $verificatie = true)
+	function VerwijderObject($ids = null, $lid_id = null, $datum = null, $verificatie = true)
 	{
 		$functie = "AanwezigLeden.VerwijderObject";
-		Debug(__FILE__, __LINE__, sprintf("%s('%s', %s, %s, %s)", $functie, $id, $lid_id, $datum, (($verificatie === false) ? "False" :  $verificatie)));					
+		Debug(__FILE__, __LINE__, sprintf("%s('%s', %s, %s, %s)", $functie, $ids, $lid_id, $datum, (($verificatie === false) ? "False" :  $verificatie)));
 
-
-		if ($datum) 
+		if ($ids !== null)
 		{
-			if ($this->heeftDataToegang() == false)
-				throw new Exception("401;Geen schrijfrechten;");
-		}
-		else
-		{
-			if ($this->heeftDataToegang($datum) == false)
-				throw new Exception("401;Geen schrijfrechten;");
-		}
-
-
-		if ($id !== null)
-		{
-			isCSV($id, "ID");
+			isCSV($ids, "ID");
 		}
 		else
 		{
@@ -581,16 +570,34 @@ class AanwezigLeden extends Helios
 			isDATE($datum, "DATUM");	
 		}
 
+        $l = MaakObject('Login');
+        $ddwv = MaakObject('DDWV');     // eventueel DDWV strippen retour
 
-		if ($id == null)
+		if ($ids !== null)
+        {
+            $arrayIDs = explode(",", $ids);
+
+            foreach ($arrayIDs as $id) {
+                $db_data = $this->GetObject($id);
+
+                if (($this->heeftDataToegang() == false) && ($db_data['LID_ID'] != $l->getUserFromSession()))
+                    throw new Exception("401;Geen schrijfrechten;");
+
+                parent::MarkeerAlsVerwijderd($id, false);
+                $ddwv->AfmeldenLidBijboekenDDWV($db_data);
+            }
+        }
+        else
 		{
-			$vObj = $this->GetObject(null, $lid_id, $datum);
-			$id = $vObj["ID"];
-			
-			$verificatie = false;	// we weten zeker dat record bestaat
+			$db_data = $this->GetObject(null, $lid_id, $datum);
+			$id = $db_data["ID"];
+
+            if (($this->heeftDataToegang($datum) == false) && ($db_data['LID_ID'] != $l->getUserFromSession()))
+                throw new Exception("401;Geen schrijfrechten;");
+
+            parent::MarkeerAlsVerwijderd($id, false);
+            $ddwv->AfmeldenLidBijboekenDDWV($db_data);
 		}
-		
-		parent::MarkeerAlsVerwijderd($id, $verificatie);		
 	}	
 	
 	/*
@@ -706,8 +713,9 @@ class AanwezigLeden extends Helios
 				throw new Exception(sprintf("409;Lid ID (%s, %s) kan niet gewijzigd worden;",$AanwezigLedenData['LID_ID'], $db_record['LID_ID']));
 		}
 
-		if ($this->heeftDataToegang($db_record['DATUM']) == false)
-			throw new Exception("401;Geen schrijfrechten;");	
+        $l = MaakObject('Login');
+		if (($this->heeftDataToegang($db_record['DATUM']) == false) && ($db_record['LID_ID'] != $l->getUserFromSession()))
+        throw new Exception("401;Geen schrijfrechten;");
 
 		// Neem data over uit aanvraag
 		$d = $this->RequestToRecord($AanwezigLedenData);            
@@ -821,6 +829,13 @@ class AanwezigLeden extends Helios
 			}
 			if ($aanpassen)
 			{
+                // We zijn nu bijna klaar om aanmelding op te slaan in de database, maar voor DDWV moeten we strippen afschrijven
+                $ddwv = MaakObject('DDWV');
+                $id = $ddwv->AanmeldenLidAfboekenDDWV($AanmeldenLedenData);
+
+                if ($id >= 0)
+                    $AanmeldenLedenData['TRANSACTIE_ID'] = $id;
+
 				$this->UpdateObject($AanmeldenLedenData);
 				Debug(__FILE__, __LINE__, sprintf("AanwezigLeden aangepast id=%s", $id));		
 				return  $this->GetObject($id);
@@ -855,8 +870,15 @@ class AanwezigLeden extends Helios
 				$pos = $aanwezigen['dataset'][0]['POSITIE'] + 1;
 			}
 			$AanmeldenLedenData['POSITIE'] = $pos;
-		}			
-		
+		}
+
+        // We zijn nu bijna klaar om aanmelding op te slaan in de database, maar voor DDWV moeten we strippen afschrijven
+        $ddwv = MaakObject('DDWV');
+        $id = $ddwv->AanmeldenLidAfboekenDDWV($AanmeldenLedenData);
+
+        if ($id >= 0)
+            $AanmeldenLedenData['TRANSACTIE_ID'] = $id;
+
 		$aangemeld = $this->AddObject($AanmeldenLedenData);
 
 		Debug(__FILE__, __LINE__, sprintf("AanwezigLeden toegevoegd id=%d", $aangemeld['ID']));
@@ -902,16 +924,30 @@ class AanwezigLeden extends Helios
 			throw new Exception("409;Kan een lid alleen afmelden als het eerst aangemeld is;");
 		}		
 
-		// Aankomst was al gezet, mag niet overschreven worden
-		unset($AanmeldenLedenData['AANKOMST']);
-
 		// Zetten van de velden indien dit niet gedaan is	
 		if (!array_key_exists('VERTREK', $AfmeldenLedenData))	
-			$AfmeldenLedenData['VERTREK'] = $datetime->format('H:i:00');			
+			$AfmeldenLedenData['VERTREK'] = $datetime->format('H:i:00');
 
+        // DDWV terug boeken, maar niet als we al een start hebben gemaakt
+        $sObj = MaakObject('Startlijst');
+        $params = array('LID_ID' => $db_data['LID_ID'],
+                        'BEGIN_DATUM' => $db_data['DATUM'],
+                        'EIND_DATUM' => $db_data['DATUM']);
+        $logboek = $sObj->GetLogboek($params);
+        Debug(__FILE__, __LINE__, sprintf("%s: logboek=%s", $functie, print_r($logboek, true)));
+
+        if ($logboek['totaal'] == 0)       // er is nog niet gevlogen, dus mogen DDWV strippen terug
+        {
+            $ddwv = MaakObject('DDWV');
+            $id = $ddwv->AfmeldenLidBijboekenDDWV($db_data);
+
+            if ($id >= 0) {
+                $AfmeldenLedenData['TRANSACTIE_ID'] = null;
+            }
+        }
 		$this->UpdateObject($AfmeldenLedenData);
 
-		Debug(__FILE__, __LINE__, sprintf("AanwezigLeden aangepast id=%s", $AfmeldenLedenData['ID']));		
+		Debug(__FILE__, __LINE__, sprintf("%s: AanwezigLeden aangepast id=%s", $functie, $AfmeldenLedenData['ID']));
 		return  $this->GetObject($AfmeldenLedenData['ID']);
 	}	
 	
@@ -1034,7 +1070,6 @@ class AanwezigLeden extends Helios
 		// Bekijk daginfo of we DDWV kun uitsluiten
 		$di = MaakObject('Daginfo');
 
-		
 		// als er geen daginfo is, dan komt er een exceptie
 		try {
 			$diObj = $di->GetObject(null, ($datum == null) ? date("Y-m-d") : $datum );
@@ -1139,6 +1174,10 @@ class AanwezigLeden extends Helios
 		if (array_key_exists($field, $input))
 			$record[$field] = isINT($input[$field], $field, true, 'Types');
 
+        $field = 'TRANSACTIE_ID';
+        if (array_key_exists($field, $input))
+            $record[$field] = isINT($input[$field], $field, true, 'Transacties');
+
 		$field = 'VOORAANMELDING';
 		if (array_key_exists($field, $input))
 			$record[$field] = isBOOL($input[$field], $field);
@@ -1196,9 +1235,12 @@ class AanwezigLeden extends Helios
 			$retVal['STARTS']  = $record['STARTS'] * 1;		
 
 		if (isset($record['VELD_ID']))
-			$retVal['VELD_ID']  = $record['VELD_ID'] * 1;	
+			$retVal['VELD_ID']  = $record['VELD_ID'] * 1;
 
-		// booleans	
+        if (isset($record['TRANSACTIE_ID']))
+            $retVal['TRANSACTIE_ID']  = $record['TRANSACTIE_ID'] * 1;
+
+        // booleans
 		if (isset($record['VOORAANMELDING']))
 			$retVal['VOORAANMELDING']  = $record['VOORAANMELDING'] == "1" ? true : false;
 
