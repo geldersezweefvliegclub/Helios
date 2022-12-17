@@ -107,6 +107,7 @@ class AanwezigLeden extends Helios
 				`al`.`POSITIE`,
 				`al`.`LID_ID`,
 				`al`.`VELD_ID`,
+				`al`.`TRANSACTIE_ID`,
 				`al`.`VOORAANMELDING`,
 				time_format(`al`.`AANKOMST`,'%%H:%%i') AS `AANKOMST`,
 				time_format(`al`.`VERTREK`,'%%H:%%i') AS `VERTREK`,
@@ -173,12 +174,14 @@ class AanwezigLeden extends Helios
 				`l`.`PRIVACY`,
 				`l`.`STATUSTYPE_ID`,
 				`t`.`OMSCHRIJVING` AS `VELD`,
+				`lt`.`OMSCHRIJVING` AS `LIDTYPE`,
 				`s`.`CODE` AS `STATUS`,
 				`s`.`SORTEER_VOLGORDE` AS `STATUS_SORTEER_VOLGORDE`
 			FROM
 				`%s` `al`
 				LEFT JOIN `ref_leden` `l` ON (`al`.`LID_ID` = `l`.`ID`)
 				LEFT JOIN `ref_types` `t` ON (`al`.`VELD_ID` = `t`.`ID`)
+				LEFT JOIN `ref_types` `lt` ON (`l`.`LIDTYPE_ID` = `lt`.`ID`)
 				LEFT JOIN `ref_types` `s` ON (`l`.`STATUSTYPE_ID` = `s`.`ID`)
 				LEFT JOIN `ref_vliegtuigen` `v` ON (`al`.`OVERLAND_VLIEGTUIG_ID` = `v`.`ID`)
 			WHERE

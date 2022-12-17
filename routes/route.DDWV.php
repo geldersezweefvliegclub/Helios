@@ -21,7 +21,7 @@ $app->get(url_base() . 'DDWV/GetConfiguratie', function (Request $request, Respo
     }
     catch(Exception $exception)
     {
-        Debug(__FILE__, __LINE__, "/Diensten/GetObjects: " .$exception);
+        Debug(__FILE__, __LINE__, "DDWV/GetConfiguratie: " .$exception);
 
         list($dummy, $exceptionMsg) = explode(": ", $exception);
         list($httpStatus, $message) = explode(";", $exceptionMsg);   // onze eigen formaat van een exceptie
@@ -32,5 +32,64 @@ $app->get(url_base() . 'DDWV/GetConfiguratie', function (Request $request, Respo
     }
 });
 
+
+
+/*
+De DDWV dag gaat niet door, strippen terug boeken
+*/
+$app->get(url_base() . 'DDWV/AnnulerenDDWV', function (Request $request, Response $response, $args) {
+    $obj = MaakObject("DDWV");
+    try
+    {
+        $params = $request->getQueryParams();
+        $datum = (isset($params['DATUM'])) ? $params['DATUM'] : null;
+        $hash = (isset($params['HASH'])) ? $params['HASH'] : null;
+
+        $r = $obj->AnnulerenDDWV($datum, $hash);     // Hier staat de logica voor deze functie
+
+        $response->getBody()->write(json_encode($r));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+    catch(Exception $exception)
+    {
+        Debug(__FILE__, __LINE__, "DDWV/AnnulerenDDWV: " .$exception);
+
+        list($dummy, $exceptionMsg) = explode(": ", $exception);
+        list($httpStatus, $message) = explode(";", $exceptionMsg);   // onze eigen formaat van een exceptie
+
+        header("X-Error-Message: $message", true, intval($httpStatus));
+        header("Content-Type: text/plain");
+        die;
+    }
+});
+
+/*
+De DDWV dag gaat niet door, strippen terug boeken
+*/
+$app->get(url_base() . 'DDWV/UitbetalenCrew', function (Request $request, Response $response, $args) {
+    $obj = MaakObject("DDWV");
+    try
+    {
+        $params = $request->getQueryParams();
+        $datum = (isset($params['DATUM'])) ? $params['DATUM'] : null;
+        $hash = (isset($params['HASH'])) ? $params['HASH'] : null;
+
+        $r = $obj->UitbetalenCrew($datum, $hash);     // Hier staat de logica voor deze functie
+
+        $response->getBody()->write(json_encode($r));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+    catch(Exception $exception)
+    {
+        Debug(__FILE__, __LINE__, "/DDWV/UitbetalenCrew: " .$exception);
+
+        list($dummy, $exceptionMsg) = explode(": ", $exception);
+        list($httpStatus, $message) = explode(";", $exceptionMsg);   // onze eigen formaat van een exceptie
+
+        header("X-Error-Message: $message", true, intval($httpStatus));
+        header("Content-Type: text/plain");
+        die;
+    }
+});
 
 ?>

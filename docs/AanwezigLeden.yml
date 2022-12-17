@@ -549,7 +549,12 @@ components:
         VELD_ID: 
           description: Op welk veld is dit lid aangemeld
           type: integer
-          example: 901     
+          example: 901
+        TRANSACTIE_ID:
+          description: Transactie voor betaling DDWV
+          type: integer
+          format: int32
+          example: 2001
         OPMERKINGEN:
           description: Opmerking over de vliegdag 
           type: string
@@ -665,12 +670,17 @@ components:
             description: Het soort lid (jeugdlid, lid, donateur). Verwijzing naar type tabel
             type: integer
             format: int32
-            example: 603      
-          ZUSTERCLUB_ID: 
+            example: 603
+          LIDTYPE:
+            description: Lid type omschrijving uit type tabel
+            type: string
+            maxLength: 255
+            example: Erlelid
+          ZUSTERCLUB_ID:
             description: Zusterclub lidmaatschap van lid. Nodig voor DDWV.
             type: integer
             format: int32
-            example: 603              
+            example: 603
           LIERIST:
             description: Mag dit lid lieren? 
             type: boolean

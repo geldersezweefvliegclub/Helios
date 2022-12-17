@@ -175,4 +175,116 @@ class DDWV
 
         return $id;
     }
+
+    /*
+     Annuleren van een vliegdag vanwege te weinig deelnemers. De strippen worden terug geboekt
+    */
+    function AnnulerenDDWV($Datum, $Hash)
+    {
+        global $ddwv;
+
+        $functie = "DDWV.AnnulerenDDWV";
+        Debug(__FILE__, __LINE__, sprintf("%s(%s, %s)", $functie, $Datum, $Hash));
+
+        $l = MaakObject('Login');
+
+        if (!$l->isBeheerder() && !$l->isBeheerderDDWV())
+            throw new Exception("401;Geen rechten;");
+
+        isDATE($Datum, "DATUM");
+
+        $rObj = MaakObject('Rooster');
+        $rooster = $rObj->GetObject(null, $Datum);
+
+        if ($Hash != sha1(json_encode($rooster)))
+            throw new Exception("405;Hash incorrect;");
+
+        if ($rooster['DDWV'] == false)
+            throw new Exception("405;Geen DDWV Dag;");
+
+        $al = MaakObject('AanwezigLeden');
+        $aanwezigen = $al->GetObjects(array('BEGIN_DATUM' => $Datum, 'EIND_DATUM' => $Datum));
+
+        $tObj = MaakObject('Transacties');
+        $dateparts = explode('-', $Datum);
+
+        foreach ($aanwezigen['dataset'] as  $aanmelding)
+        {
+            Debug(__FILE__, __LINE__, sprintf("%s: aanmelding %s", $functie, print_r($aanmelding, true)));
+
+            if (isset($aanmelding['TRANSACTIE_ID'])) {  // Alleen terug betalen als er een link is met een betaal transactie
+                $transactie = $tObj->GetObject($aanmelding['TRANSACTIE_ID']);
+                $betaald = $transactie['EENHEDEN'];
+
+                $transactie = array();
+                $transactie['DDWV'] = true;
+                $transactie['LID_ID'] = $aanmelding['LID_ID'];
+                $transactie['TYPE_ID'] = $ddwv->ANNULEREN_VLIEGDAG;
+                $transactie['EENHEDEN'] = -1 * $betaald;
+                $transactie['OMSCHRIJVING'] = sprintf(", vliegdag %02d-%02d-%d", $dateparts[2], $dateparts[1], $dateparts[0]);
+
+                $id = $tObj->AddObject($transactie);
+
+                // verwijderen van link tussen aanmelden en transactie. Voorkom hiermee dat twee keer terug geboekt kan worden
+                $a = array();
+                $a['ID'] = $aanmelding['ID'];
+                $a['TRANSACTIE_ID'] = null;
+                $al->UpdateObject($a);
+            }
+        }
+        $r = array();
+        $r['ID'] = $rooster['ID'];
+        $r['DDWV'] = false;
+        $rObj->UpdateObject($r);
+    }
+
+    function UitbetalenCrew($Datum, $Hash)
+    {
+        global $ddwv;
+
+        $functie = "DDWV.UitbetalenCrew";
+        Debug(__FILE__, __LINE__, sprintf("%s(%s, %s)", $functie, $Datum, $Hash));
+
+        $l = MaakObject('Login');
+
+        if (!$l->isBeheerder() && !$l->isBeheerderDDWV())
+            throw new Exception("401;Geen rechten;");
+
+        isDATE($Datum, "DATUM");
+
+        $rObj = MaakObject('Rooster');
+        $rooster = $rObj->GetObject(null, $Datum);
+
+        if ($Hash != sha1(json_encode($rooster)))
+            throw new Exception("406;Hash incorrect;");
+
+        if ($rooster['DDWV'] == false)
+            throw new Exception("406;Geen DDWV dag;");
+
+        if ($rooster['CLUB_BEDRIJF'] == true)
+            throw new Exception("406;Club bedrijf;");
+
+        $tObj = MaakObject('Types');
+        $tarief = $tObj->GetObject($ddwv->CREW_VERGOEDING);
+
+        $dObj = MaakObject('Diensten');
+        $diensten = $dObj->GetObjects(array('BEGIN_DATUM' => $Datum, 'EIND_DATUM' => $Datum));
+
+        $dateparts = explode('-', $Datum);
+
+        foreach ($diensten['dataset'] as $dienst)
+        {
+            Debug(__FILE__, __LINE__, sprintf("%s: dienst %s", $functie, print_r($dienst, true)));
+
+            $transactie = array();
+            $transactie['DDWV'] = true;
+            $transactie['LID_ID'] = $dienst['LID_ID'];
+            $transactie['TYPE_ID'] = $tarief['ID'];
+            $transactie['EENHEDEN'] = $tarief['EENHEDEN'];
+            $transactie['OMSCHRIJVING'] = sprintf(", vliegdag %02d-%02d-%d", $dateparts[2], $dateparts[1], $dateparts[0]);
+
+            $tObj = MaakObject('Transacties');
+            $id = $tObj->AddObject($transactie);
+        }
+    }
 }

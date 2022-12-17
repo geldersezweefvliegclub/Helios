@@ -20,6 +20,78 @@ paths:
               schema:
                 $ref: '#/components/schemas/ddwv_config'
 
+  /DDWV/AnnulerenDDWV:
+    get:
+      security:
+        - basicAuth: []
+        - bearerAuth: []
+      summary: Annuleren van de vliegdag en terug boeken naar leden
+      parameters:
+        - in: query
+          name: DATUM
+          description: Datum van de te annuleren vliegdag
+          schema:
+            type: string
+            format: date
+          example: "2024-04-12"
+        - in: query
+          name: HASH
+          description: sha1 encoding van het rooster record (als json)
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: "OK, data succesvol opgehaald"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ref_leden'
+        401:
+          description: "Niet geautoriseerd, geen schrijfrechten"
+        404:
+          description: "Data niet gevonden"
+        405:
+          description: "Methode niet toegestaan, input validatie error"
+        500:
+          description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"
+
+  /DDWV/UitbetalenCrew:
+    get:
+      security:
+        - basicAuth: []
+        - bearerAuth: []
+      summary: Betalen van de crew na bewezen diensten
+      parameters:
+        - in: query
+          name: DATUM
+          description: Datum van de vliegdag
+          schema:
+            type: string
+            format: date
+          example: "2023-06-01"
+        - in: query
+          name: HASH
+          description: sha1 encoding van het rooster record (als json)
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: "OK, data succesvol opgehaald"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ref_leden'
+        401:
+          description: "Niet geautoriseerd, geen schrijfrechten"
+        404:
+          description: "Data niet gevonden"
+        405:
+          description: "Methode niet toegestaan, input validatie error"
+        500:
+          description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"
+
 components:
   securitySchemes:
     basicAuth:

@@ -52,6 +52,7 @@ function heliosInit($url, $http_method = "GET")
         {
             $loginUrl = $helios_settings['url'] . "/Login/Login";
         }
+
         curl_setopt($curl_session, CURLOPT_URL, $loginUrl);
         curl_setopt($curl_session , CURLOPT_CUSTOMREQUEST, $http_method); 
         $result = curl_exec($curl_session);
