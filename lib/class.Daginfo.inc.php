@@ -27,14 +27,11 @@ class Daginfo extends Helios
 				`DATUM` date NOT NULL,
 				`VELD_ID` mediumint UNSIGNED DEFAULT NULL,
 				`BAAN_ID` mediumint UNSIGNED DEFAULT NULL,
-				`STARTMETHODE_ID` mediumint UNSIGNED DEFAULT NULL,
-				`INCIDENTEN` text DEFAULT NULL,  
-				`VLIEGBEDRIJF` text DEFAULT NULL,
-				`METEO` text DEFAULT NULL,
-				`DIENSTEN` text DEFAULT NULL,
-				`VERSLAG` text DEFAULT NULL,
-				`ROLLENDMATERIEEL` text DEFAULT NULL,
-				`VLIEGENDMATERIEEL` text DEFAULT NULL,
+				`STARTMETHODE_ID` mediumint UNSIGNED DEFAULT NULL,				
+				`VELD_ID2` mediumint UNSIGNED DEFAULT NULL,
+				`BAAN_ID2` mediumint UNSIGNED DEFAULT NULL,
+				`STARTMETHODE_ID2` mediumint UNSIGNED DEFAULT NULL,
+				
 				`DDWV` tinyint UNSIGNED NOT NULL DEFAULT 0,
 				`CLUB_BEDRIJF` tinyint UNSIGNED NOT NULL DEFAULT 0,
 				`VERWIJDERD` tinyint UNSIGNED NOT NULL DEFAULT '0',
@@ -46,36 +43,30 @@ class Daginfo extends Helios
 					
 				FOREIGN KEY (VELD_ID) REFERENCES ref_types(ID),	
 				FOREIGN KEY (BAAN_ID) REFERENCES ref_types(ID),	
-				FOREIGN KEY (STARTMETHODE_ID) REFERENCES ref_types(ID)
+				FOREIGN KEY (STARTMETHODE_ID) REFERENCES ref_types(ID),
+				FOREIGN KEY (VELD_ID2) REFERENCES ref_types(ID),	
+				FOREIGN KEY (BAAN_ID2) REFERENCES ref_types(ID),	
+				FOREIGN KEY (STARTMETHODE_ID2) REFERENCES ref_types(ID)
 			)", $this->dbTable);
 		parent::DbUitvoeren($query);
 
 		if (isset($FillData))
 		{
 			$inject = array(
-				"1, '####-04-28', 901, NULL, 1,0, '%s', '%s', '%s', '%s', '%s', '%s', '%s'",
-				"2, '####-04-29', 901, NULL, 1,1, '%s', '%s', '%s', '%s', '%s', '%s', '%s'",
-				"3, '####-04-30', 901, NULL, 0,1, '%s', '%s', '%s', '%s', '%s', '%s', '%s'",
-				"4, '####-05-01', 901, NULL, 1,1, '%s', '%s', '%s', '%s', '%s', '%s', '%s'",
-				"5, '####-05-02', 901, 550,  1,0, '%s', '%s', '%s', '%s', '%s', '%s', '%s'",
-				"6, '####-05-03', 901, 550,  1,0, '%s', '%s', '%s', '%s', '%s', '%s', '%s'",
-				"7, '####-05-04', 901, 550,  1,0, '%s', '%s', '%s', '%s', '%s', '%s', '%s'",
-				"8, '####-05-05', 901, 550,  1,0, '%s', '%s', '%s', '%s', '%s', '%s', '%s'");
+				"1, '####-04-28', 901, NULL, 1,0",
+				"2, '####-04-29', 901, NULL, 1,1",
+				"3, '####-04-30', 901, NULL, 0,1",
+				"4, '####-05-01', 901, NULL, 1,1",
+				"5, '####-05-02', 901, 550,  1,0",
+				"6, '####-05-03', 901, 550,  1,0",
+				"7, '####-05-04', 901, 550,  1,0",
+				"8, '####-05-05', 901, 550,  1,0");
 
 			$inject = str_replace("####", strval(date("Y")), $inject);		// aanwezigheid in dit jaar
 
 			$i = 0;    
 			foreach ($inject as $record)
-			{    
-				$fields = sprintf($record, 
-							parent::fakeText(), 
-							parent::fakeText(),
-							parent::fakeText(),
-							parent::fakeText(),
-							parent::fakeText(),
-							parent::fakeText(),
-							parent::fakeText());
-							
+			{
 				$query = sprintf("
 						INSERT INTO `%s` (
 							`ID`, 
@@ -83,16 +74,9 @@ class Daginfo extends Helios
 							`VELD_ID`,  
 							`STARTMETHODE_ID`, 
 							`CLUB_BEDRIJF`, 
-							`DDWV`, 
-							`INCIDENTEN`, 
-							`VLIEGBEDRIJF`, 
-							`METEO`, 
-							`DIENSTEN`, 
-							`VERSLAG`, 
-							`ROLLENDMATERIEEL`, 
-							`VLIEGENDMATERIEEL`) 
+							`DDWV`) 
 						VALUES
-							(%s);", $this->dbTable, $fields);
+							(%s);", $this->dbTable, $record);
 				$i++;
 				parent::DbUitvoeren($query);
 			}
@@ -116,12 +100,23 @@ class Daginfo extends Helios
 			`T_Baan`.`CODE` AS `BAAN_CODE`,
 			`T_Baan`.`OMSCHRIJVING` AS  `BAAN_OMS`,       
 			`T_Startmethode`.`CODE` AS `STARTMETHODE_CODE`,
-			`T_Startmethode`.`OMSCHRIJVING` AS  `STARTMETHODE_OMS`
+			`T_Startmethode`.`OMSCHRIJVING` AS  `STARTMETHODE_OMS`,
+			
+			`T2_Veld`.`CODE` AS `VELD_CODE2`,
+			`T2_Veld`.`OMSCHRIJVING` AS  `VELD_OMS2`,  
+			`T2_Baan`.`CODE` AS `BAAN_CODE2`,
+			`T2_Baan`.`OMSCHRIJVING` AS  `BAAN_OMS2`,       
+			`T2_Startmethode`.`CODE` AS `STARTMETHODE_CODE2`,
+			`T2_Startmethode`.`OMSCHRIJVING` AS  `STARTMETHODE_OMS2`			
 		FROM
 			`%s` `di`
 			LEFT JOIN `ref_types` `T_Veld` ON (`di`.`VELD_ID` = `T_Veld`.`ID`)
 			LEFT JOIN `ref_types` `T_Baan` ON (`di`.`BAAN_ID` = `T_Baan`.`ID`)
 			LEFT JOIN `ref_types` `T_Startmethode` ON (`di`.`STARTMETHODE_ID` = `T_Startmethode`.`ID`)
+			
+            LEFT JOIN `ref_types` `T2_Veld` ON (`di`.`VELD_ID2` = `T2_Veld`.`ID`)
+			LEFT JOIN `ref_types` `T2_Baan` ON (`di`.`BAAN_ID2` = `T2_Baan`.`ID`)
+			LEFT JOIN `ref_types` `T2_Startmethode` ON (`di`.`STARTMETHODE_ID2` = `T2_Startmethode`.`ID`)
 		WHERE
 			`di`.`VERWIJDERD` = %d
 		ORDER BY DATUM DESC;";	
@@ -491,7 +486,7 @@ class Daginfo extends Helios
 	function UpdateObject($DaginfoData)
 	{
 		$functie = "Daginfo.UpdateObject";
-		Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($DaginfoData, true)));
+		Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, json_encode($DaginfoData)));
 		
 		if ($DaginfoData == null)
 			throw new Exception("406;Daginfo data moet ingevuld zijn;");	
@@ -527,7 +522,7 @@ class Daginfo extends Helios
 			throw new Exception("401;Geen schrijfrechten;");
 
 		// Neem data over uit aanvraag
-		$d = $this->RequestToRecord($DaginfoData);            
+		$d = $this->RequestToRecord($DaginfoData);
 
 		parent::DbAanpassen($id, $d);
 		if (parent::NumRows() === 0)
@@ -541,7 +536,7 @@ class Daginfo extends Helios
 	*/
 	function RequestToRecord($input)
 	{
-		$record = array();		
+		$record = array();
 
 		$field = 'ID';
 		if (array_key_exists($field, $input))
@@ -557,16 +552,24 @@ class Daginfo extends Helios
 
 		$field = 'BAAN_ID';
 		if (array_key_exists($field, $input))
-			$record[$field] = isINT($input[$field], $field, true, "Types");	
-			
-		$field = 'BEDRIJF_ID';
-		if (array_key_exists($field, $input))
-			$record[$field] = isINT($input[$field], $field, true, "Types");	
-
-		$field = 'STARTMETHODE_ID';
-		if (array_key_exists($field, $input))
 			$record[$field] = isINT($input[$field], $field, true, "Types");
-		
+
+        $field = 'STARTMETHODE_ID';
+        if (array_key_exists($field, $input))
+            $record[$field] = isINT($input[$field], $field, true, "Types");
+
+        $field = 'VELD_ID2';
+        if (array_key_exists($field, $input))
+            $record[$field] = isINT($input[$field], $field, true, "Types");
+
+        $field = 'BAAN_ID2';
+        if (array_key_exists($field, $input))
+            $record[$field] = isINT($input[$field], $field, true, "Types");
+
+        $field = 'STARTMETHODE_ID2';
+        if (array_key_exists($field, $input))
+            $record[$field] = isINT($input[$field], $field, true, "Types");
+
 		$field = 'DDWV';
 		if (array_key_exists($field, $input))
 			$record[$field] = isBOOL($input[$field], $field);
@@ -574,27 +577,6 @@ class Daginfo extends Helios
 		$field = 'CLUB_BEDRIJF';
 		if (array_key_exists($field, $input))
 			$record[$field] = isBOOL($input[$field], $field);
-			
-		if (array_key_exists('INCIDENTEN', $input))
-			$record['INCIDENTEN'] = $input['INCIDENTEN']; 
-			
-		if (array_key_exists('VLIEGBEDRIJF', $input))
-			$record['VLIEGBEDRIJF'] = $input['VLIEGBEDRIJF'];
-		
-		if (array_key_exists('METEO', $input))
-			$record['METEO'] = $input['METEO'];	
-			
-		if (array_key_exists('DIENSTEN', $input))
-			$record['DIENSTEN'] = $input['DIENSTEN'];	
-			
-		if (array_key_exists('VERSLAG', $input))
-			$record['VERSLAG'] = $input['VERSLAG'];	
-			
-		if (array_key_exists('ROLLENDMATERIEEL', $input))
-			$record['ROLLENDMATERIEEL'] = $input['ROLLENDMATERIEEL'];	
-			
-		if (array_key_exists('VLIEGENDMATERIEEL', $input))
-			$record['VLIEGENDMATERIEEL'] = $input['VLIEGENDMATERIEEL'];
 
 		return $record;
 	}
@@ -617,17 +599,26 @@ class Daginfo extends Helios
 			$retVal['BAAN_ID']  = $record['BAAN_ID'] * 1;				
 
 		if (isset($record['STARTMETHODE_ID']))
-			$retVal['STARTMETHODE_ID']  = $record['STARTMETHODE_ID'] * 1;					
+			$retVal['STARTMETHODE_ID']  = $record['STARTMETHODE_ID'] * 1;
 
-		// booleans	
+        if (isset($record['VELD_ID2']))
+            $retVal['VELD_ID2']  = $record['VELD_ID2'] * 1;
+
+        if (isset($record['BAAN_ID2']))
+            $retVal['BAAN_ID2']  = $record['BAAN_ID2'] * 1;
+
+        if (isset($record['STARTMETHODE_ID2']))
+            $retVal['STARTMETHODE_ID2']  = $record['STARTMETHODE_ID2'] * 1;
+
+        // booleans
 		if (isset($record['DDWV']))
 			$retVal['DDWV']  = $record['DDWV'] == "1" ? true : false;
 
 		if (isset($record['CLUB_BEDRIJF']))
-			$retVal['CLUB_BEDRIJF']  = $record['CLUB_BEDRIJF'] == "1" ? true : false;
+			$retVal['CLUB_BEDRIJF'] = $record['CLUB_BEDRIJF'] == "1" ? true : false;
 
 		if (isset($record['VERWIJDERD']))
-			$retVal['VERWIJDERD']  = $record['VERWIJDERD'] == "1" ? true : false;
+			$retVal['VERWIJDERD'] = $record['VERWIJDERD'] == "1" ? true : false;
 
 		return $retVal;
 	}

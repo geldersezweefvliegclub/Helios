@@ -161,7 +161,7 @@ if (!IsSet($GLOBALS['DATABASE_INCLUDED']))
 					}
 					
 					if ($app_settings['DbError'])
-						HeliosError(__FILE__, __LINE__,  $q  . "\n" . $e->getMessage());
+						HeliosError(__FILE__, __LINE__,  $e->getMessage());
 					die;
 				}
 				$this->ClearCache();
@@ -299,14 +299,15 @@ if (!IsSet($GLOBALS['DATABASE_INCLUDED']))
 				}
 				else
 				{
+					error_log($field . "=" . $value  . "\n", 3, $app_settings['LogDir'] . "update.txt");
+
 					if ((is_numeric($value)) && (substr($value,0,1) != "0")) 
 							$fields = sprintf("%s,%s=%s", $fields, $field, $value);
-					elseif ($value == null)
+					elseif ($value === null)
 						$fields = sprintf("%s,%s=NULL", $fields, $field);
 					else
 						$fields = sprintf("%s,%s='%s'", $fields, $field, str_replace("'","\'", $value));
 				}
-				
 			}
 			if (is_numeric($ID))
 				$query = sprintf("UPDATE %s SET %s WHERE ID=%s;", $table, $fields, $ID);

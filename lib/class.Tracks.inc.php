@@ -417,7 +417,6 @@ class Tracks extends Helios
 				throw new Exception("401;Geen schrijfrechten;");
 		}
 
-
 		// Bij update willen we de oude input bewaren. We doen dit als volgt
 		// Markeer record als verwijderd
 		// Maak een nieuw track record en verwijs via LINK_ID naar het verwijderde record 
