@@ -25,7 +25,7 @@ class DagRapporten extends Helios
 			CREATE TABLE `%s` (
 				`ID` mediumint  UNSIGNED NOT NULL AUTO_INCREMENT,
 				`DATUM` date NOT NULL,
-				`VELD_ID` mediumint UNSIGNED DEFAULT NULL,
+				`VELD_ID` mediumint UNSIGNED NOT NULL,
 				`INGEVOERD_ID` mediumint UNSIGNED NOT NULL,
 				`INCIDENTEN` text DEFAULT NULL,  
 				`VLIEGBEDRIJF` text DEFAULT NULL,
@@ -425,6 +425,9 @@ class DagRapporten extends Helios
 
         if (!array_key_exists('DATUM', $DagRapportData))
             throw new Exception("406;Datum is verplicht;");
+
+        if (!array_key_exists('VELD_ID', $DagRapportData))
+            throw new Exception("406;VELD_ID is verplicht;");
 
         $dagRapportDatum = isDATE($DagRapportData['DATUM'], "DATUM");
 
