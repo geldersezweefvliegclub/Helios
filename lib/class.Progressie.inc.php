@@ -29,7 +29,9 @@ class Progressie extends Helios
 				`INSTRUCTEUR_ID` mediumint UNSIGNED NOT NULL,
 				`OPMERKINGEN` text NULL,  
 				`INGEVOERD` DATETIME DEFAULT CURRENT_TIMESTAMP,
-				`LINK_ID` mediumint UNSIGNED NULL,    					   
+				`LINK_ID` mediumint UNSIGNED NULL,    		
+				`GELDIG_TOT` date DEFAULT NULL,		
+				`SCORE` smallint UNSIGNED NULL,  	   
 				`VERWIJDERD` tinyint UNSIGNED NOT NULL DEFAULT '0',
 				`LAATSTE_AANPASSING` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
@@ -412,6 +414,8 @@ class Progressie extends Helios
 			`p`.`OPMERKINGEN`, 
 			`p`.`INSTRUCTEUR_NAAM`, 
 			`p`.`INGEVOERD`, 
+			`p`.`SCORE`, 
+			`p`.`GELDIG_TOT`, 
 
 			`competenties_view`.`LEERFASE_ID`,
 			`competenties_view`.`ID`,
@@ -673,13 +677,15 @@ class Progressie extends Helios
 			$record[$field] = isINT($input[$field], $field, false, "Competenties");
 
 		if (array_key_exists('OPMERKINGEN', $input))
-			$record['OPMERKINGEN'] = $input['OPMERKINGEN']; 
+			$record['OPMERKINGEN'] = $input['OPMERKINGEN'];
 
-		if (array_key_exists('LINK_ID', $input))
-			throw new Exception("405;LINK_ID kan niet extern gezet worden;");
+        $field = 'SCORE';
+        if (array_key_exists($field, $input))
+            $record[$field] = isINT($input[$field], $field, true);
 
-		if (array_key_exists('INGEVOERD', $input))
-			throw new Exception("405;INGEVOERD kan niet extern gezet worden;");
+        $field = 'GELDIG_TOT';
+        if (array_key_exists($field, $input))
+            $record[$field] = isDATE($input[$field], $field);
 
 		return $record;
 	}
@@ -705,9 +711,12 @@ class Progressie extends Helios
 			$retVal['INSTRUCTEUR_ID']  = $record['INSTRUCTEUR_ID'] * 1;		
 
 		if (isset($record['LINK_ID']))
-			$retVal['LINK_ID']  = $record['LINK_ID'] * 1;	
+			$retVal['LINK_ID']  = $record['LINK_ID'] * 1;
 
-		// booleans	
+        if (isset($record['SCORE']))
+            $retVal['SCORE']  = $record['SCORE'] * 1;
+
+        // booleans
 		if (isset($record['VERWIJDERD']))
 			$retVal['VERWIJDERD']  = $record['VERWIJDERD'] == "1" ? true : false;
 

@@ -20,19 +20,20 @@ class Boom
 			$onderwerp = ($leerfase["CODE"] != null) ? sprintf("%s: %s", $leerfase['CODE'], $leerfase['OMSCHRIJVING']) : $leerfase['OMSCHRIJVING'];
 
 			$c = new EnkeleCompetentie(
-				$leerfase["ID"],                // leerfase ID uit types
-				
-				null,                           // competentie ID
-				null,                           // progressie ID
-				null,       					// blok ID
-				null,                           // blok
+				$leerfase["ID"],             // leerfase ID uit types
+				null,           // competentie ID
+				null,               // progressie ID
+				null,       			    // blok ID
+				null,                      // blok
 				$onderwerp,                     // onderwerp
-				null,                           // documentatie
+				null,               // documentatie
 				$children,                      // child data
-				null,                           // Datum behaald
+				null,              // Datum behaald
 				self::isBehaald(null, $children),    // is onderliggende competentie behaald
-				null,							// afgetekend door
-				null);              			// opmerkingen            
+				null,				// afgetekend door
+				null,                // opmerkingen
+                null,                  // geldig tot
+                null);                     // score
 			
 			array_push($competentieBoom, $c);
 		}
@@ -66,7 +67,9 @@ class Boom
 					$competentie["INGEVOERD"],      // Datum behaald
 					self::isBehaald($competentie["PROGRESSIE_ID"], $children),    // is onderliggende competentie behaald
 					$competentie["INSTRUCTEUR_NAAM"],  // afgetekend door
-					$competentie["OPMERKINGEN"]);   // Opmerkingen bij het behalen
+					$competentie["OPMERKINGEN"],     // Opmerkingen bij het behalen
+                    $competentie["GELDIG_TOT"],     // geldigheidsdatum
+                    $competentie["SCORE"]);          // score 1 t/m 5
 				
 				array_push($pKaart, $c);
 			}    
@@ -103,7 +106,9 @@ class Boom
 					$competentie["INGEVOERD"],      // Datum behaald
 					self::isBehaald($competentie["PROGRESSIE_ID"], $children),    // is onderliggende competentie behaald
 					$competentie["INSTRUCTEUR_NAAM"],  // afgetekend door
-					$competentie["OPMERKINGEN"]);   // Opmerkingen bij het behalen
+                    $competentie["OPMERKINGEN"],     // Opmerkingen bij het behalen
+                    $competentie["GELDIG_TOT"],      // geldigheidsdatum
+                    $competentie["SCORE"]);          // score 1 t/m 5
 				
 				array_push($pKaart, $c);
 			}    
@@ -174,6 +179,9 @@ class EnkeleCompetentie
 	public $INGEVOERD;
 	public $INSTRUCTEUR_NAAM;
 
+    public $GELDIG_TOT;
+    public $SCORE;
+
 	public $children;
 
 	public function __construct(
@@ -184,27 +192,31 @@ class EnkeleCompetentie
 			$blokID,
 			$blok,
 			$onderwerp,
-			$documentatie, 
+			$documentatie,
 			$childData,
 
 			$datumBehaald = null,
 			$isBehaald = 0,
 			$afgetekendDoor  = null,
-			$opmerkingen = null
+			$opmerkingen = null,
+            $geldig_tot = null,
+            $score  = null
 		)
 	{
-		$this->LEERFASE_ID = $leerfaseID;
-		$this->COMPETENTIE_ID = $competentieID;
-		$this->BLOK_ID = $blokID;
+		$this->LEERFASE_ID = isset($leerfaseID) ? $leerfaseID *1 : null;
+		$this->COMPETENTIE_ID = isset($competentieID) ? $competentieID *1 : null;
+		$this->BLOK_ID = isset($blokID) ? $blokID *1 : null;
 		$this->BLOK = $blok;
 		$this->ONDERWERP = $onderwerp;
 		$this->DOCUMENTATIE = $documentatie;
 		$this->children = $childData;
 
-		$this->PROGRESSIE_ID  = $progressieID;
+		$this->PROGRESSIE_ID  = isset($progressieID) ? $progressieID *1 : null;
 		$this->INGEVOERD = $datumBehaald;
 		$this->IS_BEHAALD = $isBehaald;
 		$this->INSTRUCTEUR_NAAM = $afgetekendDoor;
 		$this->OPMERKINGEN = $opmerkingen;
+        $this->GELDIG_TOT = $geldig_tot;
+        $this->SCORE = isset($score) ? $score *1 : null;
 	}
 }

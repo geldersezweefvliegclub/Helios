@@ -417,6 +417,16 @@ components:
           description: Opmerking over de behaalde competentie
           type: string
           example: "Heeft aangetoond dat de vaardigheden volledig beheerst"
+        GELDIG_TOT:
+          description: Progressie geldig tot datum (bijv theorie)
+          type: string
+          format: date
+          example: "2026-01-31"
+        SCORE:
+          description: Score van voortgang 1 t/m 5
+          type: integer
+          format: int32
+          example: 4
 
     ref_progressie:
       type: object
@@ -671,7 +681,16 @@ components:
         OPMERKINGEN:
           description: Opmerking over de behaalde competentie
           type: string
-          example: "Heeft aangetoond dat de vaardigheden volledig beheerst" 
+          example: "Heeft aangetoond dat de vaardigheden volledig beheerst"
+        GELDIG_TOT:
+          description: De geldigheidsdatum van de behaalde compententie
+          type: string
+          example: "2024-10-14"
+        SCORE:
+          description: Score van de behaalde competentie 1 t/m 5
+          type: number
+          format: int32
+          example: 2
         children: 
           type: array
           items: 

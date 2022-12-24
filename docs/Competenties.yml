@@ -358,6 +358,14 @@ components:
           type: string
           maxLength: 75
           example: "VVO1.14"
+        GELDIGHEID:
+          description: Is er een einde aan de geldigheid van deze comptentie (bijv theorie)
+          type: boolean
+          example: 0
+        SCORE:
+          description: Hebben we een score 1/5 voor deze comptentie? Zo nee, dan alleen wel/niet
+          type: boolean
+          example: 0
 
     ref_competenties:
       type: object

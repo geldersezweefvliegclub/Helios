@@ -29,7 +29,9 @@ class Competenties extends Helios
 				`BLOK_ID` mediumint UNSIGNED NULL,
 				`BLOK` varchar(7) DEFAULT NULL,
 				`ONDERWERP` varchar(75) NOT NULL,
-				`DOCUMENTATIE` varchar(75) NULL,     
+				`DOCUMENTATIE` varchar(75) NULL,  
+				`GELDIGHEID` tinyint UNSIGNED NOT NULL DEFAULT 0,   
+				`SCORE` tinyint UNSIGNED NOT NULL DEFAULT 0, 
 				`VERWIJDERD` tinyint UNSIGNED NOT NULL DEFAULT '0',
 				`LAATSTE_AANPASSING` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
@@ -610,8 +612,16 @@ class Competenties extends Helios
 			$record['DOCUMENTATIE'] = $input['DOCUMENTATIE']; 
 
 		if (array_key_exists('BLOK', $input))
-			$record['BLOK'] = $input['BLOK']; 
-			
+			$record['BLOK'] = $input['BLOK'];
+
+        $field = 'GELDIGHEID';
+        if (array_key_exists($field, $input))
+            $record[$field] = isBOOL($input[$field], $field);
+
+        $field = 'SCORE';
+        if (array_key_exists($field, $input))
+            $record[$field] = isBOOL($input[$field], $field);
+
 		return $record;
 	}
 
@@ -635,7 +645,13 @@ class Competenties extends Helios
 		if (isset($record['BLOK_ID']))
 			$retVal['BLOK_ID']  = $record['BLOK_ID'] * 1;	
 			
-		// booleans	
+		// booleans
+        if (isset($record['GELDIGHEID']))
+            $retVal['GELDIGHEID']  = $record['GELDIGHEID'] == "1" ? true : false;
+
+        if (isset($record['SCORE']))
+            $retVal['SCORE']  = $record['SCORE'] == "1" ? true : false;
+
 		if (isset($record['VERWIJDERD']))
 			$retVal['VERWIJDERD']  = $record['VERWIJDERD'] == "1" ? true : false;
 
