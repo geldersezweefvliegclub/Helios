@@ -332,9 +332,10 @@ class Leden extends Helios
 			// 601 = Erelid
 			// 602 = Lid
 			// 603 = Jeugdlid
+            // 604 = private owner
 			// 606 = Donateur
 			// 625 = DDWV
-			$where .= " AND LIDTYPE_ID IN (601, 602,603, 606, 625)";  
+			$where .= " AND LIDTYPE_ID IN (601, 602,603, 604, 606, 625)";
 		}
 
 		$rlObj = $this->GetObject($l->getUserFromSession());
@@ -901,8 +902,11 @@ class Leden extends Helios
 		
 		if (($lid['LIDTYPE_ID'] == "601") ||       // 601 = Erelid
 			($lid['LIDTYPE_ID'] == "602") ||       // 602 = Lid 
-			($lid['LIDTYPE_ID'] == "603") ||       // 603 = Jeugdlid 
-			($lid['LIDTYPE_ID'] == "606"))         // 606 = Donateur
+			($lid['LIDTYPE_ID'] == "603") ||       // 603 = Jeugdlid
+            ($lid['LIDTYPE_ID'] == "604") ||       // 604 = Private owner (mag ook op club vliegtuigen vliegen voor trainingsvlucht)
+			($lid['LIDTYPE_ID'] == "606") ||       // 606 = Donateur
+            ($lid['LIDTYPE_ID'] == "608") ||       // 608 = 5 Rittenkaart
+            ($lid['LIDTYPE_ID'] == "611"))         // 611 = Cursist
 			$retVal = true;
 			
 		Debug(__FILE__, __LINE__, sprintf("LIDTYPE_ID=%s isVliegendLid=%s", $lid['LIDTYPE_ID'], $retVal ? "true" : "false"));

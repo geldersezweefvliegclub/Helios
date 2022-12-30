@@ -232,6 +232,7 @@ else
             case 601: $mail->addAddress($lidData['EMAIL'], $lidData['NAAM']);               break; // Erelid
             case 602: $mail->addAddress($lidData['EMAIL'], $lidData['NAAM']);               break; // Lid
             case 603: $mail->addAddress($lidData['EMAIL'], $lidData['NAAM']);               break; // Jeugdlid
+            case 604: $mail->addAddress($lidData['EMAIL'], $lidData['NAAM']);               break; // Private owner
             case 606: $mail->addAddress($lidData['EMAIL'], $lidData['NAAM']);               break; // Donateur
             case 607: $mail->addAddress($lidData['EMAIL'], $lidData['NAAM']);                      // Zusterclub
                       $mail->addAddress($penningmeester['EMAIL'], $penningmeester['NAAM']); 
