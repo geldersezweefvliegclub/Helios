@@ -177,9 +177,9 @@ class DDWV
     }
 
     /*
-     Annuleren van een vliegdag vanwege te weinig deelnemers. De strippen worden terug geboekt
+     Toetsen of we een DDWV dag hebben, hash is nodig om te voorkomen dat het illegaal wordt aangeroepen wordt
     */
-    function AnnulerenDDWV($Datum, $Hash)
+    function ToetsingDDWV($Datum, $Hash)
     {
         global $ddwv;
 
@@ -203,39 +203,81 @@ class DDWV
             throw new Exception("405;Geen DDWV Dag;");
 
         $al = MaakObject('AanwezigLeden');
-        $aanwezigen = $al->GetObjects(array('BEGIN_DATUM' => $Datum, 'EIND_DATUM' => $Datum));
+        $aanmeldingen = $al->GetObjects(array('BEGIN_DATUM' => $Datum, 'EIND_DATUM' => $Datum));
+
+        if ($rooster['CLUB_BEDRIJF'] == true)
+            $typeBedrijf = "club";
+        else if ($aanmeldingen['totaal'] < $rooster['MIN_SLEEPSTART'])
+            $typeBedrijf = "annuleren";
+        else if ($aanmeldingen['totaal'] >= $rooster['MIN_LIERSTART'])
+            $typeBedrijf = "lieren";
+        else
+            $typeBedrijf = "slepen";
+
 
         $tObj = MaakObject('Transacties');
         $dateparts = explode('-', $Datum);
 
-        foreach ($aanwezigen['dataset'] as  $aanmelding)
+        if ($typeBedrijf == "annuleren")
         {
-            Debug(__FILE__, __LINE__, sprintf("%s: aanmelding %s", $functie, print_r($aanmelding, true)));
+            // betaalde strippen terug storten
+            foreach ($aanmeldingen['dataset'] as  $aanmelding)
+            {
+                Debug(__FILE__, __LINE__, sprintf("%s: aanmelding %s", $functie, print_r($aanmelding, true)));
 
-            if (isset($aanmelding['TRANSACTIE_ID'])) {  // Alleen terug betalen als er een link is met een betaal transactie
-                $transactie = $tObj->GetObject($aanmelding['TRANSACTIE_ID']);
-                $betaald = $transactie['EENHEDEN'];
+                if (isset($aanmelding['TRANSACTIE_ID'])) {  // Alleen terug betalen als er een link is met een betaal transactie
+                    $transactie = $tObj->GetObject($aanmelding['TRANSACTIE_ID']);
+                    $betaald = $transactie['EENHEDEN'];
 
-                $transactie = array();
-                $transactie['DDWV'] = true;
-                $transactie['LID_ID'] = $aanmelding['LID_ID'];
-                $transactie['TYPE_ID'] = $ddwv->ANNULEREN_VLIEGDAG;
-                $transactie['EENHEDEN'] = -1 * $betaald;
-                $transactie['OMSCHRIJVING'] = sprintf(", vliegdag %02d-%02d-%d", $dateparts[2], $dateparts[1], $dateparts[0]);
+                    $transactie = array();
+                    $transactie['DDWV'] = true;
+                    $transactie['LID_ID'] = $aanmelding['LID_ID'];
+                    $transactie['TYPE_ID'] = $ddwv->ANNULEREN_VLIEGDAG;
+                    $transactie['EENHEDEN'] = -1 * $betaald;
+                    $transactie['OMSCHRIJVING'] = sprintf(", vliegdag %02d-%02d-%d", $dateparts[2], $dateparts[1], $dateparts[0]);
 
-                $id = $tObj->AddObject($transactie);
+                    $id = $tObj->AddObject($transactie);
 
-                // verwijderen van link tussen aanmelden en transactie. Voorkom hiermee dat twee keer terug geboekt kan worden
-                $a = array();
-                $a['ID'] = $aanmelding['ID'];
-                $a['TRANSACTIE_ID'] = null;
-                $al->UpdateObject($a);
+                    // verwijderen van link tussen aanmelden en transactie. Voorkom hiermee dat twee keer terug geboekt kan worden
+                    $a = array();
+                    $a['ID'] = $aanmelding['ID'];
+                    $a['TRANSACTIE_ID'] = null;
+                    $al->UpdateObject($a);
+                }
+            }
+            $r = array();
+            $r['ID'] = $rooster['ID'];
+            $r['DDWV'] = false;
+            $rObj->UpdateObject($r);
+        }
+        else
+        {
+            // 501 = slepen
+            // 550 = lieren
+            $startmethode_id = ($typeBedrijf == "slepen") ? 501 : 550;     // club bedrijf is ook lieren
+
+            $di = MaakObject('Daginfo');
+
+            // als er geen daginfo record is, dan komt er een exceptie
+            try {
+                $diObj = $di->GetObject(null, $Datum);
+
+                $diObj['STARTMETHODE_ID'] = $startmethode_id;
+                $diObj['CLUB_BEDRIJF'] = $typeBedrijf == "club";
+                $diObj['VELD_ID'] = 901;                            // 901 = Terlet
+                $diObj['DDWV'] = true;
+                $di->UpdateObject($diObj);
+
+            } catch (Exception $e) {    // exception als dagInfo nog niet bestaat, dan toevoegen
+                $diObj['STARTMETHODE_ID'] = $startmethode_id;
+                $diObj['CLUB_BEDRIJF'] = $typeBedrijf == "club";
+                $diObj['DATUM'] = $Datum;
+                $diObj['VELD_ID'] = 901;                            // 901 = Terlet
+                $diObj['DDWV'] = true;
+                $di->AddObject($diObj);
             }
         }
-        $r = array();
-        $r['ID'] = $rooster['ID'];
-        $r['DDWV'] = false;
-        $rObj->UpdateObject($r);
+        return $typeBedrijf;
     }
 
     function UitbetalenCrew($Datum, $Hash)

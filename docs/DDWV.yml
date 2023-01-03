@@ -20,7 +20,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ddwv_config'
 
-  /DDWV/AnnulerenDDWV:
+  /DDWV/ToetsingDDWV:
     get:
       security:
         - basicAuth: []

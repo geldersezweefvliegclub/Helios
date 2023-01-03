@@ -520,7 +520,7 @@ class AanwezigLeden extends Helios
 					$verberg = $rooster[$retVal['dataset'][$i]['DATUM']]['CLUB_BEDRIJF'];
 				}
 				
-				$opmerking = $retVal['dataset'][$i]['OPMERKINGEN'];
+				$opmerking = isset($retVal['dataset'][$i]['OPMERKINGEN']) ? $retVal['dataset'][$i]['OPMERKINGEN'] : null;
 				$retVal['dataset'][$i] = $this->RecordToOutput($retVal['dataset'][$i]);	
 				$retVal['dataset'][$i] = $this->privacyMask($retVal['dataset'][$i], $privacyMasker || $verberg);	// privacy mask voor aanmeldingen
 				$retVal['dataset'][$i] = $rl->privacyMask($retVal['dataset'][$i], $privacyMasker);				// deze functie verwijderd OPMERKING
@@ -834,10 +834,12 @@ class AanwezigLeden extends Helios
 			{
                 // We zijn nu bijna klaar om aanmelding op te slaan in de database, maar voor DDWV moeten we strippen afschrijven
                 $ddwv = MaakObject('DDWV');
-                $id = $ddwv->AanmeldenLidAfboekenDDWV($AanmeldenLedenData);
+                $transactieId = $ddwv->AanmeldenLidAfboekenDDWV($AanmeldenLedenData);
 
-                if ($id >= 0)
-                    $AanmeldenLedenData['TRANSACTIE_ID'] = $id;
+                if ($transactieId >= 0)
+                    $AanmeldenLedenData['TRANSACTIE_ID'] = $transactieId;
+                else
+                    $AanmeldenLedenData['TRANSACTIE_ID'] = null;
 
 				$this->UpdateObject($AanmeldenLedenData);
 				Debug(__FILE__, __LINE__, sprintf("AanwezigLeden aangepast id=%s", $id));		

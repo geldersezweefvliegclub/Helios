@@ -67,7 +67,6 @@ Wij wensen je een fijne en veilige vliegdag toe..
 </p>
 </body></html>";
 
-
 $htmlContentAnnuleren = "
 <html>
 <body style='font-family: Arial, Helvetica, sans-serif; font-size:12px;'>
@@ -133,22 +132,10 @@ list($header, $body) = returnHeaderBody($result);
 
 if ($status_code != 200) // We verwachten een status code van 200
 {
-    // email naar beheerder
-    $mail = emailInit();
-
-    $mail->Subject = "Helios API call mislukt: $status_code";
-    $mail->Body = "Rooster/GetObjects?" . $url_args . "\n";
-    $mail->Body .= "HEADER :\n";
-    $mail->Body .= print_r($header, true);
-    $mail->Body .= "\n";
-    $mail->Body .= "BODY :\n" . $body;
-
-    $mail->addAddress($smtp_settings['from'], $smtp_settings['name']);
-    $mail->addReplyTo($smtp_settings['from'], $smtp_settings['name']);
-    if (!$mail->Send()) {
-        print_r($mail);
-    }
-} else {
+    emailError($result);
+    die;
+}
+else {
     $rooster = json_decode($body, true);
     if ($rooster['DDWV'] == false) {
         die;        // het is geen DDWV dag, dus stoppen we hier
@@ -164,65 +151,27 @@ if ($status_code != 200) // We verwachten een status code van 200
 
     if ($status_code != 200) // We verwachten een status code van 200
     {
-        // email naar beheerder
-        $mail = emailInit();
-
-        $mail->Subject = "Helios API call mislukt: $status_code";
-        $mail->Body = "AanwezigLeden/GetObjects?" . $url_args . "\n";
-        $mail->Body .= "HEADER :\n";
-        $mail->Body .= print_r($header, true);
-        $mail->Body .= "\n";
-        $mail->Body .= "BODY :\n" . $body;
-
-        $mail->addAddress($smtp_settings['from'], $smtp_settings['name']);
-        $mail->addReplyTo($smtp_settings['from'], $smtp_settings['name']);
-        if (!$mail->Send()) {
-            print_r($mail);
-        }
-    } else {
+        emailError($result);
+        die;
+    }
+    else {
         $aanmeldingen = json_decode($body, true);
 
-        // wat voor een bedrijf gaan we doen, annuleren, club, slepen, lieren
-        $typeBedrijf = "";
-        if ($rooster['CLUB_BEDRIJF'] == true)
-            $typeBedrijf = "club";
-        else if ($aanmeldingen['totaal'] < $rooster['MIN_SLEEPSTART'])
-            $typeBedrijf = "annuleren";
-        else if ($aanmeldingen['totaal'] >= $rooster['MIN_LIERSTART'])
-            $typeBedrijf = "lieren";
-        else
-            $typeBedrijf = "slepen";
+        $url_args = "DATUM=$morgenYMD&HASH=$hash";
+        heliosInit("DDWV/ToetsingDDWV?" . $url_args);
 
-        emailVliegers($typeBedrijf, $aanmeldingen['dataset']);
-        emailBeheerderDDWV($typeBedrijf, $aanmeldingen['dataset']);
+        $result = curl_exec($curl_session);
+        $status_code = curl_getinfo($curl_session, CURLINFO_HTTP_CODE); //get status code
+        list($header, $body) = returnHeaderBody($result);
 
-        if ($typeBedrijf == "annuleren") {
-            $url_args = "DATUM=$morgenYMD&HASH=$hash";
-            heliosInit("DDWV/AnnulerenDDWV?" . $url_args);
-
-            $result = curl_exec($curl_session);
-            $status_code = curl_getinfo($curl_session, CURLINFO_HTTP_CODE); //get status code
-            list($header, $body) = returnHeaderBody($result);
-
-            if ($status_code != 200) // We verwachten een status code van 200
-            {
-                // email naar beheerder
-                $mail = emailInit();
-
-                $mail->Subject = "Helios API call mislukt: $status_code";
-                $mail->Body = "DDWV/AnnulerenDDWV?" . $url_args . "\n";
-                $mail->Body .= "HEADER :\n";
-                $mail->Body .= print_r($header, true);
-                $mail->Body .= "\n";
-                $mail->Body .= "BODY :\n" . $body;
-
-                $mail->addAddress($smtp_settings['from'], $smtp_settings['name']);
-                $mail->addReplyTo($smtp_settings['from'], $smtp_settings['name']);
-                if (!$mail->Send()) {
-                    print_r($mail);
-                }
-            }
+        if ($status_code != 200) // We verwachten een status code van 200
+        {
+            emailError(json_decode($result));
+            die;
         }
+        list($header, $typeBedrijf) = returnHeaderBody($result);
+        emailVliegers(json_decode($typeBedrijf), $aanmeldingen['dataset']);
+        emailBeheerderDDWV($typeBedrijf, $aanmeldingen['dataset']);
     }
 }
 

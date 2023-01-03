@@ -37,7 +37,7 @@ $app->get(url_base() . 'DDWV/GetConfiguratie', function (Request $request, Respo
 /*
 De DDWV dag gaat niet door, strippen terug boeken
 */
-$app->get(url_base() . 'DDWV/AnnulerenDDWV', function (Request $request, Response $response, $args) {
+$app->get(url_base() . 'DDWV/ToetsingDDWV', function (Request $request, Response $response, $args) {
     $obj = MaakObject("DDWV");
     try
     {
@@ -45,7 +45,7 @@ $app->get(url_base() . 'DDWV/AnnulerenDDWV', function (Request $request, Respons
         $datum = (isset($params['DATUM'])) ? $params['DATUM'] : null;
         $hash = (isset($params['HASH'])) ? $params['HASH'] : null;
 
-        $r = $obj->AnnulerenDDWV($datum, $hash);     // Hier staat de logica voor deze functie
+        $r = $obj->ToetsingDDWV($datum, $hash);     // Hier staat de logica voor deze functie
 
         $response->getBody()->write(json_encode($r));
         return $response->withHeader('Content-Type', 'application/json');

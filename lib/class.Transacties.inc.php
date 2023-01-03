@@ -1,11 +1,17 @@
 <?php
 
+try {
+    if (is_file(__DIR__ . '/../DigiWallet/autoload.php')) // wanneer hosted bij TransIP
+        require_once __DIR__ . '/../DigiWallet/autoload.php';
+}
+catch (Exception $exception) {}
 
-if (is_file(__DIR__.'/../DigiWallet/autoload.php')) // wanneer hosted bij TransIP
-    require_once __DIR__.'/../DigiWallet/autoload.php';
 
-if (is_file('/DigiWallet/autoload.php'))            // wanneer hosted in a docker
-    require_once '/DigiWallet/autoload.php';
+try {
+    if (is_file('/DigiWallet/autoload.php'))            // wanneer hosted in a docker
+        require_once '/DigiWallet/autoload.php';
+}
+catch (Exception $exception) {}
 
 use DigiWallet as DigiWallet;
 

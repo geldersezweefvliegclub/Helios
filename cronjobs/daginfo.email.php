@@ -74,6 +74,7 @@ $htmlContent = "
 </p>
 </body></html>";
 
+
 // ophalen wie er allemaal een email ontvangen. Dat zijn alleen instructeurs en beheerders
 $ontvangers = array();
 heliosInit("Leden/GetObjects?INSTRUCTEURS=true");
@@ -83,23 +84,10 @@ list($header, $body) = returnHeaderBody($result);
 
 if ($status_code != 200) // We verwachten een status code van 200
 {
-    // email naar beheerder
-    $mail = emailInit();
-
-    $mail->Subject = "Helios API call mislukt: $status_code";
-    $mail->Body    = "Leden/GetObjects?INSTRUCTEURS=true" . "\n";
-    $mail->Body   .= "HEADER :\n";
-    $mail->Body   .= print_r($header, true);
-    $mail->Body   .= "\n";
-    $mail->Body   .= "BODY :\n" . $body;
-
-    $mail->addAddress($smtp_settings['from'], $smtp_settings['name']);
-    $mail->addReplyTo($smtp_settings['from'], $smtp_settings['name']);
-    if(!$mail->Send()) {
-        print_r($mail);
-    }
-    die;    // als er geen ontvangers zijn, dan kunnen we stoppen
+    emailError($result);
+    die;
 }
+
 $leden = json_decode($body, true); 
 foreach ($leden['dataset']as $lid) {
     if ($lid['EMAIL_DAGINFO'] == true) {
@@ -113,30 +101,16 @@ list($header, $body) = returnHeaderBody($result);
 
 if ($status_code != 200) // We verwachten een status code van 200
 {
-    // email naar beheerder
-    $mail = emailInit();
-
-    $mail->Subject = "Helios API call mislukt: $status_code";
-    $mail->Body    = "Leden/GetObjects?BEHEERDERS=true" . "\n";
-    $mail->Body   .= "HEADER :\n";
-    $mail->Body   .= print_r($header, true);
-    $mail->Body   .= "\n";
-    $mail->Body   .= "BODY :\n" . $body;
-
-    $mail->addAddress($smtp_settings['from'], $smtp_settings['name']);
-    $mail->addReplyTo($smtp_settings['from'], $smtp_settings['name']);
-    if(!$mail->Send()) {
-        print_r($mail);
-    }
-    die;    // als er geen ontvangers zijn, dan kunnen we stoppen
+    emailError($result);
+    die;
 }
+
 $leden = json_decode($body, true); 
 foreach ($leden['dataset']as $lid) {
     if ($lid['EMAIL_DAGINFO'] == true) {
         array_push($ontvangers , array('NAAM' => $lid['NAAM'], 'EMAIL' => $lid['EMAIL']));
     }    
 }
-
 
 $datum = date('Y-m-d');
 $url_args = "DATUM=$datum&TABEL=oper_daginfo";
@@ -148,34 +122,20 @@ list($header, $body) = returnHeaderBody($result);
 
 if ($status_code != 200) // We verwachten een status code van 200
 {
-    // email naar beheerder
-    $mail = emailInit();
-
-    $mail->Subject = "Helios API call mislukt: $status_code";
-    $mail->Body    = "Audit/GetObjects?" . $url_args . "\n";
-    $mail->Body   .= "HEADER :\n";
-    $mail->Body   .= print_r($header, true);
-    $mail->Body   .= "\n";
-    $mail->Body   .= "BODY :\n" . $body;
-
-    $mail->addAddress($smtp_settings['from'], $smtp_settings['name']);
-    $mail->addReplyTo($smtp_settings['from'], $smtp_settings['name']);
-    if(!$mail->Send()) {
-        print_r($mail);
-    }
+    emailError($result);
+    die;
 }
 else
 {
     $auditRecords = json_decode($body, true);   
     if (count($auditRecords['dataset']) == 0)
     {
-        // er is geen dag info gewijzigd
-        die;
+        die;    // er is geen dag info gewijzigd
     }
 
     if (count($ontvangers) == 0) 
     {
-        die;            // er is niemand die geabonneerd is
+        die;    // er is niemand die geabonneerd is
     }
     
     $verzonden = array();
@@ -196,21 +156,7 @@ else
 
         if ($status_code != 200) // We verwachten een status code van 200
         {
-            // email naar beheerder
-            $mail = emailInit();
-
-            $mail->Subject = "Helios API call mislukt: $status_code";
-            $mail->Body    = "Daginfo/GetObjects?" . $url_args . "\n";
-            $mail->Body   .= "HEADER :\n";
-            $mail->Body   .= print_r($header, true);
-            $mail->Body   .= "\n";
-            $mail->Body   .= "BODY :\n" . $body;
-
-            $mail->addAddress($smtp_settings['from'], $smtp_settings['name']);
-            $mail->addReplyTo($smtp_settings['from'], $smtp_settings['name']);
-            if(!$mail->Send()) {
-                print_r($mail);
-            }
+            emailError($result);
             continue;   
         }
 

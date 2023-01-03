@@ -31,21 +31,7 @@ if ($status_code != 200) // We verwachten een status code van 200
     if ($status_code == 404) 
         die;        // er is geen rooster
 
-    // email naar beheerder
-    $mail = emailInit();
-
-    $mail->Subject = "Helios API call mislukt: $status_code";
-    $mail->Body    = "Rooster/GetObject?" . $url_args . "\n";
-    $mail->Body   .= "HEADER :\n";
-    $mail->Body   .= print_r($header, true);
-    $mail->Body   .= "\n";
-    $mail->Body   .= "BODY :\n" . $body;
-
-    $mail->addAddress($smtp_settings['from'], $smtp_settings['name']);
-    $mail->addReplyTo($smtp_settings['from'], $smtp_settings['name']);
-    if(!$mail->Send()) {
-        print_r($mail);
-    }
+    emailError($result);
     die;
 }
 $rooster = json_decode($body, true);
@@ -62,21 +48,8 @@ list($header, $body) = returnHeaderBody($result);
 
 if ($status_code != 200) // We verwachten een status code van 200
 {
-    // email naar beheerder
-    $mail = emailInit();
-
-    $mail->Subject = "Helios API call mislukt: $status_code";
-    $mail->Body    = "Diensten/GetObjects?" . $url_args . "\n";
-    $mail->Body   .= "HEADER :\n";
-    $mail->Body   .= print_r($header, true);
-    $mail->Body   .= "\n";
-    $mail->Body   .= "BODY :\n" . $body;
-
-    $mail->addAddress($smtp_settings['from'], $smtp_settings['name']);
-    $mail->addReplyTo($smtp_settings['from'], $smtp_settings['name']);
-    if(!$mail->Send()) {
-        print_r($mail);
-    }
+    emailError($result);
+    die;
 }
 else
 {

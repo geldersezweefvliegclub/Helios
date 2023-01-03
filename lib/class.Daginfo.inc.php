@@ -31,7 +31,7 @@ class Daginfo extends Helios
 				`VELD_ID2` mediumint UNSIGNED DEFAULT NULL,
 				`BAAN_ID2` mediumint UNSIGNED DEFAULT NULL,
 				`STARTMETHODE_ID2` mediumint UNSIGNED DEFAULT NULL,
-				
+				`DIENSTEN` text DEFAULT NULL,
 				`DDWV` tinyint UNSIGNED NOT NULL DEFAULT 0,
 				`CLUB_BEDRIJF` tinyint UNSIGNED NOT NULL DEFAULT 0,
 				`VERWIJDERD` tinyint UNSIGNED NOT NULL DEFAULT '0',
@@ -184,33 +184,6 @@ class Daginfo extends Helios
 		$velden = "*";
 		$alleenVerwijderd = false;
 		$query_params = array();
-
-		// Als ingelogde gebruiker geen bijzonder functie heeft, worden beperkte dataset opgehaald
-		$l = MaakObject('Login');
-		if (($l->isBeheerder() == true) || ($l->isInstaller() == true) || ($l->isInstructeur() == true) || ($l->isCIMT() == true))
-		{
-			// geen beperkingen voor deze gebruikers
-		}
-		else if ($l->isStarttoren() == true)
-		{
-			// starttoren mag alleen vandaag opvragen
-			$where .= sprintf (" AND DATUM = '%s'", date("Y-m-d"));		
-		}
-		else if (($l->isBeheerderDDWV() == true) || ($l->isDDWVCrew() == true))
-		{
-			// Daginfo voor DDWV is alleen op DDWV dagen bechikbaar
-			$where .= " AND (DATUM IN (select DATUM from oper_rooster WHERE DDWV = 1))";	
-
-			if ($l->isDDWVCrew() == true) 
-			{
-				// DDWV crew mag alleen DDWV dagen zien waar ze zelf dienst hadden
-				$where .= sprintf(" AND (DATUM IN (select DATUM from oper_diensten WHERE LID_ID = %d))", $l->getUserFromSession());	
-			}
-		}
-		else 
-		{
-			throw new Exception("401;Gebruiker mag daginfo niet opvragen;");
-		}
 
 		foreach ($params as $key => $value)
 		{
@@ -578,6 +551,9 @@ class Daginfo extends Helios
 		if (array_key_exists($field, $input))
 			$record[$field] = isBOOL($input[$field], $field);
 
+        if (array_key_exists('DIENSTEN', $input))
+            $record['DIENSTEN'] = $input['DIENSTEN'];
+
 		return $record;
 	}
 
@@ -590,25 +566,25 @@ class Daginfo extends Helios
 
 		// vermengvuldigen met 1 converteer naar integer
 		if (isset($record['ID']))
-			$retVal['ID']  = $record['ID'] * 1;	
+			$retVal['ID'] = $record['ID'] * 1;
 
 		if (isset($record['VELD_ID']))
-			$retVal['VELD_ID']  = $record['VELD_ID'] * 1;
+			$retVal['VELD_ID'] = $record['VELD_ID'] * 1;
 
 		if (isset($record['BAAN_ID']))
-			$retVal['BAAN_ID']  = $record['BAAN_ID'] * 1;				
+			$retVal['BAAN_ID'] = $record['BAAN_ID'] * 1;
 
 		if (isset($record['STARTMETHODE_ID']))
-			$retVal['STARTMETHODE_ID']  = $record['STARTMETHODE_ID'] * 1;
+			$retVal['STARTMETHODE_ID'] = $record['STARTMETHODE_ID'] * 1;
 
         if (isset($record['VELD_ID2']))
             $retVal['VELD_ID2']  = $record['VELD_ID2'] * 1;
 
         if (isset($record['BAAN_ID2']))
-            $retVal['BAAN_ID2']  = $record['BAAN_ID2'] * 1;
+            $retVal['BAAN_ID2'] = $record['BAAN_ID2'] * 1;
 
         if (isset($record['STARTMETHODE_ID2']))
-            $retVal['STARTMETHODE_ID2']  = $record['STARTMETHODE_ID2'] * 1;
+            $retVal['STARTMETHODE_ID2'] = $record['STARTMETHODE_ID2'] * 1;
 
         // booleans
 		if (isset($record['DDWV']))
@@ -617,10 +593,51 @@ class Daginfo extends Helios
 		if (isset($record['CLUB_BEDRIJF']))
 			$retVal['CLUB_BEDRIJF'] = $record['CLUB_BEDRIJF'] == "1" ? true : false;
 
+
 		if (isset($record['VERWIJDERD']))
 			$retVal['VERWIJDERD'] = $record['VERWIJDERD'] == "1" ? true : false;
 
+        // Als ingelogde gebruiker geen bijzonder functie heeft, worden beperkte dataset opgehaald
+        $l = MaakObject('Login');
+        if (($l->isBeheerder() == true) || ($l->isInstaller() == true) || ($l->isInstructeur() == true) || ($l->isCIMT() == true))
+        {
+            // geen beperkingen voor deze gebruikers
+        }
+        else if (($l->isStarttoren() == true) && ($retVal['DATUM'] != date("Y-m-d")))
+        {
+            // starttoren mag alleen diensten van vandaag zien
+            $retVal['DIENSTEN'] = null;
+        }
+        else if (($l->isBeheerderDDWV() == true) || ($l->isDDWVCrew() == true))
+        {
+            $rooster = MaakObject('Rooster');
+            $roosterObj = $rooster->GetObject(null, $retVal['DATUM']);
+
+            if ($roosterObj['DDWV'] == false)
+            {
+                // DDWV Beheer en DDWV mogen geen diensten zien op club dagen
+                $retVal['DIENSTEN'] = null;
+            }
+            else
+            {
+                if ($l->isDDWVCrew() == true) {
+                    $dObj = MaakObject('Diensten');
+                    $diensten = $dObj->GetObjects(array('BEGIN_DATUM' => $retVal['DATUM'], 'EIND_DATUM' => $retVal['DATUM'], 'VELDEN' => 'LID_ID'));
+                    $json = json_encode($diensten);
+
+                    if (!str_contains($json, $l->getUserFromSession()))
+                    {
+                        // DDWV Crew mag alleen diensten zien wanneer men ingedeeld zijn
+                        $retVal['DIENSTEN'] = null;
+                    }
+                }
+            }
+        }
+        else
+        {
+            // Gebruiker mag geen diensten zien
+            $retVal['DIENSTEN'] = null;
+        }
 		return $retVal;
 	}
-	
 }

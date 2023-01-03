@@ -976,8 +976,7 @@ class Leden extends Helios
 			}
 		}
 
-
-		if ($lid['ID'] !== $l->getUserFromSession())
+		if (!isset($lid['ID']) || ($lid['ID'] !== $l->getUserFromSession()))
 		{
 			if (($l->isBeheerder() === false) &&
 				($l->isBeheerderDDWV() === false) &&
