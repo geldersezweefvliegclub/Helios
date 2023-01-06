@@ -277,6 +277,32 @@ $app->post(url_base() . 'AanwezigLeden/Afmelden', function (Request $request, Re
     }  
 });
 
+/*
+Samenvatting over de aanmeldingen van een vliegdag
+*/
+$app->get(url_base() . 'AanwezigLeden/Samenvatting', function (Request $request, Response $response, $args) {
+    $obj = MaakObject("AanwezigLeden");
+    try
+    {
+        $params = $request->getQueryParams();
+        $datum = (isset($params['DATUM'])) ? $params['DATUM'] : null;
+
+        $d = $obj->Samenvatting($datum);  // Hier staat de logica voor deze functie
+        $response->getBody()->write(json_encode($d));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+    catch(Exception $exception)
+    {
+        Debug(__FILE__, __LINE__, "/AanwezigLeden/Samenvatting: " .$exception);
+
+        list($dummy, $exceptionMsg) = explode(": ", $exception);
+        list($httpStatus, $message) = explode(";", $exceptionMsg);  // onze eigen formaat van een exceptie
+
+        header("X-Error-Message: $message", true, intval($httpStatus));
+        header("Content-Type: text/plain");
+        die;
+    }
+});
 
 /* 
 Welke potentiele vligers hebben we voor dit vliegtuig 

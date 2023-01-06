@@ -955,7 +955,101 @@ class AanwezigLeden extends Helios
 		Debug(__FILE__, __LINE__, sprintf("%s: AanwezigLeden aangepast id=%s", $functie, $AfmeldenLedenData['ID']));
 		return  $this->GetObject($AfmeldenLedenData['ID']);
 	}	
-	
+
+    /*
+    Samenvatting van de aanmeldingen
+    */
+    function Samenvatting($datum = null)
+    {
+        $functie = "AanwezigLeden.Samenvatting";
+        Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, $datum));
+
+        if ($datum == null)
+            $datum = date('Y-m-d');
+
+        // types van clubvliegtuigen
+        $tObj = MaakObject('Types');
+        $types = $tObj->GetClubVliegtuigenTypes();
+
+        $vliegtuigenAangevraagd = array();
+        $typesAangevraagd = array();
+        for ($i=0 ; $i < count($types['dataset']); $i++)
+        {
+            array_push($typesAangevraagd, (object)array(
+                'id' => $types['dataset'][$i]['ID'],
+                'type' => $types['dataset'][$i]['OMSCHRIJVING'],
+                'aantal' => 0));
+        }
+
+        // maak array met clubkisten
+        $clubkisten = array();
+        $vObj = MaakObject('Vliegtuigen');
+        $v = $vObj->GetObjects(array('CLUBKIST' => true, 'VELDEN' => "ID"));
+        for ($i=0 ; $i < count($v['dataset']); $i++)
+            array_push($clubkisten, $v['dataset'][$i]['ID']);
+
+        Debug(__FILE__, __LINE__, sprintf("%s clubkisten=%s", $functie, print_r($clubkisten, true)));
+
+        $dbo = 0;
+        $solisten = 0;
+        $brevethouders = 0;
+        $instructeurs = 0;
+        $lieristen = 0;
+        $startleiders = 0;
+
+        // ophalen aanmeldingen
+        $aanmeldingen = $this->GetObjects(array('BEGIN_DATUM' => $datum, 'EIND_DATUM' => $datum));
+        for ($i=0 ; $i < count($aanmeldingen['dataset']); $i++)
+        {
+            $aanmelding = $aanmeldingen['dataset'][$i];
+            Debug(__FILE__, __LINE__, sprintf("%s aanmelding=%s", $functie, json_encode($aanmelding)));
+
+            $tArray= explode(".", $aanmelding['VOORKEUR_VLIEGTUIG_TYPE']);
+            for ($t=0 ; $t < count($typesAangevraagd); $t++)
+            {
+                //Debug(__FILE__, __LINE__, sprintf("%s id=%s %s", $functie, $t[$i]['id'], print_r($t, true)));
+                if (in_array($typesAangevraagd[$t]->id, $tArray))
+                    $typesAangevraagd[$t]->aantal++;
+            }
+
+            if (isset($aanmelding['OVERLAND_VLIEGTUIG_ID']))
+            {
+                // alleen clubkisten worden in de lijst opgenomen
+                if (in_array($aanmelding['OVERLAND_VLIEGTUIG_ID'], $clubkisten)) {
+                    array_push($vliegtuigenAangevraagd, (object)array(
+                        'reg_call' => $aanmelding['REG_CALL'], 'naam' => $aanmelding['NAAM']));
+                }
+            }
+
+            switch ($aanmelding['STATUSTYPE_ID'])
+            {
+                case 1901: $dbo++; break;
+                case 1902: $solisten++; break;
+                case 1903: $brevethouders++; break;
+            }
+
+            if ($aanmelding['LIERIST'])
+                $lieristen++;
+            if ($aanmelding['INSTRUCTEUR'])
+                $instructeurs++;
+            if ($aanmelding['STARTLEIDER'])
+                $startleiders++;
+        }
+        $retValue = (object)array(
+            'aanmeldingen' => $aanmeldingen['totaal'],
+            'dbo' => $dbo,
+            'solisten' => $solisten,
+            'brevethouders' => $brevethouders,
+            'lieristen' => $lieristen,
+            'instructeurs' => $instructeurs,
+            'startleiders' => $startleiders,
+            'types' => $typesAangevraagd,
+            'overland' => $vliegtuigenAangevraagd
+        );
+        Debug(__FILE__, __LINE__, sprintf("%s: retValue=%s)", $functie, print_r($retValue, true)));
+        return $retValue;
+    }
+
 	/* 
 	Welke potentiele vligers hebben we voor dit vliegtuig?
 	*/

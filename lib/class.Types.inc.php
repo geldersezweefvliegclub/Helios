@@ -490,8 +490,7 @@ class Types extends Helios
 		$functie = "Types.GetClubVliegtuigenTypes";
 		Debug(__FILE__, __LINE__, sprintf("%s()", $functie));		
 		
-		$where = ' WHERE ID IN (SELECT TYPE_ID FROM ref_vliegtuigen WHERE CLUBKIST=1) ';
-		$orderby = "";
+		$where = ' WHERE ID IN (SELECT TYPE_ID FROM ref_vliegtuigen WHERE CLUBKIST=1)  ';
 		$alleenLaatsteAanpassing = false;
 		$hash = null;
 
@@ -500,7 +499,7 @@ class Types extends Helios
 			SELECT 
 				%s
 			FROM
-				`types_view` " . $where; // . $orderby;	
+				`types_view` " . $where;
 		
 		$retVal = array();
 
