@@ -290,7 +290,7 @@ if (!IsSet($GLOBALS['DATABASE_INCLUDED']))
 			
 				if ($fields == "")
 				{
-					if ($value == null)
+					if ($value === null)
 						$fields = sprintf("%s=NULL", $field);
 					elseif ((is_numeric($value)) && (substr($value,0,1) != "0")) 
 						$fields = sprintf("%s=%s", $field, $value);

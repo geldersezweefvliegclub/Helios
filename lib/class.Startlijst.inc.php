@@ -2000,6 +2000,7 @@ class Startlijst extends Helios
             }
         }
 
+        // aanmelden van de inzittende wanneer er een referentie is naar de ledenlijst
         if (array_key_exists('INZITTENDE_ID', $startData)) {
             if (isINT($startData['INZITTENDE_ID']) !== false) {
                 Debug(__FILE__, __LINE__, sprintf("%s INZITTENDE_ID=%s", $functie, $startData['INZITTENDE_ID']));
@@ -2034,8 +2035,10 @@ class Startlijst extends Helios
 
         // Als er losse namen zijn ingevoerd, dan opslaan als gast voor de vliegdag
         // maakt het invoeren voor de volgende starts makkelijker
-        if (array_key_exists('VLIEGER_NAAM', $startData)) {
-            if (isset($startData['VLIEGER_NAAM'])) {
+        if (array_key_exists('VLIEGERNAAM', $startData)) {
+            if (isset($startData['VLIEGERNAAM'])) {
+                Debug(__FILE__, __LINE__, sprintf("%s VLIEGERNAAM=%s", $functie, $startData['VLIEGERNAAM']));
+
                 $g = MaakObject('Gasten');
                 $gasten = $g->GetObjects(array(
                     'BEGIN_DATUM' => $startData['DATUM'],
@@ -2043,15 +2046,16 @@ class Startlijst extends Helios
                 ));
                 $gevonden = false;
                 foreach ($gasten['dataset'] as $gast) {
-                    if ($gast == $startData['VLIEGER_NAAM']) {
+                    if ($gast == $startData['VLIEGERNAAM']) {
                         $gevonden = true;
                         break;
                     }
                 }
+                Debug(__FILE__, __LINE__, sprintf("%s gevonden=%s", $functie, $gevonden ? "true" : "false"));
                 if (!$gevonden) {
                     $record = array();
                     $record['DATUM'] = $startData['DATUM'];
-                    $record['NAAM'] = $startData['VLIEGER_NAAM'];
+                    $record['NAAM'] = $startData['VLIEGERNAAM'];
                     $record['VELD_ID'] = $startData['VELD_ID'];
 
                     if (array_key_exists('OPMERKINGEN', $startData))
@@ -2062,8 +2066,10 @@ class Startlijst extends Helios
             }
         }
 
-        if (array_key_exists('INZITTENDE_NAAM', $startData)) {
-            if (isset($startData['INZITTENDE_NAAM'])) {
+        if (array_key_exists('INZITTENDENAAM', $startData)) {
+            if (isset($startData['INZITTENDENAAM'])) {
+                Debug(__FILE__, __LINE__, sprintf("%s INZITTENDENAAM=%s", $functie, $startData['INZITTENDENAAM']));
+
                 $g = MaakObject('Gasten');
                 $gasten = $g->GetObjects(array(
                     'BEGIN_DATUM' => $startData['DATUM'],
@@ -2071,15 +2077,16 @@ class Startlijst extends Helios
                 ));
                 $gevonden = false;
                 foreach ($gasten['dataset'] as $gast) {
-                    if ($gast == $startData['INZITTENDE_NAAM']) {
+                    if ($gast == $startData['INZITTENDENAAM']) {
                         $gevonden = true;
                         break;
                     }
                 }
+                Debug(__FILE__, __LINE__, sprintf("%s gevonden=%s", $functie, $gevonden ? "true" : "false"));
                 if (!$gevonden) {
                     $record = array();
                     $record['DATUM'] = $startData['DATUM'];
-                    $record['NAAM'] = $startData['INZITTENDE_NAAM'];
+                    $record['NAAM'] = $startData['INZITTENDENAAM'];
                     $record['VELD_ID'] = $startData['VELD_ID'];
 
                     if (array_key_exists('OPMERKINGEN', $startData))

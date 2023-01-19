@@ -1,0 +1,378 @@
+openapi: 3.0.2
+info:
+  title: Documenten
+  description: Documenten voor vliegbedrijf
+  version: '1.0'
+
+paths:
+  /Documenten/CreateTable:
+    post:
+      security:
+        - basicAuth: [ ]
+        - bearerAuth: [ ]
+      summary: Creeer database objecten
+      parameters:
+        - in: query
+          name: FILLDATA
+          description: Dummy records aanmaken
+          required: true
+          schema:
+            type: boolean
+      responses:
+        201:
+          description: "Aangemaakt, Tabel toegevoegd"
+        500:
+          description: "Data verwerkingsfout, bijv omdat de tabel al bestaat"
+
+  /Documenten/CreateViews:
+    post:
+      security:
+        - basicAuth: [ ]
+        - bearerAuth: [ ]
+      summary: Creeer database views
+      responses:
+        201:
+          description: "Aangemaakt, View toegevoegd"
+        500:
+          description: "Data verwerkingsfout, view niet aangemaak"
+
+  /Documenten/GetObject:
+    get:
+      security:
+        - basicAuth: [ ]
+        - bearerAuth: [ ]
+      summary: 'Haal een enkele dag op uit de database. Query parameters worden in AND conditie gebruikt'
+      parameters:
+        - in: query
+          name: ID
+          description: 'Database ID van het document record'
+          required: false
+          schema:
+            type: integer
+            format: int32
+      responses:
+        200:
+          description: "OK, data succesvol opgehaald"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/document'
+        404:
+          description: "Data niet gevonden"
+        405:
+          description: "Methode niet toegestaan, input validatie error"
+        406:
+          description: "Niet aanvaardbaar, input ontbreekt"
+        500:
+          description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"
+
+  /Documenten/GetObjects:
+    get:
+      security:
+        - basicAuth: [ ]
+        - bearerAuth: [ ]
+      summary: Haal een lijst met documenten op uit de database. Query parameters worden in AND conditie gebruikt
+      parameters:
+        - in: query
+          name: ID
+          description: Database ID van het aanwezig record
+          required: false
+          schema:
+            type: integer
+            format: int32
+            example: 44
+        - in: query
+          name: VERWIJDERD
+          description: Toon welke records verwijderd zijn. Default = false
+          required: false
+          schema:
+            type: boolean
+        - in: query
+          name: LAATSTE_AANPASSING
+          description: Laatste aanpassing op basis van records in dataset. Bedoeld om data verbruik te verminderen. Dataset is daarom leeg
+          required: false
+          schema:
+            type: boolean
+        - in: query
+          name: HASH
+          description: HASH van laatste GetObjects aanroep. Indien bij nieuwe aanroep dezelfde data bevat, dan volgt http status code 304. In geval dataset niet hetzelfde is, dan komt de nieuwe dataset terug. Ook bedoeld om dataverbruik te vermindereren. Er wordt alleen data verzonden als het nodig is.
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: SORT
+          description: Sortering van de velden in ORDER BY formaat. Default = DATUM DESC
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: MAX
+          description: Maximum aantal records in de dataset. Gebruikt in LIMIT query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+        - in: query
+          name: START
+          description: Eerste record in de dataset. Gebruikt in LIMIT query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+        - in: query
+          name: VELDEN
+          description: Welke velden moet opgenomen worden in de dataset
+          required: false
+          schema:
+            type: string
+
+        - in: query
+          name: GROEPEN
+          description: Groep ID voor de opvraag (meerdere groupen in CSV formaat)
+          required: false
+          schema:
+            type: string
+            format: date
+
+      responses:
+        200:
+          description: "OK, data succesvol opgehaald"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/view_documenten'
+        304:
+          description: "Data niet gemodificeerd, HASH in aanroep == hash in dataset"
+        405:
+          description: "Methode niet toegestaan, input validatie error"
+        500:
+          description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"
+
+  /Documenten/DeleteObject:
+    delete:
+      security:
+        - basicAuth: [ ]
+        - bearerAuth: [ ]
+      summary: Markeer record als verwijderd. Query parameters worden in AND conditie gebruikt
+      parameters:
+        - in: query
+          name: ID
+          description: Database ID van het document record. Meerdere ID's in CSV formaat
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: VERIFICATIE
+          description: Controleer of record bestaat voordat het verwijderd wordt. Default = true
+          required: false
+          schema:
+            type: boolean
+      responses:
+        204:
+          description: "Document verwijderd"
+        401:
+          description: "Niet geautoriseerd, geen schrijfrechten"
+        404:
+          description: "Data niet gevonden"
+        405:
+          description: "Methode niet toegestaan, input validatie error"
+        406:
+          description: "Niet aanvaardbaar, input ontbreekt"
+        500:
+          description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"
+
+  /Documenten/RestoreObject:
+    patch:
+      security:
+        - basicAuth: [ ]
+        - bearerAuth: [ ]
+      summary: Record dat verwijderd is terug halen. VERWIJDERD marker krijgt reset
+      parameters:
+        - in: query
+          name: ID
+          description: Database ID van het record. Meerdere ID's in CSV formaat
+          required: true
+          schema:
+            type: string
+      responses:
+        202:
+          description: "Record(s) hersteld"
+        401:
+          description: "Niet geautoriseerd, geen schrijfrechten"
+        404:
+          description: "Data niet gevonden"
+        405:
+          description: "Methode niet toegestaan, input validatie error"
+        406:
+          description: "Niet aanvaardbaar, input ontbreekt"
+        500:
+          description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"
+
+  /Documenten/SaveObject:
+    post:
+      security:
+        - basicAuth: [ ]
+        - bearerAuth: [ ]
+      summary: Voeg nieuw document toe
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                document:
+                  $ref: '#/components/schemas/document_in'
+                file:
+                  type: string
+                  format: binary
+      responses:
+        200:
+          description: "OK, data succesvol toegevoegd"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/document'
+        401:
+          description: "Niet geautoriseerd, geen schrijfrechten"
+        405:
+          description: "Methode niet toegestaan, input validatie error"
+        406:
+          description: "Niet aanvaardbaar, input ontbreekt"
+        500:
+          description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"
+    put:
+      security:
+        - basicAuth: [ ]
+        - bearerAuth: [ ]
+      summary: Update bestaand document info
+      requestBody:
+        description: Document meta data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/document_in'
+      responses:
+        200:
+          description: "OK, data succesvol aangepast"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/document'
+        401:
+          description: "Niet geautoriseerd, geen schrijfrechten"
+        404:
+          description: "Data niet gevonden"
+        405:
+          description: "Methode niet toegestaan, input validatie error"
+        406:
+          description: "Niet aanvaardbaar, input ontbreekt"
+        500:
+          description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"
+
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+      description: Eerst inloggen voordat API beschikbaar is
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    document_in:
+      type: object
+      properties:
+        ID:
+          description: Database ID van het document record
+          type: integer
+          format: int32
+          example: 77
+        GROEP_ID:
+          description: Verwijzing naar type tabel (22) in welke groep document behoord
+          type: integer
+          format: int32
+          example: 2022
+        VOLGORDE:
+          description: Volgorde binnen de groep
+          type: integer
+          format: int32
+          example: 3
+        TEKST:
+          description: De tekst die uitlegt wat document behelst
+          type: string
+          maxLength: 255
+          example: Handboek Duo Discuss
+        URL:
+          description: Verwijzing waar het document gevonden kan worden
+          type: string
+          maxLength: 255
+          example: Handboek Duo Discuss
+        LEGE_REGEL:
+          description: Lege regel om paragraaf te kunnen maken
+          type: boolean
+          example: 0
+        ONDERSTREEP:
+          description: Plaats een horizontale lijn
+          type: boolean
+          example: 0
+        BOVEN:
+          description: Plaats een horizontale lijn aan de bovenkant (true) / onderkant (false)
+          type: boolean
+          example: 0
+
+    document:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/document_in'
+        - type: object
+          properties:
+            VERWIJDERD:
+              description: Is dit record gemarkeerd als verwijderd?
+              type: boolean
+              example: 0
+            LAATSTE_AANPASSING:
+              description: Tijdstempel van laaste aanpassing in de database
+              type: string
+              format: date-time
+              example: "2026-01-31 14:12:56"
+
+    view_documenten_dataset:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/document'
+        - type: object
+          properties:
+          GROEP:
+            description: Beschrijving van de groep waarin dit document thuishoort
+            type: string
+            maxLength: 255
+            example: Documenten Terlet
+
+    view_documenten:
+      type: object
+      properties:
+        totaal:
+          description: Aantal records dat voldoet aan de criteria in de database
+          type: integer
+          format: int32
+          example: 287
+        laatste_aanpassing:
+          description: Tijdstempel van laaste aanpassing in de database van de records dat voldoet aan de criteria
+          type: string
+          format: date-time
+          example: "2001-11-30 11:12:17"
+        hash:
+          description: hash van de dataset
+          type: string
+          example: "aa9ab4b"
+        dataset:
+          description: De dataset met records
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/view_documenten_dataset'

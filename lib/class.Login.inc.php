@@ -347,11 +347,11 @@ class Login extends Helios
 				if ($twoFactorSuccess === true)
 				{
 					// We willen gebruikersvriendelijk zijn en SMS kosten besparen, dus niet ieder inlog poging om 2 factor authenticatie vragen
-					// De startstoren en beheerder max 1 SMS perdag, alle andere gebruikers max 1x per week
+					// De startstoren en beheerder max 1 SMS per maand, alle andere gebruikers max 1x per 6 maanden
 
-					$verlopen = time()+ 60 * 60 * 24 * 31;	// na maand nieuwe SMS nodig
+					$verlopen = time()+ 60 * 60 * 24 * 31 * 6;	// na 6 maanden nieuwe SMS nodig
 					if (($lObj['STARTTOREN'] ==  1) || ($lObj['BEHEERDER'] ==  1)) 
-					$verlopen = time()+ 60 * 60 * 24 * 7;	// na week nieuwe SMS nodig
+					    $verlopen = time()+ 60 * 60 * 24 * 31;	// na maand nieuwe SMS nodig
 
 					session_set_cookie_params(["SameSite" => "None"]); //none, lax, strict
 					setcookie("2FACTOR", base64_encode($lObj['ID']), [

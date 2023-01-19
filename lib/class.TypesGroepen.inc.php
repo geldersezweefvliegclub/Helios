@@ -48,7 +48,8 @@ class TypesGroepen extends Helios
 				(4, 'Vliegtuig types',10,0),
 				(5, 'Start methodes',11,1),
 				(6, 'Lidmaatschap', 12,1),
-				(7, 'Bedrijf',20,1),                    
+				(7, 'Bedrijf',20,1),       
+				                        
 				(10, 'Opleidingsblok',35,0),
 				(11, 'Bewolking',36,0),
 				(12, 'Windontwikkeling',34,0),
@@ -60,7 +61,8 @@ class TypesGroepen extends Helios
 				(18, 'Diensten',14,1),
 				(19, 'Status',13,1),
 				(20, 'DDWV strippen',20,1),
-				(21, 'iDeal bestellen',21,1);";
+				(21, 'iDeal bestellen',21,1),
+				(22, 'Documenten',8,0);";
 
 			$query = sprintf("
 					INSERT INTO `%s` (

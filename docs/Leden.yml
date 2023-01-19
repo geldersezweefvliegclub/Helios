@@ -233,7 +233,7 @@ paths:
       security:
         - basicAuth: [] 
         - bearerAuth: []     
-      summary: Record dat verwijderd is terug halen. VERWIJDERD marker kijrgt reset
+      summary: Record dat verwijderd is terug halen. VERWIJDERD marker krijgt reset
       parameters:
         - in: query
           name: ID
