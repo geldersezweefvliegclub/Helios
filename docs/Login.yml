@@ -229,7 +229,11 @@ components:
         LIERIST:
           description: Mag dit lid lieren? 
           type: boolean
-          example: false            
+          example: false
+        LIERIST_IO:
+          description: Lierist in opleiding
+          type: boolean
+          example: false
         STARTLEIDER: 
           description: Kan dit lid het startbedrijf leiden?  
           type: boolean

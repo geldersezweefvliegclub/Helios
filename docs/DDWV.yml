@@ -53,29 +53,23 @@ paths:
           description: "Data niet gevonden"
         405:
           description: "Methode niet toegestaan, input validatie error"
+        406:
+          description: "Parameters ontbreken"
         500:
           description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"
 
   /DDWV/UitbetalenCrew:
-    get:
+    post:
       security:
         - basicAuth: []
         - bearerAuth: []
       summary: Betalen van de crew na bewezen diensten
-      parameters:
-        - in: query
-          name: DATUM
-          description: Datum van de vliegdag
-          schema:
-            type: string
-            format: date
-          example: "2023-06-01"
-        - in: query
-          name: HASH
-          description: sha1 encoding van het rooster record (als json)
-          required: true
-          schema:
-            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/uitbetalen'
       responses:
         200:
           description: "OK, data succesvol opgehaald"
@@ -89,6 +83,8 @@ paths:
           description: "Data niet gevonden"
         405:
           description: "Methode niet toegestaan, input validatie error"
+        406:
+          description: "Parameters ontbreken"
         500:
           description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"
 
@@ -137,3 +133,16 @@ components:
           description: Aantal strippen die afgeschreven worden
           type: integer
           example: 8
+
+    uitbetalen:
+      type: object
+      properties:
+        DATUM:
+          description: Datum van de uitbetaling
+          type: string
+          format: date
+          example: "2017-07-21"
+        DIENSTEN:
+          description: Diensten IDs in CSV formaat
+          type: string
+          example: 1375,1380,1398

@@ -171,8 +171,9 @@ paths:
           description: Haal alle diensten op waar lid NIET aanwezig was
           required: false
           schema:
-            type: boolean    
-                         
+            type: boolean
+
+
       responses:
         200:
           description: "OK, data succesvol opgehaald"
@@ -385,8 +386,12 @@ components:
         AFWEZIG:
           description: Lid is niet komen opdagen
           type: boolean
-          example: 0                                
- 
+          example: 0
+        UITBETAALD:
+          description: Is de DDWV crew uitbetaald?
+          type: boolean
+          example: 1
+
     oper_diensten:
       type: object
       allOf:

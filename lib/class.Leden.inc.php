@@ -333,9 +333,10 @@ class Leden extends Helios
 			// 602 = Lid
 			// 603 = Jeugdlid
             // 604 = private owner
+            // 605 = veteraan
 			// 606 = Donateur
 			// 625 = DDWV
-			$where .= " AND LIDTYPE_ID IN (601, 602,603, 604, 606, 625)";
+			$where .= " AND LIDTYPE_ID IN (601,602,603,604,605,606,625)";
 		}
 
 		$rlObj = $this->GetObject($l->getUserFromSession());
@@ -904,7 +905,8 @@ class Leden extends Helios
 			($lid['LIDTYPE_ID'] == "602") ||       // 602 = Lid 
 			($lid['LIDTYPE_ID'] == "603") ||       // 603 = Jeugdlid
             ($lid['LIDTYPE_ID'] == "604") ||       // 604 = Private owner (mag ook op club vliegtuigen vliegen voor trainingsvlucht)
-			($lid['LIDTYPE_ID'] == "606") ||       // 606 = Donateur
+			($lid['LIDTYPE_ID'] == "605") ||       // 605 = Donateur
+            ($lid['LIDTYPE_ID'] == "606") ||       // 606 = Veteraan
             ($lid['LIDTYPE_ID'] == "608") ||       // 608 = 5 Rittenkaart
             ($lid['LIDTYPE_ID'] == "611"))         // 611 = Cursist
 			$retVal = true;
@@ -1006,11 +1008,11 @@ class Leden extends Helios
 				$lid['OPMERKINGEN'] 	= null;
 			}
 
-			if (($l->isBeheerder() === false) &&
-				($l->isBeheerderDDWV() === false) &&
+			if (($lid['ID'] !== $l->getUserFromSession()) && 
+                ($l->isBeheerder() === false) &&
 				($l->isRooster() === false) &&
 				($l->isInstructeur() === false) &&
-				($l->isCIMT() === false))	
+				($l->isCIMT() === false))
 			{
 				$lid['OPMERKINGEN'] 	= null;
 			}
@@ -1064,7 +1066,17 @@ class Leden extends Helios
 			$field = 'ZUSTERCLUB_ID';
 			if (array_key_exists($field, $input))
 				$record[$field] = isINT($input[$field], $field, true, 'Leden');
-		}
+
+            $field = 'LIDTYPE_ID';
+            if (array_key_exists($field, $input))
+                $record[$field] = isINT($input[$field], $field, true, "Types");
+
+            if ($app_settings['DemoMode'] === false)		// in demo mode mogen we de login naam niet aanpassen
+            {
+                if (array_key_exists('INLOGNAAM', $input))
+                    $record['INLOGNAAM'] = $input['INLOGNAAM'];
+            }
+        }
 
 		if (($l->isBeheerder()) || ($l->isRooster()))
 		{
@@ -1121,11 +1133,7 @@ class Leden extends Helios
 
 			$field = 'LIDNR';
 			if (array_key_exists($field, $input))
-				$record[$field] = $input[$field];				
-
-			$field = 'LIDTYPE_ID';
-			if (array_key_exists($field, $input))
-				$record[$field] = isINT($input[$field], $field, true, "Types");
+				$record[$field] = $input[$field];
 
 			$field = 'CIMT';
 			if (array_key_exists($field, $input))
@@ -1168,10 +1176,7 @@ class Leden extends Helios
 			$field = 'TEGOED';
 			if (array_key_exists($field, $input))
 				$record[$field] = isNUM($input[$field], $field);
-		}
 
-		if ($ikBenHetZelf || ($l->isBeheerder()))
-		{
 			$field = 'ID';
 			if (array_key_exists($field, $input))
 				$record[$field] = isINT($input[$field], $field);
@@ -1234,12 +1239,6 @@ class Leden extends Helios
 			$field = 'MEDICAL';
 			if (array_key_exists($field, $input))
 				$record[$field]= isDATE($input[$field], $field, true);		
-
-			if ($app_settings['DemoMode'] === false)		// in demo mode mogen we de login naam niet aanpassen
-			{
-				if (array_key_exists('INLOGNAAM', $input))
-					$record['INLOGNAAM'] = $input['INLOGNAAM']; 	
-			}
 
 			if (array_key_exists('SLEUTEL1', $input))
 				$record['SLEUTEL1'] = $input['SLEUTEL1']; 		

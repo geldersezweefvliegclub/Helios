@@ -83,6 +83,10 @@ $htmlGeenMedical="
 <p>     
     De startadministratie  
 </p>
+<p>     
+    PS: Een kopie van deze mail is naar het CI-MT verstuurd  
+</p>
+
 
 </body></html>";
 
@@ -220,6 +224,7 @@ else
             case 602: $mail->addAddress($lidData['EMAIL'], $lidData['NAAM']);               break; // Lid
             case 603: $mail->addAddress($lidData['EMAIL'], $lidData['NAAM']);               break; // Jeugdlid
             case 604: $mail->addAddress($lidData['EMAIL'], $lidData['NAAM']);               break; // Private owner
+            case 605: $mail->addAddress($lidData['EMAIL'], $lidData['NAAM']);               break; // Veteraan
             case 606: $mail->addAddress($lidData['EMAIL'], $lidData['NAAM']);               break; // Donateur
             case 607: $mail->addAddress($lidData['EMAIL'], $lidData['NAAM']);                      // Zusterclub
                       $mail->addAddress($penningmeester['EMAIL'], $penningmeester['NAAM']); 
@@ -320,11 +325,16 @@ else
         file_get_contents($protocol.$server.$port . "/cronjobs/medical_verlopen.php?ID=" . $lidData['ID']);
 
         // stuur een mail als medical niet is ingevoerd
-        if (($lidData['LIDTYPE_ID'] == 601 || $lidData['LIDTYPE_ID'] == 602 || $lidData['LIDTYPE_ID'] == 603) &&
-            !isset($lidData['MEDICAL']) && $zelfPIC)
+        // 601 = Erelid
+        // 602 = Lid
+        // 603 = Jeugdlid
+        // 604 = Private owner
+        if (($lidData['LIDTYPE_ID'] == 601 || $lidData['LIDTYPE_ID'] == 602 ||
+             $lidData['LIDTYPE_ID'] == 603 || $lidData['LIDTYPE_ID'] == 604) && !isset($lidData['MEDICAL']) && $zelfPIC)
         {
             $mail->Subject = 'Medical';
             $mail->Body    = sprintf($htmlGeenMedical, $lidData['VOORNAAM']);
+            $mail->addCC($cimt['EMAIL'], $cimt['NAAM']);
 
             if(!$mail->Send()) {
                 print_r($mail);

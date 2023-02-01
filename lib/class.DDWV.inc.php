@@ -280,25 +280,31 @@ class DDWV
         return $typeBedrijf;
     }
 
-    function UitbetalenCrew($Datum, $Hash)
+    function UitbetalenCrew($data)
     {
         global $ddwv;
 
         $functie = "DDWV.UitbetalenCrew";
-        Debug(__FILE__, __LINE__, sprintf("%s(%s, %s)", $functie, $Datum, $Hash));
+        Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($data, true)));
 
         $l = MaakObject('Login');
 
         if (!$l->isBeheerder() && !$l->isBeheerderDDWV())
             throw new Exception("401;Geen rechten;");
 
-        isDATE($Datum, "DATUM");
+        if ($data == null)
+            throw new Exception("406;Uitbetaal data moet ingevuld zijn;");
+
+        if (!array_key_exists('DATUM', $data))
+            throw new Exception("406;DATUM is verplicht;");
+
+        if (!array_key_exists('DIENSTEN', $data))
+            throw new Exception("406;DIENSTEN is verplicht;");
+
+        isDATE($data['DATUM'], "DATUM");
 
         $rObj = MaakObject('Rooster');
-        $rooster = $rObj->GetObject(null, $Datum);
-
-        if ($Hash != sha1(json_encode($rooster)))
-            throw new Exception("406;Hash incorrect;");
+        $rooster = $rObj->GetObject(null, $data['DATUM']);
 
         if ($rooster['DDWV'] == false)
             throw new Exception("406;Geen DDWV dag;");
@@ -306,27 +312,36 @@ class DDWV
         if ($rooster['CLUB_BEDRIJF'] == true)
             throw new Exception("406;Club bedrijf;");
 
-        $tObj = MaakObject('Types');
-        $tarief = $tObj->GetObject($ddwv->CREW_VERGOEDING);
+        $typeObj = MaakObject('Types');
+        $tarief = $typeObj->GetObject($ddwv->CREW_VERGOEDING);
 
+        $tObj = MaakObject('Transacties');
         $dObj = MaakObject('Diensten');
-        $diensten = $dObj->GetObjects(array('BEGIN_DATUM' => $Datum, 'EIND_DATUM' => $Datum));
+        $diensten = $dObj->GetObjects(array('BEGIN_DATUM' => $data['DATUM'], 'EIND_DATUM' => $data['DATUM'], 'VELDEN' => "DV.ID,DV.DATUM,LID_ID,TYPE_DIENST_ID,ROOSTER_ID"));
 
-        $dateparts = explode('-', $Datum);
+        $dateparts = explode('-', $data['DATUM']);
+        $dienstenIDs = explode(',', $data['DIENSTEN']);
 
         foreach ($diensten['dataset'] as $dienst)
         {
             Debug(__FILE__, __LINE__, sprintf("%s: dienst %s", $functie, print_r($dienst, true)));
 
-            $transactie = array();
-            $transactie['DDWV'] = true;
-            $transactie['LID_ID'] = $dienst['LID_ID'];
-            $transactie['TYPE_ID'] = $tarief['ID'];
-            $transactie['EENHEDEN'] = $tarief['EENHEDEN'];
-            $transactie['OMSCHRIJVING'] = sprintf(", vliegdag %02d-%02d-%d", $dateparts[2], $dateparts[1], $dateparts[0]);
+            if (in_array($dienst['ID'], $dienstenIDs)) {
+                $transactie = array();
+                $transactie['DDWV'] = true;
+                $transactie['LID_ID'] = $dienst['LID_ID'];
+                $transactie['TYPE_ID'] = $tarief['ID'];
+                $transactie['EENHEDEN'] = $tarief['EENHEDEN'];
+                $transactie['OMSCHRIJVING'] = sprintf(", vliegdag %02d-%02d-%d", $dateparts[2], $dateparts[1], $dateparts[0]);
 
-            $tObj = MaakObject('Transacties');
-            $id = $tObj->AddObject($transactie);
+                $id = $tObj->AddObject($transactie);
+
+
+                $dienst['UITBETAALD'] = true;
+                $dObj->UpdateObject($dienst);
+
+                Debug(__FILE__, __LINE__, sprintf("%s: uitbetaald id=%d %s", $functie, $id, print_r($transactie, true)));
+            }
         }
     }
 }

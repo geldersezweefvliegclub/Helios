@@ -32,7 +32,7 @@ class Diensten extends Helios
 				
 				`AANWEZIG` tinyint UNSIGNED DEFAULT NULL,
 				`AFWEZIG` tinyint UNSIGNED DEFAULT NULL,
-
+                `UITBETAALD` tinyint UNSIGNED NOT NULL DEFAULT '0',
 				`VERWIJDERD` tinyint UNSIGNED NOT NULL DEFAULT '0',
 				`LAATSTE_AANPASSING` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 				
@@ -162,6 +162,10 @@ class Diensten extends Helios
 		if ($obj == null)
 			throw new Exception("404;Record niet gevonden;");
 
+        $l = MaakObject('Login');
+        if ((!$l->isBeheerder()) && (!$l->isBeheerderDDWV()))
+            unset($obj['UITBETAALD']);
+
 		$obj = $this->RecordToOutput($obj);
 		return $obj;
 	}
@@ -192,6 +196,10 @@ class Diensten extends Helios
 
 		if ($obj == null)
 			throw new Exception("404;Record niet gevonden;");
+
+        $l = MaakObject('Login');
+        if ((!$l->isBeheerder()) && (!$l->isBeheerderDDWV()))
+            unset($obj['UITBETAALD']);
 
 		$obj = $this->RecordToOutput($obj);
 		return $obj;
@@ -409,7 +417,7 @@ class Diensten extends Helios
 				$query .= sprintf(" LIMIT %d , %d ", $start, $limit);
 			}			
 			$rquery = sprintf($query, $velden);
-			parent::DbOpvraag($rquery, $query_params);
+            parent::DbOpvraag($rquery, $query_params);
 			$retVal['dataset'] = parent::DbData();
 
 			$retVal['hash'] = hash("crc32", json_encode($retVal));
@@ -420,6 +428,9 @@ class Diensten extends Helios
 
 			for ($i=0 ; $i < count($retVal['dataset']) ; $i++)
 			{
+                if ((!$l->isBeheerder()) && (!$l->isBeheerderDDWV()))
+                    unset($retVal['dataset'][$i]['UITBETAALD']);
+
 				$retVal['dataset'][$i] = $this->RecordToOutput($retVal['dataset'][$i]);
 			}
 
@@ -768,6 +779,10 @@ class Diensten extends Helios
 		if (array_key_exists($field, $input))
 			$record[$field] = isINT($input[$field], $field, false, "Types");
 
+        $field = 'UITBETAALD';
+        if (array_key_exists($field, $input))
+            $record[$field] = isBOOL($input[$field], $field);
+
 		$field = 'AANWEZIG';
 		if (array_key_exists($field, $input))
 			$record[$field] = isBOOL($input[$field], $field);
@@ -819,6 +834,9 @@ class Diensten extends Helios
 		if (isset($record['VERWIJDERD']))
 			$retVal['VERWIJDERD']  = $record['VERWIJDERD'] == "1" ? true : false;
 
+        if (isset($record['UITBETAALD'])) {
+            $retVal['UITBETAALD'] = $record['UITBETAALD'] == "1" ? true : false;
+        }
 		return $retVal;
 	}
 }

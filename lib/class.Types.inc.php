@@ -104,7 +104,8 @@ class Types extends Helios
 				(601, 6, '1',       'Erelid', NULL, 0),
 				(602, 6, '2',       'Lid', NULL, 0),
 				(603, 6, '3',       'Jeugdlid', NULL, 0),
-				(604, 6, '3',       'Private owner', NULL, 0),
+				(604, 6, '4',       'Private owner', NULL, 0),
+				(605, 6, '5',       'Veteraan', NULL, 0),
 				(606, 6, '6',       'Donateur', NULL, 0),
 				(607, 6, 'zus',     'Zusterclub', NULL, 0),
 				(608, 6, '8',       '5-rittenkaarthouder', NULL, 0),
@@ -113,6 +114,7 @@ class Types extends Helios
 				(611, 6, '9',       'Cursist', NULL, 0),
 				(612, 6,  NULL,     'Penningmeester', NULL, 0),
 				(613, 6,  NULL,     'Systeem account', NULL, 0),
+				(620, 6, '9',       'Wachtlijst', NULL, 0),
 				(625, 6, '9',       'DDWV vlieger', NULL, 0),
 
 				(701, 7,  NULL,     'Club bedrijf', NULL, 0),

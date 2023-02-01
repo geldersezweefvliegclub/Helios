@@ -66,15 +66,12 @@ $app->get(url_base() . 'DDWV/ToetsingDDWV', function (Request $request, Response
 /*
 De DDWV dag gaat niet door, strippen terug boeken
 */
-$app->get(url_base() . 'DDWV/UitbetalenCrew', function (Request $request, Response $response, $args) {
+$app->post(url_base() . 'DDWV/UitbetalenCrew', function (Request $request, Response $response, $args) {
     $obj = MaakObject("DDWV");
     try
     {
-        $params = $request->getQueryParams();
-        $datum = (isset($params['DATUM'])) ? $params['DATUM'] : null;
-        $hash = (isset($params['HASH'])) ? $params['HASH'] : null;
-
-        $r = $obj->UitbetalenCrew($datum, $hash);     // Hier staat de logica voor deze functie
+        $data = json_decode($request->getBody(), true);
+        $r = $obj->UitbetalenCrew($data);     // Hier staat de logica voor deze functie
 
         $response->getBody()->write(json_encode($r));
         return $response->withHeader('Content-Type', 'application/json');

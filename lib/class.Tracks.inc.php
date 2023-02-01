@@ -95,7 +95,7 @@ class Tracks extends Helios
 				LEFT JOIN `ref_leden` `l` ON (`t`.`LID_ID` = `l`.`ID`)
 				LEFT JOIN `ref_leden` `i` ON (`t`.`INSTRUCTEUR_ID` = `i`.`ID`)
 			WHERE
-				`t`.`VERWIJDERD` = %d
+				`t`.`VERWIJDERD` = %d AND `l`.`VERWIJDERD` = 0
 			ORDER BY 
 				LAATSTE_AANPASSING DESC;";	
 						
