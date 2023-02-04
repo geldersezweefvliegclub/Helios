@@ -144,7 +144,7 @@ class Vliegtuigen extends Helios
 		Debug(__FILE__, __LINE__, print_r($obj, true));
 
 		if ($obj == null)
-			throw new Exception("404;Record niet gevonden;");
+            throw new Exception(sprintf("404;Record niet gevonden (%s, '%s');", $this->Naam, json_encode($conditie)));
 
 		$obj = $this->RecordToOutput($obj);
 		return $obj;
@@ -176,7 +176,7 @@ class Vliegtuigen extends Helios
 
 		if ($obj == null)
 		{
-			throw new Exception("404;Record niet gevonden;");
+            throw new Exception(sprintf("404;Record niet gevonden (%s, '%s');", $this->Naam, json_encode($conditie)));
 		}
 
 		$obj = $this->RecordToOutput($obj);
@@ -560,7 +560,7 @@ class Vliegtuigen extends Helios
 
 		parent::DbAanpassen($id, $v);
 		if (parent::NumRows() === 0)
-			throw new Exception("404;Record niet gevonden;");				
+            throw new Exception(sprintf("404;Record niet gevonden (%s, '%s');", $this->Naam, $id));			
 		
 		return $this->GetObject($id);
 	}

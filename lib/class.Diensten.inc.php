@@ -160,7 +160,7 @@ class Diensten extends Helios
 		Debug(__FILE__, __LINE__, print_r($obj, true));
 
 		if ($obj == null)
-			throw new Exception("404;Record niet gevonden;");
+            throw new Exception(sprintf("404;Record niet gevonden (%s, '%s');", $this->Naam, json_encode($conditie)));
 
         $l = MaakObject('Login');
         if ((!$l->isBeheerder()) && (!$l->isBeheerderDDWV()))
@@ -195,7 +195,7 @@ class Diensten extends Helios
 		Debug(__FILE__, __LINE__, print_r($obj, true));
 
 		if ($obj == null)
-			throw new Exception("404;Record niet gevonden;");
+            throw new Exception(sprintf("404;Record niet gevonden (%s, '%s');", $this->Naam, json_encode($conditie)));
 
         $l = MaakObject('Login');
         if ((!$l->isBeheerder()) && (!$l->isBeheerderDDWV()))
@@ -633,7 +633,7 @@ class Diensten extends Helios
 
 		parent::DbAanpassen($id, $v);
 		if (parent::NumRows() === 0)
-			throw new Exception("404;Record niet gevonden;");				
+            throw new Exception(sprintf("404;Record niet gevonden (%s, '%s');", $this->Naam, $id));			
 		
 		return $this->GetObject($id);
 	}
@@ -664,17 +664,15 @@ class Diensten extends Helios
 			if (array_key_exists('LID_ID', $ddb) && ($ddb['LID_ID'] != $l->getUserFromSession()))
 				throw new Exception("401;Geen schrijfrechten (l2);");					
 
-			$datetime1 = strtotime($ddb['DATUM']);
+			$datetime1 = new DateTime($ddb['DATUM']);
 			$now = new DateTime();
 			
-			$secs = $now - $datetime1;	// seconds between the two times
-			$days = $secs / 86400;
+			$days = 1*$now->diff($datetime1)->format('%a');	// total days between the two times
 
-			if ($days < 60) {	// tot 2 maanden mag je sowieso wijzgen
-				$datetime1 = strtotime($ddb['LAATSTE_AANPASSING']);
+			if ($days > 60) {	// tot 2 maanden mag je sowieso wijzgen
+				$datetime1 = new DateTime($ddb['LAATSTE_AANPASSING']);
 
-				$secs = $now - $datetime1;	// seconds between the two times
-				$hours = $secs / 3600;
+                $hours = 1*$now->diff($datetime1)->format('%h');	// hours between the two times
 
 				if ($hours > 4)	{	// tot 4 uur mag je aanpassen
 					throw new Exception("401;Geen schrijfrechten (4);");

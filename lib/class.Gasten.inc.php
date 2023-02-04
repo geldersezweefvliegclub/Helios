@@ -114,7 +114,7 @@ class Gasten extends Helios
 
 		$obj = parent::GetSingleObject($conditie);
 		if ($obj == null)
-			throw new Exception("404;Record niet gevonden;");
+			throw new Exception(sprintf("404;Record niet gevonden (%s, '%s');", $this->Naam, json_encode($conditie)));
 
 		$obj = $this->RecordToOutput($obj);
 		return $obj;	
@@ -369,8 +369,23 @@ class Gasten extends Helios
 
 		if (!array_key_exists('NAAM', $GastenData))
 			throw new Exception("406;NAAM is verplicht;");
-		
-		
+
+        // Voorkom dat dezelfde naam meerdere keer als gast wordt opgevoerd
+        $gastenVandaag = $this->GetObjects(array('BEGIN_DATUM' => $GastenData['DATUM'], 'EIND_DATUM' => $GastenData['DATUM']));
+
+
+        if ($gastenVandaag['totaal'] !== 0)
+        {
+            foreach ($gastenVandaag['dataset'] as  $gast)
+            {
+                if (strtoupper($gast['NAAM']) == strtoupper($GastenData['NAAM']))
+                {
+                    Debug(__FILE__, __LINE__, sprintf("Gast %s is al eerder aangemeld met id", $GastenData['NAAM'], $gast['ID']));
+                    return $this->GetObject($gast['ID']);   // we gaan hier dus stoppen en geven bestaande record terug
+                }
+            }
+        }
+
 		// Neem data over uit aanvraag
 		$t = $this->RequestToRecord($GastenData);
 
@@ -402,7 +417,7 @@ class Gasten extends Helios
 
 		parent::DbAanpassen($id, $t);
 		if (parent::NumRows() === 0)
-			throw new Exception("404;Record niet gevonden;");				
+            throw new Exception(sprintf("404;Record niet gevonden (%s, '%s');", $this->Naam, $id));
 		
 		return $this->GetObject($id);
 	}

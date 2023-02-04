@@ -156,7 +156,7 @@ class Daginfo extends Helios
 		Debug(__FILE__, __LINE__, print_r($obj, true));
 		
 		if ($obj == null)
-			throw new Exception("404;Record niet gevonden;");
+            throw new Exception(sprintf("404;Record niet gevonden (%s, '%s');", $this->Naam, json_encode($conditie)));
 
 		if (!$this->heeftDataToegang($obj['DATUM']))
 			throw new Exception("401;Geen leesrechten;");
@@ -499,7 +499,7 @@ class Daginfo extends Helios
 
 		parent::DbAanpassen($id, $d);
 		if (parent::NumRows() === 0)
-			throw new Exception("404;Record niet gevonden;");				
+            throw new Exception(sprintf("404;Record niet gevonden (%s, '%s');", $this->Naam, $id));			
 		
 		return $this->GetObject($id);
 	}

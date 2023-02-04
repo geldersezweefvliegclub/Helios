@@ -225,7 +225,7 @@ class AanwezigLeden extends Helios
 		Debug(__FILE__, __LINE__, print_r($obj, true));
 		
 		if ($obj == null)
-			throw new Exception("404;Record niet gevonden;");
+            throw new Exception(sprintf("404;Record niet gevonden (%s, '%s');", $this->Naam, json_encode($conditie)));
 		
 		if (!is_null($obj['AANKOMST']))
 			$obj['AANKOMST'] = substr($obj['AANKOMST'] , 0, 5);	// alleen hh:mm

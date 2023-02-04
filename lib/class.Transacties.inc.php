@@ -122,7 +122,7 @@ class Transacties extends Helios
         Debug(__FILE__, __LINE__, print_r($obj, true));
 
         if ($obj == null)
-            throw new Exception("404;Record niet gevonden;");
+            throw new Exception(sprintf("404;Record niet gevonden (%s, '%s');", $this->Naam, json_encode($conditie)));
 
         $obj = $this->RecordToOutput($obj);
         return $obj;
@@ -370,7 +370,7 @@ class Transacties extends Helios
 		$lObj->UpdateObject($ld);
 
 		Debug(__FILE__, __LINE__, sprintf("Transactie toegevoegd id=%d, %s", $id, $LidData['NAAM']));
-        return $id;
+        return $this->GetObject($id);
 	}    
 
 	// haal de banken op die iDeal ondersteunen
@@ -511,7 +511,7 @@ class Transacties extends Helios
 
 		$field = 'EENHEDEN';
 		if (array_key_exists($field, $input))
-			$record[$field] = isNUM($input[$field], $field);
+			$record[$field] = isNUM($input[$field], $field, true);
 
         $field = 'DDWV';
         if (array_key_exists($field, $input))
@@ -519,7 +519,7 @@ class Transacties extends Helios
 
 		$field = 'BEDRAG';
 		if (array_key_exists($field, $input))
-			$record[$field] = isNUM($input[$field], $field);
+			$record[$field] = isNUM($input[$field], $field, true);
 
 		if (array_key_exists('OMSCHRIJVING', $input))
 			$record['OMSCHRIJVING'] = $input['OMSCHRIJVING']; 

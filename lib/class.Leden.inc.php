@@ -235,7 +235,7 @@ class Leden extends Helios
 		Debug(__FILE__, __LINE__, print_r($obj, true));
 
 		if ($obj == null)
-			throw new Exception("404;Record niet gevonden;");
+            throw new Exception(sprintf("404;Record niet gevonden (%s, '%s');", $this->Naam, json_encode($conditie)));
 					
 		$obj = $this->RecordToOutput($obj);
 		$obj = $this->privacyMask($obj, $privacyMasker); // privacy maskering
@@ -268,7 +268,7 @@ class Leden extends Helios
 		}			
 
 		if ($obj == null)
-			throw new Exception("404;Record niet gevonden;");
+            throw new Exception(sprintf("404;Record niet gevonden (%s, '%s');", $this->Naam, $LidNr));
 
 		$obj = $this->RecordToOutput($obj);
 		return $obj;				
@@ -292,7 +292,7 @@ class Leden extends Helios
 		$obj = parent::GetSingleObject($conditie);			
 
 		if ($obj == null)
-			throw new Exception("404;Record niet gevonden;");
+            throw new Exception(sprintf("404;Record niet gevonden (%s, '%s');", $this->Naam, json_encode($conditie)));
 
 		$obj = $this->RecordToOutput($obj);
 		return $obj;				
@@ -769,7 +769,7 @@ class Leden extends Helios
 
 		parent::DbAanpassen($id, $l);
 		if (parent::NumRows() === 0)
-			throw new Exception("404;Record niet gevonden;");				
+            throw new Exception(sprintf("404;Record niet gevonden (%s, '%s');", $this->Naam, $id));			
 		
 		$lid = $this->GetObject($id);
 

@@ -79,6 +79,12 @@ class DDWV
             Debug(__FILE__, __LINE__, sprintf("%s: Rooster bestaat niet", $functie));
             return -1;
         }
+
+        if ($diObj['DDWV'] == false) {
+            Debug(__FILE__, __LINE__, sprintf("%s: Geen DDWV dag", $functie));
+            return -1;
+        }
+
         $rl = MaakObject('Leden');
 
         // op clubdag hoeven de leden niet te betalen, maar DDWV'ers wel
@@ -117,9 +123,9 @@ class DDWV
         $transactie['OMSCHRIJVING'] = sprintf(", vliegdag %02d-%02d-%d", $dateparts[2], $dateparts[1], $dateparts[0]);
 
         $tObj = MaakObject('Transacties');
-        $id = $tObj->AddObject($transactie);
+        $record= $tObj->AddObject($transactie);
 
-        return $id;
+        return $record['ID'];
     }
 
     function AfmeldenLidBijboekenDDWV($afmelding)
