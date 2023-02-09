@@ -647,7 +647,11 @@ class Startlijst extends Helios
                     $l = MaakObject('Login');
 
                     if ($value != $l->getUserFromSession() && !$l->isRapporteur()) {
-                        if (!$this->heeftDataToegang())
+                        if ($l->isBeheerderDDWV())
+                        {
+                            $where .= " AND (DDWV=1)";
+                        }
+                        else if (!$this->heeftDataToegang())
                             throw new Exception("401;Gebruiker mag geen logboek van ander lid opvragen;");
                     }
                     $where .= sprintf(" AND ((VLIEGER_ID = '%d') OR (INZITTENDE_ID = '%d'))", $lidID, $lidID);
@@ -797,7 +801,11 @@ class Startlijst extends Helios
                     $l = MaakObject('Login');
 
                     if ($value != $l->getUserFromSession()) {
-                        if (!$this->heeftDataToegang() && !$l->isRapporteur()) {
+                        if ($l->isBeheerderDDWV())
+                        {
+                            $where .= " AND (DDWV=1)";
+                        }
+                        else if (!$this->heeftDataToegang() && !$l->isRapporteur()) {
                             throw new Exception("401;Gebruiker mag geen logboek van ander lid opvragen;");
                         }
                     }
