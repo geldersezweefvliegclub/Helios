@@ -9,7 +9,7 @@ use PHPMailer\PHPMailer\Exception;
 include "config.php";
 include "functions.php";
 
-$htmlContent = "
+$htmlContentBulk = "
 <html>
 <body style='font-family: Arial, Helvetica, sans-serif; font-size:12px;'>
 
@@ -35,16 +35,47 @@ $htmlContent = "
 
 </body></html>";
 
+$htmlContentSingleID = "
+<html>
+<body style='font-family: Arial, Helvetica, sans-serif; font-size:12px;'>
+
+<p>
+    Beste %s,
+</p>
+<p>
+    Wij hebben <b>%s</b> geregistreerd staan als geldigheidsdatum voor je medical. In de startadministratie staat voor jou een vlucht genoteerd waarbij de medical verlopen is. 
+    We gaan er vanuit dat je profiel nog niet aangepast is met de nieuwe geldigheidsdatum van je medical. Of dat er misschien een verkeerde invoer in de startadministratie is gedaan.
+</p>
+<p>
+    Mocht je echter gevlogen hebben met een verlopen medical, dan verzoeken we contact op the nemen met het CI-MT.
+</p>
+<p> 
+    Bedankt voor de medewerking en met vriendelijke groet,
+</p>
+<p>     
+    De startadministratie  
+</p>
+
+<p>
+    PS: Een kopie van de mail is verzonden aan het CI-MT 
+</p>   
+
+</body></html>";
+
+
 
 $datum = date('Y-m-d');
 $url_args = "TYPES=601,602,603,604&VELDEN=VOORNAAM,NAAM,MEDICAL,EMAIL";
 
 if (isset($_GET['ID'])) {
     $url_args .= "&ID=" . $_GET['ID'];
+    $htmlContent = $htmlContentSingleID;
+
     $criteria = 0;      // alleen bij verlopen medical
 }
 else
 {
+    $htmlContent = $htmlContentBulk;
     $criteria = 61;     // mail als medical binnen 2 maanden verloopt
 }
 
@@ -66,10 +97,10 @@ else
     foreach ($leden['dataset'] as $lid)
     {
         if (!isset($lid['MEDICAL'])) continue;    // geen medical datum bekend
-        $nu = time();
-        $medical = strtotime($lid['MEDICAL']);
 
-        $diffDays = ($medical - $nu) / (60*60*24);
+        $nu = new DateTime();
+        $medical = new DateTime($lid['MEDICAL']);
+        $diffDays = 1*$nu->diff($medical)->format('%a');	// total days between the two times
 
         if ($diffDays < $criteria)
         {
@@ -78,7 +109,11 @@ else
 
             $mail->Subject = 'Geldigheid medical';
             $mail->isHTML(true);                                  		
-            $mail->Body = sprintf($htmlContent, $lid['VOORNAAM'], gmdate("d-m-Y", $medical));
+            $mail->Body = sprintf($htmlContent, $lid['VOORNAAM'], $medical->format('d-m-Y'));
+
+            if (isset($_GET['ID'])) {
+                $mail->addCC($cimt['EMAIL'], $cimt['NAAM']);
+            }
 
             $mail->addReplyTo($smtp_settings['from'], $smtp_settings['name']);
             $mail->SetFrom($smtp_settings['from'], $smtp_settings['name']);
@@ -86,7 +121,6 @@ else
             if(!$mail->Send()) {
                 print_r($mail);
             }
-            die;
         }
     }
 }
