@@ -490,18 +490,15 @@ class Types extends Helios
 		global $app_settings;
 
 		$functie = "Types.GetClubVliegtuigenTypes";
-		Debug(__FILE__, __LINE__, sprintf("%s()", $functie));		
-		
-		$where = ' WHERE ID IN (SELECT TYPE_ID FROM ref_vliegtuigen WHERE CLUBKIST=1)  ';
-		$alleenLaatsteAanpassing = false;
-		$hash = null;
+		Debug(__FILE__, __LINE__, sprintf("%s()", $functie));
 
+		$where = ' WHERE ID IN (SELECT TYPE_ID FROM ref_vliegtuigen WHERE VERWIJDERD=0 AND CLUBKIST=1)  ';
 			
 		$query = "
 			SELECT 
 				%s
 			FROM
-				`types_view` " . $where;
+				`types_view` " . $where . " ORDER BY SORTEER_VOLGORDE";
 		
 		$retVal = array();
 
@@ -509,29 +506,17 @@ class Types extends Helios
 		$retVal['laatste_aanpassing']=  $this->LaatsteAanpassing($query);
 		Debug(__FILE__, __LINE__, sprintf("TOTAAL=%d, LAATSTE_AANPASSING=%s", $retVal['totaal'], $retVal['laatste_aanpassing']));	
 
-		if ($alleenLaatsteAanpassing)
-		{
-			$retVal['dataset'] = null;
-			return $retVal;
-		}
-		else
-		{			
-			parent::DbOpvraag(sprintf($query, "*"));
-			$retVal['dataset'] = parent::DbData();
-			
-			$retVal['hash'] = hash("crc32", json_encode($retVal));
-			Debug(__FILE__, __LINE__, sprintf("HASH=%s", $retVal['hash']));	
+        parent::DbOpvraag(sprintf($query, "*"));
+        $retVal['dataset'] = parent::DbData();
 
-			if ($retVal['hash'] == $hash)
-				throw new Exception(sprintf("%d;Dataset ongewijzigd;", $app_settings['dataNotModified']));
+        $retVal['hash'] = hash("crc32", json_encode($retVal));
+        Debug(__FILE__, __LINE__, sprintf("HASH=%s", $retVal['hash']));
 
-			for ($i=0 ; $i < count($retVal['dataset']) ; $i++)
-			{
-				$retVal['dataset'][$i] = $this->RecordToOutput($retVal['dataset'][$i]);
-			}
-			return $retVal;
-		}
-		return null;  // Hier komen we nooit :-)
+        for ($i=0 ; $i < count($retVal['dataset']) ; $i++)
+        {
+            $retVal['dataset'][$i] = $this->RecordToOutput($retVal['dataset'][$i]);
+        }
+        return $retVal;
 	}	
 
 
