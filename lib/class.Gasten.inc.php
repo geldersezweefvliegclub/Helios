@@ -308,9 +308,6 @@ class Gasten extends Helios
 	{
 		$functie = "Gasten.VerwijderObject";
 		Debug(__FILE__, __LINE__, sprintf("%s('%s', %s)", $functie, $id, (($verificatie === false) ? "False" :  $verificatie)));
-		
-		if (!$this->heeftDataToegang(null, false))
-			throw new Exception("401;Geen schrijfrechten;");
 
 		if ($id === null)
 			throw new Exception("406;Geen ID in aanroep;");

@@ -43,7 +43,7 @@ $htmlContentSingleID = "
     Beste %s,
 </p>
 <p>
-    Wij hebben <b>%s</b> geregistreerd staan als geldigheidsdatum voor je medical. In de startadministratie staat voor jou een vlucht genoteerd waarbij de medical verlopen is. 
+    Wij hebben <b>%s</b> geregistreerd staan als geldigheidsdatum voor je medical. In de startadministratie staat voor jou een vlucht genoteerd waarbij je medical verlopen is. 
     We gaan er vanuit dat je profiel nog niet aangepast is met de nieuwe geldigheidsdatum van je medical. Of dat er misschien een verkeerde invoer in de startadministratie is gedaan.
 </p>
 <p>
@@ -94,13 +94,14 @@ else
 {
     $leden = json_decode($body, true);
 
+    echo json_encode($leden);
     foreach ($leden['dataset'] as $lid)
     {
         if (!isset($lid['MEDICAL'])) continue;    // geen medical datum bekend
 
         $nu = new DateTime();
         $medical = new DateTime($lid['MEDICAL']);
-        $diffDays = 1*$nu->diff($medical)->format('%a');	// total days between the two times
+        $diffDays = 1*$nu->diff($medical)->format('%r%a');	// total days between the two times
 
         if ($diffDays < $criteria)
         {
@@ -117,6 +118,8 @@ else
 
             $mail->addReplyTo($smtp_settings['from'], $smtp_settings['name']);
             $mail->SetFrom($smtp_settings['from'], $smtp_settings['name']);
+
+            printf("%s %s: medical geldigheid %s <br>\n", date("d-m-Y"), $leden['NAAM'], $lid['MEDICAL']);
 
             if(!$mail->Send()) {
                 print_r($mail);

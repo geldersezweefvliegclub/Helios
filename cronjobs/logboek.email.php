@@ -313,6 +313,8 @@ else
         $mail->addReplyTo($smtp_settings['from'], $smtp_settings['name']);
         $mail->SetFrom($smtp_settings['from'], $smtp_settings['name']);
 
+        printf("%s %s: %d vluchten <br>\n", date("d-m-Y"), $lidData['NAAM'], $vluchten['totaal']);
+
         if(!$mail->Send()) {
             print_r($mail);
         }
@@ -322,7 +324,8 @@ else
         $server = $_SERVER['SERVER_NAME'];
         $port = ($_SERVER['SERVER_PORT'] && ($protocol != 'https://')) ? ':'.$_SERVER['SERVER_PORT'] : '';
 
-        file_get_contents($protocol.$server.$port . "/cronjobs/medical_verlopen.php?ID=" . $lidData['ID']);
+        $url = $protocol.$server.$port . "/cronjobs/medical_verlopen.php?ID=" . $lidData['ID'];
+        echo file_get_contents($url);
 
         // stuur een mail als medical niet is ingevoerd
         // 601 = Erelid
@@ -335,6 +338,8 @@ else
             $mail->Subject = 'Medical';
             $mail->Body    = sprintf($htmlGeenMedical, $lidData['VOORNAAM']);
             $mail->addCC($cimt['EMAIL'], $cimt['NAAM']);
+
+            printf("%s %s: Geen medical <br>\n", date("d-m-Y"), $lidData['NAAM']);
 
             if(!$mail->Send()) {
                 print_r($mail);
@@ -358,6 +363,7 @@ else
             $mail->Body    = sprintf($htmlOnbevoegd, $lidData['VOORNAAM'], $callsigns);
             $mail->addCC($cimt['EMAIL'], $cimt['NAAM']);
 
+            printf("%s %s: %s <br>\n", date("d-m-Y"), $lidData['NAAM'], $callsigns);
             if(!$mail->Send()) {
                 print_r($mail);
             }

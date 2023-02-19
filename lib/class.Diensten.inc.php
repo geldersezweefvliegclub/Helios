@@ -652,8 +652,9 @@ class Diensten extends Helios
 		}
 
 		$ddb = $this->GetObject($id);
-		if (!$this->heeftDataToegang($ddb['DATUM']) && !$this->heeftDataToegang($datum) && !$l->isRooster())
+		if (!$l->isBeheerder() && !$l->isBeheerderDDWV() && !$l->isRooster())
 		{
+            Debug(__FILE__, __LINE__, sprintf("%s: Geen speciale rol ingelogd=%s", $functie, $l->getUserFromSession()));
 			// we hebben geen speciale rol, dus mag je niet altijd wijzigen
 
 			// bestaand record moet dienst van ingelogde gebruiker zijn
@@ -667,12 +668,15 @@ class Diensten extends Helios
 			$datetime1 = new DateTime($ddb['DATUM']);
 			$now = new DateTime();
 			
-			$days = 1*$now->diff($datetime1)->format('%a');	// total days between the two times
+			$days = 1*$now->diff($datetime1)->format('%r%a');	// total days between the two times
 
-			if ($days > 60) {	// tot 2 maanden mag je sowieso wijzgen
+            Debug(__FILE__, __LINE__, sprintf("%s: dagen=%s", $functie, $days));
+
+			if ($days < 60) {	// tot 2 maanden mag je sowieso wijzgen
 				$datetime1 = new DateTime($ddb['LAATSTE_AANPASSING']);
 
                 $hours = 1*$now->diff($datetime1)->format('%h');	// hours between the two times
+                Debug(__FILE__, __LINE__, sprintf("%s: uren=%s", $functie, $hours));
 
 				if ($hours > 4)	{	// tot 4 uur mag je aanpassen
 					throw new Exception("401;Geen schrijfrechten (4);");
