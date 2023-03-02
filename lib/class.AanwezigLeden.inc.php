@@ -1004,7 +1004,7 @@ class AanwezigLeden extends Helios
             $aanmelding = $aanmeldingen['dataset'][$i];
             Debug(__FILE__, __LINE__, sprintf("%s aanmelding=%s", $functie, json_encode($aanmelding)));
 
-            $tArray= explode(".", $aanmelding['VOORKEUR_VLIEGTUIG_TYPE']);
+            $tArray= explode(",", $aanmelding['VOORKEUR_VLIEGTUIG_TYPE']);
             for ($t=0 ; $t < count($typesAangevraagd); $t++)
             {
                 //Debug(__FILE__, __LINE__, sprintf("%s id=%s %s", $functie, $t[$i]['id'], print_r($t, true)));
