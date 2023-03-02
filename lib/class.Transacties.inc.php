@@ -409,6 +409,12 @@ class Transacties extends Helios
         $LidData = $lObj->getObject($lidID);
         $bestelInfo = $tObj->getObject($bestellingID);
 
+        HeliosLog(__FILE__, __LINE__, sprintf("%s: ---------- Start transactie ----------", $functie));
+        HeliosLog(__FILE__, __LINE__, sprintf("%s: %s %s %s",
+                $functie, $LidData['NAAM'],
+                print_r($bestelInfo, true),
+                print_r($TransactieData, true)));
+
         $startPaymentResult = DigiWallet\Transaction::model("Ideal")
             ->outletId($iDeal['outletId'])
             ->amount(100 * $bestelInfo['BEDRAG'])
@@ -421,7 +427,8 @@ class Transacties extends Helios
 
         if (isset($startPaymentResult->error))
         {
-            HeliosError(__FILE__, __LINE__, $startPaymentResult->error);
+            HeliosLog(__FILE__, __LINE__, sprintf("%s: %s ", $functie, $startPaymentResult->error));
+            HeliosLog(__FILE__, __LINE__, sprintf("%s: ---------- ERROR transactie ----------", $functie));
             throw new Exception("500;" . $startPaymentResult->error . ";");
         }
         $record = array();
@@ -436,6 +443,9 @@ class Transacties extends Helios
         $record['EXT_REF'] = $startPaymentResult->transactionId;
 
         $id = parent::DbToevoegen($record);
+        HeliosLog(__FILE__, __LINE__, sprintf("%s: %s %s %s",
+            $functie, $id, $startPaymentResult->url,
+            print_r($record, true)));
 
         Debug(__FILE__, __LINE__, sprintf("%s url=%s", $functie, $startPaymentResult->url));
         return $startPaymentResult->url;
@@ -449,6 +459,7 @@ class Transacties extends Helios
         global $iDeal;
 
         $functie = "Transacties.ValideerIDealTransactie";
+        HeliosLog(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($PaymentResult, true)));
         Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($PaymentResult, true)));
 
         $dbData = $this->GetObject(null, $PaymentResult['trxid']);
@@ -459,6 +470,9 @@ class Transacties extends Helios
         // check of bedrag is aangepast
         if (1*$dbData['BEDRAG'] != 1*$PaymentResult['amount'])
         {
+            HeliosLog(__FILE__, __LINE__, sprintf("%s: Bedrag ongelijk %d %d", $functie, 1*$dbData['BEDRAG'], 1*$PaymentResult['amount']));
+            HeliosLog(__FILE__, __LINE__, sprintf("%s: ---------- ERROR transactie ----------", $functie));
+
             $dbData['REFERENTIE'] = print_r($PaymentResult, true);
             parent::DbAanpassen($dbData['ID'], $dbData);
             parent::MarkeerAlsVerwijderd($dbData['ID']);
@@ -470,10 +484,12 @@ class Transacties extends Helios
             ->check();
 
         Debug(__FILE__, __LINE__, sprintf("%s checkPaymentResult %s", $functie, print_r($checkPaymentResult, true)));
+        HeliosLog(__FILE__, __LINE__, sprintf("%s: checkPaymentResult %s", $functie, print_r($checkPaymentResult, true)));
 
         if ($checkPaymentResult->status !== true)
         {
-            HeliosError(__FILE__, __LINE__, $checkPaymentResult->error);
+            HeliosLog(__FILE__, __LINE__, sprintf("%s: Payment result: %s", $functie, $checkPaymentResult->error));
+            HeliosLog(__FILE__, __LINE__, sprintf("%s: ---------- ERROR transactie ----------", $functie));
             throw new Exception("500;" . $checkPaymentResult->error . ";");
         }
 
@@ -488,10 +504,14 @@ class Transacties extends Helios
         $dbData['EXT_REF'] =  $PaymentResult['idealtrxid'];
         parent::DbAanpassen($dbData['ID'], $dbData);
 
+        HeliosLog(__FILE__, __LINE__, sprintf("%s: Transactie : %s", $functie, print_r($dbData, true)));
+
         // update saldo in profiel
         $ld['ID'] = $dbData['LID_ID'];
         $ld['TEGOED'] = $dbData['SALDO_NA'];
         $lObj->UpdateObject($ld);
+
+        HeliosLog(__FILE__, __LINE__, sprintf("%s: ---------- Afgerond ----------", $functie));
     }
 
     /*

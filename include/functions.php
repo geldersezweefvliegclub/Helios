@@ -88,6 +88,27 @@ if (!function_exists('HeliosError'))
     }
 }
 
+// De debug functie, schrijft niets als de globale setting UIT staat
+if (!function_exists('HeliosLog'))
+{
+	function HeliosLog($file, $line, $text)
+	{
+		global $app_settings;
+
+		$arrStr = explode("/", $file);
+		$arrStr = array_reverse($arrStr );
+		$arrStr = explode("\\", $arrStr[0]);
+		$arrStr = array_reverse($arrStr );
+
+		$toLog = sprintf("%s: %s (%d), %s\n", date("Y-m-d H:i:s"), $arrStr[0], $line, $text);
+
+		if ($app_settings['LogDir'] == "syslog")
+			error_log($toLog);
+		else
+			error_log($toLog, 3, $app_settings['LogDir'] . "log.txt");
+	}
+}
+
 // Is de waarde een CSV string met integers
 function isCSV($value, $veld = false, $nullToegestaan = false)
 {
