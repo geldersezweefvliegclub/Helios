@@ -41,7 +41,7 @@ $htmlContent = "
 </body></html>";
 
 $schemaClub = "De ochtenddienst vangt aan om 8:30 en wordt om 14:00 overgedragen naar de middagploeg. De overlap instructeur wordt om 11:00 op het veld verwacht.";
-$schemaDDWV = "DDWV dagen beginnen we om 9:00 en eindigd de dienst om 15:00";
+$schemaDDWV = "DDWV dagen beginnen we om 9:00 en eindigt de dienst om 15:00";
 
 $datum = Date('Y-m-d', strtotime('+3 days'));
 $url_args = "DATUM=$datum";
