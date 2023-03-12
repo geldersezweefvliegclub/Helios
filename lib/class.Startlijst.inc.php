@@ -646,7 +646,7 @@ class Startlijst extends Helios
                     // privacy check
                     $l = MaakObject('Login');
 
-                    if ($value != $l->getUserFromSession() && !$l->isRapporteur()) {
+                    if ($value != $l->getUserFromSession() && !$l->isRapporteur() && $l->isBeheerder()) {
                         if ($l->isBeheerderDDWV())
                         {
                             $where .= " AND (DDWV=1)";
@@ -2139,7 +2139,6 @@ class Startlijst extends Helios
         $functie = "Startlijst.InstructieVlucht";
         Debug(__FILE__, __LINE__, sprintf("%s(%s, %s)", $functie, print_r($input, true), print_r($record, true)));
 
-
         $retVal = $record;
 
         $zitplaatsen = -1;
@@ -2222,7 +2221,6 @@ class Startlijst extends Helios
         $field = 'INZITTENDE_ID';
         if (array_key_exists($field, $input))
             $record[$field] = isINT($input[$field], $field, true, 'Leden');
-
 
         if (array_key_exists('VLIEGERNAAM', $input))
             $record['VLIEGERNAAM'] = $input['VLIEGERNAAM'];
