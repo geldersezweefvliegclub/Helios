@@ -505,7 +505,25 @@ class AanwezigLeden extends Helios
 			Debug(__FILE__, __LINE__, sprintf("%s: rooster = %s)", $functie, print_r($rooster, true)));	
 			// klaar met rooster ophalen
 
-			for ($i=0; $i < count($retVal['dataset']) ; $i++) 
+            // diensten ophalen en check of de inglogde gebruiker dienst heeft als veldleider op een DDWV dag
+            // Als hij dienst heeft, dan geen privacy mask
+            $d = MaakObject('Diensten');
+            $dobjs = $d->GetObjects(array (
+                'BEGIN_DATUM' => $beginDatum,
+                'EIND_DATUM' => $eindDatum,
+                'LID_ID' => $l->getUserFromSession()
+            ));
+
+            $datumZonderPrivacy = array();
+            foreach ($dobjs['dataset'] as $dienst)
+            {
+                if ($rooster[$dienst['DATUM']]['DDWV'])
+                    array_push($datumZonderPrivacy, $dienst['DATUM']);
+            }
+            Debug(__FILE__, __LINE__, sprintf("%s: datumZonderPrivacy = %s)", $functie, print_r($datumZonderPrivacy, true)));
+            // klaar
+
+            for ($i=0; $i < count($retVal['dataset']) ; $i++)
 			{
 				if (array_key_exists('REG_CALL', $retVal['dataset'][$i]))
 				{
@@ -521,10 +539,13 @@ class AanwezigLeden extends Helios
 				}
 				
 				$opmerking = isset($retVal['dataset'][$i]['OPMERKINGEN']) ? $retVal['dataset'][$i]['OPMERKINGEN'] : null;
-				$retVal['dataset'][$i] = $this->RecordToOutput($retVal['dataset'][$i]);	
-				$retVal['dataset'][$i] = $this->privacyMask($retVal['dataset'][$i], $privacyMasker || $verberg);	// privacy mask voor aanmeldingen
-				$retVal['dataset'][$i] = $rl->privacyMask($retVal['dataset'][$i], $privacyMasker);				// deze functie verwijderd OPMERKING
-				$retVal['dataset'][$i]['OPMERKINGEN'] = $opmerking;												// en zo lossen we dat op
+				$retVal['dataset'][$i] = $this->RecordToOutput($retVal['dataset'][$i]);
+
+                if (!in_array($retVal['dataset'][$i]['DATUM'], $datumZonderPrivacy)) {
+                    $retVal['dataset'][$i] = $this->privacyMask($retVal['dataset'][$i], $privacyMasker || $verberg);    // privacy mask voor aanmeldingen
+                    $retVal['dataset'][$i] = $rl->privacyMask($retVal['dataset'][$i], $privacyMasker);                          // deze functie verwijderd OPMERKING
+                    $retVal['dataset'][$i]['OPMERKINGEN'] = $opmerking;                                                         // en zo lossen we dat op
+                }
 
 				$l = MaakObject('Login');
 				if ((($l->isBeheerder() === true)  || ($l->isInstructeur() === true) || ($l->isCIMT() === true)) && 
