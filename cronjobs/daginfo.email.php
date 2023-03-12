@@ -17,12 +17,11 @@ $htmlContent = "
     Hallo,
 </p>
 <p>
-    Je bent geabbonneerd op de dag rapporten mailing lijst. Hierbij ontvangt u het dagrapport <b>[DATUM]</b>
+    Je bent geabonneerd op de dag rapporten mailing lijst. Hierbij ontvangt u het dagrapport <b>[DATUM]</b>
 </p>
 
-<h1>Algemene informatie</h1>
+<h3>Algemene informatie</h3>
 <p>
-    
     <table>
         <tr><td>Vliegveld :</td><td>[VLIEGVELD]</td></tr>
         <tr><td>Strip :</td><td>[STRIP]</td></tr>
@@ -31,37 +30,31 @@ $htmlContent = "
     </table>
 </p>
 
-<h1>Aanwezigheid diensten</h1>
+<h3>Aanwezigheid diensten</h3>
 <p>
     [AANWEZIGHEID]
 </p>
 
-<h1>Meteo</h1>
 <p>
-    [METEO]
+Op [dd-mm-yyyy] om [hh:mm] schreef [DR_AUTHOR] dagrapport voor vliegveld [DR_STRIP]
 </p>
 
-<h1>Vliegbedrijf</h1>
-<p>
-    [VLIEGBEDRIJF]
-</p>
-
-<h1>Vliegend materieel</h1>
+<h3>Vliegend materieel</h3>
 <p>
     [VLIEGEND]
 </p>
 
-<h1>Rollend materieel</h1>
+<h3>Rollend materieel</h3>
 <p>
     [ROLLEND]
 </p>
 
-<h1>Verslag</h1>
+<h3>Verslag</h3>
 <p>
     [VERSLAG]
 </p>
 
-<h1>Incidenten</h1>
+<h3>Incidenten</h3>
 <p>
     [INCIDENTEN]
 </p>
@@ -113,7 +106,7 @@ foreach ($leden['dataset']as $lid) {
 }
 
 $datum = date('Y-m-d');
-$url_args = "DATUM=$datum&TABEL=oper_daginfo";
+$url_args = "DATUM=$datum&TABEL=oper_dagrapporten";
 heliosInit("Audit/GetObjects?" . $url_args);
 
 $result      = curl_exec($curl_session);
@@ -144,9 +137,10 @@ else
     {
         $resultaat = json_decode(preg_replace('/\r|\n/', '<br>', trim($record['RESULTAAT'])), true);
 
-        if (in_array($resultaat['DATUM'], $verzonden))
+        if (in_array($resultaat['ID'], $verzonden))
             continue;       // datum is al een keer verzonden
 
+        // Ophalen DagInfo
         $url_args = "DATUM=" . $resultaat['DATUM'];
         heliosInit("Daginfo/GetObjects?" . $url_args);
 
@@ -157,23 +151,28 @@ else
         if ($status_code != 200) // We verwachten een status code van 200
         {
             emailError($result);
-            continue;   
+            continue;
         }
 
-        $dagInfo = json_decode($body, true); 
+        $dagInfo = json_decode($body, true);
+
         $d = explode("-", $dagInfo['dataset'][0]['DATUM']);
         $datumString = sprintf("%02d-%02d-%s", $d[2]*1, $d[1]*1, $d[0]);
 
-        $doorgaan = false;
-        if (!empty($dagInfo['dataset'][0]['METEO']))                $doorgaan = true;
-        if (!empty($dagInfo['dataset'][0]['VLIEGBEDRIJF']))         $doorgaan = true;
-        if (!empty($dagInfo['dataset'][0]['VLIEGENDMATERIEEL']))    $doorgaan = true;
-        if (!empty($dagInfo['dataset'][0]['ROLLENDMATERIEEL']))     $doorgaan = true;
-        if (!empty($dagInfo['dataset'][0]['VERSLAG']))              $doorgaan = true;
-        if (!empty($dagInfo['dataset'][0]['INCIDENTEN']))           $doorgaan = true;
+        // Ophalen dag rapport
+        $url_args = "ID=" . $resultaat['ID'];
+        heliosInit("DagRapporten/GetObjects?" . $url_args);
 
-        if (!$doorgaan)         // er is geen zinnige info 
-            continue;
+        $result      = curl_exec($curl_session);
+        $status_code = curl_getinfo($curl_session, CURLINFO_HTTP_CODE); //get status code
+        list($header, $body) = returnHeaderBody($result);
+
+        if ($status_code != 200) // We verwachten een status code van 200
+        {
+            emailError($result);
+            continue;   
+        }
+        $dagRapport = json_decode($body, true);
 
         $htmlBody = $htmlContent;
         $htmlBody =  str_replace("[DATUM]",$datumString, $htmlBody);
@@ -181,12 +180,20 @@ else
         $htmlBody =  str_replace("[STRIP]",$dagInfo['dataset'][0]['BAAN_OMS'], $htmlBody);
         $htmlBody =  str_replace("[STARTMETHODE]",$dagInfo['dataset'][0]['STARTMETHODE_OMS'], $htmlBody);
         $htmlBody =  str_replace("[AANWEZIGHEID]",$dagInfo['dataset'][0]['DIENSTEN'], $htmlBody);
-        $htmlBody =  str_replace("[METEO]",$dagInfo['dataset'][0]['METEO'], $htmlBody);
-        $htmlBody =  str_replace("[VLIEGBEDRIJF]",$dagInfo['dataset'][0]['VLIEGBEDRIJF'], $htmlBody);
-        $htmlBody =  str_replace("[VLIEGEND]",$dagInfo['dataset'][0]['VLIEGENDMATERIEEL'], $htmlBody);
-        $htmlBody =  str_replace("[ROLLEND]",$dagInfo['dataset'][0]['ROLLENDMATERIEEL'], $htmlBody);
-        $htmlBody =  str_replace("[VERSLAG]",$dagInfo['dataset'][0]['VERSLAG'], $htmlBody);
-        $htmlBody =  str_replace("[INCIDENTEN]",$dagInfo['dataset'][0]['INCIDENTEN'], $htmlBody);
+
+        $laatsteAanpassing = explode(' ', $dagRapport['dataset'][0]['LAATSTE_AANPASSING']);
+        $datumParts = explode('-', $laatsteAanpassing[0]);
+        $hhmm = substr($laatsteAanpassing[1], 0, 5);
+
+        $htmlBody =  str_replace("[hh:mm]",$hhmm, $htmlBody);
+        $htmlBody =  str_replace("[dd-mm-yyyy]", sprintf("%s-%s-%s", $datumParts[2], $datumParts[1], $datumParts[0]), $htmlBody);
+        $htmlBody =  str_replace("[DR_AUTHOR]",$dagRapport['dataset'][0]['INGEVOERD'], $htmlBody);
+        $htmlBody =  str_replace("[DR_STRIP]",$dagRapport['dataset'][0]['VELD_OMS'], $htmlBody);
+
+        $htmlBody =  str_replace("[VLIEGEND]",$dagRapport['dataset'][0]['VLIEGENDMATERIEEL'], $htmlBody);
+        $htmlBody =  str_replace("[ROLLEND]",$dagRapport['dataset'][0]['ROLLENDMATERIEEL'], $htmlBody);
+        $htmlBody =  str_replace("[VERSLAG]",$dagRapport['dataset'][0]['VERSLAG'], $htmlBody);
+        $htmlBody =  str_replace("[INCIDENTEN]",$dagRapport['dataset'][0]['INCIDENTEN'], $htmlBody);
 
         $bedrijf = "";
         $bedrijf .= ($dagInfo['dataset'][0]['DDWV'] == true) ? "DDWV" : "";
@@ -213,7 +220,7 @@ else
             print_r($mail);
         }
 
-        array_push($verzonden, $dagInfo['dataset'][0]['DATUM']);
+        array_push($verzonden, $dagInfo['dataset'][0]['ID']);
 
     }
 }
