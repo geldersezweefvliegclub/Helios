@@ -514,7 +514,11 @@ components:
         CLUBBLAD_POST:
           description: Moet clubblad per post verstuurd worden    
           type: boolean
-          example: true    
+          example: true
+        ZELFSTART_ABONNEMENT:
+          description: Is zelfstart afgekocht
+          type: boolean
+          example: true
         EMAIL_DAGINFO:
           description: Verstuur het dagrapport per email    
           type: boolean

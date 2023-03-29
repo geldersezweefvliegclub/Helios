@@ -750,10 +750,10 @@ class AanwezigLeden extends Helios
 	/*
 	Aanmelden van een lid
 	*/
-	function Aanmelden($AanmeldenLedenData)
+	function Aanmelden($AanmeldenLedenData, $startData = null)
 	{
 		$functie = "AanwezigLeden.Aanmelden";
-		Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($AanmeldenLedenData, true)));
+		Debug(__FILE__, __LINE__, sprintf("%s(%s, %s)", $functie, print_r($AanmeldenLedenData, true), print_r($startData, true)));
 
 		if ($AanmeldenLedenData == null)
 			throw new Exception("406;AanmeldenLedenData data moet ingevuld zijn;");	
@@ -801,7 +801,7 @@ class AanwezigLeden extends Helios
 			if (array_key_exists('VOORKEUR_VLIEGTUIG_TYPE', $AanmeldenLedenData))
 			{
 				$aanmeldType = $AanmeldenLedenData['VOORKEUR_VLIEGTUIG_TYPE'];	// voorkeur type uit aanmelding 
-				$dbType = $db_data['VOORKEUR_VLIEGTUIG_TYPE'];				// voorkeur type uit database
+				$dbType = $db_data['VOORKEUR_VLIEGTUIG_TYPE'];				    // voorkeur type uit database
 
 				$a = explode(',',$dbType);
 
@@ -855,7 +855,7 @@ class AanwezigLeden extends Helios
 			{
                 // We zijn nu bijna klaar om aanmelding op te slaan in de database, maar voor DDWV moeten we strippen afschrijven
                 $ddwv = MaakObject('DDWV');
-                $transactieId = $ddwv->AanmeldenLidAfboekenDDWV($AanmeldenLedenData);
+                $transactieId = $ddwv->AanmeldenLidAfboekenDDWV($AanmeldenLedenData, $startData);
 
                 if ($transactieId >= 0)
                     $AanmeldenLedenData['TRANSACTIE_ID'] = $transactieId;
@@ -900,7 +900,7 @@ class AanwezigLeden extends Helios
 
         // We zijn nu bijna klaar om aanmelding op te slaan in de database, maar voor DDWV moeten we strippen afschrijven
         $ddwv = MaakObject('DDWV');
-        $id = $ddwv->AanmeldenLidAfboekenDDWV($AanmeldenLedenData);
+        $id = $ddwv->AanmeldenLidAfboekenDDWV($AanmeldenLedenData, $startData);
 
         if ($id >= 0)
             $AanmeldenLedenData['TRANSACTIE_ID'] = $id;

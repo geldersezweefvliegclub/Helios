@@ -47,12 +47,12 @@ class DDWV
         return ($weekday <= 5) ? true : false;
     }
 
-    function AanmeldenLidAfboekenDDWV($aanmelding)
+    function AanmeldenLidAfboekenDDWV($aanmelding, $startData)
     {
         global $ddwv;
 
         $functie = "DDWV.AanmeldenLidAfboekenDDWV";
-        Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($aanmelding, true)));
+        Debug(__FILE__, __LINE__, sprintf("%s(%s, %s)", $functie, print_r($aanmelding, true), print_r($startData, true)));
         Debug(__FILE__, __LINE__, sprintf("%s: DDWV=%s", $functie, print_r($ddwv, true)));
 
         if (!isset($ddwv)) {
@@ -86,11 +86,22 @@ class DDWV
         }
 
         $rl = MaakObject('Leden');
+        $lid = $rl->GetObject($aanmelding['LID_ID']);
 
         // op clubdag hoeven de leden niet te betalen, maar DDWV'ers wel
-        if ($diObj['CLUB_BEDRIJF'] == true && $rl->isClubVlieger($aanmelding['LID_ID'])) {
+        if ($diObj['CLUB_BEDRIJF'] == true && $rl->isClubVlieger(null, $lid)) {
             Debug(__FILE__, __LINE__, sprintf("%s: Club bedrijf en club vlieger, dus geen DDWV", $functie));
             return -1;
+        }
+
+        // check zelfstart abonnement
+        if ($startData != null)
+        {
+            if (($startData['STARTMETHODE_ID'] == 506) && ($lid['ZELFSTART_ABONNEMENT']))          // 506 = zelfstart
+            {
+                Debug(__FILE__, __LINE__, sprintf("%s: Zelfstart afgekocht", $functie));
+                return -1;
+            }
         }
 
         $dagen = (strtotime($aanmelding['DATUM']) - strtotime(date("Y-m-d"))) / (60 * 60 * 24);

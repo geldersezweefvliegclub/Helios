@@ -55,6 +55,7 @@ class Leden extends Helios
 				`RAPPORTEUR` tinyint UNSIGNED NOT NULL DEFAULT 0,
 				`GASTENVLIEGER` tinyint UNSIGNED NOT NULL DEFAULT 0,
 				`CLUBBLAD_POST` tinyint UNSIGNED NOT NULL DEFAULT 0,
+				`ZELFSTART_ABONNEMENT` tinyint UNSIGNED NOT NULL DEFAULT 0,
 				`MEDICAL` date DEFAULT NULL,
 				`GEBOORTE_DATUM` date DEFAULT NULL,
 				`INLOGNAAM` varchar(45) DEFAULT NULL,
@@ -1232,6 +1233,10 @@ class Leden extends Helios
 			if (array_key_exists($field, $input))
 				$record[$field] = isBOOL($input[$field], $field);
 
+            $field = 'ZELFSTART_ABONNEMENT';
+			if (array_key_exists($field, $input))
+                $record[$field] = isBOOL($input[$field], $field);
+
 			$field = 'GEBOORTE_DATUM';
 			if (array_key_exists($field, $input))
 				$record[$field]= isDATE($input[$field], $field, true);	
@@ -1384,9 +1389,12 @@ class Leden extends Helios
 
 		if (isset($record['SLEEPVLIEGER']))
 			$retVal['SLEEPVLIEGER']  = $record['SLEEPVLIEGER'] == "1" ? true : false;
-			
+
 		if (isset($record['CLUBBLAD_POST']))
 			$retVal['CLUBBLAD_POST']  = $record['CLUBBLAD_POST'] == "1" ? true : false;
+
+        if (isset($record['ZELFSTART_ABONNEMENT']))
+            $retVal['ZELFSTART_ABONNEMENT']  = $record['ZELFSTART_ABONNEMENT'] == "1" ? true : false;
 
 		if (isset($record['RAPPORTEUR']))
 			$retVal['RAPPORTEUR']  = $record['RAPPORTEUR'] == "1" ? true : false;	

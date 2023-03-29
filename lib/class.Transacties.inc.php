@@ -468,14 +468,16 @@ class Transacties extends Helios
         $l->setSessionUser($dbData['LID_ID']);    // deze functie wordt zonder inloggen aangeroepen, dus vertellen wie we zijn
 
         // check of bedrag is aangepast
-        if (1*$dbData['BEDRAG'] != 1*$PaymentResult['amount'])
+        if (1*$dbData['BEDRAG']*100 != 1*$PaymentResult['amount'])
         {
-            HeliosLog(__FILE__, __LINE__, sprintf("%s: Bedrag ongelijk %d %d", $functie, 1*$dbData['BEDRAG'], 1*$PaymentResult['amount']));
+            HeliosLog(__FILE__, __LINE__, sprintf("%s: Bedrag ongelijk %d %d", $functie, 1*$dbData['BEDRAG']*100, 1*$PaymentResult['amount']));
             HeliosLog(__FILE__, __LINE__, sprintf("%s: ---------- ERROR transactie ----------", $functie));
 
             $dbData['REFERENTIE'] = print_r($PaymentResult, true);
             parent::DbAanpassen($dbData['ID'], $dbData);
             parent::MarkeerAlsVerwijderd($dbData['ID']);
+
+            throw new Exception("500;" . sprintf("%s: Bedrag ongelijk %d %d", $functie, 1*$dbData['BEDRAG']*100, 1*$PaymentResult['amount']) . ";");
         }
 
         $checkPaymentResult = DigiWallet\Transaction::model("Ideal")
@@ -490,6 +492,11 @@ class Transacties extends Helios
         {
             HeliosLog(__FILE__, __LINE__, sprintf("%s: Payment result: %s", $functie, $checkPaymentResult->error));
             HeliosLog(__FILE__, __LINE__, sprintf("%s: ---------- ERROR transactie ----------", $functie));
+
+            $dbData['REFERENTIE'] = print_r($PaymentResult, true);
+            parent::DbAanpassen($dbData['ID'], $dbData);
+            parent::MarkeerAlsVerwijderd($dbData['ID']);
+
             throw new Exception("500;" . $checkPaymentResult->error . ";");
         }
 

@@ -1970,10 +1970,14 @@ class Startlijst extends Helios
         $record['DATUM'] = $startData['DATUM'];
         $record['VELD_ID'] = $startData['VELD_ID'];
 
+        if (1*$record['VELD_ID'] == 904)                // 904 Elders, dus niet aanmelden
+            return;
+
         $aLeden = MaakObject('AanwezigLeden');
         if (array_key_exists('VLIEGER_ID', $startData)) {
             if (isINT($startData['VLIEGER_ID']) !== false) {
                 Debug(__FILE__, __LINE__, sprintf("%s VLIEGER_ID=%s", $functie, $startData['VLIEGER_ID']));
+
                 if (($this->heeftDataToegang($startData['DATUM'])) || ($startData['VLIEGER_ID'] == $login->getUserFromSession())) {
                     $rlObj = $refLeden->GetObject($startData['VLIEGER_ID'], true);
                     Debug(__FILE__, __LINE__, sprintf("%s LIDTYPE_ID=%s", $functie, $rlObj['LIDTYPE_ID']));
@@ -2001,41 +2005,57 @@ class Startlijst extends Helios
                             else
                                 $record['OVERLAND_VLIEGTUIG_ID'] = $startData['VLIEGTUIG_ID'];
 
-                            $aLeden->Aanmelden($record);
+                            $aLeden->Aanmelden($record, $startData);
                             break;
                     }
                 }
             }
         }
+      
+        $rObj = MaakObject('Rooster');
+        $rooster = $rObj->GetObject(null, $startData['DATUM']);
 
-        // aanmelden van de inzittende wanneer er een referentie is naar de ledenlijst
-        if (array_key_exists('INZITTENDE_ID', $startData)) {
-            if (isINT($startData['INZITTENDE_ID']) !== false) {
-                Debug(__FILE__, __LINE__, sprintf("%s INZITTENDE_ID=%s", $functie, $startData['INZITTENDE_ID']));
-                if (($this->heeftDataToegang($startData['DATUM'])) || ($startData['INZITTENDE_ID'] == $login->getUserFromSession())) {
-                    $rlObj = $refLeden->GetObject($startData['INZITTENDE_ID'], true);
-                    Debug(__FILE__, __LINE__, sprintf("%s LIDTYPE_ID=%s", $functie, $rlObj['LIDTYPE_ID']));
 
-                    switch ($rlObj['LIDTYPE_ID']) {
-                        case "600":
-                            break;    // Diverse, niet aanmelden
-                        case "607":
-                            break;    // Zusterclub, niet aanmelden
-                        case "609":
-                            break;    // Nieuw lid, niet aanmelden
-                        case "610":
-                            break;    // Oprotkabel, niet aanmelden
-                        case "612":
-                            break;    // Penningmeester, niet aanmelden
-                        default:
-                            //  geen vliegtuig en type zetten voor de inzittende
-                            unset($record['OVERLAND_VLIEGTUIG_ID']);
-                            unset($record['VOORKEUR_VLIEGTUIG_TYPE']);
+        // op een DDWV only dag, melden we de inzittende niet aan (anders worden er strippen afgeschreven)
+        if (($rooster['DDWV'] == true) && ($rooster['CLUB_BEDRIJF'] == false))
+        {
+            Debug(__FILE__, __LINE__, sprintf("%s INZITTENDE_ID=%s niet aangemeld, is clubbdag", $functie, $startData['INZITTENDE_ID']));
+        }
+        else 
+        {
+            // aanmelden van de inzittende wanneer er een referentie is naar de ledenlijst
+            if (array_key_exists('INZITTENDE_ID', $startData)) 
+            {
+                if (isINT($startData['INZITTENDE_ID']) !== false) 
+                {
+                    Debug(__FILE__, __LINE__, sprintf("%s INZITTENDE_ID=%s", $functie, $startData['INZITTENDE_ID']));
 
-                            $record['LID_ID'] = $startData['INZITTENDE_ID'];
-                            $record['VELD_ID'] = $startData['VELD_ID'];
-                            $aLeden->Aanmelden($record);
-                            break;
+
+                    if (($this->heeftDataToegang($startData['DATUM'])) || ($startData['INZITTENDE_ID'] == $login->getUserFromSession())) {
+                        $rlObj = $refLeden->GetObject($startData['INZITTENDE_ID'], true);
+                        Debug(__FILE__, __LINE__, sprintf("%s LIDTYPE_ID=%s", $functie, $rlObj['LIDTYPE_ID']));
+
+                        switch ($rlObj['LIDTYPE_ID']) {
+                            case "600":
+                                break;    // Diverse, niet aanmelden
+                            case "607":
+                                break;    // Zusterclub, niet aanmelden
+                            case "609":
+                                break;    // Nieuw lid, niet aanmelden
+                            case "610":
+                                break;    // Oprotkabel, niet aanmelden
+                            case "612":
+                                break;    // Penningmeester, niet aanmelden
+                            default:
+                                //  geen vliegtuig en type zetten voor de inzittende
+                                unset($record['OVERLAND_VLIEGTUIG_ID']);
+                                unset($record['VOORKEUR_VLIEGTUIG_TYPE']);
+
+                                $record['LID_ID'] = $startData['INZITTENDE_ID'];
+                                $record['VELD_ID'] = $startData['VELD_ID'];
+                                $aLeden->Aanmelden($record, $startData);
+                                break;
+                        }
                     }
                 }
             }
