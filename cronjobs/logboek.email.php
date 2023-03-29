@@ -121,6 +121,17 @@ $htmlOnbevoegd="
 </body></html>";
 
 
+switch (date('w')) {
+    case 0; $datumString = "zondag "; break;
+    case 1; $datumString = "maandag "; break;
+    case 2; $datumString = "dinsdag "; break;
+    case 3; $datumString = "woensdag "; break;
+    case 4; $datumString = "donderdag "; break;
+    case 5; $datumString = "vrijdag "; break;
+    case 6; $datumString = "zaterdag "; break;
+}
+$datumString .= date('d-m-Y');
+
 $datum = date('Y-m-d');
 $url_args = "SORT=VLIEGER_ID,STARTTIJD&BEGIN_DATUM=$datum&EIND_DATUM=$datum&VELDEN=VLIEGER_ID,INZITTENDE_ID,STARTTIJD";
 heliosInit("Startlijst/GetObjects?" . $url_args);
@@ -163,7 +174,7 @@ else
             array_push($alleBevoegdheden, $v['BEVOEGDHEID_OVERLAND_ID']);
     }
 
-    // wie heeft er allemaal een start gemaakt
+    // wie heeft er allemaal een start gemaakt als vlieger of inzittende
     $aanwezig = array();
     foreach ($startlijst['dataset'] as $start)
     {
@@ -176,18 +187,7 @@ else
         if (($start['INZITTENDE_ID'] != null) && (!in_array($start['INZITTENDE_ID'], $aanwezig)))
             array_push($aanwezig, $start['INZITTENDE_ID']);
     }
-
-    switch (date('w')) {
-        case 0; $datumString = "zondag "; break;
-        case 1; $datumString = "maandag "; break;
-        case 2; $datumString = "dinsdag "; break;
-        case 3; $datumString = "woensdag "; break;
-        case 4; $datumString = "donderdag "; break;
-        case 5; $datumString = "vrijdag "; break;
-        case 6; $datumString = "zaterdag "; break;
-    }
-
-    $datumString .= date('d-m-Y');
+    // oke, die staan nu als array in $aanwezig
 
     foreach ($aanwezig as $lid)
     {
@@ -257,10 +257,10 @@ else
         {
             $d = explode("-", $vlucht['DATUM']);
 
-            if ($vlucht['INSTRUCTIEVLUCHT'] == false)
+            if (($vlucht['VLIEGER_ID'] == $lidData['ID']) &&  ($vlucht['INSTRUCTIEVLUCHT'] == false))
                 $zelfPIC = true;
 
-            if (isset($vliegtuigen[$vlucht['VLIEGTUIG_ID']])) {
+            if (isset($vliegtuigen[$vlucht['VLIEGTUIG_ID']]) && $zelfPIC) {
                 $lokaal = $vliegtuigen[$vlucht['VLIEGTUIG_ID']]['BEVOEGDHEID_LOKAAL_ID'];
                 $overland = $vliegtuigen[$vlucht['VLIEGTUIG_ID']]['BEVOEGDHEID_OVERLAND_ID'];
 
@@ -341,29 +341,6 @@ else
 
             printf("%s %s: Geen medical <br>\n", date("d-m-Y"), $lidData['NAAM']);
 
-            if(!$mail->Send()) {
-                print_r($mail);
-            }
-
-        }
-
-        // check of er gevlogen is terwijl men niet bevoegd is
-        if (count($onbevoegd) > 0)
-        {
-            $onbevoegdOp = array_unique($onbevoegd);
-
-            $callsigns = "";
-            foreach ($onbevoegdOp as $id)
-            {
-                $callsigns .= ($callsigns != "") ? ", "  : "";
-                $callsigns .= $vliegtuigen[$id]['CALLSIGN'];
-            }
-
-            $mail->Subject = sprintf("Bevoegdheid %s %s", $callsigns, $lidData['NAAM']);
-            $mail->Body    = sprintf($htmlOnbevoegd, $lidData['VOORNAAM'], $callsigns);
-            $mail->addCC($cimt['EMAIL'], $cimt['NAAM']);
-
-            printf("%s %s: %s <br>\n", date("d-m-Y"), $lidData['NAAM'], $callsigns);
             if(!$mail->Send()) {
                 print_r($mail);
             }
