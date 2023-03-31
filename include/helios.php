@@ -226,8 +226,7 @@ abstract class Helios
 				//$org = $this->DbData();
 				$org = $this->GetObjects(array('ID' => $i));
 				
-
-				if (($this->NumRows() == 0) && (($verify !== 0)))
+				if (($this->bestaatID($i) == false) && ($verify !== 0))
 					throw new Exception(sprintf("404;Record met ID=%s niet gevonden;", $i));	
 
 				if (($this->NumRows() > 0))
