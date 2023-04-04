@@ -428,7 +428,7 @@ class Diensten extends Helios
 
 			for ($i=0 ; $i < count($retVal['dataset']) ; $i++)
 			{
-                if ((!$l->isBeheerder()) && (!$l->isBeheerderDDWV()))
+                if (($l->isBeheerder() == false) && ($l->isBeheerderDDWV() == false))
                     unset($retVal['dataset'][$i]['UITBETAALD']);
 
 				$retVal['dataset'][$i] = $this->RecordToOutput($retVal['dataset'][$i]);
