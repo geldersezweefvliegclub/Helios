@@ -853,15 +853,6 @@ class AanwezigLeden extends Helios
 			}
 			if ($aanpassen)
 			{
-                // We zijn nu bijna klaar om aanmelding op te slaan in de database, maar voor DDWV moeten we strippen afschrijven
-                $ddwv = MaakObject('DDWV');
-                $transactieId = $ddwv->AanmeldenLidAfboekenDDWV($AanmeldenLedenData, $startData);
-
-                if ($transactieId >= 0)
-                    $AanmeldenLedenData['TRANSACTIE_ID'] = $transactieId;
-                else
-                    $AanmeldenLedenData['TRANSACTIE_ID'] = null;
-
 				$this->UpdateObject($AanmeldenLedenData);
 				Debug(__FILE__, __LINE__, sprintf("AanwezigLeden aangepast id=%s", $id));		
 				return  $this->GetObject($id);
