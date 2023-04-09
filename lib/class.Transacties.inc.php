@@ -42,6 +42,7 @@ class Transacties extends Helios
 			CREATE TABLE `%s` (
 				`ID` mediumint  UNSIGNED NOT NULL AUTO_INCREMENT,
 				`DATUM` datetime  NOT NULL default CURRENT_TIMESTAMP,
+				`VLIEGDAG` date NOT NULL,
 				`LID_ID` mediumint UNSIGNED NOT NULL,
 				`INGEVOERD_ID` mediumint UNSIGNED NOT NULL,
 				`TYPE_ID` mediumint UNSIGNED NOT NULL,
@@ -250,7 +251,17 @@ class Transacties extends Helios
 						Debug(__FILE__, __LINE__, sprintf("%s: LID_ID='%s'", $functie, $lidID));
 						break;                      
 					}
-				case "DATUM" : 
+                case "VLIEGDAG" :
+                {
+                    $datum = isDATE($value, "VLIEGDAG");
+
+                    $where .= " AND DATE(VLIEGDAG) = ? ";
+                    array_push($query_params, $datum);
+
+                    Debug(__FILE__, __LINE__, sprintf("%s: VLIEGDAG='%s'", $functie, $datum));
+                    break;
+                }
+                case "DATUM" :
 					{
 						$datum = isDATE($value, "DATUM");
 
@@ -527,6 +538,10 @@ class Transacties extends Helios
 	function RequestToRecord($input)
 	{
 		$record = array();
+
+        $field = 'VLIEGDAG';
+        if (array_key_exists($field, $input))
+            $record[$field] = isDATE($input[$field], $field);
 
 		$field = 'LID_ID';
 		if (array_key_exists($field, $input))

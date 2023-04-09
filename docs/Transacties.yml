@@ -105,10 +105,17 @@ paths:
           description: Haal alle transactie records op van een specifiek lid
           required: false
           schema:
-            type: string     
+            type: string
+        - in: query
+          name: VLIEGDAG
+          description: Vliegdag, duh....
+          required: false
+          schema:
+            type: string
+            format: date
         - in: query
           name: DATUM
-          description: Datum van de daginfo
+          description: Datum van de transactie
           required: false
           schema:
             type: string
@@ -250,7 +257,12 @@ components:
           description: Datum van de transacties 
           type: string
           format: date
-          example: "2022-03-29"            
+          example: "2022-03-29"
+        VLIEGDAG:
+          description: Datum van de vliegdag
+          type: string
+          format: date
+          example: "2022-04-02"
         LID_ID:
           description: Voor welk is de transactie
           type: integer

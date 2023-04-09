@@ -131,6 +131,7 @@ class DDWV
         $transactie['LID_ID'] = $aanmelding['LID_ID'];
         $transactie['TYPE_ID'] = $tID;
         $transactie['EENHEDEN'] = $tariefInfo['EENHEDEN'];
+        $transactie['VLIEGDAG'] = $aanmelding['DATUM'];
         $transactie['OMSCHRIJVING'] = sprintf(", vliegdag %02d-%02d-%d", $dateparts[2], $dateparts[1], $dateparts[0]);
 
         $tObj = MaakObject('Transacties');
@@ -186,6 +187,7 @@ class DDWV
         $transactie['LID_ID'] = $afmelding['LID_ID'];
         $transactie['TYPE_ID'] = $tID;
         $transactie['EENHEDEN'] = $retour_strippen;
+        $transactie['VLIEGDAG'] = $aanmeldTransactie['VLIEGDAG'];
         $transactie['OMSCHRIJVING'] = sprintf(", vliegdag %02d-%02d-%d", $dateparts[2], $dateparts[1], $dateparts[0]);
 
         $id = $tObj->AddObject($transactie);
