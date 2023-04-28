@@ -462,7 +462,7 @@ class Reservering extends Helios
 	/*
 	Converteer integers en booleans voor correcte output 
 	*/
-	function RecordToOutput($record)
+	function RecordToOutput($record, $privacy = false)
 	{
 		$retVal = $record;
 
@@ -489,17 +489,6 @@ class Reservering extends Helios
 		if (isset($record['PRIVACY']))
 			$retVal['PRIVACY']  = $record['PRIVACY'] == "1" ? true : false;
 
-		// Privacy maskering
-		if (isset($retVal['PRIVACY']))
-		{
-			$l = MaakObject('Login');
-			if (($retVal['PRIVACY'] == true) && (!$l->isBeheerder()) && (!$l->isBeheerderDDWV())) 
-			{
-				$retVal['NAAM']  = "...";
-				$retVal['LID_ID']  = -1;
-				$retVal['INGEVOERD_ID']  = -1; 
-			}
-		}
 		return $retVal;
 	}
 }
