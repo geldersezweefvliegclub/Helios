@@ -224,15 +224,16 @@ class DDWV
         $al = MaakObject('AanwezigLeden');
         $aanmeldingen = $al->GetObjects(array('BEGIN_DATUM' => $Datum, 'EIND_DATUM' => $Datum));
 
+        $typeBedrijf = "annuleren";
+
+        if ($aanmeldingen['totaal'] >= $rooster['MIN_SLEEPSTART'])
+            $typeBedrijf = "slepen";
+    
+        if ($aanmeldingen['totaal'] >= $rooster['MIN_LIERSTART'])
+            $typeBedrijf = "lieren";
+
         if ($rooster['CLUB_BEDRIJF'] == true)
             $typeBedrijf = "club";
-        else if ($aanmeldingen['totaal'] < $rooster['MIN_SLEEPSTART'])
-            $typeBedrijf = "annuleren";
-        else if ($aanmeldingen['totaal'] >= $rooster['MIN_LIERSTART'])
-            $typeBedrijf = "lieren";
-        else
-            $typeBedrijf = "slepen";
-
 
         $tObj = MaakObject('Transacties');
         $dateparts = explode('-', $Datum);
