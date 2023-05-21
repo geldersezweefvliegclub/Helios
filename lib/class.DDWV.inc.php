@@ -94,15 +94,64 @@ class DDWV
             return -1;
         }
 
-        // check zelfstart abonnement
         if ($startData != null)
         {
-            if (($startData['STARTMETHODE_ID'] == 506) && ($lid['ZELFSTART_ABONNEMENT']))          // 506 = zelfstart
+            // Kijken of zelfstart abonnement van toepassing is
+            if ($startData['STARTMETHODE_ID'] == 506)       // 506 = zelfstart
             {
-                Debug(__FILE__, __LINE__, sprintf("%s: Zelfstart afgekocht", $functie));
-                return -1;
+                if (isset($startData['VLIEGER_ID']))
+                {
+                    $vlieger = $rl->GetObject($startData['VLIEGER_ID']);
+                    if ($vlieger['ZELFSTART_ABONNEMENT'])
+                    {
+                        Debug(__FILE__, __LINE__, sprintf("%s: Vlieger zelfstart afgekocht", $functie));
+                        return -1;
+                    }
+                }
+
+                if (isset($startData['INZITTENDE_ID']))
+                {
+                    $inzittende = $rl->GetObject($startData['INZITTENDE_ID']);
+                    if ($inzittende['ZELFSTART_ABONNEMENT'])
+                    {
+                        Debug(__FILE__, __LINE__, sprintf("%s: Inzittende zelfstart afgekocht", $functie));
+                        return -1;
+                    }
+                }
+            }
+
+            // Als de vlieger of de inzittende betaald heeft, dan is het goed. Geen strippen afschrijven
+            if (isset($startData['VLIEGER_ID'])) {
+                try {
+                    $aLeden = MaakObject('AanwezigLeden');
+                    $aLeden->GetObject(null, $startData['VLIEGER_ID'], $startData['DATUM'], false);
+
+                    Debug(__FILE__, __LINE__, sprintf("%s: Vlieger is al aangemeld", $functie));
+                    return -1;
+                }
+                catch(Exception $exception)     // als vlieger niet aangemeld is, komt er een exception
+                {}
+            }
+
+            if (isset($startData['INZITTENDE_ID'])) {
+                $rv = MaakObject('Vliegtuigen');
+                $rvObj = $rv->GetObject($startData['VLIEGTUIG_ID']);
+
+                if ($rvObj['ZITPLAATSEN'] == 2)     // alleen bij tweezitters
+                {
+                    try {
+                        $aLeden = MaakObject('AanwezigLeden');
+                        $aLeden->GetObject(null, $startData['INZITTENDE_ID'], $startData['DATUM'], false);
+
+                        Debug(__FILE__, __LINE__, sprintf("%s: Inzittende is al aangemeld", $functie));
+                        return -1;
+                    }
+                    catch(Exception $exception)     // als inzittende niet aangemeld is, komt er een exception
+                    {}
+                }
             }
         }
+
 
         $dagen = (strtotime($aanmelding['DATUM']) - strtotime(date("Y-m-d"))) / (60 * 60 * 24);
         if ($dagen < 0) {    // aanmelding in het verleden

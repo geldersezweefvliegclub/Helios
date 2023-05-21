@@ -548,6 +548,7 @@ class AanwezigLeden extends Helios
                 }
 
 				$l = MaakObject('Login');
+
 				if ((($l->isBeheerder() === true)  || ($l->isInstructeur() === true) || ($l->isCIMT() === true)) && 
 					  isset($retVal['dataset'][$i]['LID_ID']))	
 					{
