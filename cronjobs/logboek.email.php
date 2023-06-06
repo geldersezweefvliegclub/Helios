@@ -151,6 +151,7 @@ else
     if (count($startlijst['dataset']) == 0)
     {
         // er zijn geen starts ingevoerd
+        echo "er zijn geen starts beschikbaar";
         die;
     }
 

@@ -1188,6 +1188,9 @@ components:
         STARTS_DRIE_MND:
           type: integer
           example: 2
+        STARTS_24_MND:
+          type: integer
+          example: 85
         STARTS_VORIG_JAAR: 
           type: integer
           example: 36
@@ -1201,6 +1204,9 @@ components:
         UREN_DRIE_MND: 
           type: string
           example: "1:42"
+        UREN_24_MND:
+          type: string
+          example: "29:13"
         UREN_VORIG_JAAR: 
           type: string
           example: "1:42"
@@ -1224,7 +1230,22 @@ components:
         UREN_BAROMETER: 
           type: string
           example: "29:13"
-
+        LIERSTARTS:
+          type: integer
+          example: 36
+          description: Aantal lierstarts in 24 maanden voor peildatum
+        SLEEPSTARTS:
+          type: integer
+          example: 10
+          description: Aantal sleepstarts in 24 maanden voor peildatum
+        ZELFSTARTS:
+          type: integer
+          example: 8
+          description: Aantal zelfstarts in 24 maanden voor peildatum
+        TMGSTARTS:
+          type: integer
+          example: 0
+          description: Aantal TMG starts in 24 maanden voor peildatum
     vliegdagen:
       type: object
       properties:

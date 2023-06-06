@@ -102,15 +102,30 @@ $htmlContentClub = "
     Beste %s,
 </p>
 <p>
-Je hebt jezelf ingeschreven voor de vliegdag van morgen, %s. De vliegdag voor mogen is een gecombineerde dag van DDWV en het CeZC clubbedrijf. 
+Je hebt jezelf ingeschreven voor de vliegdag van morgen, %s. De vliegdag voor mogen is een gecombineerde dag van DDWV en het GeZC clubbedrijf. 
 </p>
 
 <p>
 Mocht je onverhoopt niet gaan vliegen, dan kun je je inschrijving annuleren. Bij annuleren na het besluitmoment ontvang je 4 strippen retour.
 </p>
 
+<p> 
+    Met vriendelijke groet,
+</p>
+<p> 
+    De DDWV beheerder
+</p>
+</body></html>";
+
+$htmlContentCrew = "
+<html>
+<body style='font-family: Arial, Helvetica, sans-serif; font-size:12px;'>
+
 <p>
-Wij hopen dat we op een later moment alsnog een vliegdag voor je kunnen organiseren
+    Beste %s,
+</p>
+<p>
+Je staat voor morgen %s op het DDWV rooster. %s 
 </p>
 
 <p> 
@@ -123,7 +138,7 @@ Wij hopen dat we op een later moment alsnog een vliegdag voor je kunnen organise
 
 $morgen = new DateTime('tomorrow');
 $morgenYMD = $morgen->format('Y-m-d');
-$url_args = "DATUM=$morgenYMD&VELDEN=ID,DDWV,CLUB_BEDRIJF,MIN_SLEEPSTART,MIN_LIERSTART";
+$url_args = "DATUM=$morgenYMD&VELDEN=ID,DDWV";
 heliosInit("Rooster/GetObject?" . $url_args);
 
 $result = curl_exec($curl_session);
@@ -162,7 +177,6 @@ else {
 
         $result = curl_exec($curl_session);
         $status_code = curl_getinfo($curl_session, CURLINFO_HTTP_CODE); //get status code
-        list($header, $body) = returnHeaderBody($result);
 
         if ($status_code != 200) // We verwachten een status code van 200
         {
@@ -170,8 +184,10 @@ else {
             die;
         }
         list($header, $typeBedrijf) = returnHeaderBody($result);
+
+        echo "Type bedrijf :" . $typeBedrijf . "<br>";
         emailVliegers(json_decode($typeBedrijf), $aanmeldingen['dataset']);
-        emailBeheerderDDWV($typeBedrijf, $aanmeldingen['dataset']);
+        emailCrew(json_decode($typeBedrijf));
     }
 }
 
@@ -214,14 +230,90 @@ function emailVliegers($typeBedrijf, $leden)
     }
 }
 
-function emailBeheerderDDWV($typeBedrijf, $leden)
+function emailCrew($typeBedrijf)
 {
+    global $curl_session;
     global $smtp_settings;
+    global $htmlContentCrew;
 
+    if ($typeBedrijf == "club") {
+        return;     // op clubdagen hoeven de DDWV crew geen mail te sturen
+    }
     $morgen = new DateTime('tomorrow');
-    $datumString = dagVanDeWeek($morgen) . " " . $morgen->format('d-m-Y');
-}
+    $url_args = "DATUM=" . $morgen->format('Y-m-d');
 
+    heliosInit("Diensten/GetObjects?" . $url_args);
+
+    $result      = curl_exec($curl_session);
+    $status_code = curl_getinfo($curl_session, CURLINFO_HTTP_CODE); //get status code
+    list($header, $body) = returnHeaderBody($result);
+
+    if ($status_code != 200) // We verwachten een status code van 200
+    {
+        emailError($result);
+        return;
+    }
+    else {
+        $diensten = json_decode($body, true);
+        if (count($diensten['dataset']) == 0) {
+            // er zijn geen diensten ingevoerd
+            return;
+        }
+
+        $datumString = dagVanDeWeek($morgen) . " " . $morgen->format('d-m-Y');
+
+        $bericht = "";
+        switch ($typeBedrijf) {
+            case 'lieren':
+                $bericht = "Op basis van het aantal aanmeldingen gaan we een <b>lierbedrijf</b> opzetten.";
+                break;
+            case 'slepen':
+                $bericht = "Op basis van het aantal aanmeldingen beperken we de DDWV dag tot een <b>sleepbedrijf</b>.";
+                break;
+            case 'annuleren':
+                $bericht = "Helaas zijn er onvoldoende aanmeldingen en zijn we genoodzaakt de DDWV dag te <b>annuleren</b>.";
+                break;
+            default:
+                echo $typeBedrijf . " is onbekend <br>";
+        }
+
+        foreach ($diensten['dataset'] as $dienst) {
+            $url_args = "ID=" . $dienst['LID_ID'];
+            heliosInit("Leden/GetObject?" . $url_args);
+
+            $result = curl_exec($curl_session);
+            $status_code = curl_getinfo($curl_session, CURLINFO_HTTP_CODE); //get status code
+
+            if ($status_code != 200) // We verwachten een status code van 200
+            {
+                emailError($result);
+                continue;
+            }
+            list($header, $body) = returnHeaderBody($result);
+
+            $lid = json_decode($body, true);
+            $emailBody = sprintf($htmlContentCrew, $lid['VOORNAAM'], $datumString, $bericht);
+
+            $mail = emailInit();
+            $mail->Subject = 'Je dienst voor ' . $datumString;
+            $mail->isHTML(true);                                        //Set email format to HTML
+            $mail->Body = $emailBody;
+
+            $mail->addAddress($lid['EMAIL'], $lid['NAAM']);
+
+            $mail->addReplyTo($smtp_settings['from'], $smtp_settings['name']);
+            $mail->SetFrom($smtp_settings['from'], $smtp_settings['name']);
+
+            echo "Crew:" . $lid['EMAIL'] . "<br>";
+
+            if ($mail->Send()) {
+                echo sprintf("%s: %s [%s]\n", $dienst['TYPE_DIENST'], $lid['NAAM'], $lid['EMAIL']);
+            } else {
+                print_r($mail);
+            }
+        }
+    }
+}
 
 function dagVanDeWeek($datum)
 {

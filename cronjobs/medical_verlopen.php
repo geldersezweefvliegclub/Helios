@@ -30,7 +30,7 @@ $htmlContentBulk = "
 </p>
 
 <p>
-    PS: Indien je medical niet meer verlengt kan worden, verwijder dan de datum uit je profiel. Je krijgt dan geen herinneringen meer. 
+    PS: Indien je medical niet meer verlengd kan worden, verwijder dan de datum uit je profiel. Je krijgt dan geen herinneringen meer. 
 </p>   
 
 </body></html>";

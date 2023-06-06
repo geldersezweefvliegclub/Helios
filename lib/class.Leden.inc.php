@@ -952,7 +952,7 @@ class Leden extends Helios
 		if (array_key_exists("WACHTWOORD", $lid))
 		{
 			if (($l->isBeheerder() === true))
-				$lid['WACHTWOORD'] 	= dechex(crc32($lid['WACHTWOORD']));
+				$lid['WACHTWOORD'] 	= dechex(crc32($lid['WACHTWOORD'].""));
 			else
 				$lid['WACHTWOORD'] 	= "****";
 		}

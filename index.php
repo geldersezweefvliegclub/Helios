@@ -54,7 +54,8 @@ catch(Exception $exception)
 {
     Debug(__FILE__, __LINE__, "Geen toegang: " .$exception);
 
-    if ((str_contains($exception, ":")) && (str_contains($exception, ";"))) {
+   // if ((str_contains($exception, ":")) && (str_contains($exception, ";")))
+    {
         list($dummy, $exceptionMsg) = explode(": ", $exception);
         list($httpStatus, $message) = explode(";", $exceptionMsg);  // onze eigen formaat van een exceptie
 

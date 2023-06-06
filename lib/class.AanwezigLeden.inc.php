@@ -50,6 +50,8 @@ class AanwezigLeden extends Helios
 			)", $this->dbTable);
 		parent::DbUitvoeren($query);
 
+        parent::DbUitvoeren(sprintf("CREATE INDEX DATUM_LIDID_VERWIJDERD on %s(DATUM,LID_ID,VERWIJDERD)", $this->dbTable));
+
 		if (isset($FillData))
 		{
 			$inject = array(

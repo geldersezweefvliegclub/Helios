@@ -251,7 +251,7 @@ class DDWV
     {
         global $ddwv;
 
-        $functie = "DDWV.AnnulerenDDWV";
+        $functie = "DDWV.ToetsingDDWV";
         Debug(__FILE__, __LINE__, sprintf("%s(%s, %s)", $functie, $Datum, $Hash));
 
         $l = MaakObject('Login');

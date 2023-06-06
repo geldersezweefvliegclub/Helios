@@ -63,6 +63,7 @@ class Startlijst extends Helios
 				FOREIGN KEY (BAAN_ID) REFERENCES ref_types(ID)
 			)", $this->dbTable);
         parent::DbUitvoeren($query);
+        parent::DbUitvoeren(sprintf("CREATE INDEX DATUM_VLIEGER_ID_VERWIJDERD on %s(DATUM,VLIEGER_ID,VERWIJDERD);", $this->dbTable));
 
         if (isset($FillData)) {
             $inject = array(
@@ -1616,19 +1617,22 @@ class Startlijst extends Helios
         $vliegerID = isINT($vliegerID, "VLIEGER_ID");
 
         $l = MaakObject('Leden');
-        if ($l->isPermissie("INSTRUCTEUR", $vliegerID))        // Voor instructeurs tellen ook de instructie starts mee
+        $lid = $l->getObject($vliegerID);
+        if ($lid['INSTRUCTEUR'] == 1)        // Voor instructeurs tellen ook de instructie starts mee
         {
-            $InstructieSQL = sprintf("(INZITTENDE_ID = %s)", $vliegerID);
+            $InstructieSQL = sprintf("((INZITTENDE_ID = %s) AND (INSTRUCTIEVLUCHT=1))", $vliegerID);
         } else {
             $InstructieSQL = "(1 = 0)";            // dit is nooit waar, en dat is prima
         }
 
         $retVal['STARTS_DRIE_MND'] = 0;
+        $retVal['STARTS_24_MND'] = 0;
         $retVal['STARTS_VORIG_JAAR'] = 0;
         $retVal['STARTS_DIT_JAAR'] = 0;
         $retVal['STARTS_INSTRUCTIE'] = -1;
 
         $retVal['UREN_DRIE_MND'] = 0;
+        $retVal['UREN_24_MND'] = 0;
         $retVal['UREN_DIT_JAAR'] = 0;
         $retVal['UREN_VORIG_JAAR'] = 0;
         $retVal['UREN_INSTRUCTIE'] = 0;
@@ -1636,7 +1640,12 @@ class Startlijst extends Helios
         $retVal['STARTS_BAROMETER'] = 0;
         $retVal['UREN_BAROMETER'] = 0;
 
-        $where = sprintf("DATUM > '%d-01-01' AND DATUM <= '%s' AND STARTTIJD IS NOT NULL AND LANDINGSTIJD IS NOT NULL  ", $dateTime->format("Y") - 1, $dateTime->format("Y-m-d"));
+        $retVal['LIERSTARTS'] = 0;
+        $retVal['SLEEPSTARTS'] = 0;
+        $retVal['ZELFSTARTS'] = 0;
+        $retVal['TMGSTARTS'] = 0;
+
+        $where = sprintf("DATUM > '%d-01-01' AND DATUM <= '%s' AND STARTTIJD IS NOT NULL AND LANDINGSTIJD IS NOT NULL  ", $dateTime->format("Y") - 2, $dateTime->format("Y-m-d"));
         $where .= sprintf(" AND ((VLIEGER_ID = %s) OR %s)", $vliegerID, $InstructieSQL);
 
         $query = "
@@ -1650,9 +1659,9 @@ class Startlijst extends Helios
         parent::DbOpvraag(sprintf($query, $where));
 
         foreach (parent::DbData() as $vlucht) {
-            $diff = abs(strtotime($dateTime->format("Y-m-d")) - strtotime($vlucht['DATUM'])) / (60 * 60 * 24);    // dif in dagen
+            $diff = abs(strtotime($dateTime->format("Y-m-d")) - strtotime($vlucht['DATUM'])) / (60 * 60 * 24);    // diff in dagen
 
-            if ($diff < (13 * 7)) // laaste drie maanden = 13 weken
+            if ($diff < (13 * 7)) // laatste drie maanden = 13 weken
             {
                 $retVal['STARTS_DRIE_MND']++;
                 $retVal['UREN_DRIE_MND'] += intval(substr($vlucht['DUUR'], 0, 2)) * 60 + intval(substr($vlucht['DUUR'], 3, 2));
@@ -1664,15 +1673,46 @@ class Startlijst extends Helios
                 $retVal['UREN_BAROMETER'] += intval(substr($vlucht['DUUR'], 0, 2)) * 60 + intval(substr($vlucht['DUUR'], 3, 2));
             }
 
+            if ($diff < (7*104)) // laatste 2 jaar = 104 weken
+            {
+                switch($vlucht['STARTMETHODE_ID'])
+                {
+                    case '501' :  // slepen
+                    {
+                        $retVal['SLEEPSTARTS']++;
+                        break;
+                    }
+                    case '506' :  // zelfstart
+                    {
+                        $retVal['ZELFSTARTS']++;
+                        break;
+                    }
+                    case '507' :  // TMG
+                    {
+                        $retVal['TMGSTARTS']++;
+                        break;
+                    }
+                    case '550' :  // lieren
+                    {
+                        $retVal['LIERSTARTS']++;
+                        break;
+                    }
+                }
+                $retVal['STARTS_24_MND']++;
+                $retVal['UREN_24_MND'] += intval(substr($vlucht['DUUR'], 0, 2)) * 60 + intval(substr($vlucht['DUUR'], 3, 2));
+            }
+
             if (substr($vlucht['DATUM'], 0, 4) == Date("Y"))    // Dit jaar
             {
                 $retVal['STARTS_DIT_JAAR']++;
                 $retVal['UREN_DIT_JAAR'] += intval(substr($vlucht['DUUR'], 0, 2)) * 60 + intval(substr($vlucht['DUUR'], 3, 2));;
-            } else    // Vorig jaar
+            }
+            if (substr($vlucht['DATUM'], 0, 4) == Date("Y")-1)    // Dit jaar// Vorig jaar
             {
                 $retVal['STARTS_VORIG_JAAR']++;
                 $retVal['UREN_VORIG_JAAR'] += intval(substr($vlucht['DUUR'], 0, 2)) * 60 + intval(substr($vlucht['DUUR'], 3, 2));
             }
+
         }
 
         // uitrekenen barameter status
@@ -1711,6 +1751,7 @@ class Startlijst extends Helios
         // tijden staan in minuten, moet naar hh:mm
         $retVal['WAARDE'] = intval($gem * 10) / 10;        // 1 cijfer achter de komma
         $retVal['UREN_DRIE_MND'] = intval($retVal['UREN_DRIE_MND'] / 60) . ":" . sprintf("%02d", $retVal['UREN_DRIE_MND'] % 60);
+        $retVal['UREN_24_MND'] = intval($retVal['UREN_24_MND'] / 60) . ":" . sprintf("%02d", $retVal['UREN_24_MND'] % 60);
         $retVal['UREN_DIT_JAAR'] = intval($retVal['UREN_DIT_JAAR'] / 60) . ":" . sprintf("%02d", $retVal['UREN_DIT_JAAR'] % 60);
         $retVal['UREN_VORIG_JAAR'] = intval($retVal['UREN_VORIG_JAAR'] / 60) . ":" . sprintf("%02d", $retVal['UREN_VORIG_JAAR'] % 60);
         $retVal['UREN_BAROMETER'] = intval($retVal['UREN_BAROMETER'] / 60) . ":" . sprintf("%02d", $retVal['UREN_BAROMETER'] % 60);
@@ -2015,7 +2056,6 @@ class Startlijst extends Helios
         $rObj = MaakObject('Rooster');
         $rooster = $rObj->GetObject(null, $startData['DATUM']);
 
-
         // op een DDWV only dag, melden we de inzittende niet aan (anders worden er strippen afgeschreven)
         if (($rooster['DDWV'] == true) && ($rooster['CLUB_BEDRIJF'] == false))
         {
@@ -2029,7 +2069,6 @@ class Startlijst extends Helios
                 if (isINT($startData['INZITTENDE_ID']) !== false) 
                 {
                     Debug(__FILE__, __LINE__, sprintf("%s INZITTENDE_ID=%s", $functie, $startData['INZITTENDE_ID']));
-
 
                     if (($this->heeftDataToegang($startData['DATUM'])) || ($startData['INZITTENDE_ID'] == $login->getUserFromSession())) {
                         $rlObj = $refLeden->GetObject($startData['INZITTENDE_ID'], true);
