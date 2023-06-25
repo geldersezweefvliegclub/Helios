@@ -1644,6 +1644,7 @@ class Startlijst extends Helios
         $retVal['SLEEPSTARTS'] = 0;
         $retVal['ZELFSTARTS'] = 0;
         $retVal['TMGSTARTS'] = 0;
+        $retVal['CHECKS'] = array();
 
         $where = sprintf("DATUM > '%d-01-01' AND DATUM <= '%s' AND STARTTIJD IS NOT NULL AND LANDINGSTIJD IS NOT NULL  ", $dateTime->format("Y") - 2, $dateTime->format("Y-m-d"));
         $where .= sprintf(" AND ((VLIEGER_ID = %s) OR %s)", $vliegerID, $InstructieSQL);
@@ -1675,6 +1676,13 @@ class Startlijst extends Helios
 
             if ($diff < (7*104)) // laatste 2 jaar = 104 weken
             {
+                if (($vlucht['CHECKSTART']) && ($vlucht['VLIEGER_ID'] == $vliegerID))
+                {
+                    $dmy = explode("-", $vlucht['DATUM']);
+                    array_push($retVal['CHECKS'], sprintf("%02d-%02d-%d", $dmy[2], $dmy[1], $dmy[0]));
+                }
+
+
                 switch($vlucht['STARTMETHODE_ID'])
                 {
                     case '501' :  // slepen

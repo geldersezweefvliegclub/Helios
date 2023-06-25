@@ -1246,6 +1246,12 @@ components:
           type: integer
           example: 0
           description: Aantal TMG starts in 24 maanden voor peildatum
+        CHECKS:
+          type: array
+          items:
+            type: string
+          example: 04-03-2022, 05-04-2021
+          description: Array met checkstarts
     vliegdagen:
       type: object
       properties:
