@@ -380,7 +380,7 @@ class Leden extends Helios
 						if (strpos($value,';') !== false)
 							throw new Exception("405;VELDEN is onjuist;");
 
-						$velden = $value;
+                        $velden = strtoupper($value);
 						Debug(__FILE__, __LINE__, sprintf("%s: VELDEN='%s'", $functie, $velden));
 						break;
 					}											
