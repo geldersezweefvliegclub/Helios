@@ -1034,6 +1034,64 @@ class Leden extends Helios
 		return true; 		
 	}
 
+    // Enkel lid als vcard
+    function vCard($id)
+    {
+        $functie = "Leden.vCard";
+        Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, $id));
+
+        $lid = $this->GetObject($id);
+        return $this->vCardLayout($lid);
+    }
+
+    // return an array of Vcards
+    function vCards($params)
+    {
+        $functie = "Leden.vCards";
+        Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($params, true)));
+
+        $retVal = array();
+        $data = $this->GetObjects($params);
+
+        foreach ($data['dataset'] as $lid)
+        {
+            $retVal[] = $this->vCardLayout($lid);
+        }
+        return $retVal;
+    }
+
+    /*
+    Converteer record naar een vCard layout
+    */
+    function vCardLayout($record)
+    {
+        $imgType = "none";
+
+        if (substr(strtoupper($record['AVATAR']), -5) === ".JPEG")
+            $imgType = "JPEG";
+        if (substr(strtoupper($record['AVATAR']), -4) === ".JPG")
+            $imgType = "JPEG";
+        if (substr(strtoupper($record['AVATAR']), -4) === ".PNG")
+            $imgType = "PNG";
+
+        $vcard = "BEGIN:VCARD" . PHP_EOL ;
+        $vcard .= "VERSION:3.0" . PHP_EOL;
+        $vcard .= sprintf("FN;CHARSET=UTF-8:%s", $record['NAAM']) . PHP_EOL;
+        $vcard .= sprintf("N;CHARSET=UTF-8:%s;%s;%s;;", $record['ACHTERNAAM'], $record['VOORNAAM'],$record['TUSSENVOEGSEL']) . PHP_EOL;
+        $vcard .= sprintf("BDAY:%s", str_replace("-", "", $record['GEBOORTE_DATUM'])) . PHP_EOL;
+        $vcard .= sprintf("EMAIL;CHARSET=UTF-8;type=HOME,INTERNET:%s", $record['EMAIL']) . PHP_EOL;
+        if ($imgType != "none")
+            $vcard .= sprintf("PHOTO;%s:%s", $imgType, $record['AVATAR']) . PHP_EOL;
+        $vcard .= sprintf("TEL;TYPE=CELL:%s", $record['MOBIEL']) . PHP_EOL;
+        $vcard .= sprintf("TEL;TYPE=HOME,VOICE:%s", $record['TELEFOON']) . PHP_EOL;
+        $vcard .= sprintf("ADR;CHARSET=UTF-8;TYPE=HOME:;;%s ;%s;;%s;", $record['ADRES'], $record['WOONPLAATS'],$record['POSTCODE']) . PHP_EOL;
+        $vcard .= sprintf("ORG;CHARSET=UTF-8:GeZC")  . PHP_EOL;
+        $vcard .= sprintf("REV:%s", $record['LAATSTE_AANPASSING']) . PHP_EOL;
+        $vcard .= "END:VCARD" . PHP_EOL;
+
+        return $vcard;
+    }
+
 	/*
 	Copieer data van request naar velden van het record 
 	*/

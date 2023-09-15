@@ -250,4 +250,64 @@ $app->post(url_base() . 'Leden/UploadAvatar', function (Request $request, Respon
     }  
 });
 
+/*
+Haal een enkel record op uit de database
+*/
+$app->get(url_base() . 'Leden/vCard', function (Request $request, Response $response, $args) {
+    $obj = MaakObject("Leden");
+    try
+    {
+        $params = $request->getQueryParams();
+        $id = (isset($params['ID'])) ? $params['ID'] : null;
+
+        $l = $obj->vCard($id);  // Hier staat de logica voor deze functie
+        if ($l === null)
+        {
+            header("X-Error-Message: Geen data", true, 404);
+            header("Content-Type: text/plain");
+            die;
+        }
+
+        $response->getBody()->write(json_encode($l));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+    catch(Exception $exception)
+    {
+        Debug(__FILE__, __LINE__, "/Leden/vCard: " .$exception);
+
+        list($dummy, $exceptionMsg) = explode(": ", $exception);
+        list($httpStatus, $message) = explode(";", $exceptionMsg);  // onze eigen formaat van een exceptie
+
+        header("X-Error-Message: $message", true, intval($httpStatus));
+        header("Content-Type: text/plain");
+        die;
+    }
+});
+
+/*
+Haal een dataset op met vcards, wrap vcards in json format
+*/
+$app->get(url_base() . 'Leden/vCards', function (Request $request, Response $response, $args) {
+    $obj = MaakObject("Leden");
+    try
+    {
+        $parameters = $request->getQueryParams();
+        $v = $obj->vCards($parameters);     // Hier staat de logica voor deze functie
+
+        $response->getBody()->write(json_encode($v));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+    catch(Exception $exception)
+    {
+        Debug(__FILE__, __LINE__, "/Leden/vCards: " .$exception);
+
+        list($dummy, $exceptionMsg) = explode(": ", $exception);
+        list($httpStatus, $message) = explode(";", $exceptionMsg);   // onze eigen formaat van een exceptie
+
+        header("X-Error-Message: $message", true, intval($httpStatus));
+        header("Content-Type: text/plain");
+        die;
+    }
+});
+
 ?>
