@@ -142,7 +142,7 @@ class Audit extends Helios
 
 						Debug(__FILE__, __LINE__, sprintf("%s: ID='%s'", $functie, $id));
 						break;
-					}	
+					}
 				case "LAATSTE_AANPASSING" : 
 					{
 						$alleenLaatsteAanpassing = isBOOL($value, "LAATSTE_AANPASSING");
@@ -242,7 +242,25 @@ class Audit extends Helios
 
 						Debug(__FILE__, __LINE__, sprintf("%s: EIND_DATUM='%s'", $functie, $eindDatum));
 						break;
-					}	                        
+					}
+                case "BEGIN_ID" :
+                {
+                    $id = isINT($value, "BEGIN_ID");
+                    $where .= " AND ID>=?";
+                    array_push($query_params, $id);
+
+                    Debug(__FILE__, __LINE__, sprintf("%s: ID>='%d'", $functie, $id));
+                    break;
+                }
+                case "EIND_ID" :
+                {
+                    $id = isINT($value, "EIND_ID");
+                    $where .= " AND ID<=?";
+                    array_push($query_params, $id);
+
+                    Debug(__FILE__, __LINE__, sprintf("%s: ID<='%d'", $functie, $id));
+                    break;
+                }
 				case "TABEL" : 
 					{
 						$where .= " AND TABEL IN(?)";

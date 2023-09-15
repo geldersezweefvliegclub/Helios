@@ -97,7 +97,35 @@ paths:
           description: Welke velden moet opgenomen worden in de dataset
           required: false
           schema:
-            type: string                                    
+            type: string
+        - in: query
+          name: BEGIN_DATUM
+          description: Begin datum (inclusief deze dag)
+          required: false
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: EIND_DATUM
+          description: Eind datum (inclusief deze dag)
+          required: false
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: BEGIN_ID
+          description: Alle audit ID >=
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - in: query
+          name: EIND_ID
+          description: Alle audit ID <=
+          required: false
+          schema:
+            type: integer
+            format: int32
         - in: query
           name: LID_ID
           description: Haal alle audit records op van een specifiek lid
