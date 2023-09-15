@@ -642,7 +642,46 @@ class Progressie extends Helios
 		Debug(__FILE__, __LINE__, sprintf("Progressie toegevoegd id=%d", $id));
 
 		return $this->GetObject($id);
-	}	
+	}
+
+    // Welke start methodes mag dit lid uitvoeren?
+    // 272 = Lieren
+    // 273 = Slepen
+    // 274 = Zelfstart
+
+    function StartAantekeningen($lidID)
+    {
+        Debug(__FILE__, __LINE__, sprintf("Progressie.StartAantekeningen(%s)", $lidID));
+
+        if ($lidID == null)
+            throw new Exception("406;Geen LID_ID in aanroep;");
+
+        $l = MaakObject('Login');
+
+        if ($l->getUserFromSession() != $lidID)
+        {
+            if (!$this->heeftDataToegang())
+                throw new Exception("401;Geen leesrechten;");
+        }
+        $obj = MaakObject("Leden");
+        $lid = $obj->GetObject($lidID);     // als lid niet bestaat, komt er een exceptie
+
+        $behaald = $this->GetObjects(array('LID_ID' => $lidID, 'IN' => '272,273,274'));
+
+        $lieren = false;
+        $slepen = false;
+        $zelfstart = false;
+        for ($i=0; $i < count($behaald['dataset']) ; $i++)
+        {
+            switch ($behaald['dataset'][$i]['COMPETENTIE_ID'])
+            {
+                case 272: $lieren = true; break;
+                case 273: $slepen = true; break;
+                case 274: $zelfstart = true; break;
+            }
+        }
+        return (object)['lieren' => $lieren, 'slepen' => $slepen, 'zelfstart' => $zelfstart];
+    }
 
 	/*
 	Copieer data van request naar velden van het record 

@@ -378,6 +378,36 @@ paths:
         500:
           description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"  
 
+  /Progressie/StartAantekeningen:
+    get:
+      security:
+        - basicAuth: []
+        - bearerAuth: []
+      summary: Welke startmethodes mag de vlieger uitvoeren
+      parameters:
+        - in: query
+          name: ID
+          description: Database ID van het type record
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        200:
+          description: "OK, data succesvol opgehaald"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/start_aantekeningen'
+        404:
+          description: "Data niet gevonden"
+        405:
+          description: "Methode niet toegestaan, input validatie error"
+        406:
+          description: "Niet aanvaardbaar, input ontbreekt"
+        500:
+          description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"
+
 components:
   securitySchemes:
     basicAuth:
@@ -696,3 +726,19 @@ components:
           items: 
             type: object
             $ref: '#/components/schemas/progressie_boom'
+
+   start_aantekeningen:
+      type: object
+      properties:
+        lieren:
+          description: Start met de lier
+          type: boolean
+          example: true
+        slepen:
+          description: Starten achter het sleepvliegtuig
+          type: boolean
+          example: true
+        zelfstart:
+          description: Zelfstarten
+          type: boolean
+          example: false
