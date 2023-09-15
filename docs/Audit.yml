@@ -164,10 +164,15 @@ components:
           description: Gebruikersvriendelijke naam van de database 
           type: string
           example: "Startlijst"
-        ACTIIE:
+        ACTIE:
           description: De database actie
           type: string
           example: "Toevoegen"
+        OBJECT_ID:
+            description: Database ID van het record dat aangepast is.
+            type: integer
+            format: int32
+            example: 881234
         VOOR:
           description: De dataset voor de databse bewerking in JSON formaat
           type: string

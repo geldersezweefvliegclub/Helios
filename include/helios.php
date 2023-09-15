@@ -234,7 +234,7 @@ abstract class Helios
 					$this->DbUitvoeren(sprintf("UPDATE `%s` SET `VERWIJDERD`= 1 WHERE ID IN (%s);", $this->dbTable, $i));
 
 					$audit = MaakObject("Audit");
-					$audit->AddObject($this->dbTable, $this->Naam, "Verwijderd", json_encode($org['dataset'][0]), null, null);
+					$audit->AddObject($this->dbTable, $this->Naam, "Verwijderd", json_encode($org['dataset'][0]), null, null, $org['dataset'][0]['ID']);
 				}
 			}
 		}
@@ -272,7 +272,7 @@ abstract class Helios
 				$result = $this->GetObjects(array('ID' => $i));
 
 				$audit = MaakObject("Audit");
-				$audit->AddObject($this->dbTable, $this->Naam, "Hersteld", null, null, json_encode($result['dataset'][0]));
+				$audit->AddObject($this->dbTable, $this->Naam, "Hersteld", null, null, json_encode($result['dataset'][0]), $result['dataset'][0]['ID']);
 			}
 		}
 	}			
@@ -330,7 +330,7 @@ abstract class Helios
 			$record = $this->GetObjects(array('ID' => $lastid));
 
 			$audit = MaakObject("Audit");
-			$audit->AddObject($this->dbTable, $this->Naam,"Toevoegen", null, json_encode($array), json_encode($record['dataset'][0]));
+			$audit->AddObject($this->dbTable, $this->Naam,"Toevoegen", null, json_encode($array), json_encode($record['dataset'][0]), $record['dataset'][0]['ID']);
 		}
 		return $lastid;
 	}
@@ -357,7 +357,7 @@ abstract class Helios
 				$record = $this->GetObjects(array('ID' => $ID));
 
 				$audit = MaakObject("Audit");
-				$audit->AddObject($this->dbTable, $this->Naam, "Aanpassen", json_encode($org['dataset'][0]), json_encode($array), json_encode($record['dataset'][0]));
+				$audit->AddObject($this->dbTable, $this->Naam, "Aanpassen", json_encode($org['dataset'][0]), json_encode($array), json_encode($record['dataset'][0]), $record['dataset'][0]['ID']);
 			}
 		}
 		return $retVal;	

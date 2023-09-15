@@ -27,6 +27,7 @@ class Audit extends Helios
 				`TABEL` varchar(15) DEFAULT NULL,
 				`TABEL_NAAM` varchar(25) DEFAULT NULL,
 				`ACTIE` varchar(15) DEFAULT NULL,
+				`OBJECT_ID` mediumint UNSIGNED NULL,
 				`VOOR` text DEFAULT NULL,
 				`DATA` text DEFAULT NULL,
 				`RESULTAAT` text DEFAULT NULL,
@@ -78,7 +79,7 @@ class Audit extends Helios
 			/*
 	Toevoegen van een record. Het is niet noodzakelijk om alle velden op te nemen in het verzoek
 	*/		
-	function AddObject($Tabel, $Naam, $Actie, $Voor, $Data, $Resultaat)
+	function AddObject($Tabel, $Naam, $Actie, $Voor, $Data, $Resultaat, $ObjectID)
 	{
 		$functie = "Audit.AddObject";
 		Debug(__FILE__, __LINE__, sprintf("%s(%s, %s, %s, %s, %s)", $functie, $Tabel, $Actie, $Voor, $Data, $Resultaat));
@@ -92,8 +93,9 @@ class Audit extends Helios
 		$record['TABEL_NAAM'] = $Naam;     
 		$record['ACTIE'] = $Actie;    
 		$record['VOOR'] = $Voor;    
-		$record['DATA'] = $Data;    
-		$record['RESULTAAT'] = $Resultaat;    
+		$record['DATA'] = $Data;
+        $record['OBJECT_ID'] = $ObjectID;
+        $record['RESULTAAT'] = $Resultaat;
 					
 		$id = parent::DbToevoegen($record);
 		Debug(__FILE__, __LINE__, sprintf("Audit toegevoegd id=%d", $id));
