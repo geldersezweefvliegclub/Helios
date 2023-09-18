@@ -357,6 +357,168 @@ paths:
         500:
           description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"  
 
+  /Leden/vCard:
+    get:
+      security:
+        - basicAuth: []
+        - bearerAuth: []
+      summary: Haal een enkel lid op uit de database
+      parameters:
+        - in: query
+          name: ID
+          description: Database ID van het lid record
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        200:
+          description: "OK, data succesvol opgehaald"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/vCard'
+        404:
+          description: "Data niet gevonden"
+        405:
+          description: "Methode niet toegestaan, input validatie error"
+        406:
+          description: "Niet aanvaardbaar, input ontbreekt"
+        500:
+          description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"
+
+  /Leden/vCards:
+    get:
+      security:
+        - basicAuth: []
+        - bearerAuth: []
+      summary: Haal de ledenlijst op uit de database. Query parameters worden in AND conditie gebruikt
+      parameters:
+        - in: query
+          name: ID
+          description: Database ID van het aanwezig record
+          required: false
+          schema:
+            type: integer
+            format: int32
+            example: 93
+        - in: query
+          name: VERWIJDERD
+          description: Toon welke records verwijderd zijn. Default = false
+          required: false
+          schema:
+            type: boolean
+        - in: query
+          name: LAATSTE_AANPASSING
+          description: Laatste aanpassing op basis van records in dataset. Bedoeld om data verbruik te verminderen. Dataset is daarom leeg
+          required: false
+          schema:
+            type: boolean
+        - in: query
+          name: HASH
+          description: HASH van laatste GetObjects aanroep. Indien bij nieuwe aanroep dezelfde data bevat, dan volgt http status code 304. In geval dataset niet hetzelfde is, dan komt de nieuwe dataset terug. Ook bedoeld om dataverbruik te vermindereren. Er wordt alleen data verzonden als het nodig is.
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: SORT
+          description: Sortering van de velden in ORDER BY formaat. Default = NAAM
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: MAX
+          description: Maximum aantal records in de dataset. Gebruikt in LIMIT query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+        - in: query
+          name: START
+          description: Eerste record in de dataset. Gebruikt in LIMIT query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+        - in: query
+          name: VELDEN
+          description: Welke velden moet opgenomen worden in de dataset
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: SELECTIE
+          description: Zoek in de NAAM, TELEFOON, MOBIEL, NOODNUMMER, EMAIL
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: IN
+          description: Meerdere lid database IDs in CSV formaat
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: TYPES
+          description: Zoek op een of meerder lid types. Types als CSV formaat
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: CLUBLEDEN
+          description: Wanneer 'true', toon alleen de leden
+          required: false
+          schema:
+            type: boolean
+        - in: query
+          name: INSTRUCTEURS
+          description: Wanneer 'true', toon alleen de instructeurs
+          required: false
+          schema:
+            type: boolean
+        - in: query
+          name: DDWV_CREW
+          description: Wanneer 'true', toon alleen de DDWV crew
+          required: false
+          schema:
+            type: boolean
+        - in: query
+          name: LIERISTEN
+          description: Wanneer 'true', toon alleen de lieristen
+          required: false
+          schema:
+            type: boolean
+        - in: query
+          name: LIO
+          description: Wanneer 'true', toon alleen de lieristen in opleiding
+          required: false
+          schema:
+            type: boolean
+        - in: query
+          name: STARTLEIDERS
+          description: Wanneer 'true', toon alleen de startleiders
+          required: false
+          schema:
+            type: boolean
+      responses:
+        200:
+          description: "OK, data succesvol opgehaald"
+          content:
+            application/json:
+              type: array
+              items:
+                type: object
+                $ref: '#/components/schemas/vCard'
+
+        304:
+          description: "Data niet gemodificeerd, HASH in aanroep == hash in dataset"
+        405:
+          description: "Methode niet toegestaan, input validatie error"
+        500:
+          description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"
+
 components:
   securitySchemes:
     basicAuth:
@@ -672,3 +834,15 @@ components:
           items: 
             type: object
             $ref: '#/components/schemas/view_leden_dataset'
+
+
+    vCard:
+      type: object
+      properties:
+        filename:
+          description: naam van de vCard
+          type: string
+          example: WillemBever.vcf
+        vcard:
+          description: de vCard
+          type: string

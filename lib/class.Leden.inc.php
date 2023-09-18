@@ -1089,7 +1089,12 @@ class Leden extends Helios
         $vcard .= sprintf("REV:%s", $record['LAATSTE_AANPASSING']) . PHP_EOL;
         $vcard .= "END:VCARD" . PHP_EOL;
 
-        return $vcard;
+        $obj = array(
+            'filename' => sprintf("%s-%s.vcf", $record['ID'], str_replace(" ", "", $record['NAAM'])),
+            'vcard' => $vcard
+        );
+
+        return (object) $obj;
     }
 
 	/*
