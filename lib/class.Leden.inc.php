@@ -349,9 +349,8 @@ class Leden extends Helios
 			{
 				case "ID" : 
 					{
-						$id = isINT($value, "ID");
-						$where .= " AND ID=?";
-						array_push($query_params, $id);
+						$id = isCSV($value, "ID");
+                        $where .= sprintf(" AND ID IN(%s)", trim($value));
 
 						Debug(__FILE__, __LINE__, sprintf("%s: ID='%s'", $functie, $id));
 						break;
@@ -571,7 +570,7 @@ class Leden extends Helios
 				$retVal['dataset'][$i] = $this->RecordToOutput($retVal['dataset'][$i]);
 
 				// privacy maskering
-				$retVal['dataset'][$i] = $this->privacyMask($retVal['dataset'][$i], $privacyMasker);	
+				$retVal['dataset'][$i] = $this->privacyMask($retVal['dataset'][$i], $privacyMasker);
 			}
 			return $retVal;
 		}
@@ -1055,7 +1054,7 @@ class Leden extends Helios
 
         foreach ($data['dataset'] as $lid)
         {
-            $retVal[] = $this->vCardLayout($lid);
+            array_push($retVal, $this->vCardLayout($lid));
         }
         return $retVal;
     }
@@ -1067,31 +1066,45 @@ class Leden extends Helios
     {
         $imgType = "none";
 
-        if (substr(strtoupper($record['AVATAR']), -5) === ".JPEG")
-            $imgType = "JPEG";
-        if (substr(strtoupper($record['AVATAR']), -4) === ".JPG")
-            $imgType = "JPEG";
-        if (substr(strtoupper($record['AVATAR']), -4) === ".PNG")
-            $imgType = "PNG";
+        if (isset($record['AVATAR'])) {
+            if (substr(strtoupper($record['AVATAR']), -5) === ".JPEG")
+                $imgType = "JPEG";
+            if (substr(strtoupper($record['AVATAR']), -4) === ".JPG")
+                $imgType = "JPEG";
+            if (substr(strtoupper($record['AVATAR']), -4) === ".PNG")
+                $imgType = "PNG";
+        }
 
-        $vcard = "BEGIN:VCARD" . PHP_EOL ;
-        $vcard .= "VERSION:3.0" . PHP_EOL;
-        $vcard .= sprintf("FN;CHARSET=UTF-8:%s", $record['NAAM']) . PHP_EOL;
-        $vcard .= sprintf("N;CHARSET=UTF-8:%s;%s;%s;;", $record['ACHTERNAAM'], $record['VOORNAAM'],$record['TUSSENVOEGSEL']) . PHP_EOL;
-        $vcard .= sprintf("BDAY:%s", str_replace("-", "", $record['GEBOORTE_DATUM'])) . PHP_EOL;
-        $vcard .= sprintf("EMAIL;CHARSET=UTF-8;type=HOME,INTERNET:%s", $record['EMAIL']) . PHP_EOL;
+        $vcard = "BEGIN:VCARD" . "\r\n" ;
+        $vcard .= "VERSION:3.0" . "\r\n";
+        $vcard .= sprintf("FN;CHARSET=UTF-8:%s", $record['NAAM']) . "\r\n";
+
+
+        $vcard .= sprintf("N;CHARSET=UTF-8:%s;%s;%s;;", $record['ACHTERNAAM'], $record['VOORNAAM'],$record['TUSSENVOEGSEL']) ."\r\n";
+        $vcard .= sprintf("EMAIL;CHARSET=UTF-8;type=HOME,INTERNET:%s", $record['EMAIL']) . "\r\n";
+        $vcard .= sprintf("TEL;TYPE=CELL:%s", $record['MOBIEL']) . "\r\n";
+        $vcard .= sprintf("TEL;TYPE=HOME,VOICE:%s", $record['TELEFOON']) . "\r\n";
+        $vcard .= sprintf("ADR;CHARSET=UTF-8;TYPE=HOME:;;%s ;%s;;%s;", $record['ADRES'], $record['WOONPLAATS'],$record['POSTCODE']) . "\r\n";
+        $vcard .= sprintf("ORG;CHARSET=UTF-8:GeZC")  . "\r\n";
+        $vcard .= sprintf("UID:urn:GeZC:%s", sha1($record['ID'])) . "\r\n";
+        $vcard .= sprintf("REV:%s", $record['LAATSTE_AANPASSING']) . "\r\n";
+
+        if (isset($record['GEBOORTE_DATUM']))
+            $vcard .= sprintf("BDAY:%s", str_replace("-", "", $record['GEBOORTE_DATUM'])) . "\r\n";
+
         if ($imgType != "none")
-            $vcard .= sprintf("PHOTO;%s:%s", $imgType, $record['AVATAR']) . PHP_EOL;
-        $vcard .= sprintf("TEL;TYPE=CELL:%s", $record['MOBIEL']) . PHP_EOL;
-        $vcard .= sprintf("TEL;TYPE=HOME,VOICE:%s", $record['TELEFOON']) . PHP_EOL;
-        $vcard .= sprintf("ADR;CHARSET=UTF-8;TYPE=HOME:;;%s ;%s;;%s;", $record['ADRES'], $record['WOONPLAATS'],$record['POSTCODE']) . PHP_EOL;
-        $vcard .= sprintf("ORG;CHARSET=UTF-8:GeZC")  . PHP_EOL;
-        $vcard .= sprintf("REV:%s", $record['LAATSTE_AANPASSING']) . PHP_EOL;
-        $vcard .= "END:VCARD" . PHP_EOL;
+            $vcard .= sprintf("PHOTO;TYPE=%s;VALUE=URI:%s", $imgType, $record['AVATAR']) ."\r\n";
+
+        $vcard .= "END:VCARD" . "\r\n";
 
         $obj = array(
-            'filename' => sprintf("%s-%s.vcf", $record['ID'], str_replace(" ", "", $record['NAAM'])),
-            'vcard' => $vcard
+            'id' => $record['ID'],
+            'naam' => $record['NAAM'],
+            'uri' => strrev(base64_encode("LidID:" . $record['ID'])).".vcf",
+            'etag' => crc32($vcard),
+            'lastmodified' => strtotime($record['LAATSTE_AANPASSING']),
+            'size' => strlen($vcard),
+            'carddata' => $vcard
         );
 
         return (object) $obj;
