@@ -289,7 +289,19 @@ class Login extends Helios
 			if ($_COOKIE['2FACTOR'] == base64_encode($lObj['ID']))	// Cookie bevat ID ten tijde van de SMS
 				$skip2Factor = true;
 		}
-		Debug(__FILE__, __LINE__, sprintf("%s: skip2Factor=%s, Auth=%d", $functie, $skip2Factor ? "true" : "false", $lObj['AUTH'])); 
+
+        // Als bijzonder token wordt meegestuurd, dan slaan we 2 factor authenticatie en wachtwoord over. Wordt gebruikt voor crontabs tasks etc
+        if (isset($app_settings['bypassToken']))
+        {
+            Debug(__FILE__, __LINE__, sprintf ("%s %s", sha1($app_settings['bypassToken'] . $lObj['WACHTWOORD']), $token));
+            if (sha1($app_settings['bypassToken'] . $lObj['WACHTWOORD']) === $token)
+            {
+                $lObj['WACHTWOORD'] = $key;         // Hiermee kunnen we inloggen
+                $skip2Factor = true;                // En 2 factor is ook niet meer nodig
+            }
+        }
+
+		Debug(__FILE__, __LINE__, sprintf("%s: skip2Factor=%s, Auth=%d", $functie, $skip2Factor ? "true" : "false", $lObj['AUTH']));
 
 		// $app_settings['2Factor'] geeft aan of we uberhaupt gebruik maken van 2 factor authenticatie
 		if (($lObj['AUTH'] == "1") && (empty($token)) && $skip2Factor == false && ($app_settings['2Factor'] !== false)) 
@@ -307,8 +319,9 @@ class Login extends Helios
 
 			throw new Exception("406;Token moet ingevoerd worden;");
 		}
+
 																									
-		if ($lObj['WACHTWOORD'] == $key)	
+		if ($lObj['WACHTWOORD'] == $key)
 		{		
 			Debug(__FILE__, __LINE__, sprintf("Toegang toegestaan (%s)", $username));	
 
