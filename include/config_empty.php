@@ -24,6 +24,7 @@ $app_settings = array(
 	'DbLogging' => true,			// Log database queries naar logfile
 	'DbError' => true,				// Log errors naar logfile
 	'Debug' => true,				// Debug informatie naar logfile, uitzetten voor productie
+	'BaseDir' => '',				// Basis directory op de server
 	'LogDir' => '/tmp/log/helios/',	// Locatie waar log bestanden geschreven worden
 	'Vereniging' => "GeZC",
 	'DemoMode' => true,
@@ -31,6 +32,7 @@ $app_settings = array(
 	'KeyJWT' => '480f4p*%ghouiEWf*DXKz22Vy7RDzFeaBlw329zMyHh*o',	// versleutel JWT token, AANPASSEN voor productie !!!
 	'dataNotModified' => 304,
 	'2Factor' => true,				// 2Factor authenticatie aan (true) of uit (false)
+	'bypassToken' => 'jgHoTYuic3oesKQ8B6_rzDNPvrL8Fzy6L*3.KxYQ',		// AANPASSEN voor productie
 	'PaxBevoegdheid' => 271			// CompetentieID van pax. Let op !!  CreateViews aanroepen, na wijzigen. Dit zit namelijk in database views
 );
 
@@ -95,4 +97,3 @@ if (!IsSet($GLOBALS['DBCONFIG_PHP_INCLUDED']))
 	catch (Exception $exception) {}
 }
 
-?>
