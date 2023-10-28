@@ -266,6 +266,8 @@ class Documenten extends Helios
 	*/
     function AddObject($document)
     {
+        global $app_settings;
+
         $functie = "Documenten.AddObject";
         Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($document, true)));
 
@@ -274,37 +276,6 @@ class Documenten extends Helios
         if (!$l->isBeheerder() && !$l->isCIMT())
             throw new Exception("401;Geen rechten;");
 
-        /*
-        if (!isset($document['URL'])) {
-            $upload_dir = "documenten/";
-            $filename = $upload_dir . basename($file["name"]);
-
-            $ext_type = array();
-            array_push($ext_type, '.pdf');
-            array_push($ext_type, array('.gif', '.jpg', '.jpe', '.jpeg', '.png'));
-            array_push($ext_type, array('.doc', '.docx', '.docm', '.html'));
-            array_push($ext_type, array('.mp4', '.avi'));
-
-            $fileparts = explode($file["name"], '.');
-            $extension = "." . $fileparts[count($fileparts) - 1];
-
-            if (!in_array(strtolower($extension), $ext_type)) {
-                Debug(__FILE__, __LINE__, sprintf("%s extentie '%s' is ongeldig)", $functie, $extension));
-                throw new Exception("422;Onjuiste bestand extentie;");
-            }
-
-            Debug(__FILE__, __LINE__, sprintf("%s opslag =%s", $functie . $filename));
-            if (file_put_contents($filename) === FALSE) {
-                Debug(__FILE__, __LINE__, sprintf("%s file_put_contents error", $functie));
-                throw new Exception("422;Bestand upload mislukt;");
-            }
-
-            $url =  'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . "://{$_SERVER['HTTP_HOST']}";
-            $document['URL'] = sprintf("%s/%s/%s", $url, $filename);
-        }
-        */
-
-
         if ((!array_key_exists('LEGE_REGEL', $document)) || ($document['LEGE_REGEL'] === false)) {
             if (!array_key_exists('TEKST', $document))
                 throw new Exception("406;TEKST is verplicht;");
@@ -312,17 +283,38 @@ class Documenten extends Helios
 
         // Neem data over uit aanvraag
         $record = $this->RequestToRecord($document);
+
+        if (isset($document['DOC_NAAM']) && isset($document['BASE64_DOC']))
+        {
+            $filenaam = $app_settings['BaseDir'] . "/documenten/" . $document['DOC_NAAM'];
+            Debug(__FILE__, __LINE__, sprintf("filenaam = %s", $filenaam));
+
+            if (($document['OVERSCHRIJVEN'] === false) && (file_exists($filenaam))) {
+                Debug(__FILE__, __LINE__, "bestand bestaat al");
+                throw new Exception(sprintf("500;Bestand bestaat al (%s);", $document['DOC_NAAM']));
+            }
+
+            $bestand = base64_decode($document['BASE64_DOC']);
+            file_put_contents($filenaam, $bestand);
+
+            $record['URL'] = sprintf("%s://%s/documenten/%s",
+                isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https' : 'http',
+                $_SERVER['SERVER_NAME'],
+                $document['DOC_NAAM']);
+        }
         $id = parent::DbToevoegen($record);
 
-        Debug(__FILE__, __LINE__, sprintf("Docuement toegevoegd id=%d", $id));
+        Debug(__FILE__, __LINE__, sprintf("Document toegevoegd id=%d", $id));
         return $id;
     }
 
     /*
-Update van een bestaand record. Het is niet noodzakelijk om alle velden op te nemen in het verzoek
-*/
+    Update van een bestaand record. Het is niet noodzakelijk om alle velden op te nemen in het verzoek
+    */
     function UpdateObject($document)
     {
+        global $app_settings;
+
         $functie = "Documenten.UpdateObject";
         Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($document, true)));
 
@@ -342,6 +334,25 @@ Update van een bestaand record. Het is niet noodzakelijk om alle velden op te ne
 
         // Neem data over uit aanvraag
         $d = $this->RequestToRecord($document);
+
+        if (isset($document['DOC_NAAM']) && isset($document['BASE64_DOC']))
+        {
+            $filenaam = $app_settings['BaseDir'] . "/documenten/" . $document['DOC_NAAM'];
+            Debug(__FILE__, __LINE__, sprintf("filenaam = %s", $filenaam));
+
+            if (($document['OVERSCHRIJVEN'] === false) && (file_exists($filenaam))) {
+                Debug(__FILE__, __LINE__, "bestand bestaat al");
+                throw new Exception(sprintf("500;Bestand bestaat al (%s);", $document['DOC_NAAM']));
+            }
+
+            $bestand = base64_decode($document['BASE64_DOC']);
+            file_put_contents($filenaam, $bestand);
+
+            $d['URL'] = sprintf("%s://%s/documenten/%s",
+                isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https' : 'http',
+                $_SERVER['SERVER_NAME'],
+                $document['DOC_NAAM']);
+        }
 
         parent::DbAanpassen($id, $d);
         if (parent::NumRows() === 0)

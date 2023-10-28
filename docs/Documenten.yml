@@ -324,7 +324,18 @@ components:
           description: Plaats een horizontale lijn aan de bovenkant (true) / onderkant (false)
           type: boolean
           example: 0
-
+        BASE64_DOC:
+          description: Document in base 64 encoding, heeft DOC_NAAM om gegevens op te slaan
+          type: string
+        DOC_NAAM:
+          description: Naam van het docuement als bijgevoegd in BASE64_DOC
+          type: string
+          maxLength: 255
+          example: handboek.pdf
+        OVERSCHRIJVEN:
+          description: Mag bestaand bestand overschreven worden
+          type: boolean
+          example: 0
     document:
       type: object
       allOf:
