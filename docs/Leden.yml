@@ -839,10 +839,26 @@ components:
     vCard:
       type: object
       properties:
-        filename:
-          description: naam van de vCard
+        id:
+          description: Databse record ID
           type: string
-          example: WillemBever.vcf
-        vcard:
+          example: 10456
+        naam:
+          description: Naam van contact
+          type: string
+          example: Willem Bever
+        uri:
+          description: uniek identificatie (versleuteld ID)
+          type: string
+          example: =YDM3AjM6QUSklGT.vcf
+        etag:
+          description: checksum
+          type: string
+          example: 3834844087
+        lastmodified:
+          description: checksum
+          type: string
+          example: 1670860245
+        carddata:
           description: de vCard
           type: string
