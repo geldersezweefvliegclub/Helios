@@ -312,6 +312,11 @@ components:
           type: string
           maxLength: 255
           example: Handboek Duo Discuss
+        LID_ID:
+          description: Verwijzing naar lid. Document is aan lid gekoppeld
+          type: integer
+          format: int32
+          example: 129205
         LEGE_REGEL:
           description: Lege regel om paragraaf te kunnen maken
           type: boolean

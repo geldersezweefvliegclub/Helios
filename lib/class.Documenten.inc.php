@@ -30,6 +30,7 @@ class Documenten extends Helios
 				`GROEP_ID` mediumint UNSIGNED NOT NULL,
 				`TEKST` varchar(250) DEFAULT NULL,
                 `URL` varchar(250) DEFAULT NULL,
+                `LID_ID` mediumint UNSIGNED NULL,
                 
                 `LEGE_REGEL` tinyint UNSIGNED NOT NULL DEFAULT '0',
                 `ONDERSTREEP` tinyint UNSIGNED NOT NULL DEFAULT '0',
@@ -203,9 +204,17 @@ class Documenten extends Helios
                 case "GROEPEN" :
                 {
                     isCSV($value, "GROUPEN");
-                    $where .= sprintf(" GROUPEN IN(%s)", trim($value));
+                    $where .= sprintf(" AND GROUPEN IN(%s)", trim($value));
 
                     Debug(__FILE__, __LINE__, sprintf("%s: GROUPEN='%s'", $functie, trim($value)));
+                    break;
+                }
+                case "LID_ID" :
+                {
+                    isCSV($value, "LID_ID");
+                    $where .= sprintf(" AND LID_ID IN(%s)", trim($value));
+
+                    Debug(__FILE__, __LINE__, sprintf("%s: LID_ID='%s'", $functie, trim($value)));
                     break;
                 }
                 default:
@@ -214,6 +223,9 @@ class Documenten extends Helios
                 }
             }
         }
+
+        if (!array_key_exists('LID_ID', $params))
+            $where .= " AND LID_ID is null ";
 
         $query = "
 			SELECT 
@@ -286,7 +298,36 @@ class Documenten extends Helios
 
         if (isset($document['DOC_NAAM']) && isset($document['BASE64_DOC']))
         {
-            $filenaam = $app_settings['BaseDir'] . "/documenten/" . $document['DOC_NAAM'];
+            if (isset($document['LID_ID'])) {
+                $subdir = base64_encode(password_hash($document['LID_ID'], PASSWORD_BCRYPT, ['cost' => 12]));
+                $directory = $app_settings['BaseDir'] . "documenten/" .  $subdir . "/";
+                $filenaam = $directory . $document['LID_ID'] . "_" . $document['DOC_NAAM'];
+
+                $record['URL'] = sprintf("%s://%s/documenten/%s/%s",
+                    isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https' : 'http',
+                    $_SERVER['SERVER_NAME'], $subdir,
+                    $document['LID_ID'] . "_" . $document['DOC_NAAM']);
+            }
+            else {
+                $directory = $app_settings['BaseDir'] . "documenten/";
+                $filenaam = $directory . $document['DOC_NAAM'];
+                $record['URL'] = sprintf("%s://%s/documenten/%s",
+                    isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https' : 'http',
+                    $_SERVER['SERVER_NAME'],
+                    $document['DOC_NAAM']);
+
+            }
+
+            if (!is_dir($directory))
+            {
+                if (file_exists($directory))
+                    throw new Exception(sprintf("500;LID_ID (%s) bestaat als bestand;", $document['LID_ID']));
+
+                if (!mkdir($directory))
+                    throw new Exception(sprintf("500;LID_ID (%s) kan niet aangemaakt worden als directory;", $document['LID_ID']));
+            }
+
+
             Debug(__FILE__, __LINE__, sprintf("filenaam = %s", $filenaam));
 
             if (($document['OVERSCHRIJVEN'] === false) && (file_exists($filenaam))) {
@@ -296,11 +337,6 @@ class Documenten extends Helios
 
             $bestand = base64_decode($document['BASE64_DOC']);
             file_put_contents($filenaam, $bestand);
-
-            $record['URL'] = sprintf("%s://%s/documenten/%s",
-                isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https' : 'http',
-                $_SERVER['SERVER_NAME'],
-                $document['DOC_NAAM']);
         }
         $id = parent::DbToevoegen($record);
 
@@ -337,7 +373,25 @@ class Documenten extends Helios
 
         if (isset($document['DOC_NAAM']) && isset($document['BASE64_DOC']))
         {
-            $filenaam = $app_settings['BaseDir'] . "/documenten/" . $document['DOC_NAAM'];
+            if (isset($document['LID_ID'])) {
+                $subdir = base64_encode(password_hash($document['LID_ID'], PASSWORD_BCRYPT, ['cost' => 12]));
+                $directory = $app_settings['BaseDir'] . "documenten/" .  $subdir . "/";
+                $filenaam = $directory . $document['LID_ID'] . "_" . $document['DOC_NAAM'];
+
+                $record['URL'] = sprintf("%s://%s/documenten/%s/%s",
+                    isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https' : 'http',
+                    $_SERVER['SERVER_NAME'], $subdir,
+                    $document['LID_ID'] . "_" . $document['DOC_NAAM']);
+            }
+            else {
+                $directory = $app_settings['BaseDir'] . "documenten/";
+                $filenaam = $directory . $document['DOC_NAAM'];
+                $record['URL'] = sprintf("%s://%s/documenten/%s",
+                    isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https' : 'http',
+                    $_SERVER['SERVER_NAME'],
+                    $document['DOC_NAAM']);
+
+            }
             Debug(__FILE__, __LINE__, sprintf("filenaam = %s", $filenaam));
 
             if (($document['OVERSCHRIJVEN'] === false) && (file_exists($filenaam))) {
@@ -347,11 +401,6 @@ class Documenten extends Helios
 
             $bestand = base64_decode($document['BASE64_DOC']);
             file_put_contents($filenaam, $bestand);
-
-            $d['URL'] = sprintf("%s://%s/documenten/%s",
-                isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https' : 'http',
-                $_SERVER['SERVER_NAME'],
-                $document['DOC_NAAM']);
         }
 
         parent::DbAanpassen($id, $d);
@@ -360,7 +409,6 @@ class Documenten extends Helios
 
         return $this->GetObject($id);
     }
-
 
     /*
     Markeer een record in de database als verwijderd. Het record wordt niet fysiek verwijderd om er een link kan zijn naar andere tabellen.
@@ -421,6 +469,10 @@ class Documenten extends Helios
         if (array_key_exists($field, $input))
             $record[$field] = isINT($input[$field], $field, true);
 
+        $field = 'LID_ID';
+        if (array_key_exists($field, $input))
+            $record[$field] = isINT($input[$field], $field, true, "Leden");
+
         if (array_key_exists('TEKST', $input))
             $record['TEKST'] = $input['TEKST'];
 
@@ -464,6 +516,9 @@ class Documenten extends Helios
 
         if (isset($record['GROEP_ID']))
             $retVal['GROEP_ID']  = $record['GROEP_ID'] * 1;
+
+        if (isset($record['LID_ID']))
+            $retVal['LID_ID']  = $record['LID_ID'] * 1;
 
         // booleans
         if (isset($record['VERWIJDERD']))
