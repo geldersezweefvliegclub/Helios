@@ -54,6 +54,7 @@ class Leden extends Helios
 				`SLEEPVLIEGER` tinyint UNSIGNED NOT NULL DEFAULT 0,
 				`RAPPORTEUR` tinyint UNSIGNED NOT NULL DEFAULT 0,
 				`GASTENVLIEGER` tinyint UNSIGNED NOT NULL DEFAULT 0,
+				`TECHNICUS` tinyint UNSIGNED NOT NULL DEFAULT 0,
 				`CLUBBLAD_POST` tinyint UNSIGNED NOT NULL DEFAULT 0,
 				`ZELFSTART_ABONNEMENT` tinyint UNSIGNED NOT NULL DEFAULT 0,
 				`MEDICAL` date DEFAULT NULL,
@@ -1175,8 +1176,8 @@ class Leden extends Helios
 			
 			$field = 'GASTENVLIEGER';
 			if (array_key_exists($field, $input))
-				$record[$field] = isBOOL($input[$field], $field);		
-		}
+				$record[$field] = isBOOL($input[$field], $field);
+        }
 
 		if (($l->isBeheerder()) || ($l->isRooster()) || $l->isCIMT())  {
 			if (array_key_exists('OPMERKINGEN', $input))
@@ -1227,6 +1228,10 @@ class Leden extends Helios
 			$field = 'DDWV_BEHEERDER';
 			if (array_key_exists($field, $input))
 				$record[$field] = isBOOL($input[$field], $field);
+
+            $field = 'TECHNICUS';
+            if (array_key_exists($field, $input))
+                $record[$field] = isBOOL($input[$field], $field);
 
 			if ($app_settings['DemoMode'] === false)		// in demo mode mogen we het veld beheerder niet aanpassen
 			{
@@ -1476,9 +1481,12 @@ class Leden extends Helios
 			$retVal['RAPPORTEUR']  = $record['RAPPORTEUR'] == "1" ? true : false;	
 			
 		if (isset($record['GASTENVLIEGER']))
-			$retVal['GASTENVLIEGER']  = $record['GASTENVLIEGER'] == "1" ? true : false;					
+			$retVal['GASTENVLIEGER']  = $record['GASTENVLIEGER'] == "1" ? true : false;
 
-		if (isset($record['AUTH']))
+        if (isset($record['TECHNICUS']))
+            $retVal['TECHNICUS']  = $record['TECHNICUS'] == "1" ? true : false;
+
+        if (isset($record['AUTH']))
 			$retVal['AUTH']  = $record['AUTH'] == "1" ? true : false;
 			
 		if (isset($record['STARTVERBOD']))

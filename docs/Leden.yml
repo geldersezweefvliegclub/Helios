@@ -692,7 +692,11 @@ components:
         GASTENVLIEGER:
           description: Wordt dit lid ingedeeld om gasten te vliegen   
           type: boolean
-          example: true                                                      
+          example: true
+        TECHNICUS:
+          description: Techniscus heeft aftekenbevoegdheid
+          type: boolean
+          example: true
         MEDICAL:
           description: Verloopdatum van het medical 
           type: string
