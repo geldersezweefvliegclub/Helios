@@ -288,6 +288,9 @@ class Documenten extends Helios
         if (!$l->isBeheerder() && !$l->isCIMT())
             throw new Exception("401;Geen rechten;");
 
+        if ($document == null)
+            throw new Exception("406;Document data moet ingevuld zijn;");
+
         if ((!array_key_exists('LEGE_REGEL', $document)) || ($document['LEGE_REGEL'] === false)) {
             if (!array_key_exists('TEKST', $document))
                 throw new Exception("406;TEKST is verplicht;");
