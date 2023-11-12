@@ -292,14 +292,11 @@ class Meldingen extends Helios
             }
         }
 
-        if (!array_key_exists('LID_ID', $params))
-            $where .= " AND LID_ID is null ";
-
         $query = "
 			SELECT 
 				%s
 			FROM
-				`####dmeldingen_view` " . $where . $orderby;
+				`####meldingen_view` " . $where . $orderby;
         $query = str_replace("####", ($alleenVerwijderd ? "verwijderd_" : "") , $query);
 
         $retVal = array();
