@@ -208,9 +208,45 @@ class Types extends Helios
 				(1813, 18, NULL,   	'1e Gastenvlieger',   20, 0),
 				(1814, 18, NULL,   	'2e Gastenvlieger', 	 21, 0),
 				
-				(1901, 19, 'D',    	'DBO', NULL, 3),
-				(1902, 19, 'S', 	'Solist', NULL, 2),
-				(1903, 19, 'B', 	'Brevethouder', NULL, 1);";
+				(1901, 19, 'D',    	'DBO', 3, 0),
+				(1902, 19, 'S', 	'Solist', 2, 0),
+				(1903, 19, 'B', 	'Brevethouder', 1, 0),
+				
+                (2301, 23, 'DP4',       '4 trommellier', 1, 0),
+				(2302, 23, 'DP6', 	    '6 trommellier', 2, 0),
+				(2303, 23, 'GK1', 	    'Golfkar 1', 3, 0),
+				(2304, 23, 'GK2', 	    'Golfkar 2', 4, 0),
+				(2305, 23, 'GK3', 	    'Golfkar 3', 5, 0),
+				(2306, 23, 'GK4', 	    'Golfkar 4', 6, 0),
+				(2307, 23, 'A-E1',      'Aanhanger E1', 7, 0),
+				(2308, 23, 'A-E2',      'Aanhanger E2', 8, 0),
+				(2309, 23, 'A-E3',      'Aanhanger E3', 9, 0),
+				(2310, 23, 'A-E4',      'Aanhanger E4', 10, 0),
+				(2311, 23, 'A-E5',      'Aanhanger E5', 11, 0),
+				(2312, 23, 'A-E6',      'Aanhanger E6', 12, 0),
+				(2313, 23, 'A-E7',      'Aanhanger E7', 13, 0),
+				(2314, 23, 'A-E8',      'Aanhanger E8', 14, 0),
+				(2315, 23, 'A-E9',      'Aanhanger E9', 15, 0),
+				(2316, 23, 'A-E10',     'Aanhanger E10', 16, 0),
+				(2317, 23, 'A-E11',     'Aanhanger E11', 17, 0),
+				(2318, 23, 'A-E12',     'Aanhanger E12', 18, 0),
+				(2319, 23, 'A-E13',     'Aanhanger E13', 19, 0),
+				(2320, 23, 'AG',        'Aanhanger golfkarren', 20, 0),
+				(2321, 23, 'GB',        'Gele bully', 21, 0),
+				(2322, 23, 'BB',        'Blauwe bully', 22, 0),
+				(2323, 23, 'BB',        'Starttoren', 23, 0),
+				
+				(2401, 24, 'Algemeen',   'Mededeling over gebruik', 1, 0),
+				(2402, 24, 'Visueel',    'Kras / deuk, geen invloed op inzetbaarheid', 2, 0),
+				(2403, 24, 'Klacht',     'Observatie, geen invloed op inzetbaarheid', 3, 0),
+				(2404, 24, 'Defect',     'Kan niet meer ingezet worden', 4, 0),
+				
+				(2501, 25, 'Gemeld',            'Gemeld', 1, 0),
+				(2502, 25, 'Beoordeeld',        'Beoordeeld', 1, 0),
+				(2503, 25, 'In behandeling',    'In behandeling', 1, 0),
+				(2504, 25, 'Uitgesteld',        'Uitgesteld', 1, 0),
+				(2505, 25, 'Opgelost',          'Opgelost', 1, 0),
+				(2506, 25, 'Afgetekend',        'Afgetekend', 1, 0);";
 
             $query = sprintf("
 					INSERT INTO `%s` (
