@@ -519,6 +519,32 @@ paths:
         500:
           description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"
 
+  /Leden/SynapseGebruiker:
+    post:
+      security:
+        - basicAuth: [ ]
+        - bearerAuth: [ ]
+      summary: Synchronisatie met leden chat
+      requestBody:
+        description: lid ID en wachtwoord
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ID:
+                  description: lid ID uit de database
+                  type: string
+                PASSWORD:
+                  description: Het password van deze gebruiker
+                  type: string
+      responses:
+        200:
+          description: "OK, data succesvol gesynchroniseerd"
+        500:
+          description: "Fout in synchronisatie"
+
 components:
   securitySchemes:
     basicAuth:

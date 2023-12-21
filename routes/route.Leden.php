@@ -310,4 +310,29 @@ $app->get(url_base() . 'Leden/vCards', function (Request $request, Response $res
     }
 });
 
+/*
+Haal een enkel record op uit de database
+*/
+$app->post(url_base() . 'Leden/SynapseGebruiker', function (Request $request, Response $response, $args) {
+    $obj = MaakObject("Leden");
+    try
+    {
+        $data = json_decode($request->getBody(), true);
+        $obj->synapseGebruiker($data["ID"], $data["PASSWORD"]);  // Hier staat de logica voor deze functie
+        return $response->withStatus(intval(200));
+    }
+    catch(Exception $exception)
+    {
+        Debug(__FILE__, __LINE__, "/Leden/GetObject: " .$exception);
+
+        list($dummy, $exceptionMsg) = explode(": ", $exception);
+        list($httpStatus, $message, $body) = explode(";", $exceptionMsg);  // onze eigen formaat van een exceptie
+
+        header("X-Error-Message: $message", true, intval($httpStatus));
+        header("Content-Type: text/plain");
+        echo $body;
+        die;
+    }
+});
+
 ?>

@@ -17,3 +17,4 @@ cronjobs/config.php
 
 log/
 documenten/
+lib/.DS_Store

@@ -778,7 +778,28 @@ class Leden extends Helios
 			$this->SetSecret($id);
 
 		return $lid;
-	}		
+	}
+
+    /*
+    Synapse synchronisatie
+     */
+    function synapseGebruiker($lidID, $password = null)
+    {
+        $lid = $this->GetObject($lidID);
+
+        if ($this->isClubVlieger(null, $lid))
+        {
+            synapse::updateGebruiker($lid, $password);
+            synapse::toevoegenAanKamers($lid);
+
+            $l = MaakObject('Login');
+            $ikBenHetZelf = ($l->getUserFromSession() == $lidID);
+            if ((isset($password)) && $ikBenHetZelf)
+                synapse::markeerAlsFavoriet($lid, $password);
+        }
+        else
+            synapse::verwijderGebruiker($lid);
+    }
 
 	/*
 	Upload van een avatar
@@ -838,6 +859,9 @@ class Leden extends Helios
 		parent::DbAanpassen($id, $upd);
 
 		Debug(__FILE__, __LINE__, sprintf("Leden.UploadAvatar image url= %s", $upd['AVATAR']));
+
+        $matrixUrl = synapse::uploadAvatar($lid, $upd['AVATAR']);
+        synapse::updateGebruiker($lid, null, $matrixUrl);
 		return $upd['AVATAR'] ;
 	}
 
