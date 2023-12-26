@@ -3,6 +3,7 @@ include('include/config.php');
 include('include/functions.php');
 include('include/helios.php');
 include('include/GoogleAuthenticator.php');
+include('include/MatrixSynapse.php');
 
 require __DIR__ . '/ext/vendor/autoload.php';
 
