@@ -132,7 +132,7 @@ class synapse
             {
                 switch ($t["medium"])
                 {
-                    case "email" : $email = $t["address"]; break;
+                    case "email" :$email = $t["address"]; break;
                     case "msisdn" : $mobiel = $t["address"]; break;
                 }
             }
@@ -161,18 +161,7 @@ class synapse
             $url = sprintf("%s_synapse/admin/v2/users/@%s:%s", $matrix_settings['url'], strtolower($lid["VOORNAAM"]), $matrix_settings["domein"]);
 
             $data = array(
-                "logout_devices" => false,
                 "displayname" => $lid["NAAM"],
-                "threepids" => array(
-                    array(
-                        "medium" => "email",
-                        "address" => $lid["EMAIL"]
-                    ),
-                    array(
-                        "medium" => "msisdn",
-                        "address" => $lid["MOBIEL"]
-                    )
-                ),
                 "external_ids" => array(
                     array(
                         "auth_provider" => "mijn.gezc.org",
@@ -185,8 +174,18 @@ class synapse
                 "locked" => false
             );
 
+            $data["threepids"] = array();
+            if (isset($lid["EMAIL"]))
+                $data["threepids"][] = array(
+                    "medium" => "email",
+                    "address" => $lid["EMAIL"]
+                );
+
             if (isset($password))
+            {
                 $data["password"] = $password;
+                $data["logout_devices"] = false;
+            }
 
             if (isset($avatarUrl))
                 $data["avatar_url"] = $avatarUrl;
@@ -201,6 +200,10 @@ class synapse
             $status_code = curl_getinfo(self::$curl_session, CURLINFO_HTTP_CODE); //get status code
 
             if ($status_code != 200) {
+                if ($status_code == 0)
+                    Debug(__FILE__, __LINE__, sprintf("status=0 url=%s", $url));
+                else
+                    Debug(__FILE__, __LINE__, sprintf("status=%s body=%s", $status_code, $body));
                 throw new Exception("500;Update gebruiker mislukt;" . $body);
             }
             Debug(__FILE__, __LINE__, sprintf("updateGebruiker result = %s %s", $status_code, $body));
@@ -229,6 +232,7 @@ class synapse
         $status_code = curl_getinfo(self::$curl_session, CURLINFO_HTTP_CODE); //get status code
 
         if ($status_code != 200) {
+            Debug(__FILE__, __LINE__, sprintf("status=%s body=%s", $status_code, $body));
             throw new Exception("500;Verwijder gebruiker mislukt;" . $body);
         }
         Debug(__FILE__, __LINE__, sprintf("verwijderGebruiker result = %s %s", $status_code, $body));
@@ -344,6 +348,7 @@ class synapse
         $status_code = curl_getinfo(self::$curl_session, CURLINFO_HTTP_CODE); //get status code
 
         if ($status_code != 200) {
+            Debug(__FILE__, __LINE__, sprintf("status=%s body=%s", $status_code, $body));
             throw new Exception("500;Kamers opvragen mislukt;" . $body);
         }
 
@@ -430,6 +435,7 @@ class synapse
         $status_code = curl_getinfo(self::$curl_session, CURLINFO_HTTP_CODE); //get status code
 
         if ($status_code != 200) {
+            Debug(__FILE__, __LINE__, sprintf("status=%s body=%s", $status_code, $body));
             throw new Exception("500;Toevoegen aan kamer mislukt;" . $body);
         }
 
@@ -464,6 +470,7 @@ class synapse
             $status_code = curl_getinfo(self::$curl_session, CURLINFO_HTTP_CODE); //get status code
 
             if ($status_code != 200) {
+                Debug(__FILE__, __LINE__, sprintf("status=%s body=%s", $status_code, $body));
                 throw new Exception("500;makeren als favoritiet mislukt;" . $body);
             }
 
