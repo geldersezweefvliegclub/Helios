@@ -113,7 +113,7 @@ class synapse
             return;             // na verwijderen kunnen we stoppen
         }
 
-        $matrixGebruiker = self::bestaatGebruiker(strtolower($lid["VOORNAAM"]));
+        $matrixGebruiker = self::bestaatGebruiker(strtolower($lid["INLOGNAAM"]));
         $gebruikerBestaat = isset($matrixGebruiker);
         if (!$gebruikerBestaat)
             $avatarUrl = !isset($lid["AVATAR"]) ? null : self::uploadAvatar($lid["ID"], $lid["AVATAR"]);
@@ -158,7 +158,7 @@ class synapse
             if ((!isset(self::$access_token)) && (!isset($_COOKIE['MATRIX'])))
                 self::login();
 
-            $url = sprintf("%s_synapse/admin/v2/users/@%s:%s", $matrix_settings['url'], strtolower($lid["VOORNAAM"]), $matrix_settings["domein"]);
+            $url = sprintf("%s_synapse/admin/v2/users/@%s:%s", $matrix_settings['url'], strtolower($lid["INLOGNAAM"]), $matrix_settings["domein"]);
 
             $data = array(
                 "displayname" => $lid["NAAM"],
@@ -224,7 +224,7 @@ class synapse
 
         $data = array("erase" => true);
 
-        $url = sprintf("%s_synapse/admin/v1/deactivate/@%s:%s", $matrix_settings['url'], strtolower($lid["VOORNAAM"]), $matrix_settings["domein"]);
+        $url = sprintf("%s_synapse/admin/v1/deactivate/@%s:%s", $matrix_settings['url'], strtolower($lid["INLOGNAAM"]), $matrix_settings["domein"]);
         self::initCurl($url, "POST");
         curl_setopt(self::$curl_session, CURLOPT_POSTFIELDS, json_encode($data));
 
@@ -300,7 +300,7 @@ class synapse
         if (!isset($matrix_settings["kamers"]))
             return;
 
-        $matrixUserID = sprintf("@%s:%s", strtolower($lid["VOORNAAM"]), $matrix_settings["domein"]);
+        $matrixUserID = sprintf("@%s:%s", strtolower($lid["INLOGNAAM"]), $matrix_settings["domein"]);
 
         self::kamerMapping();
 
@@ -456,10 +456,10 @@ class synapse
         if (!isset($matrix_settings["favorieten"]))
             return;
 
-        self::login(strtolower($lid["VOORNAAM"]), $password);
+        self::login(strtolower($lid["INLOGNAAM"]), $password);
 
         self::kamerMapping();
-        $matrixUserID = sprintf("@%s:%s", strtolower($lid["VOORNAAM"]), $matrix_settings["domein"]);
+        $matrixUserID = sprintf("@%s:%s", strtolower($lid["INLOGNAAM"]), $matrix_settings["domein"]);
 
         foreach ($matrix_settings["favorieten"] as $kamerNaam) {
             $roomID = self::$mappingTabel[$kamerNaam];
