@@ -1,13 +1,13 @@
 <?php
 
-class Meldingen extends Helios
+class Journaal extends Helios
 {
     function __construct()
     {
         parent::__construct();
-        $this->dbTable = "oper_meldingen";
-        $this->dbView = "meldingen_view";
-        $this->Naam = "Meldingen";
+        $this->dbTable = "oper_journaal";
+        $this->dbView = "journaal_view";
+        $this->Naam = "Journaal";
     }
 
     /*
@@ -90,13 +90,13 @@ class Meldingen extends Helios
 			LEFT JOIN `ref_vliegtuigen` `v`  ON (`m`.`VLIEGTUIG_ID` = `v`.`ID`)
 		WHERE
 			`m`.`VERWIJDERD` = %d 
-		ORDER BY `v`.`VOLGORDE`, `m`.`DATUM` DESC;";
+		ORDER BY  `m`.`STATUS_ID`, `m`.`DATUM` DESC;";
 
-        parent::DbUitvoeren("DROP VIEW IF EXISTS meldingen_view");
-        parent::DbUitvoeren(sprintf($query, "meldingen_view", $this->dbTable, 0));
+        parent::DbUitvoeren("DROP VIEW IF EXISTS journaal_view");
+        parent::DbUitvoeren(sprintf($query, "journaal_view", $this->dbTable, 0));
 
-        parent::DbUitvoeren("DROP VIEW IF EXISTS verwijderd_meldingen_view");
-        parent::DbUitvoeren(sprintf($query, "verwijderd_meldingen_view", $this->dbTable, 1));
+        parent::DbUitvoeren("DROP VIEW IF EXISTS verwijderd_journaal_view");
+        parent::DbUitvoeren(sprintf($query, "verwijderd_journaal_view", $this->dbTable, 1));
     }
 
     /*
@@ -104,7 +104,7 @@ class Meldingen extends Helios
     */
     function GetObject($ID)
     {
-        $functie = "Meldingen.GetObject";
+        $functie = "Journaal.GetObject";
         Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, $ID));
 
         if ($ID == null)
@@ -130,7 +130,7 @@ class Meldingen extends Helios
     {
         global $app_settings;
 
-        $functie = "Meldingen.GetObjects";
+        $functie = "Journaal.GetObjects";
         Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($params, true)));
 
 
@@ -153,7 +153,7 @@ class Meldingen extends Helios
                 {
                     $id = isINT($value, "ID");
                     $where .= " AND ID=?";
-                    array_push($query_params, $id);
+                    $query_params[] = $id;
 
                     Debug(__FILE__, __LINE__, sprintf("%s: ID='%s'", $functie, $id));
                     break;
@@ -230,7 +230,7 @@ class Meldingen extends Helios
                     $beginDatum = isDATE($value, "BEGIN_DATUM");
 
                     $where .= " AND DATE(DATUM) >= ? ";
-                    array_push($query_params, $beginDatum);
+                    $query_params[] = $beginDatum;
 
                     Debug(__FILE__, __LINE__, sprintf("%s: BEGIN_DATUM='%s'", $functie, $beginDatum));
                     break;
@@ -240,7 +240,7 @@ class Meldingen extends Helios
                     $eindDatum = isDATE($value, "EIND_DATUM");
 
                     $where .= " AND DATE(DATUM) <= ? ";
-                    array_push($query_params, $eindDatum);
+                    $query_params[] = $eindDatum;
 
                     Debug(__FILE__, __LINE__, sprintf("%s: EIND_DATUM='%s'", $functie, $eindDatum));
                     break;
@@ -285,6 +285,55 @@ class Meldingen extends Helios
                     Debug(__FILE__, __LINE__, sprintf("%s: TECHNICUS_ID='%s'", $functie, trim($value)));
                     break;
                 }
+                case "CATEGORIE_ID" :
+                {
+                    isCSV($value, "CATEGORIE_ID");
+                    $where .= sprintf(" AND CATEGORIE_ID IN(%s)", trim($value));
+
+                    Debug(__FILE__, __LINE__, sprintf("%s: CATEGORIE_ID='%s'", $functie, trim($value)));
+                    break;
+                }
+                case "ROLLEND_ID" :
+                {
+                    isCSV($value, "ROLLEND_ID");
+                    $where .= sprintf(" AND ROLLEND_ID IN(%s)", trim($value));
+
+                    Debug(__FILE__, __LINE__, sprintf("%s: ROLLEND_ID='%s'", $functie, trim($value)));
+                    break;
+                }
+                case "ROLLEND" :
+                {
+                    $rollend = isBool($value, "ROLLEND");
+
+                    $where .= " AND ";
+                    $where .= ($rollend == 0) ?  "ROLLEND_ID IS NULL" : "ROLLEND_ID IS NOT NULL";
+
+                    Debug(__FILE__, __LINE__, sprintf("%s: ROLLEND='%s'", $functie, $rollend));
+                    break;
+                }
+                case "VLIEGEND" :
+                {
+                    $vliegend = isBool($value, "VLIEGEND");
+
+                    $where .= " AND ";
+                    $where .= ($vliegend == 0) ?  "VLIEGTUIG_ID IS NULL" : "VLIEGTUIG_ID IS NOT NULL";
+
+                    Debug(__FILE__, __LINE__, sprintf("%s: VLIEGEND='%s'", $functie, $vliegend));
+                    break;
+                }
+                case "SELECTIE" :
+                {
+                    $s = "%" . trim($value) . "%";
+
+                    $where .= " AND ((MELDER LIKE ?) ";      $query_params[] = $s;
+                    $where .= "  OR (TITEL LIKE ?) ";        $query_params[] = $s;
+                    $where .= "  OR (ROLLEND LIKE ?) ";      $query_params[] = $s;
+                    $where .= "  OR (REG_CALL LIKE ?) ";     $query_params[] = $s;
+                    $where .= "  OR (OMSCHRIJVING LIKE ?)) ";$query_params[] = $s;
+
+                    Debug(__FILE__, __LINE__, sprintf("%s: SELECTIE='%s'", $functie, $s));
+                    break;
+                }
                 default:
                 {
                     throw new Exception(sprintf("405;%s is een onjuiste parameter;", $key));
@@ -296,7 +345,7 @@ class Meldingen extends Helios
 			SELECT 
 				%s
 			FROM
-				`####meldingen_view` " . $where . $orderby;
+				`####journaal_view` " . $where . $orderby;
         $query = str_replace("####", ($alleenVerwijderd ? "verwijderd_" : "") , $query);
 
         $retVal = array();
@@ -341,56 +390,59 @@ class Meldingen extends Helios
     /*
 	Toevoegen van een record. Het is niet noodzakelijk om alle velden op te nemen in het verzoek
 	*/
-    function AddObject($melding)
+    function AddObject($journaal)
     {
         global $app_settings;
 
-        $functie = "Meldingen.AddObject";
-        Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($melding, true)));
+        $functie = "Journaal.AddObject";
+        Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($journaal, true)));
 
         $l = MaakObject('Login');
 
-        if ($melding == null)
-            throw new Exception("406;Melding data moet ingevuld zijn;");
+        if ($journaal == null)
+            throw new Exception("406;Journaal data moet ingevuld zijn;");
 
-        if (!isset($melding['DATUM']))
-            throw new Exception("406;DATUM is verplicht;");
-
-        if (!isset($melding['TITEL']))
+        if (!isset($journaal['TITEL']))
             throw new Exception("406;TITEL is verplicht;");
 
-        if (!isset($melding['OMSCHRIJVING']))
+        if (!isset($journaal['OMSCHRIJVING']))
             throw new Exception("406;OMSCHRIJVING is verplicht;");
 
-        if (!isset($melding['VLIEGTUIG_ID']) && isset($melding['ROLLEND_ID']))
+        if (!isset($journaal['VLIEGTUIG_ID']) && !isset($journaal['ROLLEND_ID']))
             throw new Exception("406;VLIEGTUIG_ID of ROLLEND_ID is verplicht;");
 
-        if (!isset($melding['MELDER_ID']))
-            throw new Exception("406;MELDER_ID is verplicht;");
-
-        if (!isset($melding['STATUS_ID']))
+        if (!isset($journaal['STATUS_ID']))
             throw new Exception("406;STATUS_ID is verplicht;");
 
-        if (!isset($melding['CATEGORIE_ID']))
+        if (!isset($journaal['CATEGORIE_ID']))
             throw new Exception("406;CATEGORIE_ID is verplicht;");
 
+        if (!isset($journaal['DATUM']))
+            $journaal['DATUM'] = date('Y-m-d');
+
+        if (!isset($journaal['MELDER_ID']))
+        {
+            $l = MaakObject('Login');
+            $journaal['MELDER_ID'] = $l->getUserFromSession();
+        }
+
         // Neem data over uit aanvraag
-        $record = $this->RequestToRecord($melding);
+        $record = $this->RequestToRecord($journaal);
         $id = parent::DbToevoegen($record);
 
-        Debug(__FILE__, __LINE__, sprintf("Melding toegevoegd id=%d", $id));
+        Debug(__FILE__, __LINE__, sprintf("Journaal toegevoegd id=%d", $id));
         return $id;
     }
 
     /*
     Update van een bestaand record. Het is niet noodzakelijk om alle velden op te nemen in het verzoek
     */
-    function UpdateObject($melding)
+    function UpdateObject($journaal)
     {
         global $app_settings;
 
-        $functie = "Meldingen.UpdateObject";
-        Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($melding, true)));
+        $functie = "Journaal.UpdateObject";
+        Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($journaal, true)));
 
         // schrijven mag alleen door beheerder / CIMT
         $l = MaakObject('Login');
@@ -398,16 +450,16 @@ class Meldingen extends Helios
         if (!$l->isBeheerder() && !$l->isCIMT())
             throw new Exception("401;Geen rechten;");
 
-        if ($melding == null)
-            throw new Exception("406;Melding data moet ingevuld zijn;");
+        if ($journaal == null)
+            throw new Exception("406;Journaal data moet ingevuld zijn;");
 
-        if (!array_key_exists('ID', $melding))
+        if (!array_key_exists('ID', $journaal))
             throw new Exception("406;ID moet ingevuld zijn;");
 
-        $id = isINT($melding['ID'], "ID");
+        $id = isINT($journaal['ID'], "ID");
 
         // Neem data over uit aanvraag
-        $d = $this->RequestToRecord($melding);
+        $d = $this->RequestToRecord($journaal);
 
         parent::DbAanpassen($id, $d);
         if (parent::NumRows() === 0)
@@ -422,7 +474,7 @@ class Meldingen extends Helios
     */
     function VerwijderObject($id, $verificatie = true)
     {
-        $functie = "Meldingen.VerwijderObject";
+        $functie = "Journaal.VerwijderObject";
         Debug(__FILE__, __LINE__, sprintf("%s('%s', %s)", $functie, $id, (($verificatie === false) ? "False" :  $verificatie)));
 
         // schrijven mag alleen door beheerder / CIMT
@@ -443,7 +495,7 @@ class Meldingen extends Helios
     */
     function HerstelObject($id)
     {
-        $functie = "Meldingen.HerstelObject";
+        $functie = "Journaal.HerstelObject";
         Debug(__FILE__, __LINE__, sprintf("%s('%s')", $functie, $id));
 
         // schrijven mag alleen door beheerder / CIMT

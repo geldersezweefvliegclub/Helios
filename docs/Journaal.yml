@@ -1,11 +1,11 @@
 openapi: 3.0.2
 info:
-  title: Meldingen
-  description: Meldingen
+  title: Journaal
+  description: Journaal
   version: '1.0'
 
 paths:
-  /Meldingen/CreateTable:
+  /Journaal/CreateTable:
     post:
       security:
         - basicAuth: []
@@ -24,7 +24,7 @@ paths:
         500:
           description: "Data verwerkingsfout, bijv omdat de tabel al bestaat"
   
-  /Meldingen/CreateViews:
+  /Journaal/CreateViews:
     post:
       security:
         - basicAuth: []
@@ -36,7 +36,7 @@ paths:
         500:
           description: "Data verwerkingsfout, view niet aangemaak"
   
-  /Meldingen/GetObject:
+  /Journaal/GetObject:
     get:
       security:
         - basicAuth: []
@@ -56,7 +56,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/oper_meldingen'
+                $ref: '#/components/schemas/oper_journaal'
         404:
           description: "Data niet gevonden"
         405:
@@ -66,7 +66,7 @@ paths:
         500:
           description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"
   
-  /Meldingen/GetObjects:
+  /Journaal/GetObjects:
     get:
       security:
         - basicAuth: []
@@ -145,7 +145,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/oper_meldingen'
+                $ref: '#/components/schemas/oper_journaal'
         304:
           description: "Data niet gemodificeerd, HASH in aanroep == hash in dataset"
         405:
@@ -153,7 +153,7 @@ paths:
         500:
           description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"
   
-  /Meldingen/DeleteObject:
+  /Journaal/DeleteObject:
     delete:
       security:
         - basicAuth: []
@@ -186,7 +186,7 @@ paths:
         500:
           description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"
   
-  /Meldingen/RestoreObject:
+  /Journaal/RestoreObject:
     patch:
       security:
         - basicAuth: []
@@ -213,7 +213,7 @@ paths:
         500:
           description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"
   
-  /Meldingen/SaveObject:
+  /Journaal/SaveObject:
     post:
       security:
         - basicAuth: []
@@ -225,14 +225,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/oper_meldingen_in'
+              $ref: '#/components/schemas/oper_journaal_in'
       responses:
         200:
           description: "OK, data succesvol toegevoegd"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/oper_meldingen'
+                $ref: '#/components/schemas/oper_journaal'
         401:
           description: "Niet geautoriseerd, geen schrijfrechten"
         405:
@@ -254,14 +254,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/oper_meldingen_in'
+              $ref: '#/components/schemas/oper_journaal_in'
       responses:
         200:
           description: "OK, data succesvol aangepast"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/oper_meldingen'
+                $ref: '#/components/schemas/oper_journaal'
         401:
           description: "Niet geautoriseerd, geen schrijfrechten"
         404:
@@ -285,7 +285,7 @@ components:
       bearerFormat: JWT
   
   schemas:
-    oper_meldingen_in:
+    oper_journaal_in:
       type: object
       properties:
         ID:
@@ -335,10 +335,10 @@ components:
           type: integer
           example: 10552
 
-    oper_meldingen:
+    oper_journaal:
       type: object
       allOf:
-        - $ref: '#/components/schemas/oper_meldingen_in'
+        - $ref: '#/components/schemas/oper_journaal_in'
         - type: object
           properties:
             VERWIJDERD:
@@ -351,10 +351,10 @@ components:
               format: date-time
               example: "2021-05-05 20:13:59Z"
     
-    view_meldingen_dataset:
+    view_journaal_dataset:
       type: object
       allOf:
-        - $ref: '#/components/schemas/oper_meldingen'
+        - $ref: '#/components/schemas/oper_journaal'
         - type: object
           properties:
             ROLLEND:
@@ -394,7 +394,7 @@ components:
               type: string
               example: "PH-721 (E4)"
 
-    view_meldingen:
+    view_journaal:
       type: object
       properties:
         totaal:
@@ -415,4 +415,4 @@ components:
           description: De dataset met records
           type: array
           items:
-            $ref: '#/components/schemas/view_meldingen_dataset'
+            $ref: '#/components/schemas/view_journaal_dataset'

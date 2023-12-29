@@ -8,8 +8,8 @@ use Slim\Factory\AppFactory;
 /*
 Aanmaken van de database tabel. Indien FILLDATA == true, dan worden er ook voorbeeld records toegevoegd 
 */
-$app->post(url_base() . 'Meldingen/CreateTable', function (Request $request, Response $response, $args) {
-    $obj = MaakObject("Meldingen");
+$app->post(url_base() . 'Journaal/CreateTable', function (Request $request, Response $response, $args) {
+    $obj = MaakObject("Journaal");
     try
     {
         $params = $request->getQueryParams();
@@ -20,7 +20,7 @@ $app->post(url_base() . 'Meldingen/CreateTable', function (Request $request, Res
     }
     catch(Exception $exception)
     {
-        Debug(__FILE__, __LINE__, "/Meldingen/CreateTable: " .$exception);
+        Debug(__FILE__, __LINE__, "/Journaal/CreateTable: " .$exception);
 
         list($dummy, $exceptionMsg) = explode(": ", $exception);
         list($httpStatus, $message) = explode(";", $exceptionMsg);  // onze eigen formaat van een exceptie
@@ -34,8 +34,8 @@ $app->post(url_base() . 'Meldingen/CreateTable', function (Request $request, Res
 /*
 Maak database views, als view al bestaat wordt deze overschreven
 */
-$app->post(url_base() . 'Meldingen/CreateViews', function (Request $request, Response $response, $args) {
-    $obj = MaakObject("Meldingen");
+$app->post(url_base() . 'Journaal/CreateViews', function (Request $request, Response $response, $args) {
+    $obj = MaakObject("Journaal");
     try
     {
         $obj->CreateViews();    // Hier staat de logica voor deze functie
@@ -43,7 +43,7 @@ $app->post(url_base() . 'Meldingen/CreateViews', function (Request $request, Res
     }
     catch(Exception $exception)
     {
-        Debug(__FILE__, __LINE__, "/Meldingen/CreateViews: " .$exception);
+        Debug(__FILE__, __LINE__, "/Journaal/CreateViews: " .$exception);
 
         list($dummy, $exceptionMsg) = explode(": ", $exception);
         list($httpStatus, $message) = explode(";", $exceptionMsg);  // onze eigen formaat van een exceptie
@@ -57,8 +57,8 @@ $app->post(url_base() . 'Meldingen/CreateViews', function (Request $request, Res
 /*
 Haal een enkel record op uit de database
 */
-$app->get(url_base() . 'Meldingen/GetObject', function (Request $request, Response $response, $args) {
-    $obj = MaakObject("Meldingen");
+$app->get(url_base() . 'Journaal/GetObject', function (Request $request, Response $response, $args) {
+    $obj = MaakObject("Journaal");
     try
     {
         $params = $request->getQueryParams();
@@ -77,7 +77,7 @@ $app->get(url_base() . 'Meldingen/GetObject', function (Request $request, Respon
     }
     catch(Exception $exception)
     {
-        Debug(__FILE__, __LINE__, "/Meldingen/GetObject: " .$exception);
+        Debug(__FILE__, __LINE__, "/Journaal/GetObject: " .$exception);
 
         list($dummy, $exceptionMsg) = explode(": ", $exception);
         list($httpStatus, $message) = explode(";", $exceptionMsg);  // onze eigen formaat van een exceptie
@@ -91,8 +91,8 @@ $app->get(url_base() . 'Meldingen/GetObject', function (Request $request, Respon
 /*
 Haal een dataset op met records als een array uit de database. 
 */
-$app->get(url_base() . 'Meldingen/GetObjects', function (Request $request, Response $response, $args) {
-    $obj = MaakObject("Meldingen");
+$app->get(url_base() . 'Journaal/GetObjects', function (Request $request, Response $response, $args) {
+    $obj = MaakObject("Journaal");
     try
     {
         $parameters = $request->getQueryParams();
@@ -103,7 +103,7 @@ $app->get(url_base() . 'Meldingen/GetObjects', function (Request $request, Respo
     }
     catch(Exception $exception)
     {
-        Debug(__FILE__, __LINE__, "/Meldingen/GetObjects: " .$exception);
+        Debug(__FILE__, __LINE__, "/Journaal/GetObjects: " .$exception);
 
         list($dummy, $exceptionMsg) = explode(": ", $exception);
         list($httpStatus, $message) = explode(";", $exceptionMsg);   // onze eigen formaat van een exceptie
@@ -118,8 +118,8 @@ $app->get(url_base() . 'Meldingen/GetObjects', function (Request $request, Respo
 Markeer een record in de database als verwijderd. Het record wordt niet fysiek verwijderd om er een link kan zijn naar andere tabellen.
 Het veld VERWIJDERD wordt op "1" gezet.
 */
-$app->delete(url_base() . 'Meldingen/DeleteObject', function (Request $request, Response $response, $args) {
-    $obj = MaakObject("Meldingen");
+$app->delete(url_base() . 'Journaal/DeleteObject', function (Request $request, Response $response, $args) {
+    $obj = MaakObject("Journaal");
     try
     {
         $params = $request->getQueryParams();
@@ -131,7 +131,7 @@ $app->delete(url_base() . 'Meldingen/DeleteObject', function (Request $request, 
     }
     catch(Exception $exception)
     {
-        Debug(__FILE__, __LINE__, "/Meldingen/DeleteObject: " .$exception);
+        Debug(__FILE__, __LINE__, "/Journaal/DeleteObject: " .$exception);
 
         list($dummy, $exceptionMsg) = explode(": ", $exception);
         list($httpStatus, $message) = explode(";", $exceptionMsg);  // onze eigen formaat van een exceptie
@@ -146,8 +146,8 @@ $app->delete(url_base() . 'Meldingen/DeleteObject', function (Request $request, 
 Haal een record terug dat verwijderd is . Het record was gelukkig niet fysiek verwijderd om er een link kan zijn naar andere tabellen.
 Het veld VERWIJDERD wordt terug op "0" gezet.
 */
-$app->patch(url_base() . 'Meldingen/RestoreObject', function (Request $request, Response $response, $args) {
-    $obj = MaakObject("Meldingen");
+$app->patch(url_base() . 'Journaal/RestoreObject', function (Request $request, Response $response, $args) {
+    $obj = MaakObject("Journaal");
     try
     {
         $params = $request->getQueryParams();
@@ -158,7 +158,7 @@ $app->patch(url_base() . 'Meldingen/RestoreObject', function (Request $request, 
     }
     catch(Exception $exception)
     {
-        Debug(__FILE__, __LINE__, "/Meldingen/RestoreObject: " .$exception);
+        Debug(__FILE__, __LINE__, "/Journaal/RestoreObject: " .$exception);
 
         list($dummy, $exceptionMsg) = explode(": ", $exception);
         list($httpStatus, $message) = explode(";", $exceptionMsg);  // onze eigen formaat van een exceptie
@@ -172,8 +172,8 @@ $app->patch(url_base() . 'Meldingen/RestoreObject', function (Request $request, 
 /*
 Aanmaken van een record. Het is niet noodzakelijk om alle velden op te nemen in het verzoek
 */
-$app->post(url_base() . 'Meldingen/SaveObject', function (Request $request, Response $response, $args) {
-    $obj = MaakObject("Meldingen");
+$app->post(url_base() . 'Journaal/SaveObject', function (Request $request, Response $response, $args) {
+    $obj = MaakObject("Journaal");
     try
     {
         $data = json_decode($request->getBody(), true);
@@ -184,7 +184,7 @@ $app->post(url_base() . 'Meldingen/SaveObject', function (Request $request, Resp
     }
     catch(Exception $exception)
     {
-        Debug(__FILE__, __LINE__, "/Meldingen/SaveObject: " .$exception);
+        Debug(__FILE__, __LINE__, "/Journaal/SaveObject: " .$exception);
 
         list($dummy, $exceptionMsg) = explode(": ", $exception);
         list($httpStatus, $message) = explode(";", $exceptionMsg);  // onze eigen formaat van een exceptie
@@ -198,8 +198,8 @@ $app->post(url_base() . 'Meldingen/SaveObject', function (Request $request, Resp
 /*
 Aanpassen van een record. Het is niet noodzakelijk om alle velden op te nemen in het verzoek
 */
-$app->put(url_base() . 'Meldingen/SaveObject', function (Request $request, Response $response, $args) {
-    $obj = MaakObject("Meldingen");
+$app->put(url_base() . 'Journaal/SaveObject', function (Request $request, Response $response, $args) {
+    $obj = MaakObject("Journaal");
     try
     {
         $data = json_decode($request->getBody(), true);
@@ -210,7 +210,7 @@ $app->put(url_base() . 'Meldingen/SaveObject', function (Request $request, Respo
     }
     catch(Exception $exception)
     {
-        Debug(__FILE__, __LINE__, "/Meldingen/SaveObject: " .$exception);
+        Debug(__FILE__, __LINE__, "/Journaal/SaveObject: " .$exception);
 
         list($dummy, $exceptionMsg) = explode(": ", $exception);
         list($httpStatus, $message) = explode(";", $exceptionMsg);  // onze eigen formaat van een exceptie
