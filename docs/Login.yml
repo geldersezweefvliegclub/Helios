@@ -287,6 +287,10 @@ components:
           type: string
           format: date
           example: "2022-01-16"
+        TECHNICUS:
+          description: Is lid een technicus voor rollend / vliegend. Zo ja dan extra bevoegdheden in Journaal
+          type: boolean
+          example: true
         GEBOORTE_DATUM:
           description: Geboorte datum van het lid 
           type: string
