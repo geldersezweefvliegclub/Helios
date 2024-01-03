@@ -86,7 +86,7 @@ class Journaal extends Helios
 			LEFT JOIN `ref_types` `tc` ON (`m`.`CATEGORIE_ID` = `tc`.`ID`)
 			LEFT JOIN `ref_leden` `lm` ON (`m`.`MELDER_ID` = `lm`.`ID`)
 			LEFT JOIN `ref_leden` `lt` ON (`m`.`TECHNICUS_ID` = `lt`.`ID`)
-			LEFT JOIN `ref_leden` `la` ON (`m`.`AFGETEKEND_ID` = `lt`.`ID`)
+			LEFT JOIN `ref_leden` `la` ON (`m`.`AFGETEKEND_ID` = `la`.`ID`)
 			LEFT JOIN `ref_vliegtuigen` `v`  ON (`m`.`VLIEGTUIG_ID` = `v`.`ID`)
 		WHERE
 			`m`.`VERWIJDERD` = %d 
