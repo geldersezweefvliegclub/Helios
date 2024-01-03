@@ -15,8 +15,8 @@ class synapse
         curl_setopt(self::$curl_session, CURLOPT_URL, $url);
         curl_setopt(self::$curl_session, CURLOPT_CUSTOMREQUEST, $http_method);
 
-        if ($_COOKIE['MATRIX'])
-            self::$access_token = base64_decode($_COOKIE['MATRIX']);
+        if ($_SESSION["MATRIX"])
+            self::$access_token = $_SESSION["MATRIX"];
 
         if (!isset($contentType))
             $contentType = "application/json";
@@ -28,17 +28,6 @@ class synapse
         }
     }
 
-    static private function setCookie()
-    {
-        $verlopen = time() + 5 * 60;    // 5 minuten
-        setcookie("MATRIX", base64_encode(self::$access_token), [
-            'expires' => $verlopen,
-            'path' => '/',
-            'secure' => true,
-            'domain' => $_SERVER['HTTP_HOST'],
-            'samesite' => 'None',
-        ]);
-    }
 
     static private function login($username = null, $password = null)
     {
@@ -75,7 +64,7 @@ class synapse
 
         $response = json_decode($body, true);
         self::$access_token = $response["access_token"];
-        self::setCookie();
+        $_SESSION["MATRIX"] = $response["access_token"];
     }
 
     static public function bestaatGebruiker($id)
@@ -118,6 +107,7 @@ class synapse
         if (!$gebruikerBestaat)
             $avatarUrl = !isset($lid["AVATAR"]) ? null : self::uploadAvatar($lid["ID"], $lid["AVATAR"]);
         else {
+            // Als de gebruiker bestaat, gaan we kijken of er een update nodig is
             $email = null;
             $mobiel = null;
 
@@ -207,7 +197,6 @@ class synapse
                 throw new Exception("500;Update gebruiker mislukt;" . $body);
             }
             Debug(__FILE__, __LINE__, sprintf("updateGebruiker result = %s %s", $status_code, $body));
-            self::setCookie();
         }
     }
 
@@ -215,7 +204,7 @@ class synapse
     {
         global $matrix_settings;
 
-        Debug(__FILE__, __LINE__, sprintf("updateGebruiker %s", (isset($matrix_settings)) ? "true" : "false"));
+        Debug(__FILE__, __LINE__, sprintf("verwijderGebruiker %s", (isset($matrix_settings)) ? "true" : "false"));
         if (!isset($matrix_settings))
             return;
 
@@ -236,7 +225,6 @@ class synapse
             throw new Exception("500;Verwijder gebruiker mislukt;" . $body);
         }
         Debug(__FILE__, __LINE__, sprintf("verwijderGebruiker result = %s %s", $status_code, $body));
-        self::setCookie();
     }
 
     static public function uploadAvatar($id, $imgUrl)
@@ -280,7 +268,6 @@ class synapse
 
         $status_code = curl_getinfo(self::$curl_session, CURLINFO_HTTP_CODE); //get status code
         Debug(__FILE__, __LINE__, sprintf("uploadAvatar result = %s %s", $status_code, $body));
-        self::setCookie();
 
         $retVal = json_decode($body, true);
         return $retVal['content_uri'];

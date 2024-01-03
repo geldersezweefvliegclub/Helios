@@ -795,7 +795,7 @@ class Leden extends Helios
             $l = MaakObject('Login');
             $ikBenHetZelf = ($l->getUserFromSession() == $lidID);
             if ((isset($password)) && $ikBenHetZelf)
-                synapse::markeerAlsFavoriet($lid, $password);
+                synapse::markeerAlsFavoriet($lid, $password);  // dit mag de admin niet doen
         }
         else
             synapse::verwijderGebruiker($lid);
