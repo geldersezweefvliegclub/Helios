@@ -2,11 +2,11 @@
 
 class synapse
 {
-    private static $access_token = null;
-    private static $curl_session;
-    private static $mappingTabel = array();
+    private static ?string $access_token = null;
+    private static CurlHandle|bool $curl_session;
+    private static array $mappingTabel = array();
 
-    static private function initCurl($url, $http_method = "GET", $contentType = null)
+    static private function initCurl($url, $http_method = "GET", $contentType = null): void
     {
         self::$curl_session = curl_init();
         curl_setopt(self::$curl_session, CURLOPT_TIMEOUT, 10);
@@ -102,6 +102,8 @@ class synapse
             return;             // na verwijderen kunnen we stoppen
         }
 
+        $updateNodig = false;
+
         $matrixGebruiker = self::bestaatGebruiker(strtolower($lid["INLOGNAAM"]));
         $gebruikerBestaat = isset($matrixGebruiker);
         if (!$gebruikerBestaat)
@@ -113,9 +115,10 @@ class synapse
 
             foreach ($matrixGebruiker["external_ids"] as $t)
             {
-                switch ($t["auth_provider"])
+                if ($t["auth_provider"] == "mijn.gezc.org")
                 {
-                    case "mijn.gezc.org" : $mID = $t["external_id"]; break;
+                    $mID = $t["external_id"];
+                    break;
                 }
             }
             foreach ($matrixGebruiker["threepids"] as $t)
@@ -127,7 +130,6 @@ class synapse
                 }
             }
 
-            $updateNodig = false;
             if ($email !== $lid['EMAIL'])
                 $updateNodig = true;
             else if ($mobiel !== $lid['MOBIEL'])
@@ -142,9 +144,9 @@ class synapse
                 $updateNodig = true;
         }
 
-        // moeten we matrix updaten?
+        // moeten we matrix data aanpassen?
         Debug(__FILE__, __LINE__, sprintf("gebruikerBestaat=%s updateNodig=%s", $gebruikerBestaat ? "true" : "false", $updateNodig ? "true" : "false"));
-        if ($gebruikerBestaat == false || $updateNodig || isset($avatarUrl)) {
+        if (!$gebruikerBestaat || $updateNodig || isset($avatarUrl)) {
             if ((!isset(self::$access_token)) && (!isset($_COOKIE['MATRIX'])))
                 self::login();
 
@@ -200,7 +202,7 @@ class synapse
         }
     }
 
-    static public function verwijderGebruiker($lid)
+    static public function verwijderGebruiker($lid): void
     {
         global $matrix_settings;
 
@@ -227,13 +229,13 @@ class synapse
         Debug(__FILE__, __LINE__, sprintf("verwijderGebruiker result = %s %s", $status_code, $body));
     }
 
-    static public function uploadAvatar($id, $imgUrl)
+    static public function uploadAvatar($id, $imgUrl): ?string
     {
         global $matrix_settings;
 
         Debug(__FILE__, __LINE__, sprintf("uploadAvatar %s %s", $id, $imgUrl));
         if (!isset($matrix_settings))
-            return;
+            return null;
 
         // ophalen avatar
         $ch = curl_init($imgUrl);
@@ -276,7 +278,7 @@ class synapse
     /*
      Toevoegen aan de algemene kamer en de kamers die van toepassing zijn voor de functie
      */
-    static public function toevoegenAanKamers($lid)
+    static public function toevoegenAanKamers($lid): void
     {
         global $matrix_settings;
 
@@ -323,13 +325,13 @@ class synapse
     /*
      Zorg voor een mapping lijst tussen de naam van de kamer en het ID van de kamer
      */
-    private function kamerMapping()
+    static private function kamerMapping()
     {
         global $matrix_settings;
 
-        // ophalen kamers, we hebben straks de ID van de kamers nodig, in de config staat de naam van de kamer en niet het ID
+        // ophalen kamers, we hebben straks de ID van de kamers nodig, in de configuratie staat de naam van de kamer en niet het ID
         $url = sprintf("%s_synapse/admin/v1/rooms", $matrix_settings['url'] );
-        self::initCurl($url, "GET");
+        self::initCurl($url);
 
         $body = curl_exec(self::$curl_session);
         $status_code = curl_getinfo(self::$curl_session, CURLINFO_HTTP_CODE); //get status code
@@ -351,10 +353,8 @@ class synapse
     /*
      Gebruiker toevoegen aan de kamers (uit de configuratie) als hij/zij nog niet in de kamer aanwezig is
      */
-    static private function toevoegen($kamers, $userID)
+    static private function toevoegen($kamers, $userID): void
     {
-        global $matrix_settings;
-
         Debug(__FILE__, __LINE__, sprintf("toevoegen(%s, %s)", print_r($kamers, true), $userID));
 
         // toevoegen aan de kamers die voor iedereen bestemd zijn
@@ -383,7 +383,7 @@ class synapse
         Debug(__FILE__, __LINE__, sprintf("isInKamer(%s, %s)", $roomID, $userID));
 
         $url = sprintf("%s_synapse/admin/v1/rooms/%s/members", $matrix_settings['url'], $roomID);
-        self::initCurl($url, "GET");
+        self::initCurl($url);
 
         $body = curl_exec(self::$curl_session);
 
@@ -448,7 +448,7 @@ class synapse
         self::kamerMapping();
         $matrixUserID = sprintf("@%s:%s", strtolower($lid["INLOGNAAM"]), $matrix_settings["domein"]);
 
-        foreach ($matrix_settings["favorieten"] as $kamerNaam) {
+        foreach ((array)$matrix_settings["favorieten"] as $kamerNaam) {
             $roomID = self::$mappingTabel[$kamerNaam];
 
             $url = sprintf("%s_matrix/client/v3/user/%s/rooms/%s/tags/m.favourite", $matrix_settings['url'], $matrixUserID, $roomID);
