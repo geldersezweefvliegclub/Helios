@@ -3,8 +3,9 @@
 class synapse
 {
     private static ?string $access_token = null;
-    private static CurlHandle|bool $curl_session;
+    private static $curl_session;
     private static array $mappingTabel = array();
+
 
     static private function initCurl($url, $http_method = "GET", $contentType = null): void
     {
@@ -106,6 +107,7 @@ class synapse
 
         $matrixGebruiker = self::bestaatGebruiker(strtolower($lid["INLOGNAAM"]));
         $gebruikerBestaat = isset($matrixGebruiker);
+
         if (!$gebruikerBestaat)
             $avatarUrl = !isset($lid["AVATAR"]) ? null : self::uploadAvatar($lid["ID"], $lid["AVATAR"]);
         else {
@@ -146,32 +148,34 @@ class synapse
 
         // moeten we matrix data aanpassen?
         Debug(__FILE__, __LINE__, sprintf("gebruikerBestaat=%s updateNodig=%s", $gebruikerBestaat ? "true" : "false", $updateNodig ? "true" : "false"));
-        if (!$gebruikerBestaat || $updateNodig || isset($avatarUrl)) {
+        if (!$gebruikerBestaat || $updateNodig || isset($password) || isset($avatarUrl)) {
             if ((!isset(self::$access_token)) && (!isset($_COOKIE['MATRIX'])))
                 self::login();
 
             $url = sprintf("%s_synapse/admin/v2/users/@%s:%s", $matrix_settings['url'], strtolower($lid["INLOGNAAM"]), $matrix_settings["domein"]);
 
-            $data = array(
-                "displayname" => $lid["NAAM"],
-                "external_ids" => array(
-                    array(
-                        "auth_provider" => "mijn.gezc.org",
-                        "external_id" => $lid["ID"]
-                    )
-                ),
-                "admin" => $lid['BEHEERDER'],
-                "deactivated" => false,
-                "user_type" => null,
-                "locked" => false
-            );
-
-            $data["threepids"] = array();
-            if (isset($lid["EMAIL"]))
-                $data["threepids"][] = array(
-                    "medium" => "email",
-                    "address" => $lid["EMAIL"]
+            if (!$gebruikerBestaat || $updateNodig) {  // alle user data vervangen
+                $data = array(
+                    "displayname" => $lid["NAAM"],
+                    "external_ids" => array(
+                        array(
+                            "auth_provider" => "mijn.gezc.org",
+                            "external_id" => $lid["ID"]
+                        )
+                    ),
+                    "admin" => $lid['BEHEERDER'],
+                    "deactivated" => false,
+                    "user_type" => null,
+                    "locked" => false
                 );
+
+                $data["threepids"] = array();
+                if (isset($lid["EMAIL"]))
+                    $data["threepids"][] = array(
+                        "medium" => "email",
+                        "address" => $lid["EMAIL"]
+                    );
+            }
 
             if (isset($password))
             {
