@@ -82,6 +82,9 @@ class Login extends Helios
 		if (isset($_SESSION['isInstaller']))
 			unset($_SESSION['isInstaller']);
 
+        if (isset($_SESSION['MATRIX']))
+            unset($_SESSION['MATRIX']);
+
 		$this->_userID = null;
 		session_destroy();				
 	}		
