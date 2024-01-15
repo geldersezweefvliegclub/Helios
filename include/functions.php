@@ -71,7 +71,8 @@ if (!function_exists('HeliosError'))
     {
         global $app_settings;
 
-        if ($app_settings['Debug'])
+		Debug($file, $line, $text);
+        if ($app_settings['Error'])
         {
             $arrStr = explode("/", $file);
             $arrStr = array_reverse($arrStr );

@@ -38,10 +38,8 @@ function heliosInit($url, $http_method = "GET")
 
         curl_setopt($curl_session, CURLOPT_USERPWD, $helios_settings['username'] . ":" . $helios_settings['password']);  // basic auth
 
-        if (isset($helios_settings['secret'])) {
-            $ga = new PHPGangsta_GoogleAuthenticator();
-            $urlToken = $ga->getCode($helios_settings['secret']);
-
+        if (isset($helios_settings['bypassToken'])) {
+            $urlToken = sha1($helios_settings['bypassToken'] . $helios_settings['password']) ;
             $loginUrl = $helios_settings['url'] . "/Login/Login?token=" . $urlToken;
         } else {
             $loginUrl = $helios_settings['url'] . "/Login/Login";
@@ -52,6 +50,10 @@ function heliosInit($url, $http_method = "GET")
         $result = curl_exec($curl_session);
         $status_code = curl_getinfo($curl_session, CURLINFO_HTTP_CODE); //get status code
         list($header, $body) = returnHeaderBody($result);
+        $body = json_decode($body, true);
+
+        $authorization = sprintf("Authorization: Bearer %s", $body['TOKEN']);
+        curl_setopt($curl_session, CURLOPT_HTTPHEADER, array('Content-Type: application/json' , $authorization ));
 
         if ($status_code == 200) {
             heliosInit($url, $http_method);
@@ -143,4 +145,57 @@ function getHeaders($respHeaders)
         }
     }
     return $headers;
+}
+
+// De debug functie, schrijft niets als de globale setting UIT staat
+if (!function_exists('Debug'))
+{
+    function Debug($file, $line, $text)
+    {
+        global $app_settings;
+
+        if ($app_settings['Debug'])
+        {
+            $arrStr = explode("/", $file);
+            $arrStr = array_reverse($arrStr );
+            $arrStr = explode("\\", $arrStr[0]);
+            $arrStr = array_reverse($arrStr );
+
+            $toLog = sprintf("%s: %s (%d), %s\n", date("Y-m-d H:i:s"), $arrStr[0], $line, $text);
+
+            if ($app_settings['LogDir'] == "syslog")
+            {
+                error_log($toLog);
+            }
+            else
+            {
+                error_log($toLog, 3, $app_settings['LogDir'] . "debug.txt");
+            }
+        }
+    }
+}
+
+// De debug functie, schrijft niets als de globale setting UIT staat
+if (!function_exists('HeliosError'))
+{
+    function Error($file, $line, $text)
+    {
+        global $app_settings;
+
+        Debug($file, $line, $text);
+        if ($app_settings['Error'])
+        {
+            $arrStr = explode("/", $file);
+            $arrStr = array_reverse($arrStr );
+            $arrStr = explode("\\", $arrStr[0]);
+            $arrStr = array_reverse($arrStr );
+
+            $toLog = sprintf("%s: %s (%d), %s\n", date("Y-m-d H:i:s"), $arrStr[0], $line, $text);
+
+            if ($app_settings['LogDir'] == "syslog")
+                error_log($toLog);
+            else
+                error_log($toLog, 3, $app_settings['LogDir'] . "error.txt");
+        }
+    }
 }

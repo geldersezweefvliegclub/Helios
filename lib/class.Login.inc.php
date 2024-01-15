@@ -323,7 +323,6 @@ class Login extends Helios
 			throw new Exception("406;Token moet ingevoerd worden;");
 		}
 
-																									
 		if ($lObj['WACHTWOORD'] == $key)
 		{		
 			Debug(__FILE__, __LINE__, sprintf("Toegang toegestaan (%s)", $username));	
@@ -378,15 +377,16 @@ class Login extends Helios
 						'samesite' => 'None',
 					]);  	// stoppen ID in cookie
 
-					$this->setSessionUser($lObj['ID']);	
-					return $this->JWT($lObj);
+					$this->setSessionUser($lObj['ID']);
 				}
 			}
 			else
 			{
 				$this->setSessionUser($lObj['ID']);	
-				return $this->JWT($lObj);
+
 			}
+            $l->SyncLeden($lObj['ID']);
+            return $this->JWT($lObj);
 		}
 		
 		// Heeft geen toegang, dus einde

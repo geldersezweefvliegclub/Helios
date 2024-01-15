@@ -104,15 +104,12 @@ if (!IsSet($GLOBALS['DATABASE_INCLUDED']))
 					{
 						echo "Fatale fout opgetreden bij opvragen informatie.";
 					}
-					
-					if ($app_settings['DbError'])
-					{
-						ob_start(); 
-						$sth->debugDumpParams();
-						$q = ob_get_clean();
 
-						HeliosError(__FILE__, __LINE__,  $q  . "\n" . $e->getMessage());
-					}
+                    ob_start();
+                    $sth->debugDumpParams();
+                    $q = ob_get_clean();
+
+                    HeliosError(__FILE__, __LINE__,  $q  . "\n" . $e->getMessage());
 					die;
 				}
 			}
@@ -159,9 +156,8 @@ if (!IsSet($GLOBALS['DATABASE_INCLUDED']))
 					{
 						echo "Fatale fout opgetreden bij uitvoeren opdracht.";
 					}
-					
-					if ($app_settings['DbError'])
-						HeliosError(__FILE__, __LINE__,  $e->getMessage());
+
+					HeliosError(__FILE__, __LINE__,  $e->getMessage());
 					die;
 				}
 				$this->ClearCache();
@@ -250,11 +246,8 @@ if (!IsSet($GLOBALS['DATABASE_INCLUDED']))
 					{
 						echo "Fatale fout opgetreden bij toevoegen data.";
 					}
-					if ($app_settings['DbError'])
-					{
-						if ($app_settings['LogDir'] == "syslog")
-							HeliosError(__FILE__, __LINE__,  $query  . "\n" . $e->getMessage());
-					}
+
+                    HeliosError(__FILE__, __LINE__,  $query  . "\n" . $e->getMessage());
 					die;
 				}
 				
@@ -352,10 +345,7 @@ if (!IsSet($GLOBALS['DATABASE_INCLUDED']))
 						echo "Fatale fout opgetreden bij aanpassen data.";
 					}
 					
-					if ($app_settings['DbError'])
-					{
-						HeliosError(__FILE__, __LINE__,  $query  . "\n" . $e->getMessage());
-					}						
+                    HeliosError(__FILE__, __LINE__,  $query  . "\n" . $e->getMessage());
 					die;
 				}
 				return $retval;

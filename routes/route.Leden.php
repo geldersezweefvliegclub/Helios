@@ -317,8 +317,6 @@ $app->post(url_base() . 'Leden/SynapseGebruiker', function (Request $request, Re
     $obj = MaakObject("Leden");
     try
     {
-        $data = json_decode($request->getBody(), true);
-        $obj->synapseGebruiker($data["ID"], $data["PASSWORD"]);  // Hier staat de logica voor deze functie
         return $response->withStatus(intval(200));
     }
     catch(Exception $exception)

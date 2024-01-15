@@ -5,6 +5,7 @@
       "ext-json": "*",
         "messagebird/php-rest-api": "^2.0",
         "firebase/php-jwt": "^5.5",
-        "phpmailer/phpmailer": "^6.5"
+        "phpmailer/phpmailer": "^6.5",
+      "ext-curl": "*"
     }
 }

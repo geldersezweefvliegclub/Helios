@@ -597,6 +597,7 @@ class Leden extends Helios
 		
 		isCSV($id, "ID");
 		parent::MarkeerAlsVerwijderd($id, $verificatie);
+        $this->SyncLeden($id);
 	}		
 	
 	/*
@@ -618,6 +619,8 @@ class Leden extends Helios
 		
 		isCSV($id, "ID");
 		parent::HerstelVerwijderd($id);
+
+        $this->SyncLeden($id);
 	}	
 
 	/*
@@ -700,6 +703,7 @@ class Leden extends Helios
 		if ($lid['SECRET'] == null)
 			$this->SetSecret($id);
 
+        $this->SyncLeden($lid['ID'], $lid['WACHTWOORD']);
 		return $lid;
 	}
 
@@ -777,28 +781,29 @@ class Leden extends Helios
 		if ($lid['SECRET'] == null)
 			$this->SetSecret($id);
 
+        $this->SyncLeden($lid['ID'], $lid['WACHTWOORD']);
 		return $lid;
 	}
 
     /*
     Synapse synchronisatie
      */
-    function synapseGebruiker($lidID, $password = null)
+    function SyncLeden($lidID, $password = null)
     {
         $lid = $this->GetObject($lidID);
+        if (isset($password))
+            $lid['INGEVOERD_WACHTWOORD'] = $password;
 
-        if ($this->isClubVlieger(null, $lid))
+        if ($this->isDDWV(null, $lid) || $this->isClubVlieger(null, $lid))
         {
-            synapse::updateGebruiker($lid, $password);
-            synapse::toevoegenAanKamers($lid);
+            $sync = MaakObject('Sync');
 
-            $l = MaakObject('Login');
-            $ikBenHetZelf = ($l->getUserFromSession() == $lidID);
-            if ((isset($password)) && $ikBenHetZelf)
-                synapse::markeerAlsFavoriet($lid, $password);  // dit mag de admin niet doen
+            $syncData = array();
+            $syncData['LID_ID'] = $lidID;
+            $syncData['DATA'] = $lid;
+
+            $sync->addObject($syncData);
         }
-        else
-            synapse::verwijderGebruiker($lid);
     }
 
 	/*
@@ -860,8 +865,7 @@ class Leden extends Helios
 
 		Debug(__FILE__, __LINE__, sprintf("Leden.UploadAvatar image url= %s", $upd['AVATAR']));
 
-        $matrixUrl = synapse::uploadAvatar($lid, $upd['AVATAR']);
-        synapse::updateGebruiker($lid, null, $matrixUrl);
+        $this->SyncLeden($lid['ID']);
 		return $upd['AVATAR'] ;
 	}
 
