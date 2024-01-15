@@ -314,21 +314,23 @@ $app->get(url_base() . 'Leden/vCards', function (Request $request, Response $res
 Haal een enkel record op uit de database
 */
 $app->post(url_base() . 'Leden/SynapseGebruiker', function (Request $request, Response $response, $args) {
-    $obj = MaakObject("Leden");
+
+    // aanroepen van de cronjob om de sync buffer te verwerken
+    $url = $_SERVER['HTTPS'] ? 'https://' : 'http://';
+    $url .= $_SERVER['HTTP_HOST'] . "/cronjobs/syncMatrix.php";
+    Debug(__FILE__, __LINE__, "url=" . $url);
     try
     {
+        $curl_session = curl_init($url);
+        curl_exec($curl_session);
         return $response->withStatus(intval(200));
     }
     catch(Exception $exception)
     {
-        Debug(__FILE__, __LINE__, "/Leden/GetObject: " .$exception);
+        Debug(__FILE__, __LINE__, "/Leden/SynapseGebruiker: " .$exception);
 
-        list($dummy, $exceptionMsg) = explode(": ", $exception);
-        list($httpStatus, $message, $body) = explode(";", $exceptionMsg);  // onze eigen formaat van een exceptie
-
-        header("X-Error-Message: $message", true, intval($httpStatus));
+        header("X-Error-Message: Sync mislukt", true, intval(500));
         header("Content-Type: text/plain");
-        echo $body;
         die;
     }
 });
