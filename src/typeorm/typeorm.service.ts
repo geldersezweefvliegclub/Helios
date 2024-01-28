@@ -1,11 +1,13 @@
 import {Injectable, Logger} from "@nestjs/common";
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from '@nestjs/typeorm';
+import {DatabaseLogger} from "./DatabaseLogger";
 
 
 @Injectable()
 export class TypeOrmConfigService implements TypeOrmOptionsFactory {
     private readonly logger = new Logger(TypeOrmConfigService.name);
+    private readonly databaseLogger = new DatabaseLogger();
     constructor(private config: ConfigService) {}
 
 
@@ -32,7 +34,7 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
             username: databaseUsername,
             password: databasePassword,
             //   migrations: ['dist/migrations/*.{ts,js}'],
-            logger: 'advanced-console',
+            logger: this.databaseLogger,
             synchronize: false, //todo find out what it is do not set to TRUE in production mode - possible data loss
             autoLoadEntities: true,
             logging: true
