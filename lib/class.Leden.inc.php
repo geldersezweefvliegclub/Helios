@@ -182,6 +182,7 @@ class Leden extends Helios
 				l.*,
 				IF ((SELECT count(*) FROM `oper_progressie` WHERE `LID_ID` = l.ID AND `COMPETENTIE_ID` = %d) = 0, 0, 1) AS PAX,
 				`t`.`OMSCHRIJVING` AS `LIDTYPE`,
+				`t`.`EXT_REF` AS `LIDTYPE_REF`,
 				`s`.`OMSCHRIJVING` AS `STATUS`,
 				`z`.`NAAM` AS `ZUSTERCLUB`,
 				`b`.`NAAM` AS `BUDDY`,
