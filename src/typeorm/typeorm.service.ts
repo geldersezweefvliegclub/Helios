@@ -13,22 +13,27 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
      * Builds the options to use for TypeORM
      */
     public createTypeOrmOptions(): TypeOrmModuleOptions {
-        const dbConfig = this.config.get<IEnvironmentConfiguration['database']>('database');
-        const productionMode = this.config.get<IEnvironmentConfiguration['production']>('production');
+        this.logger.log("Configuring database connection with TypeORM");
+        const databaseName = this.config.get<string>('DB_DATABASE');
+        const databaseHost = this.config.get<string>('DB_HOST');
+        const databasePort = this.config.get<string>('DB_PORT');
+        const databaseUsername = this.config.get<string>('DB_USERNAME');
+        const databasePassword = this.config.get<string>('DB_PASSWORD');
 
-        const configSafeToLog = {...dbConfig, password: 'REDACTED'};
-        this.logger.log(`Connecting to database user the following configuration: ${JSON.stringify(configSafeToLog, null, 2)}`);
+        if (!databaseName || !databaseHost || !databasePort || !databaseUsername || !databasePassword) {
+            throw new Error("Missing required properties for database connection!")
+        }
+
         return {
-            type: 'mongodb',
-            host: dbConfig.host,
-            port: dbConfig.port,
-            database: dbConfig.database,
-            username: dbConfig.username,
-            password: dbConfig.password,
-            authSource: 'admin',
+            type: 'mariadb',
+            host: databaseHost,
+            port: Number(databasePort),
+            database: databaseName,
+            username: databaseUsername,
+            password: databasePassword,
             //   migrations: ['dist/migrations/*.{ts,js}'],
             logger: 'advanced-console',
-            synchronize: !productionMode, // do not set to TRUE in production mode - possible data loss
+            synchronize: false, //todo find out what it is do not set to TRUE in production mode - possible data loss
             autoLoadEntities: true,
             logging: true
         };
