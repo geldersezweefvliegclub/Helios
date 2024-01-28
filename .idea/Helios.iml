@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <excludeFolder url="file://$MODULE_DIR$/ext/vendor/composer" />
+      <excludeFolder url="file://$MODULE_DIR$/ext/vendor/fig/http-message-util" />
+      <excludeFolder url="file://$MODULE_DIR$/ext/vendor/firebase/php-jwt" />
+      <excludeFolder url="file://$MODULE_DIR$/ext/vendor/messagebird/php-rest-api" />
+      <excludeFolder url="file://$MODULE_DIR$/ext/vendor/nikic/fast-route" />
+      <excludeFolder url="file://$MODULE_DIR$/ext/vendor/phpmailer/phpmailer" />
+      <excludeFolder url="file://$MODULE_DIR$/ext/vendor/psr/container" />
+      <excludeFolder url="file://$MODULE_DIR$/ext/vendor/psr/http-factory" />
+      <excludeFolder url="file://$MODULE_DIR$/ext/vendor/psr/http-message" />
+      <excludeFolder url="file://$MODULE_DIR$/ext/vendor/psr/http-server-handler" />
+      <excludeFolder url="file://$MODULE_DIR$/ext/vendor/psr/http-server-middleware" />
+      <excludeFolder url="file://$MODULE_DIR$/ext/vendor/ralouphie/getallheaders" />
+      <excludeFolder url="file://$MODULE_DIR$/ext/vendor/slim/psr7" />
+      <excludeFolder url="file://$MODULE_DIR$/ext/vendor/slim/slim" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+</module>
