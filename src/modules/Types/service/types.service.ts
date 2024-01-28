@@ -3,12 +3,15 @@ import {Repository} from "typeorm";
 import {Type} from "../models/Type";
 import {CreateTableDto} from "../DTO/CreateTableDto";
 import {SaveObjectDto} from "../DTO/SaveObjectDto";
+import {InjectRepository} from "@nestjs/typeorm";
 
 @Injectable()
 export class TypesService {
     constructor(
-        private typesRepository: Repository<Type>,
-    ) {}
+        @InjectRepository(Type) private readonly typesRepository: Repository<Type>
+    )
+    {
+    }
 
     async createTable(createTypeDto: CreateTableDto) {
         throw new NotImplementedException();
