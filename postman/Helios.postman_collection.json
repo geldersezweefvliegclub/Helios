@@ -1,559 +1,11 @@
 {
 	"info": {
-		"_postman_id": "bd3d58c1-018d-4d9b-bb12-6364968572f2",
+		"_postman_id": "8f5d8965-1565-4917-baf7-8fbcec95ab71",
 		"name": "Helios",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "12731165"
 	},
 	"item": [
-		{
-			"name": "Install",
-			"item": [
-				{
-					"name": "helios_info",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"let jsonData = pm.response.json();",
-									"",
-									"",
-									"pm.test('Heeft db_bestaat', function() {",
-									"    pm.expect(jsonData).to.have.property('db_bestaat')",
-									"});",
-									"",
-									"pm.test('Heeft installer_account', function() {",
-									"    pm.expect(jsonData).to.have.property('installer_account')",
-									"});",
-									"",
-									"pm.test('db_bestaat == bool', function() {",
-									"    pm.expect(typeof jsonData.db_bestaat).to.eql(\"boolean\")",
-									"});",
-									"",
-									"pm.test('installer_account == bool', function() {",
-									"    pm.expect(typeof jsonData.installer_account).to.eql(\"boolean\")",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "GET",
-						"header": [],
-						"body": {
-							"mode": "formdata",
-							"formdata": []
-						},
-						"url": {
-							"raw": "{{base_url}}/install_php/info_helios.php",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"install_php",
-								"info_helios.php"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "test_db",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"let db_info = {};",
-									"",
-									"db_info.databaseHost = pm.environment.get(\"databaseHost\");",
-									"db_info.databaseNaam = pm.environment.get(\"databaseNaam\");",
-									"db_info.databaseGebruiker = pm.environment.get(\"databaseGebruiker\");",
-									"db_info.databaseWachtwoord = pm.environment.get(\"databaseWachtwoord\");",
-									"",
-									"var body = JSON.stringify(db_info); ",
-									"pm.variables.set('request_body', body);"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"let jsonData = pm.response.json();",
-									"",
-									"",
-									"pm.test('Heeft dbError', function() {",
-									"    pm.expect(jsonData).to.have.property('dbError')",
-									"});",
-									"",
-									"pm.test('Heeft dbBestaat', function() {",
-									"    pm.expect(jsonData).to.have.property('dbBestaat')",
-									"});",
-									"",
-									"pm.test('dbError == bool', function() {",
-									"    pm.expect(typeof jsonData.dbError).to.eql(\"boolean\")",
-									"});",
-									"",
-									"pm.test('dbBestaat == bool', function() {",
-									"    pm.expect(typeof jsonData.dbBestaat).to.eql(\"boolean\")",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "GET",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{{request_body}}"
-						},
-						"url": {
-							"raw": "{{base_url}}/install_php/test_db.php",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"install_php",
-								"test_db.php"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "create_account",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "formdata",
-							"formdata": []
-						},
-						"url": {
-							"raw": "{{base_url}}/install_php/create_account.php",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"install_php",
-								"create_account.php"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "create_db",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"let db_info = {};",
-									"",
-									"db_info.databaseHost = pm.environment.get(\"databaseHost\");",
-									"db_info.databaseNaam = pm.environment.get(\"databaseNaam\");",
-									"db_info.databaseGebruiker = pm.environment.get(\"databaseGebruiker\");",
-									"db_info.databaseWachtwoord = pm.environment.get(\"databaseWachtwoord\");",
-									"",
-									"var body = JSON.stringify(db_info); ",
-									"pm.variables.set('request_body', body);"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{{request_body}}"
-						},
-						"url": {
-							"raw": "{{base_url}}/install_php/create_db.php",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"install_php",
-								"create_db.php"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "tables_info",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"let jsonData = pm.response.json();",
-									"",
-									"for (index = 0; index < jsonData.length; ++index) ",
-									"{",
-									"    pm.test('Heeft class index=' + index, function() {",
-									"        pm.expect(jsonData[index]).to.have.property('class')",
-									"    });",
-									"",
-									"    pm.test('Heeft bestaat index='+index, function() {",
-									"        pm.expect(jsonData[index]).to.have.property('bestaat')",
-									"    });    ",
-									"",
-									"    pm.test('bestaat == bool index='+index, function() {",
-									"        pm.expect(typeof jsonData[index].bestaat).to.eql(\"boolean\")",
-									"    });",
-									"}",
-									"",
-									"var body = JSON.stringify(jsonData); ",
-									"pm.globals.set('db_info', body);",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"url": {
-							"raw": "{{base_url}}/install_php/info_tables.php",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"install_php",
-								"info_tables.php"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "create_tables",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{{db_info}}"
-						},
-						"url": {
-							"raw": "{{base_url}}/install_php/create_tables.php?filldata=true",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"install_php",
-								"create_tables.php"
-							],
-							"query": [
-								{
-									"key": "filldata",
-									"value": "true"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "views_info",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"let jsonData = pm.response.json();",
-									"",
-									"for (index = 0; index < jsonData.length; ++index) ",
-									"{",
-									"    pm.test('Heeft class index=' + index, function() {",
-									"        pm.expect(jsonData[index]).to.have.property('class')",
-									"    });",
-									"",
-									"    pm.test('Heeft bestaat index='+index, function() {",
-									"        pm.expect(jsonData[index]).to.have.property('bestaat')",
-									"    });    ",
-									"",
-									"    pm.test('bestaat == bool index='+index, function() {",
-									"        pm.expect(typeof jsonData[index].bestaat).to.eql(\"boolean\")",
-									"    });",
-									"}",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{{db_info}}"
-						},
-						"url": {
-							"raw": "{{base_url}}/install_php/info_views.php",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"install_php",
-								"info_views.php"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "create_views",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"console.log(pm.variables.get('db_info'));"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{{db_info}}"
-						},
-						"url": {
-							"raw": "{{base_url}}/install_php/create_views.php",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"install_php",
-								"create_views.php"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "records_info",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"let jsonData = pm.response.json();",
-									"",
-									"for (index = 0; index < jsonData.length; ++index) ",
-									"{",
-									"    pm.test('Heeft class index=' + index, function() {",
-									"        pm.expect(jsonData[index]).to.have.property('class')",
-									"    });",
-									"",
-									"    pm.test('Heeft totaal index='+index, function() {",
-									"        pm.expect(jsonData[index]).to.have.property('totaal')",
-									"    });    ",
-									"",
-									"    pm.test('Heeft laatste_aanpassing index='+index, function() {",
-									"        pm.expect(jsonData[index]).to.have.property('laatste_aanpassing')",
-									"    }); ",
-									"",
-									"}",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{{db_info}}"
-						},
-						"url": {
-							"raw": "{{base_url}}/install_php/info_records.php",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"install_php",
-								"info_records.php"
-							]
-						}
-					},
-					"response": []
-				}
-			],
-			"auth": {
-				"type": "basic",
-				"basic": [
-					{
-						"key": "password",
-						"value": "{{installer_password}}",
-						"type": "string"
-					},
-					{
-						"key": "username",
-						"value": "{{installer_username}}",
-						"type": "string"
-					}
-				]
-			},
-			"event": [
-				{
-					"listen": "prerequest",
-					"script": {
-						"type": "text/javascript",
-						"exec": [
-							""
-						]
-					}
-				},
-				{
-					"listen": "test",
-					"script": {
-						"type": "text/javascript",
-						"exec": [
-							"pm.test(\"STATUS == 200\", function () {",
-							"    pm.response.to.have.status(200);",
-							"});  "
-						]
-					}
-				}
-			]
-		},
 		{
 			"name": "Login",
 			"item": [
@@ -659,9 +111,7 @@
 									"pm.test('Heeft LIERIST', function() {",
 									"    pm.expect(jsonData.LidData).to.have.property('LIERIST');",
 									"  });",
-									"pm.test('Heeft STARTLEIDER', function() {",
-									"    pm.expect(jsonData.LidData).to.have.property('STARTLEIDER');",
-									"  });",
+									"",
 									"pm.test('Heeft INSTRUCTEUR', function() {",
 									"    pm.expect(jsonData.LidData).to.have.property('INSTRUCTEUR');",
 									"  });",
@@ -707,15 +157,11 @@
 									"pm.test('Heeft AVATAR', function() {",
 									"    pm.expect(jsonData.LidData).to.have.property('AVATAR');",
 									"  });",
-									"pm.test('Heeft HEEFT_BETAALD', function() {",
-									"    pm.expect(jsonData.LidData).to.have.property('HEEFT_BETAALD');",
-									"  });",
+									"",
 									"pm.test('Heeft PRIVACY', function() {",
 									"    pm.expect(jsonData.LidData).to.have.property('PRIVACY');",
 									"  });",
-									"pm.test('Heeft BEPERKINGEN', function() {",
-									"    pm.expect(jsonData.LidData).to.have.property('BEPERKINGEN');",
-									"  });",
+									"",
 									"pm.test('Heeft OPMERKINGEN', function() {",
 									"    pm.expect(jsonData.LidData).to.have.property('OPMERKINGEN');",
 									"  });",
@@ -728,18 +174,13 @@
 									"",
 									"",
 									"// Userinfo",
-									"pm.test('Heeft magSchrijven', function() {",
-									"    pm.expect(jsonData.Userinfo).to.have.property('magSchrijven');",
-									"  });",
 									"pm.test('Heeft isBeheerderDDWV', function() {",
 									"    pm.expect(jsonData.Userinfo).to.have.property('isBeheerderDDWV');",
 									"  });",
 									"pm.test('Heeft isBeheerder', function() {",
 									"    pm.expect(jsonData.Userinfo).to.have.property('isBeheerder');",
 									"  });",
-									"pm.test('Heeft isStartleider', function() {",
-									"    pm.expect(jsonData.Userinfo).to.have.property('isStartleider');",
-									"  });",
+									"",
 									"pm.test('Heeft isInstructeur', function() {",
 									"    pm.expect(jsonData.Userinfo).to.have.property('isInstructeur');",
 									"  });",
@@ -764,18 +205,13 @@
 									"",
 									"",
 									"",
-									"pm.test(\"Boolean magSchrijven\", function() {",
-									"    pm.expect(typeof jsonData.Userinfo.magSchrijven).to.eql(\"boolean\");",
-									"  });",
 									"pm.test(\"Boolean isBeheerderDDWV\", function() {",
 									"    pm.expect(typeof jsonData.Userinfo.isBeheerderDDWV).to.eql(\"boolean\");",
 									"  });",
 									"pm.test(\"Boolean isBeheerder\", function() {",
 									"    pm.expect(typeof jsonData.Userinfo.isBeheerder).to.eql(\"boolean\");",
 									"  });",
-									"pm.test(\"Boolean isStartleider\", function() {",
-									"    pm.expect(typeof jsonData.Userinfo.isStartleider).to.eql(\"boolean\");",
-									"  });",
+									"",
 									"pm.test(\"Boolean isInstructeur\", function() {",
 									"    pm.expect(typeof jsonData.Userinfo.isInstructeur).to.eql(\"boolean\");",
 									"  });",
@@ -803,9 +239,6 @@
 									"    pm.expect(jsonData.LidData.LIERIST).to.be.oneOf(boolValues); ",
 									"});",
 									"",
-									"pm.test(\"STARTLEIDER\", function () {    ",
-									"    pm.expect(jsonData.LidData.STARTLEIDER).to.be.oneOf(boolValues); ",
-									"});",
 									"",
 									"pm.test(\"INSTRUCTEUR\", function () {    ",
 									"    pm.expect(jsonData.LidData.INSTRUCTEUR).to.be.oneOf(boolValues); ",
@@ -829,10 +262,6 @@
 									"",
 									"pm.test(\"AUTH\", function () {    ",
 									"    pm.expect(jsonData.LidData.AUTH).to.be.oneOf(boolValues); ",
-									"});",
-									"",
-									"pm.test(\"HEEFT_BETAALD\", function () {    ",
-									"    pm.expect(jsonData.LidData.HEEFT_BETAALD).to.be.oneOf(boolValues); ",
 									"});",
 									"",
 									"",
@@ -880,7 +309,7 @@
 						"type": "text/javascript",
 						"exec": [
 							"console.log(\"-----> \" + pm.info.requestName);",
-							"",
+							"console.log(\"base url:\", pm.environment.get(\"base_url\"))",
 							"let onderdeel = \"Login\";",
 							"pm.variables.set(\"onderdeel\", onderdeel);",
 							"",
@@ -1493,64 +922,6 @@
 								}
 							},
 							"response": []
-						},
-						{
-							"name": "GetObjects LAASTE_AANPASSING",
-							"event": [
-								{
-									"listen": "prerequest",
-									"script": {
-										"exec": [
-											""
-										],
-										"type": "text/javascript"
-									}
-								},
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"let savedData = JSON.parse(pm.variables.get(\"getObjects\"));",
-											"let jsonData = pm.response.json();",
-											"",
-											"pm.test(\"Dataset == null\", function () {",
-											"    let velden = Object.keys([0]).length;",
-											"    pm.expect(jsonData.dataset).to.eql(null);",
-											"});",
-											"",
-											"pm.test(\"Totaal == orgineel\", function () {",
-											"    pm.expect(jsonData.totaal).to.eql(savedData.totaal);",
-											"});",
-											"",
-											"pm.test(\"LaatsteAanpassing == orgineel\", function () {",
-											"    pm.expect(jsonData.laatste_aanpassing).to.eql(savedData.laatste_aanpassing);",
-											"});",
-											""
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{url}}/GetObjects?LAATSTE_AANPASSING=true",
-									"host": [
-										"{{url}}"
-									],
-									"path": [
-										"GetObjects"
-									],
-									"query": [
-										{
-											"key": "LAATSTE_AANPASSING",
-											"value": "true"
-										}
-									]
-								}
-							},
-							"response": []
 						}
 					],
 					"event": [
@@ -2151,64 +1522,6 @@
 								}
 							},
 							"response": []
-						},
-						{
-							"name": "GetObjects LAASTE_AANPASSING",
-							"event": [
-								{
-									"listen": "prerequest",
-									"script": {
-										"exec": [
-											""
-										],
-										"type": "text/javascript"
-									}
-								},
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"let savedData = JSON.parse(pm.variables.get(\"getObjects\"));",
-											"let jsonData = pm.response.json();",
-											"",
-											"pm.test(\"Dataset == null\", function () {",
-											"    let velden = Object.keys([0]).length;",
-											"    pm.expect(jsonData.dataset).to.eql(null);",
-											"});",
-											"",
-											"pm.test(\"Totaal == orgineel\", function () {",
-											"    pm.expect(jsonData.totaal).to.eql(savedData.totaal);",
-											"});",
-											"",
-											"pm.test(\"LaatsteAanpassing == orgineel\", function () {",
-											"    pm.expect(jsonData.laatste_aanpassing).to.eql(savedData.laatste_aanpassing);",
-											"});",
-											""
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{url}}/GetObjects?LAATSTE_AANPASSING=true",
-									"host": [
-										"{{url}}"
-									],
-									"path": [
-										"GetObjects"
-									],
-									"query": [
-										{
-											"key": "LAATSTE_AANPASSING",
-											"value": "true"
-										}
-									]
-								}
-							},
-							"response": []
 						}
 					],
 					"event": [
@@ -2632,9 +1945,6 @@
 											"    pm.expect(jsonData.dataset[0]).to.have.property('BAAN_ID');",
 											"    });",
 											"",
-											"    pm.test('Heeft BEDRIJF_ID', function() {",
-											"    pm.expect(jsonData.dataset[0]).to.have.property('BEDRIJF_ID');",
-											"    });",
 											"",
 											"    pm.test('Heeft DDWV', function() {",
 											"    pm.expect(jsonData.dataset[0]).to.have.property('DDWV');",
@@ -2642,10 +1952,6 @@
 											"",
 											"    pm.test('Heeft CLUB_BEDRIJF', function() {",
 											"    pm.expect(jsonData.dataset[0]).to.have.property('CLUB_BEDRIJF');",
-											"    });",
-											"",
-											"    pm.test('Heeft OPMERKINGEN', function() {",
-											"    pm.expect(jsonData.dataset[0]).to.have.property('OPMERKINGEN');",
 											"    });",
 											"",
 											"    pm.test('Heeft VLIEGBEDRIJF', function() {",
@@ -2694,14 +2000,6 @@
 											"",
 											"    pm.test('Heeft BAAN_OMS', function() {",
 											"    pm.expect(jsonData.dataset[0]).to.have.property('BAAN_OMS');",
-											"    });",
-											"",
-											"    pm.test('Heeft BEDRIJF_CODE', function() {",
-											"    pm.expect(jsonData.dataset[0]).to.have.property('BEDRIJF_CODE');",
-											"    });",
-											"",
-											"    pm.test('Heeft BEDRIJF_CODE', function() {",
-											"    pm.expect(jsonData.dataset[0]).to.have.property('BEDRIJF_CODE');",
 											"    });",
 											"",
 											"    pm.test('Heeft STARTMETHODE_CODE', function() {",
@@ -2816,64 +2114,6 @@
 										{
 											"key": "VELDEN",
 											"value": "ID,VELD_OMS"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "GetObjects LAASTE_AANPASSING",
-							"event": [
-								{
-									"listen": "prerequest",
-									"script": {
-										"exec": [
-											""
-										],
-										"type": "text/javascript"
-									}
-								},
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"let savedData = JSON.parse(pm.variables.get(\"getObjects\"));",
-											"let jsonData = pm.response.json();",
-											"",
-											"pm.test(\"Dataset == null\", function () {",
-											"    let velden = Object.keys([0]).length;",
-											"    pm.expect(jsonData.dataset).to.eql(null);",
-											"});",
-											"",
-											"pm.test(\"Totaal == orgineel\", function () {",
-											"    pm.expect(jsonData.totaal).to.eql(savedData.totaal);",
-											"});",
-											"",
-											"pm.test(\"LaatsteAanpassing == orgineel\", function () {",
-											"    pm.expect(jsonData.laatste_aanpassing).to.eql(savedData.laatste_aanpassing);",
-											"});",
-											""
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{url}}/GetObjects?LAATSTE_AANPASSING=true",
-									"host": [
-										"{{url}}"
-									],
-									"path": [
-										"GetObjects"
-									],
-									"query": [
-										{
-											"key": "LAATSTE_AANPASSING",
-											"value": "true"
 										}
 									]
 								}
@@ -3743,10 +2983,10 @@
 													"    pm.expect(jsonData.dataset.length).to.eql(aantal);",
 													"});",
 													"",
-													"pm.test(\"Aantal == 2\", function () {",
+													"pm.test(\"Aantal == 5\", function () {",
 													"    let aantal = parseInt(jsonData.totaal);",
 													"    ",
-													"    pm.expect(aantal).to.eql(2);",
+													"    pm.expect(aantal).to.eql(5);",
 													"});",
 													""
 												],
@@ -4076,64 +3316,6 @@
 										{
 											"key": "VELDEN",
 											"value": "ID,REGISTRATIE"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "GetObjects LAASTE_AANPASSING",
-							"event": [
-								{
-									"listen": "prerequest",
-									"script": {
-										"exec": [
-											""
-										],
-										"type": "text/javascript"
-									}
-								},
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"let savedData = JSON.parse(pm.variables.get(\"getObjects\"));",
-											"let jsonData = pm.response.json();",
-											"",
-											"pm.test(\"Dataset == null\", function () {",
-											"    let velden = Object.keys([0]).length;",
-											"    pm.expect(jsonData.dataset).to.eql(null);",
-											"});",
-											"",
-											"pm.test(\"Totaal == orgineel\", function () {",
-											"    pm.expect(jsonData.totaal).to.eql(savedData.totaal);",
-											"});",
-											"",
-											"pm.test(\"LaatsteAanpassing == orgineel\", function () {",
-											"    pm.expect(jsonData.laatste_aanpassing).to.eql(savedData.laatste_aanpassing);",
-											"});",
-											""
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{url}}/GetObjects?LAATSTE_AANPASSING=true",
-									"host": [
-										"{{url}}"
-									],
-									"path": [
-										"GetObjects"
-									],
-									"query": [
-										{
-											"key": "LAATSTE_AANPASSING",
-											"value": "true"
 										}
 									]
 								}
@@ -5305,64 +4487,6 @@
 								}
 							},
 							"response": []
-						},
-						{
-							"name": "GetObjects LAASTE_AANPASSING",
-							"event": [
-								{
-									"listen": "prerequest",
-									"script": {
-										"exec": [
-											""
-										],
-										"type": "text/javascript"
-									}
-								},
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"let savedData = JSON.parse(pm.variables.get(\"getObjects\"));",
-											"let jsonData = pm.response.json();",
-											"",
-											"pm.test(\"Dataset == null\", function () {",
-											"    let velden = Object.keys([0]).length;",
-											"    pm.expect(jsonData.dataset).to.eql(null);",
-											"});",
-											"",
-											"pm.test(\"Totaal == orgineel\", function () {",
-											"    pm.expect(jsonData.totaal).to.eql(savedData.totaal);",
-											"});",
-											"",
-											"pm.test(\"LaatsteAanpassing == orgineel\", function () {",
-											"    pm.expect(jsonData.laatste_aanpassing).to.eql(savedData.laatste_aanpassing);",
-											"});",
-											""
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{url}}/GetObjects?LAATSTE_AANPASSING=true",
-									"host": [
-										"{{url}}"
-									],
-									"path": [
-										"GetObjects"
-									],
-									"query": [
-										{
-											"key": "LAATSTE_AANPASSING",
-											"value": "true"
-										}
-									]
-								}
-							},
-							"response": []
 						}
 					],
 					"event": [
@@ -5982,64 +5106,6 @@
 										{
 											"key": "VELDEN",
 											"value": "ID,MIDDAG_DDI"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "GetObjects LAASTE_AANPASSING",
-							"event": [
-								{
-									"listen": "prerequest",
-									"script": {
-										"exec": [
-											""
-										],
-										"type": "text/javascript"
-									}
-								},
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"let savedData = JSON.parse(pm.variables.get(\"getObjects\"));",
-											"let jsonData = pm.response.json();",
-											"",
-											"pm.test(\"Dataset == null\", function () {",
-											"    let velden = Object.keys([0]).length;",
-											"    pm.expect(jsonData.dataset).to.eql(null);",
-											"});",
-											"",
-											"pm.test(\"Totaal == orgineel\", function () {",
-											"    pm.expect(jsonData.totaal).to.eql(savedData.totaal);",
-											"});",
-											"",
-											"pm.test(\"LaatsteAanpassing == orgineel\", function () {",
-											"    pm.expect(jsonData.laatste_aanpassing).to.eql(savedData.laatste_aanpassing);",
-											"});",
-											""
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{url}}/GetObjects?LAATSTE_AANPASSING=true",
-									"host": [
-										"{{url}}"
-									],
-									"path": [
-										"GetObjects"
-									],
-									"query": [
-										{
-											"key": "LAATSTE_AANPASSING",
-											"value": "true"
 										}
 									]
 								}
@@ -7118,68 +6184,6 @@
 								}
 							},
 							"response": []
-						},
-						{
-							"name": "GetObjects LAASTE_AANPASSING",
-							"event": [
-								{
-									"listen": "prerequest",
-									"script": {
-										"exec": [
-											""
-										],
-										"type": "text/javascript"
-									}
-								},
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"let savedData = JSON.parse(pm.variables.get(\"getObjects\"));",
-											"let jsonData = pm.response.json();",
-											"",
-											"pm.test(\"Dataset == null\", function () {",
-											"    let velden = Object.keys([0]).length;",
-											"    pm.expect(jsonData.dataset).to.eql(null);",
-											"});",
-											"",
-											"pm.test(\"Totaal == orgineel\", function () {",
-											"    pm.expect(jsonData.totaal).to.eql(savedData.totaal);",
-											"});",
-											"",
-											"pm.test(\"LaatsteAanpassing == orgineel\", function () {",
-											"    pm.expect(jsonData.laatste_aanpassing).to.eql(savedData.laatste_aanpassing);",
-											"});",
-											""
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{url}}/GetObjects?LAATSTE_AANPASSING=true&BEGIN_DATUM={{dit_jaar}}-05-01",
-									"host": [
-										"{{url}}"
-									],
-									"path": [
-										"GetObjects"
-									],
-									"query": [
-										{
-											"key": "LAATSTE_AANPASSING",
-											"value": "true"
-										},
-										{
-											"key": "BEGIN_DATUM",
-											"value": "{{dit_jaar}}-05-01"
-										}
-									]
-								}
-							},
-							"response": []
 						}
 					],
 					"event": [
@@ -7834,68 +6838,6 @@
 										{
 											"key": "VELDEN",
 											"value": "ID,REG_CALL"
-										},
-										{
-											"key": "BEGIN_DATUM",
-											"value": "{{dit_jaar}}-05-01"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "GetObjects LAASTE_AANPASSING",
-							"event": [
-								{
-									"listen": "prerequest",
-									"script": {
-										"exec": [
-											""
-										],
-										"type": "text/javascript"
-									}
-								},
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"let savedData = JSON.parse(pm.variables.get(\"getObjects\"));",
-											"let jsonData = pm.response.json();",
-											"",
-											"pm.test(\"Dataset == null\", function () {",
-											"    let velden = Object.keys([0]).length;",
-											"    pm.expect(jsonData.dataset).to.eql(null);",
-											"});",
-											"",
-											"pm.test(\"Totaal == orgineel\", function () {",
-											"    pm.expect(jsonData.totaal).to.eql(savedData.totaal);",
-											"});",
-											"",
-											"pm.test(\"LaatsteAanpassing == orgineel\", function () {",
-											"    pm.expect(jsonData.laatste_aanpassing).to.eql(savedData.laatste_aanpassing);",
-											"});",
-											""
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{url}}/GetObjects?LAATSTE_AANPASSING=true&BEGIN_DATUM={{dit_jaar}}-05-01",
-									"host": [
-										"{{url}}"
-									],
-									"path": [
-										"GetObjects"
-									],
-									"query": [
-										{
-											"key": "LAATSTE_AANPASSING",
-											"value": "true"
 										},
 										{
 											"key": "BEGIN_DATUM",
@@ -9515,64 +8457,6 @@
 							"response": []
 						},
 						{
-							"name": "GetObjects LAASTE_AANPASSING",
-							"event": [
-								{
-									"listen": "prerequest",
-									"script": {
-										"exec": [
-											""
-										],
-										"type": "text/javascript"
-									}
-								},
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"let savedData = JSON.parse(pm.variables.get(\"getObjects\"));",
-											"let jsonData = pm.response.json();",
-											"",
-											"pm.test(\"Dataset == null\", function () {",
-											"    let velden = Object.keys([0]).length;",
-											"    pm.expect(jsonData.dataset).to.eql(null);",
-											"});",
-											"",
-											"pm.test(\"Totaal == orgineel\", function () {",
-											"    pm.expect(jsonData.totaal).to.eql(savedData.totaal);",
-											"});",
-											"",
-											"pm.test(\"LaatsteAanpassing == orgineel\", function () {",
-											"    pm.expect(jsonData.laatste_aanpassing).to.eql(savedData.laatste_aanpassing);",
-											"});",
-											""
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{url}}/GetObjects?LAATSTE_AANPASSING=true",
-									"host": [
-										"{{url}}"
-									],
-									"path": [
-										"GetObjects"
-									],
-									"query": [
-										{
-											"key": "LAATSTE_AANPASSING",
-											"value": "true"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
 							"name": "GetLogboek",
 							"event": [
 								{
@@ -10741,64 +9625,6 @@
 								}
 							},
 							"response": []
-						},
-						{
-							"name": "GetObjects LAASTE_AANPASSING",
-							"event": [
-								{
-									"listen": "prerequest",
-									"script": {
-										"exec": [
-											""
-										],
-										"type": "text/javascript"
-									}
-								},
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"let savedData = JSON.parse(pm.variables.get(\"getObjects\"));",
-											"let jsonData = pm.response.json();",
-											"",
-											"pm.test(\"Dataset == null\", function () {",
-											"    let velden = Object.keys([0]).length;",
-											"    pm.expect(jsonData.dataset).to.eql(null);",
-											"});",
-											"",
-											"pm.test(\"Totaal == orgineel\", function () {",
-											"    pm.expect(jsonData.totaal).to.eql(savedData.totaal);",
-											"});",
-											"",
-											"pm.test(\"LaatsteAanpassing == orgineel\", function () {",
-											"    pm.expect(jsonData.laatste_aanpassing).to.eql(savedData.laatste_aanpassing);",
-											"});",
-											""
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{url}}/GetObjects?LAATSTE_AANPASSING=true",
-									"host": [
-										"{{url}}"
-									],
-									"path": [
-										"GetObjects"
-									],
-									"query": [
-										{
-											"key": "LAATSTE_AANPASSING",
-											"value": "true"
-										}
-									]
-								}
-							},
-							"response": []
 						}
 					],
 					"event": [
@@ -11466,64 +10292,6 @@
 										{
 											"key": "LID_ID",
 											"value": "10395"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "GetObjects LAASTE_AANPASSING",
-							"event": [
-								{
-									"listen": "prerequest",
-									"script": {
-										"exec": [
-											""
-										],
-										"type": "text/javascript"
-									}
-								},
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"let savedData = JSON.parse(pm.variables.get(\"getObjects\"));",
-											"let jsonData = pm.response.json();",
-											"",
-											"pm.test(\"Dataset == null\", function () {",
-											"    let velden = Object.keys([0]).length;",
-											"    pm.expect(jsonData.dataset).to.eql(null);",
-											"});",
-											"",
-											"pm.test(\"Totaal == orgineel\", function () {",
-											"    pm.expect(jsonData.totaal).to.eql(savedData.totaal);",
-											"});",
-											"",
-											"pm.test(\"LaatsteAanpassing == orgineel\", function () {",
-											"    pm.expect(jsonData.laatste_aanpassing).to.eql(savedData.laatste_aanpassing);",
-											"});",
-											""
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{url}}/GetObjects?LAATSTE_AANPASSING=true",
-									"host": [
-										"{{url}}"
-									],
-									"path": [
-										"GetObjects"
-									],
-									"query": [
-										{
-											"key": "LAATSTE_AANPASSING",
-											"value": "true"
 										}
 									]
 								}
@@ -40241,6 +39009,27 @@
 					""
 				]
 			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8081"
+		},
+		{
+			"key": "url",
+			"value": "http://localhost:8081",
+			"disabled": true
+		},
+		{
+			"key": "helios_username",
+			"value": "hermane",
+			"disabled": true
+		},
+		{
+			"key": "helios_password",
+			"value": "Test1234",
+			"disabled": true
 		}
 	]
 }
