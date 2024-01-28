@@ -39010,26 +39010,5 @@
 				]
 			}
 		}
-	],
-	"variable": [
-		{
-			"key": "base_url",
-			"value": "http://localhost:8081"
-		},
-		{
-			"key": "url",
-			"value": "http://localhost:8081",
-			"disabled": true
-		},
-		{
-			"key": "helios_username",
-			"value": "hermane",
-			"disabled": true
-		},
-		{
-			"key": "helios_password",
-			"value": "Test1234",
-			"disabled": true
-		}
 	]
 }
