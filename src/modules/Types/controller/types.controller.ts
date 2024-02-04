@@ -52,6 +52,7 @@ export class TypesController {
   @ApiOperation({ summary: 'Restore deleted type record' })
   @ApiResponse({ status: 200, description: 'Return the restored object.' })
   @ApiQuery({ name: 'ID', required: true, type: Number, description: 'The object ID' })
+  @HttpCode(202)
   async restoreObject(@Query() query: { ID: number }) {
     return this.typesService.restoreObject(query.ID);
   }
