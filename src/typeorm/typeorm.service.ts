@@ -2,6 +2,7 @@ import {Injectable, Logger} from "@nestjs/common";
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from '@nestjs/typeorm';
 import {DatabaseLogger} from "./DatabaseLogger";
+import * as path from 'path';
 
 
 @Injectable()
@@ -34,7 +35,7 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
             username: databaseUsername,
             password: databasePassword,
             //   migrations: ['dist/migrations/*.{ts,js}'],
-            entities: [__dirname + '/../**/*.entity.ts'],
+            entities: [path.join(__dirname, '/../**/*.entity.{ts,js}')],
             logger: this.databaseLogger,
             synchronize: false, //todo find out what it is, do not set to TRUE in production mode - possible data loss
             autoLoadEntities: true,
