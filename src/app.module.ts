@@ -3,7 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TypeOrmConfigService } from './typeorm/typeorm.service';
 import { TypesModule } from './modules/Types/types.module';
-import { TypesGroepenModule } from './modules/TypesGroepen/typesGroepenModule';
+import { TypesGroepenModule } from './modules/TypesGroepen/types-groepen.module';
 
 @Module({
   imports: [
