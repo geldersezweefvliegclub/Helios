@@ -34,6 +34,7 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
             username: databaseUsername,
             password: databasePassword,
             //   migrations: ['dist/migrations/*.{ts,js}'],
+            entities: [__dirname + '/../**/*.entity.ts'],
             logger: this.databaseLogger,
             synchronize: false, //todo find out what it is, do not set to TRUE in production mode - possible data loss
             autoLoadEntities: true,
