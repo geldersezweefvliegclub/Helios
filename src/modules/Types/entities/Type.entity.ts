@@ -37,8 +37,8 @@ export class TypeEntity {
     @Column({ type: 'decimal', precision: 6, scale: 2, nullable: true })
     EENHEDEN: number | null;
 
-    @Column({ type: 'tinyint', unsigned: true, default: 0 })
-    VERWIJDERD: number;
+    @Column("boolean", { default: false, name: "VERWIJDERD" })
+    VERWIJDERD: boolean;
 
     @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
     LAATSTE_AANPASSING: Date;

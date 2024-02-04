@@ -1,8 +1,8 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { TypesService } from '../service/types.service';
-import { FindManyOptions } from 'typeorm';
 import { TypeEntity } from '../entities/Type.entity';
+import { GetObjectsFilterCriteria } from '../../../helpers/FilterCriteria';
 
 @ApiTags('Types')
 @Controller('Types')
@@ -28,7 +28,7 @@ export class TypesController {
     @ApiQuery({ name: 'START', required: false, type: Number, description: 'First record in the dataset. Used in LIMIT query' })
     @ApiQuery({ name: 'VELDEN', required: false, type: String, description: 'Which fields should be included in the dataset' })
     @ApiQuery({ name: 'GROEP', required: false, type: Number, description: 'Get all types from a specific group' })
-    async getObjects(@Query() filter: FilterCriteria) {
+    async getObjects(@Query() filter: GetObjectsFilterCriteria<TypeEntity>) {
         return this.typesService.getObjects(filter);
     }
 }

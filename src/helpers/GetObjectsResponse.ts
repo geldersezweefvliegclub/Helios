@@ -1,6 +1,6 @@
 export interface GetObjectsResponse<T> {
   totaal: number;
-  laatsteAanpassing: Date;
+  laatste_aanpassing: Date;
   dataset: T[];
   hash: string;
 }
