@@ -46,6 +46,15 @@ export class TypesService {
     return this.typesRepository.save(updatedType);
   }
 
+  async addObject(typeData: TypeEntity) {
+    if (!typeData) {
+      throw new Error('Type data must be provided.');
+    }
+
+    const newType = this.typesRepository.create(typeData);
+    return this.typesRepository.save(newType);
+  }
+
   private buildFindOptions(filter: GetObjectsFilterCriteria<TypeEntity>): FindManyOptions<TypeEntity> {
     const findOptions: FindManyOptions<TypeEntity> = {};
     const where: FindOptionsWhere<TypeEntity> = {};
@@ -126,4 +135,6 @@ export class TypesService {
 
     return order;
   }
+
+
 }

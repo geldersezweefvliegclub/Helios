@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Put, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { TypeEntity } from '../entities/Type.entity';
 import { GetObjectsFilterCriteria } from '../../../helpers/FilterCriteria';
@@ -7,14 +7,15 @@ import { TypesService } from '../service/types.service';
 @ApiTags('Types')
 @Controller('Types')
 export class TypesController {
-    constructor(private readonly typesService: TypesService) {}
+  constructor(private readonly typesService: TypesService) {
+  }
 
-    @Get('GetObject/:id')
-    @ApiOperation({ summary: 'Get object by id' })
-    @ApiResponse({ status: 200, description: 'Return the object.' })
-    async getObject(@Param('id') id: number) {
-        return this.typesService.getObject(id);
-    }
+  @Get('GetObject/:id')
+  @ApiOperation({ summary: 'Get object by id' })
+  @ApiResponse({ status: 200, description: 'Return the object.' })
+  async getObject(@Param('id') id: number) {
+    return this.typesService.getObject(id);
+  }
 
     @Get('GetObjects')
     @ApiOperation({ summary: 'Get all objects' })
@@ -32,10 +33,17 @@ export class TypesController {
         return this.typesService.getObjects(filter);
     }
 
-    @Put('SaveObject')
-    @ApiOperation({ summary: 'Update existing type record' })
-    @ApiResponse({ status: 200, description: 'Return the updated object.' })
-    async updateObject(@Body() body: Partial<TypeEntity>) {
-        return this.typesService.updateObject(body);
-    }
+  @Put('SaveObject')
+  @ApiOperation({ summary: 'Update existing type record' })
+  @ApiResponse({ status: 200, description: 'Return the updated object.' })
+  async updateObject(@Body() body: Partial<TypeEntity>) {
+    return this.typesService.updateObject(body);
+  }
+
+  @Post('SaveObject')
+  @ApiOperation({ summary: 'Add new type record' })
+  @ApiResponse({ status: 200, description: 'Return the added object.' })
+  async addObject(@Body() typeData: TypeEntity) {
+    return this.typesService.addObject(typeData);
+  }
 }
