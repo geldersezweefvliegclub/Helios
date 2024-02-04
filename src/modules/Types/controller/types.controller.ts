@@ -14,8 +14,8 @@ export class TypesController {
   @ApiOperation({ summary: 'Get object by id' })
   @ApiResponse({ status: 200, description: 'Return the object.' })
   @ApiQuery({ name: 'ID', required: false, type: Number, description: 'The object ID' })
-  async getObject(@Query() id: { ID: number }) {
-    return this.typesService.getObject(id.ID);
+  async getObject(@Query() query: { ID: number }) {
+    return this.typesService.getObject(query.ID);
   }
 
     @Get('GetObjects')

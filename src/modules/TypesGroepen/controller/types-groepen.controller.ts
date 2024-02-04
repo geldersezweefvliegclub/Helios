@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { TypesGroepenService } from '../service/types-groepen.service';
 import { TypeGroepEntity } from '../entities/TypeGroep.entity';
@@ -9,11 +9,12 @@ import { GetObjectsFilterCriteria } from '../../../helpers/FilterCriteria';
 export class TypesGroepenController {
     constructor(private readonly typesGroepenService: TypesGroepenService) {}
 
-    @Get('GetObject/:id')
+    @Get('GetObject')
     @ApiOperation({ summary: 'Get object by id' })
     @ApiResponse({ status: 200, description: 'Return the object.' })
-    async getObject(@Param('id') id: number) {
-        return this.typesGroepenService.getObject(id);
+    @ApiQuery({ name: 'ID', required: false, type: Number, description: 'The object ID' })
+    async getObject(@Query() query: { ID: number }) {
+        return this.typesGroepenService.getObject(query.ID);
     }
 
     @Get('GetObjects')

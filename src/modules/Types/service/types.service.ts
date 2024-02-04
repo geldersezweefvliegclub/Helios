@@ -14,6 +14,7 @@ export class TypesService {
 
 
   async getObject(id: number) {
+    if (!id) throw new Error('ID moet ingevuld zijn.');
     return this.typesRepository.findOne({ where: { ID: id } });
   }
 
