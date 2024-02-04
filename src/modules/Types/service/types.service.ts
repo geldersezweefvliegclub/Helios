@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { FindManyOptions, FindOptionsOrder, Repository } from 'typeorm';
 import { TypeEntity } from '../entities/Type.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -14,7 +14,7 @@ export class TypesService {
 
 
   async getObject(id: number) {
-    if (!id) throw new Error('ID moet ingevuld zijn.');
+    if (!id) throw new BadRequestException('ID moet ingevuld zijn.');
     return this.typesRepository.findOne({ where: { ID: id } });
   }
 
@@ -34,13 +34,13 @@ export class TypesService {
 
   async updateObject(typeData: Partial<TypeEntity>) {
     if (!typeData.ID) {
-      throw new Error('ID moet ingevuld zijn.');
+      throw new BadRequestException('ID moet ingevuld zijn.');
     }
 
     const existingType = await this.typesRepository.findOne({where: {ID: typeData.ID}});
 
     if (!existingType) {
-      throw new Error('Type om te updaten niet gevonden.');
+      throw new BadRequestException('Type om te updaten niet gevonden.');
     }
 
     const updatedType = this.typesRepository.merge(existingType, typeData);
@@ -49,7 +49,7 @@ export class TypesService {
 
   async addObject(typeData: TypeEntity) {
     if (!typeData) {
-      throw new Error('Type data must be provided.');
+      throw new BadRequestException('Type data moet zijn ingevuld.');
     }
 
     const newType = this.typesRepository.create(typeData);

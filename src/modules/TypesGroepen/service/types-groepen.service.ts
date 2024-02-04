@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { FindManyOptions, FindOptionsOrder, Repository } from 'typeorm';
 import { TypeGroepEntity } from '../entities/TypeGroep.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -14,7 +14,7 @@ export class TypesGroepenService {
 
 
   async getObject(id: number) {
-    if (!id) throw new Error('ID moet ingevuld zijn.');
+    if (!id) throw new BadRequestException('ID moet ingevuld zijn.');
     return this.typesRepository.findOne({ where: { ID: id } });
   }
 
