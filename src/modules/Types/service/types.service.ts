@@ -4,8 +4,8 @@ import { TypeEntity } from '../entities/Type.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { createHash } from 'crypto';
 import { GetObjectsResponse } from 'src/helpers/GetObjectsResponse';
-import { GetObjectsFilterCriteria } from '../../../helpers/FilterCriteria';
 import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
+import { TypesGetObjectsFilterDTO } from '../DTO/TypesGetObjectsFilterDTO';
 
 @Injectable()
 export class TypesService {
@@ -18,7 +18,7 @@ export class TypesService {
     return this.typesRepository.findOne({ where: { ID: id } });
   }
 
-  async getObjects(filter: GetObjectsFilterCriteria<TypeEntity>): Promise<GetObjectsResponse<TypeEntity>> {
+  async getObjects(filter: TypesGetObjectsFilterDTO): Promise<GetObjectsResponse<TypeEntity>> {
     const findOptions = this.buildFindOptions(filter);
     const dataset = await this.typesRepository.find(findOptions);
     const hash = createHash('md5').update(JSON.stringify(dataset)).digest('hex');
@@ -80,7 +80,7 @@ export class TypesService {
     return this.typesRepository.save(existingType);
   }
 
-  private buildFindOptions(filter: GetObjectsFilterCriteria<TypeEntity>): FindManyOptions<TypeEntity> {
+  private buildFindOptions(filter: TypesGetObjectsFilterDTO): FindManyOptions<TypeEntity> {
     const findOptions: FindManyOptions<TypeEntity> = {};
     const where: FindOptionsWhere<TypeEntity> = {};
     let order: FindOptionsOrder<TypeEntity> = {
