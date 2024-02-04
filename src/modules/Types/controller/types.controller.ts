@@ -10,11 +10,12 @@ export class TypesController {
   constructor(private readonly typesService: TypesService) {
   }
 
-  @Get('GetObject/:id')
+  @Get('GetObject')
   @ApiOperation({ summary: 'Get object by id' })
   @ApiResponse({ status: 200, description: 'Return the object.' })
-  async getObject(@Param('id') id: number) {
-    return this.typesService.getObject(id);
+  @ApiQuery({ name: 'ID', required: false, type: Number, description: 'The object ID' })
+  async getObject(@Query() id: { ID: number }) {
+    return this.typesService.getObject(id.ID);
   }
 
     @Get('GetObjects')
@@ -46,4 +47,6 @@ export class TypesController {
   async addObject(@Body() typeData: TypeEntity) {
     return this.typesService.addObject(typeData);
   }
+
+
 }
