@@ -2,7 +2,7 @@ import { IsBoolean, IsDate, IsInt, IsNumber, IsOptional, IsString } from 'class-
 import { GetObjectsFilterDTO } from '../../../helpers/DTO/GetObjectsFilterDTO';
 import { Transform } from 'class-transformer';
 
-export class TypesGetObjectsFilterDTO extends GetObjectsFilterDTO {
+export class TypesGetObjectsFilterDTO extends GetObjectsFilterDTO{
   @IsInt()
   @IsOptional()
   ID?: number;
@@ -29,7 +29,8 @@ export class TypesGetObjectsFilterDTO extends GetObjectsFilterDTO {
 
   @IsString()
   @IsOptional()
-  READ_ONLY?: number;
+  @Transform((params) => params.value === 'true')
+  READ_ONLY?: boolean;
 
   @IsNumber()
   @IsOptional()
