@@ -9,7 +9,7 @@ import {
 @Entity('ref_types')
 @Index('GROEP', ['GROEP'])
 @Index('VERWIJDERD', ['VERWIJDERD'])
-export class Type {
+export class TypeEntity {
     @PrimaryGeneratedColumn({ type: 'mediumint', unsigned: true })
     ID: number;
 

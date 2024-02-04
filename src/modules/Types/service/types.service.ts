@@ -1,6 +1,6 @@
 import {Injectable, NotImplementedException} from '@nestjs/common';
 import {Repository} from "typeorm";
-import {Type} from "../models/Type";
+import {TypeEntity} from "../entities/Type.entity";
 import {CreateTableDto} from "../DTO/CreateTableDto";
 import {SaveObjectDto} from "../DTO/SaveObjectDto";
 import {InjectRepository} from "@nestjs/typeorm";
@@ -8,7 +8,7 @@ import {InjectRepository} from "@nestjs/typeorm";
 @Injectable()
 export class TypesService {
     constructor(
-        @InjectRepository(Type) private readonly typesRepository: Repository<Type>
+        @InjectRepository(TypeEntity) private readonly typesRepository: Repository<TypeEntity>
     )
     {
     }
