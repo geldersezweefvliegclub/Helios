@@ -56,6 +56,30 @@ export class TypesService {
     return this.typesRepository.save(newType);
   }
 
+  async restoreObject(id: number) {
+    if (!id) throw new BadRequestException('ID moet ingevuld zijn.');
+    const existingType = await this.typesRepository.findOne({ where: { ID: id } });
+
+    if (!existingType) {
+      throw new BadRequestException('Type om te herstellen niet gevonden.');
+    }
+
+    existingType.VERWIJDERD = false;
+    return this.typesRepository.save(existingType);
+  }
+
+  async deleteObject(id: number) {
+    if (!id) throw new BadRequestException('ID moet ingevuld zijn.');
+    const existingType = await this.typesRepository.findOne({ where: { ID: id } });
+
+    if (!existingType) {
+      throw new BadRequestException('Type om te verwijderen niet gevonden.');
+    }
+
+    existingType.VERWIJDERD = true;
+    return this.typesRepository.save(existingType);
+  }
+
   private buildFindOptions(filter: GetObjectsFilterCriteria<TypeEntity>): FindManyOptions<TypeEntity> {
     const findOptions: FindManyOptions<TypeEntity> = {};
     const where: FindOptionsWhere<TypeEntity> = {};
@@ -136,6 +160,4 @@ export class TypesService {
 
     return order;
   }
-
-
 }

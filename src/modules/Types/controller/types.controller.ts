@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Put, Query } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { TypeEntity } from '../entities/Type.entity';
 import { GetObjectsFilterCriteria } from '../../../helpers/FilterCriteria';
@@ -48,5 +48,20 @@ export class TypesController {
     return this.typesService.addObject(typeData);
   }
 
+  @Patch('RestoreObject')
+  @ApiOperation({ summary: 'Restore deleted type record' })
+  @ApiResponse({ status: 200, description: 'Return the restored object.' })
+  @ApiQuery({ name: 'ID', required: true, type: Number, description: 'The object ID' })
+  async restoreObject(@Query() query: { ID: number }) {
+    return this.typesService.restoreObject(query.ID);
+  }
 
+  @Delete('DeleteObject')
+  @ApiOperation({ summary: 'Delete type record' })
+  @ApiResponse({ status: 204, description: 'Object Deleted' })
+  @ApiQuery({ name: 'ID', required: true, type: Number, description: 'The object ID' })
+  @HttpCode(204)
+  async deleteObject(@Query() query: { ID: number }) {
+    await this.typesService.deleteObject(query.ID);
+  }
 }
