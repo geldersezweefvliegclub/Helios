@@ -30,6 +30,22 @@ export class TypesService {
     };
   }
 
+
+  async updateObject(typeData: Partial<TypeEntity>) {
+    if (!typeData.ID) {
+      throw new Error('ID moet ingevuld zijn.');
+    }
+
+    const existingType = await this.typesRepository.findOne({where: {ID: typeData.ID}});
+
+    if (!existingType) {
+      throw new Error('Type om te updaten niet gevonden.');
+    }
+
+    const updatedType = this.typesRepository.merge(existingType, typeData);
+    return this.typesRepository.save(updatedType);
+  }
+
   private buildFindOptions(filter: GetObjectsFilterCriteria<TypeEntity>): FindManyOptions<TypeEntity> {
     const findOptions: FindManyOptions<TypeEntity> = {};
     const where: FindOptionsWhere<TypeEntity> = {};

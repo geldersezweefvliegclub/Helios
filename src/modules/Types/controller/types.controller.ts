@@ -1,8 +1,8 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Put, Query } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { TypesService } from '../service/types.service';
 import { TypeEntity } from '../entities/Type.entity';
 import { GetObjectsFilterCriteria } from '../../../helpers/FilterCriteria';
+import { TypesService } from '../service/types.service';
 
 @ApiTags('Types')
 @Controller('Types')
@@ -30,5 +30,12 @@ export class TypesController {
     @ApiQuery({ name: 'GROEP', required: false, type: Number, description: 'Get all types from a specific group' })
     async getObjects(@Query() filter: GetObjectsFilterCriteria<TypeEntity>) {
         return this.typesService.getObjects(filter);
+    }
+
+    @Put('SaveObject')
+    @ApiOperation({ summary: 'Update existing type record' })
+    @ApiResponse({ status: 200, description: 'Return the updated object.' })
+    async updateObject(@Body() body: Partial<TypeEntity>) {
+        return this.typesService.updateObject(body);
     }
 }
