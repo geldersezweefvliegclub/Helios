@@ -31,7 +31,6 @@ export class TypesService {
     };
   }
 
-
   async updateObject(typeData: Partial<TypeEntity>) {
     if (!typeData.ID) {
       throw new BadRequestException('ID moet ingevuld zijn.');
@@ -56,7 +55,7 @@ export class TypesService {
     return this.typesRepository.save(newType);
   }
 
-  async restoreObject(id: number) {
+  async restoreObject(id?: number) {
     if (!id) throw new BadRequestException('ID moet ingevuld zijn.');
     const existingType = await this.typesRepository.findOne({ where: { ID: id } });
 
@@ -68,7 +67,7 @@ export class TypesService {
     return this.typesRepository.save(existingType);
   }
 
-  async deleteObject(id: number) {
+  async deleteObject(id?: number) {
     if (!id) throw new BadRequestException('ID moet ingevuld zijn.');
     const existingType = await this.typesRepository.findOne({ where: { ID: id } });
 

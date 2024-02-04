@@ -1,8 +1,9 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Patch, Post, Put, Query } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { TypesGroepenService } from '../service/types-groepen.service';
 import { TypeGroepEntity } from '../entities/TypeGroep.entity';
 import { TypesGroepenGetObjectsFilterDTO } from '../DTO/TypesGroepenGetObjectsFilterDTO';
+import { ObjectID } from '../../../helpers/DTO/ObjectID';
 
 
 @ApiTags('TypesGroepen')
@@ -31,5 +32,36 @@ export class TypesGroepenController {
     @ApiQuery({ name: 'VELDEN', required: false, type: String, description: 'Which fields should be included in the dataset' })
     async getObjects(@Query() filter: TypesGroepenGetObjectsFilterDTO) {
         return this.typesGroepenService.getObjects(filter);
+    }
+
+    @Put('SaveObject')
+    @ApiOperation({ summary: 'Update existing type record' })
+    @ApiResponse({ status: 200, description: 'Return the updated object.' })
+    async updateObject(@Body() body: Partial<TypeGroepEntity>) {
+        return this.typesGroepenService.updateObject(body);
+    }
+
+    @Post('SaveObject')
+    @ApiOperation({ summary: 'Add new type record' })
+    @ApiResponse({ status: 200, description: 'Return the added object.' })
+    async addObject(@Body() typeData: TypeGroepEntity) {
+        return this.typesGroepenService.addObject(typeData);
+    }
+
+    @Patch('RestoreObject')
+    @ApiOperation({ summary: 'Restore deleted type record' })
+    @ApiQuery({ name: 'ID', required: true, type: Number, description: 'The object ID' })
+    @HttpCode(202)
+    async restoreObject(@Query() query: ObjectID<TypesGroepenGetObjectsFilterDTO>) {
+        return this.typesGroepenService.restoreObject(query.ID);
+    }
+
+    @Delete('DeleteObject')
+    @ApiOperation({ summary: 'Delete type record' })
+    @ApiResponse({ status: 204, description: 'Object Deleted' })
+    @ApiQuery({ name: 'ID', required: true, type: Number, description: 'The object ID' })
+    @HttpCode(204)
+    async deleteObject(@Query() query: ObjectID<TypesGroepenGetObjectsFilterDTO>) {
+        await this.typesGroepenService.deleteObject(query.ID);
     }
 }

@@ -9,18 +9,18 @@ import { TypesGroepenGetObjectsFilterDTO } from '../DTO/TypesGroepenGetObjectsFi
 
 @Injectable()
 export class TypesGroepenService {
-  constructor(@InjectRepository(TypeGroepEntity) private readonly typesRepository: Repository<TypeGroepEntity>) {
+  constructor(@InjectRepository(TypeGroepEntity) private readonly typesGroepRepository: Repository<TypeGroepEntity>) {
   }
 
 
   async getObject(id: number) {
     if (!id) throw new BadRequestException('ID moet ingevuld zijn.');
-    return this.typesRepository.findOne({ where: { ID: id } });
+    return this.typesGroepRepository.findOne({ where: { ID: id } });
   }
 
   async getObjects(filter: TypesGroepenGetObjectsFilterDTO): Promise<GetObjectsResponse<TypeGroepEntity>> {
     const findOptions = this.buildFindOptions(filter);
-    const dataset = await this.typesRepository.find(findOptions);
+    const dataset = await this.typesGroepRepository.find(findOptions);
     const hash = createHash('md5').update(JSON.stringify(dataset)).digest('hex');
 
     return {
@@ -106,5 +106,53 @@ export class TypesGroepenService {
     });
 
     return order;
+  }
+
+  async updateObject(typeData: Partial<TypeGroepEntity>) {
+    if (!typeData.ID) {
+      throw new BadRequestException('ID moet ingevuld zijn.');
+    }
+
+    const existingType = await this.typesGroepRepository.findOne({where: {ID: typeData.ID}});
+
+    if (!existingType) {
+      throw new BadRequestException('Type om te updaten niet gevonden.');
+    }
+
+    const updatedType = this.typesGroepRepository.merge(existingType, typeData);
+    return this.typesGroepRepository.save(updatedType);
+  }
+
+  async addObject(typeData: TypeGroepEntity) {
+    if (!typeData) {
+      throw new BadRequestException('Type data moet zijn ingevuld.');
+    }
+
+    const newType = this.typesGroepRepository.create(typeData);
+    return this.typesGroepRepository.save(newType);
+  }
+
+  async restoreObject(id?: number) {
+    if (!id) throw new BadRequestException('ID moet ingevuld zijn.');
+    const existingType = await this.typesGroepRepository.findOne({ where: { ID: id } });
+
+    if (!existingType) {
+      throw new BadRequestException('Type om te herstellen niet gevonden.');
+    }
+
+    existingType.VERWIJDERD = false;
+    return this.typesGroepRepository.save(existingType);
+  }
+
+  async deleteObject(id?: number) {
+    if (!id) throw new BadRequestException('ID moet ingevuld zijn.');
+    const existingType = await this.typesGroepRepository.findOne({ where: { ID: id } });
+
+    if (!existingType) {
+      throw new BadRequestException('Type om te verwijderen niet gevonden.');
+    }
+
+    existingType.VERWIJDERD = true;
+    return this.typesGroepRepository.save(existingType);
   }
 }

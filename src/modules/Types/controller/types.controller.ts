@@ -3,6 +3,7 @@ import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { TypeEntity } from '../entities/Type.entity';
 import { TypesService } from '../service/types.service';
 import { TypesGetObjectsFilterDTO } from '../DTO/TypesGetObjectsFilterDTO';
+import { ObjectID } from '../../../helpers/DTO/ObjectID';
 
 @ApiTags('Types')
 @Controller('Types')
@@ -52,7 +53,7 @@ export class TypesController {
   @ApiOperation({ summary: 'Restore deleted type record' })
   @ApiQuery({ name: 'ID', required: true, type: Number, description: 'The object ID' })
   @HttpCode(202)
-  async restoreObject(@Query() query: { ID: number }) {
+  async restoreObject(@Query() query: ObjectID<TypesGetObjectsFilterDTO>) {
     return this.typesService.restoreObject(query.ID);
   }
 
@@ -61,7 +62,7 @@ export class TypesController {
   @ApiResponse({ status: 204, description: 'Object Deleted' })
   @ApiQuery({ name: 'ID', required: true, type: Number, description: 'The object ID' })
   @HttpCode(204)
-  async deleteObject(@Query() query: { ID: number }) {
+  async deleteObject(@Query() query: ObjectID<TypesGetObjectsFilterDTO>) {
     await this.typesService.deleteObject(query.ID);
   }
 }
