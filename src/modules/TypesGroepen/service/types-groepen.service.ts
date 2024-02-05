@@ -8,8 +8,8 @@ import { IHeliosService } from '../../../core/base/IHelios.service';
 
 @Injectable()
 export class TypesGroepenService extends IHeliosService<TypeGroepEntity, TypesGroepenGetObjectsFilterDTO> {
-  constructor(@InjectRepository(TypeGroepEntity) private readonly typesGroepRepository: Repository<TypeGroepEntity>) {
-    super(typesGroepRepository);
+  constructor(@InjectRepository(TypeGroepEntity) protected readonly repository: Repository<TypeGroepEntity>) {
+    super(repository);
   }
 
   protected buildFindOptions(filter: TypesGroepenGetObjectsFilterDTO): FindManyOptions<TypeGroepEntity> {
