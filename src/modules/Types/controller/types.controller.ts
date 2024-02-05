@@ -3,7 +3,7 @@ import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { TypeEntity } from '../entities/Type.entity';
 import { TypesService } from '../service/types.service';
 import { TypesGetObjectsFilterDTO } from '../DTO/TypesGetObjectsFilterDTO';
-import { ObjectID } from '../../../helpers/DTO/ObjectID';
+import { ObjectID } from '../../../core/DTO/ObjectID';
 
 @ApiTags('Types')
 @Controller('Types')

@@ -1,5 +1,5 @@
 import { IsBoolean, IsDate, IsInt, IsNumber, IsOptional, IsString } from 'class-validator';
-import { GetObjectsFilterDTO } from '../../../helpers/DTO/GetObjectsFilterDTO';
+import { GetObjectsFilterDTO } from '../../../core/DTO/GetObjectsFilterDTO';
 import { Transform } from 'class-transformer';
 
 export class TypesGetObjectsFilterDTO extends GetObjectsFilterDTO{

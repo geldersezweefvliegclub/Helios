@@ -1,4 +1,4 @@
-import { GetObjectsFilterDTO } from '../../../helpers/DTO/GetObjectsFilterDTO';
+import { GetObjectsFilterDTO } from '../../../core/DTO/GetObjectsFilterDTO';
 import { IsBoolean, IsDate, IsInt, IsNumber, IsOptional, IsString } from 'class-validator';
 import { Transform } from 'class-transformer';
 
