@@ -28,7 +28,22 @@ export abstract class IHeliosService<Entity extends IHeliosEntity, FilterDTO> {
       hash: hash,
     };
   }
-  abstract updateObject(typeData: DeepPartial<Entity>): Promise<Entity>;
+
+  async updateObject(typeData: DeepPartial<Entity>): Promise<Entity> {
+    if (!typeData.ID) {
+      throw new BadRequestException('ID moet ingevuld zijn.');
+    }
+
+    const existingType = await this.repository.findOne({where: {ID: typeData.ID} as never});
+
+    if (!existingType) {
+      throw new BadRequestException('Type om te updaten niet gevonden.');
+    }
+
+    const updatedType = this.repository.merge(existingType, typeData);
+    return this.repository.save(updatedType);
+  }
+
   async addObject(data: Entity): Promise<Entity> {
     if (!data) {
       throw new BadRequestException('Object data moet zijn ingevuld.');
@@ -37,7 +52,19 @@ export abstract class IHeliosService<Entity extends IHeliosEntity, FilterDTO> {
     const newType = this.repository.create(data);
     return this.repository.save(newType);
   }
-  abstract restoreObject(id?: number): Promise<Entity>;
+
+  async restoreObject(id?: number): Promise<Entity> {
+    if (!id) throw new BadRequestException('ID moet ingevuld zijn.');
+    const existingType = await this.repository.findOne({ where: { ID: id } as never});
+
+    if (!existingType) {
+      throw new BadRequestException('Type om te herstellen niet gevonden.');
+    }
+
+    existingType.VERWIJDERD = false;
+    return this.repository.save(existingType);
+  }
+
   async deleteObject(id?: number) {
     if (!id) throw new BadRequestException('ID moet ingevuld zijn.');
     const existingType = await this.repository.findOne({ where: { ID: id } as never });
@@ -52,5 +79,25 @@ export abstract class IHeliosService<Entity extends IHeliosEntity, FilterDTO> {
 
   protected abstract buildFindOptions(filter: FilterDTO): FindManyOptions<Entity>;
 
-  protected abstract bouwSorteringOp(commaSeparatedString: string): FindOptionsOrder<Entity>;
+  /**
+   * Zet de sortering om naar een FindOptionsOrder object
+   * Input: SORT=CLUBKIST DESC, VOLGORDE, REGISTRATIE
+   * Output: { CLUBKIST: 'DESC', VOLGORDE: 'ASC', REGISTRATIE: 'ASC' }
+   * @param commaSeparatedString
+   * @private
+   */
+  protected bouwSorteringOp(commaSeparatedString: string): FindOptionsOrder<Entity> {
+    const order: Record<string, string> = {};
+
+    const sortFields = commaSeparatedString.split(',');
+
+    sortFields.forEach((sortField) => {
+      const parts = sortField.trim().split(' ');
+      const field = parts[0];
+      // Pak de de waarde van de sortering, als die er niet is, dan default naar ASC
+      order[field as keyof typeof order]  = parts.length > 1 ? parts[1] : 'ASC';
+    });
+
+    return order as FindOptionsOrder<Entity>;
+  }
 }

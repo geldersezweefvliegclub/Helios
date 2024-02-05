@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { FindManyOptions, FindOptionsOrder, Repository } from 'typeorm';
 import { TypeEntity } from '../entities/Type.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -8,35 +8,8 @@ import { IHeliosService } from '../../../core/base/IHelios.service';
 
 @Injectable()
 export class TypesService extends IHeliosService<TypeEntity, TypesGetObjectsFilterDTO> {
-  constructor(@InjectRepository(TypeEntity) private readonly typesRepository: Repository<TypeEntity>) {
-    super(typesRepository);
-  }
-
-  async updateObject(typeData: Partial<TypeEntity>) {
-    if (!typeData.ID) {
-      throw new BadRequestException('ID moet ingevuld zijn.');
-    }
-
-    const existingType = await this.typesRepository.findOne({ where: { ID: typeData.ID } });
-
-    if (!existingType) {
-      throw new BadRequestException('Type om te updaten niet gevonden.');
-    }
-
-    const updatedType = this.typesRepository.merge(existingType, typeData);
-    return this.typesRepository.save(updatedType);
-  }
-
-  async restoreObject(id?: number) {
-    if (!id) throw new BadRequestException('ID moet ingevuld zijn.');
-    const existingType = await this.typesRepository.findOne({ where: { ID: id } });
-
-    if (!existingType) {
-      throw new BadRequestException('Type om te herstellen niet gevonden.');
-    }
-
-    existingType.VERWIJDERD = false;
-    return this.typesRepository.save(existingType);
+  constructor(@InjectRepository(TypeEntity) protected readonly repository: Repository<TypeEntity>) {
+    super(repository);
   }
 
   protected buildFindOptions(filter: TypesGetObjectsFilterDTO): FindManyOptions<TypeEntity> {
@@ -96,27 +69,5 @@ export class TypesService extends IHeliosService<TypeEntity, TypesGetObjectsFilt
     findOptions.where = where;
     findOptions.order = order;
     return findOptions;
-  }
-
-  /**
-   * Zet de sortering om naar een FindOptionsOrder object
-   * Input: SORT=CLUBKIST DESC, VOLGORDE, REGISTRATIE
-   * Output: { CLUBKIST: 'DESC', VOLGORDE: 'ASC', REGISTRATIE: 'ASC' }
-   * @param commaSeparatedString
-   * @private
-   */
-  protected bouwSorteringOp(commaSeparatedString: string): FindOptionsOrder<TypeEntity> {
-    const order: Record<string, string> = {};
-
-    const sortFields = commaSeparatedString.split(',');
-
-    sortFields.forEach((sortField) => {
-      const parts = sortField.trim().split(' ');
-      const field = parts[0];
-      // Pak de de waarde van de sortering, als die er niet is, dan default naar ASC
-      order[field] = parts.length > 1 ? parts[1] : 'ASC';
-    });
-
-    return order;
   }
 }
