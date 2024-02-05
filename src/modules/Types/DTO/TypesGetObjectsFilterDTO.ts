@@ -5,10 +5,12 @@ import { Transform } from 'class-transformer';
 export class TypesGetObjectsFilterDTO extends GetObjectsFilterDTO{
   @IsInt()
   @IsOptional()
+  @Transform((params) => params.value == null ? null : parseInt(params.value))
   ID?: number;
 
   @IsInt()
   @IsOptional()
+  @Transform((params) => params.value == null ? null : parseInt(params.value))
   GROEP?: number;
 
   @IsString()
@@ -25,6 +27,7 @@ export class TypesGetObjectsFilterDTO extends GetObjectsFilterDTO{
 
   @IsString()
   @IsOptional()
+  @Transform((params) => params.value == null ? null : parseInt(params.value))
   SORTEER_VOLGORDE?: number | null;
 
   @IsString()
@@ -34,10 +37,12 @@ export class TypesGetObjectsFilterDTO extends GetObjectsFilterDTO{
 
   @IsNumber()
   @IsOptional()
+  @Transform((params) => params.value == null ? null : parseInt(params.value))
   BEDRAG?: number | null;
 
   @IsNumber()
   @IsOptional()
+  @Transform((params) => params.value == null ? null : parseInt(params.value))
   EENHEDEN?: number | null;
 
   @IsOptional()

@@ -1,4 +1,5 @@
 import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 /**
  * Een generieke DTO gebruikt door `GetObjects` endpoints zodat NestJS de query parameters kan valideren en parsen.
@@ -8,6 +9,7 @@ import { IsNumber, IsOptional, IsString } from 'class-validator';
 export class GetObjectsFilterDTO {
   @IsOptional()
   @IsNumber()
+  @Transform((params) => params.value == null ? null : parseInt(params.value))
   MAX?: number;
 
   @IsOptional()
