@@ -3,7 +3,7 @@ import { FindManyOptions, FindOptionsOrder, Repository } from 'typeorm';
 import { TypeGroepEntity } from '../entities/TypeGroep.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { createHash } from 'crypto';
-import { GetObjectsResponse } from 'src/core/GetObjectsResponse';
+import { GetObjectsResponse } from 'src/core/types/GetObjectsResponse';
 import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
 import { TypesGroepenGetObjectsFilterDTO } from '../DTO/TypesGroepenGetObjectsFilterDTO';
 
