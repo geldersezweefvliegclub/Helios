@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { FindManyOptions, FindOptionsOrder, Repository } from 'typeorm';
 import { TypeEntity } from '../entities/Type.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -12,16 +12,6 @@ import { IHeliosService } from '../../../core/base/IHelios.service';
 export class TypesService extends IHeliosService<TypeEntity, TypesGetObjectsFilterDTO> {
   constructor(@InjectRepository(TypeEntity) private readonly typesRepository: Repository<TypeEntity>) {
     super(typesRepository);
-  }
-
-
-  async getObject(id: number) {
-    if (!id) throw new BadRequestException('ID moet ingevuld zijn.');
-
-    const result = await this.typesRepository.findOne({ where: { ID: id } });
-    if (!result) throw new NotFoundException('Type niet gevonden.');
-
-    return result;
   }
 
   async getObjects(filter: TypesGetObjectsFilterDTO): Promise<GetObjectsResponse<TypeEntity>> {

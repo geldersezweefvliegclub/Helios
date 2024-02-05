@@ -6,16 +6,12 @@ import { createHash } from 'crypto';
 import { GetObjectsResponse } from 'src/core/types/GetObjectsResponse';
 import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
 import { TypesGroepenGetObjectsFilterDTO } from '../DTO/TypesGroepenGetObjectsFilterDTO';
+import { IHeliosService } from '../../../core/base/IHelios.service';
 
 @Injectable()
-export class TypesGroepenService {
+export class TypesGroepenService extends IHeliosService<TypeGroepEntity, TypesGroepenGetObjectsFilterDTO> {
   constructor(@InjectRepository(TypeGroepEntity) private readonly typesGroepRepository: Repository<TypeGroepEntity>) {
-  }
-
-
-  async getObject(id: number) {
-    if (!id) throw new BadRequestException('ID moet ingevuld zijn.');
-    return this.typesGroepRepository.findOne({ where: { ID: id } });
+    super(typesGroepRepository);
   }
 
   async getObjects(filter: TypesGroepenGetObjectsFilterDTO): Promise<GetObjectsResponse<TypeGroepEntity>> {
@@ -31,7 +27,7 @@ export class TypesGroepenService {
     };
   }
 
-  private buildFindOptions(filter: TypesGroepenGetObjectsFilterDTO): FindManyOptions<TypeGroepEntity> {
+  protected buildFindOptions(filter: TypesGroepenGetObjectsFilterDTO): FindManyOptions<TypeGroepEntity> {
     const findOptions: FindManyOptions<TypeGroepEntity> = {};
     const where: FindOptionsWhere<TypeGroepEntity> = {};
     let order: FindOptionsOrder<TypeGroepEntity> = {
@@ -93,7 +89,7 @@ export class TypesGroepenService {
    * @param commaSeparatedString
    * @private
    */
-  private bouwSorteringOp(commaSeparatedString: string): FindOptionsOrder<TypeGroepEntity> {
+  protected bouwSorteringOp(commaSeparatedString: string): FindOptionsOrder<TypeGroepEntity> {
     const order: Record<string, string> = {};
 
     const sortFields = commaSeparatedString.split(',');
