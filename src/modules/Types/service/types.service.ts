@@ -2,8 +2,6 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { FindManyOptions, FindOptionsOrder, Repository } from 'typeorm';
 import { TypeEntity } from '../entities/Type.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { createHash } from 'crypto';
-import { GetObjectsResponse } from 'src/core/types/GetObjectsResponse';
 import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
 import { TypesGetObjectsFilterDTO } from '../DTO/TypesGetObjectsFilterDTO';
 import { IHeliosService } from '../../../core/base/IHelios.service';
@@ -12,19 +10,6 @@ import { IHeliosService } from '../../../core/base/IHelios.service';
 export class TypesService extends IHeliosService<TypeEntity, TypesGetObjectsFilterDTO> {
   constructor(@InjectRepository(TypeEntity) private readonly typesRepository: Repository<TypeEntity>) {
     super(typesRepository);
-  }
-
-  async getObjects(filter: TypesGetObjectsFilterDTO): Promise<GetObjectsResponse<TypeEntity>> {
-    const findOptions = this.buildFindOptions(filter);
-    const dataset = await this.typesRepository.find(findOptions);
-    const hash = createHash('md5').update(JSON.stringify(dataset)).digest('hex');
-
-    return {
-      totaal: dataset.length,
-      laatste_aanpassing: new Date(),
-      dataset: dataset,
-      hash: hash,
-    };
   }
 
   async updateObject(typeData: Partial<TypeEntity>) {
@@ -40,15 +25,6 @@ export class TypesService extends IHeliosService<TypeEntity, TypesGetObjectsFilt
 
     const updatedType = this.typesRepository.merge(existingType, typeData);
     return this.typesRepository.save(updatedType);
-  }
-
-  async addObject(typeData: TypeEntity) {
-    if (!typeData) {
-      throw new BadRequestException('Type data moet zijn ingevuld.');
-    }
-
-    const newType = this.typesRepository.create(typeData);
-    return this.typesRepository.save(newType);
   }
 
   async restoreObject(id?: number) {

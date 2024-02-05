@@ -1,12 +1,21 @@
 import { GetObjectsResponse } from '../types/GetObjectsResponse';
-import { FindManyOptions, FindOptionsOrder, ObjectLiteral, Repository } from 'typeorm';
+import { DeepPartial, FindManyOptions, FindOptionsOrder, ObjectLiteral, Repository } from 'typeorm';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { createHash } from 'crypto';
+import { TypeGroepEntity } from '../../modules/TypesGroepen/entities/TypeGroep.entity';
 
-export abstract class IHeliosService<T extends ObjectLiteral, F> {
-  protected constructor(protected readonly repository: Repository<T>) {
+export interface IHeliosEntity extends ObjectLiteral {
+  ID: number;
+  VERWIJDERD: boolean;
+  LAATSTE_AANPASSING: Date;
+}
+
+
+export abstract class IHeliosService<Entity extends IHeliosEntity, FilterDTO> {
+  protected constructor(protected readonly repository: Repository<Entity>) {
   }
 
-  async getObject(id: number): Promise<T>{
+  async getObject(id: number): Promise<Entity>{
     if (!id) throw new BadRequestException('ID moet ingevuld zijn.');
 
     const result = await this.repository.findOne({ where: { ID: id } as never });
@@ -15,23 +24,37 @@ export abstract class IHeliosService<T extends ObjectLiteral, F> {
     return result;
   };
 
-  abstract getObjects(filter: F): Promise<GetObjectsResponse<T>>;
+  async getObjects(filter: FilterDTO): Promise<GetObjectsResponse<Entity>> {
+    const findOptions = this.buildFindOptions(filter);
+    const dataset = await this.repository.find(findOptions);
+    const hash = createHash('md5').update(JSON.stringify(dataset)).digest('hex');
 
-  abstract updateObject(typeData: Partial<T>): Promise<T>;
-
-  abstract addObject(typeData: T): Promise<T>;
-
-  abstract restoreObject(id?: number): Promise<T>;
-
-  abstract deleteObject(id?: number): Promise<T>;
-
-
-  protected buildFindOptions(filter: F): FindManyOptions<T> {
-    console.log(filter);
-    return {};
+    return {
+      totaal: dataset.length,
+      laatste_aanpassing: new Date(),
+      dataset: dataset,
+      hash: hash,
+    };
   }
 
-  protected bouwSorteringOp(commaSeparatedString: string): FindOptionsOrder<T> {
+  abstract updateObject(typeData: DeepPartial<Entity>): Promise<Entity>;
+
+  async addObject(data: Entity): Promise<Entity> {
+    if (!data) {
+      throw new BadRequestException('Object data moet zijn ingevuld.');
+    }
+
+    const newType = this.repository.create(data);
+    return this.repository.save(newType);
+  }
+
+  abstract restoreObject(id?: number): Promise<Entity>;
+
+  abstract deleteObject(id?: number): Promise<Entity>;
+
+  protected abstract buildFindOptions(filter: FilterDTO): FindManyOptions<Entity>;
+
+  protected bouwSorteringOp(commaSeparatedString: string): FindOptionsOrder<Entity> {
     console.log(commaSeparatedString);
     return {};
   }

@@ -2,8 +2,6 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { FindManyOptions, FindOptionsOrder, Repository } from 'typeorm';
 import { TypeGroepEntity } from '../entities/TypeGroep.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { createHash } from 'crypto';
-import { GetObjectsResponse } from 'src/core/types/GetObjectsResponse';
 import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
 import { TypesGroepenGetObjectsFilterDTO } from '../DTO/TypesGroepenGetObjectsFilterDTO';
 import { IHeliosService } from '../../../core/base/IHelios.service';
@@ -12,19 +10,6 @@ import { IHeliosService } from '../../../core/base/IHelios.service';
 export class TypesGroepenService extends IHeliosService<TypeGroepEntity, TypesGroepenGetObjectsFilterDTO> {
   constructor(@InjectRepository(TypeGroepEntity) private readonly typesGroepRepository: Repository<TypeGroepEntity>) {
     super(typesGroepRepository);
-  }
-
-  async getObjects(filter: TypesGroepenGetObjectsFilterDTO): Promise<GetObjectsResponse<TypeGroepEntity>> {
-    const findOptions = this.buildFindOptions(filter);
-    const dataset = await this.typesGroepRepository.find(findOptions);
-    const hash = createHash('md5').update(JSON.stringify(dataset)).digest('hex');
-
-    return {
-      totaal: dataset.length,
-      laatste_aanpassing: new Date(),
-      dataset: dataset,
-      hash: hash,
-    };
   }
 
   protected buildFindOptions(filter: TypesGroepenGetObjectsFilterDTO): FindManyOptions<TypeGroepEntity> {
@@ -117,15 +102,6 @@ export class TypesGroepenService extends IHeliosService<TypeGroepEntity, TypesGr
 
     const updatedType = this.typesGroepRepository.merge(existingType, typeData);
     return this.typesGroepRepository.save(updatedType);
-  }
-
-  async addObject(typeData: TypeGroepEntity) {
-    if (!typeData) {
-      throw new BadRequestException('Type data moet zijn ingevuld.');
-    }
-
-    const newType = this.typesGroepRepository.create(typeData);
-    return this.typesGroepRepository.save(newType);
   }
 
   async restoreObject(id?: number) {
