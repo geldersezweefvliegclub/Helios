@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { FindManyOptions, FindOptionsOrder, Repository } from 'typeorm';
 import { TypeEntity } from '../entities/Type.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -6,16 +6,22 @@ import { createHash } from 'crypto';
 import { GetObjectsResponse } from 'src/core/types/GetObjectsResponse';
 import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
 import { TypesGetObjectsFilterDTO } from '../DTO/TypesGetObjectsFilterDTO';
+import { IHeliosService } from '../../../core/base/IHelios.service';
 
 @Injectable()
-export class TypesService {
+export class TypesService extends IHeliosService<TypeEntity, TypesGetObjectsFilterDTO> {
   constructor(@InjectRepository(TypeEntity) private readonly typesRepository: Repository<TypeEntity>) {
+    super(typesRepository);
   }
 
 
   async getObject(id: number) {
     if (!id) throw new BadRequestException('ID moet ingevuld zijn.');
-    return this.typesRepository.findOne({ where: { ID: id } });
+
+    const result = await this.typesRepository.findOne({ where: { ID: id } });
+    if (!result) throw new NotFoundException('Type niet gevonden.');
+
+    return result;
   }
 
   async getObjects(filter: TypesGetObjectsFilterDTO): Promise<GetObjectsResponse<TypeEntity>> {
@@ -36,7 +42,7 @@ export class TypesService {
       throw new BadRequestException('ID moet ingevuld zijn.');
     }
 
-    const existingType = await this.typesRepository.findOne({where: {ID: typeData.ID}});
+    const existingType = await this.typesRepository.findOne({ where: { ID: typeData.ID } });
 
     if (!existingType) {
       throw new BadRequestException('Type om te updaten niet gevonden.');
@@ -79,7 +85,7 @@ export class TypesService {
     return this.typesRepository.save(existingType);
   }
 
-  private buildFindOptions(filter: TypesGetObjectsFilterDTO): FindManyOptions<TypeEntity> {
+  protected buildFindOptions(filter: TypesGetObjectsFilterDTO): FindManyOptions<TypeEntity> {
     const findOptions: FindManyOptions<TypeEntity> = {};
     const where: FindOptionsWhere<TypeEntity> = {};
     let order: FindOptionsOrder<TypeEntity> = {
@@ -145,7 +151,7 @@ export class TypesService {
    * @param commaSeparatedString
    * @private
    */
-  private bouwSorteringOp(commaSeparatedString: string): FindOptionsOrder<TypeEntity> {
+  protected bouwSorteringOp(commaSeparatedString: string): FindOptionsOrder<TypeEntity> {
     const order: Record<string, string> = {};
 
     const sortFields = commaSeparatedString.split(',');
