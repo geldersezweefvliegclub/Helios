@@ -1,15 +1,8 @@
 import { GetObjectsResponse } from '../types/GetObjectsResponse';
-import { DeepPartial, FindManyOptions, FindOptionsOrder, ObjectLiteral, Repository } from 'typeorm';
+import { DeepPartial, FindManyOptions, FindOptionsOrder, Repository } from 'typeorm';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { createHash } from 'crypto';
-import { TypeGroepEntity } from '../../modules/TypesGroepen/entities/TypeGroep.entity';
-
-export interface IHeliosEntity extends ObjectLiteral {
-  ID: number;
-  VERWIJDERD: boolean;
-  LAATSTE_AANPASSING: Date;
-}
-
+import { IHeliosEntity } from '../DTO/IHeliosEntity';
 
 export abstract class IHeliosService<Entity extends IHeliosEntity, FilterDTO> {
   protected constructor(protected readonly repository: Repository<Entity>) {
@@ -23,7 +16,6 @@ export abstract class IHeliosService<Entity extends IHeliosEntity, FilterDTO> {
 
     return result;
   };
-
   async getObjects(filter: FilterDTO): Promise<GetObjectsResponse<Entity>> {
     const findOptions = this.buildFindOptions(filter);
     const dataset = await this.repository.find(findOptions);
@@ -36,9 +28,7 @@ export abstract class IHeliosService<Entity extends IHeliosEntity, FilterDTO> {
       hash: hash,
     };
   }
-
   abstract updateObject(typeData: DeepPartial<Entity>): Promise<Entity>;
-
   async addObject(data: Entity): Promise<Entity> {
     if (!data) {
       throw new BadRequestException('Object data moet zijn ingevuld.');
@@ -47,15 +37,20 @@ export abstract class IHeliosService<Entity extends IHeliosEntity, FilterDTO> {
     const newType = this.repository.create(data);
     return this.repository.save(newType);
   }
-
   abstract restoreObject(id?: number): Promise<Entity>;
+  async deleteObject(id?: number) {
+    if (!id) throw new BadRequestException('ID moet ingevuld zijn.');
+    const existingType = await this.repository.findOne({ where: { ID: id } as never });
 
-  abstract deleteObject(id?: number): Promise<Entity>;
+    if (!existingType) {
+      throw new BadRequestException('Type om te verwijderen niet gevonden.');
+    }
+
+    existingType.VERWIJDERD = true;
+    return this.repository.save(existingType);
+  }
 
   protected abstract buildFindOptions(filter: FilterDTO): FindManyOptions<Entity>;
 
-  protected bouwSorteringOp(commaSeparatedString: string): FindOptionsOrder<Entity> {
-    console.log(commaSeparatedString);
-    return {};
-  }
+  protected abstract bouwSorteringOp(commaSeparatedString: string): FindOptionsOrder<Entity>;
 }

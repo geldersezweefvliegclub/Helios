@@ -39,18 +39,6 @@ export class TypesService extends IHeliosService<TypeEntity, TypesGetObjectsFilt
     return this.typesRepository.save(existingType);
   }
 
-  async deleteObject(id?: number) {
-    if (!id) throw new BadRequestException('ID moet ingevuld zijn.');
-    const existingType = await this.typesRepository.findOne({ where: { ID: id } });
-
-    if (!existingType) {
-      throw new BadRequestException('Type om te verwijderen niet gevonden.');
-    }
-
-    existingType.VERWIJDERD = true;
-    return this.typesRepository.save(existingType);
-  }
-
   protected buildFindOptions(filter: TypesGetObjectsFilterDTO): FindManyOptions<TypeEntity> {
     const findOptions: FindManyOptions<TypeEntity> = {};
     const where: FindOptionsWhere<TypeEntity> = {};
