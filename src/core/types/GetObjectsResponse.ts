@@ -1,6 +1,6 @@
-export interface GetObjectsResponse<T> {
+export interface GetObjectsResponse<Entity> {
   totaal: number;
   laatste_aanpassing: Date;
-  dataset: T[];
+  dataset: Entity[];
   hash: string;
 }

@@ -1,10 +1,11 @@
 import { GetObjectsResponse } from '../types/GetObjectsResponse';
-import { DeepPartial, FindManyOptions, FindOptionsOrder, Repository } from 'typeorm';
+import { DeepPartial, Repository } from 'typeorm';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { createHash } from 'crypto';
 import { IHeliosEntity } from '../DTO/IHeliosEntity';
+import { IHeliosFilterDTO } from '../DTO/IHeliosFilterDTO';
 
-export abstract class IHeliosService<Entity extends IHeliosEntity, FilterDTO> {
+export abstract class IHeliosService<Entity extends IHeliosEntity, FilterDTO extends IHeliosFilterDTO<Entity>> {
   protected constructor(protected readonly repository: Repository<Entity>) {
   }
 
@@ -17,7 +18,7 @@ export abstract class IHeliosService<Entity extends IHeliosEntity, FilterDTO> {
     return result;
   };
   async getObjects(filter: FilterDTO): Promise<GetObjectsResponse<Entity>> {
-    const findOptions = this.buildFindOptions(filter);
+    const findOptions = filter.buildTypeORMFindManyObject();
     const dataset = await this.repository.find(findOptions);
     const hash = createHash('md5').update(JSON.stringify(dataset)).digest('hex');
 
@@ -75,29 +76,5 @@ export abstract class IHeliosService<Entity extends IHeliosEntity, FilterDTO> {
 
     existingType.VERWIJDERD = true;
     return this.repository.save(existingType);
-  }
-
-  protected abstract buildFindOptions(filter: FilterDTO): FindManyOptions<Entity>;
-
-  /**
-   * Zet de sortering om naar een FindOptionsOrder object
-   * Input: SORT=CLUBKIST DESC, VOLGORDE, REGISTRATIE
-   * Output: { CLUBKIST: 'DESC', VOLGORDE: 'ASC', REGISTRATIE: 'ASC' }
-   * @param commaSeparatedString
-   * @private
-   */
-  protected bouwSorteringOp(commaSeparatedString: string): FindOptionsOrder<Entity> {
-    const order: Record<string, string> = {};
-
-    const sortFields = commaSeparatedString.split(',');
-
-    sortFields.forEach((sortField) => {
-      const parts = sortField.trim().split(' ');
-      const field = parts[0];
-      // Pak de de waarde van de sortering, als die er niet is, dan default naar ASC
-      order[field as keyof typeof order]  = parts.length > 1 ? parts[1] : 'ASC';
-    });
-
-    return order as FindOptionsOrder<Entity>;
   }
 }

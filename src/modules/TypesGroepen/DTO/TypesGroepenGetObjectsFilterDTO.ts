@@ -1,8 +1,9 @@
 import { GetObjectsFilterDTO } from '../../../core/DTO/GetObjectsFilterDTO';
 import { IsBoolean, IsDate, IsInt, IsNumber, IsOptional, IsString } from 'class-validator';
 import { Transform } from 'class-transformer';
+import { TypeGroepEntity } from '../entities/TypeGroep.entity';
 
-export class TypesGroepenGetObjectsFilterDTO extends GetObjectsFilterDTO {
+export class TypesGroepenGetObjectsFilterDTO extends GetObjectsFilterDTO<TypeGroepEntity> {
   @IsInt()
   @IsOptional()
   ID?: number;
@@ -14,7 +15,6 @@ export class TypesGroepenGetObjectsFilterDTO extends GetObjectsFilterDTO {
   @IsString()
   @IsOptional()
   EXT_REF?: string | null;
-
 
   @IsString()
   @IsOptional()
@@ -41,4 +41,6 @@ export class TypesGroepenGetObjectsFilterDTO extends GetObjectsFilterDTO {
   @IsOptional()
   @Transform((params) => new Date(params.value))
   LAATSTE_AANPASSING?: Date;
+
+  // todo: override defaultSorting en buildTypeORMFindManyObject om de properties van deze class toe te voegen
 }

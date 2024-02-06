@@ -1,8 +1,9 @@
 import { IsBoolean, IsDate, IsInt, IsNumber, IsOptional, IsString } from 'class-validator';
 import { GetObjectsFilterDTO } from '../../../core/DTO/GetObjectsFilterDTO';
 import { Transform } from 'class-transformer';
+import { TypeEntity } from '../entities/Type.entity';
 
-export class TypesGetObjectsFilterDTO extends GetObjectsFilterDTO{
+export class TypesGetObjectsFilterDTO extends GetObjectsFilterDTO<TypeEntity> {
   @IsInt()
   @IsOptional()
   @Transform((params) => params.value == null ? null : parseInt(params.value))
@@ -54,4 +55,6 @@ export class TypesGetObjectsFilterDTO extends GetObjectsFilterDTO{
   @IsOptional()
   @Transform((params) => new Date(params.value))
   LAATSTE_AANPASSING?: Date;
+
+  // todo: override defaultSortOrder and buildTypeORMFindManyObject om nieuwe properties van deze DTO te gebruiken
 }
