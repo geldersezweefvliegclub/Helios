@@ -5,7 +5,7 @@ import { createHash } from 'crypto';
 import { IHeliosEntity } from '../DTO/IHeliosEntity';
 import { IHeliosFilterDTO } from '../DTO/IHeliosFilterDTO';
 
-export abstract class IHeliosService<Entity extends IHeliosEntity, FilterDTO extends IHeliosFilterDTO<Entity>> {
+export abstract class IHeliosService<Entity extends IHeliosEntity> {
   protected constructor(protected readonly repository: Repository<Entity>) {
   }
 
@@ -17,7 +17,7 @@ export abstract class IHeliosService<Entity extends IHeliosEntity, FilterDTO ext
 
     return result;
   };
-  async getObjects(filter: FilterDTO): Promise<GetObjectsResponse<Entity>> {
+  async getObjects(filter: IHeliosFilterDTO<Entity>): Promise<GetObjectsResponse<Entity>> {
     const findOptions = filter.buildTypeORMFindManyObject();
     const dataset = await this.repository.find(findOptions);
     const hash = createHash('md5').update(JSON.stringify(dataset)).digest('hex');
