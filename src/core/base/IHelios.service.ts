@@ -77,6 +77,7 @@ export abstract class IHeliosService<Entity extends IHeliosEntity> {
       throw new BadRequestException('Object data moet zijn ingevuld.');
     }
 
+    // TODO: Check for Conflict (bestaat al) wat oude PHP backend ook doet
     const newType = this.repository.create(data);
     return this.repository.save(newType);
   }
