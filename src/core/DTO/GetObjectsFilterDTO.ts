@@ -1,8 +1,8 @@
 import { IsNumber, IsOptional, IsString } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { IHeliosFilterDTO } from './IHeliosFilterDTO';
-import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
-import { FindManyOptions, FindOptionsOrder, FindOptionsSelect, ObjectLiteral } from 'typeorm';
+import { FindManyOptions, FindOptionsOrder, FindOptionsSelect } from 'typeorm';
+import { IHeliosEntity } from './IHeliosEntity';
 
 /**
  * Een generieke DTO gebruikt door `GetObjects` endpoints zodat NestJS de query parameters kan valideren en parsen.
@@ -10,7 +10,7 @@ import { FindManyOptions, FindOptionsOrder, FindOptionsSelect, ObjectLiteral } f
  * Voeg extra properties toe aan deze DTO door een subclass te maken van deze DTO en die te gebruiken in de `GetObjects` endpoint.
  * Hier kun je ook de defaultSortOrder en bouwSorteringOp methodes uitbreiden / overschrijven.
  */
-export abstract class GetObjectsFilterDTO<Entity extends ObjectLiteral> extends IHeliosFilterDTO<Entity> {
+export abstract class GetObjectsFilterDTO<Entity extends IHeliosEntity> extends IHeliosFilterDTO<Entity> {
   @IsOptional()
   @IsNumber()
   @Transform((params) => params.value == null ? null : parseInt(params.value))
@@ -29,8 +29,7 @@ export abstract class GetObjectsFilterDTO<Entity extends ObjectLiteral> extends 
   SORT?: string;
 
   buildTypeORMFindManyObject(): FindManyOptions<Entity> {
-    const findOptions: FindManyOptions<Entity> = {};
-    const where: FindOptionsWhere<Entity> = {};
+    const findOptions = super.buildTypeORMFindManyObject()
     let order: FindOptionsOrder<Entity> = this.defaultSortOrder;
 
     if (this.SORT) {
@@ -58,7 +57,6 @@ export abstract class GetObjectsFilterDTO<Entity extends ObjectLiteral> extends 
       findOptions.select = select as FindOptionsSelect<Entity>;
     }
 
-    findOptions.where = where;
     findOptions.order = order;
     return findOptions;
   }

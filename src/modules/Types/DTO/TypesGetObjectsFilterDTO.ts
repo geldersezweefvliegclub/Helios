@@ -2,13 +2,10 @@ import { IsBoolean, IsDate, IsInt, IsNumber, IsOptional, IsString } from 'class-
 import { GetObjectsFilterDTO } from '../../../core/DTO/GetObjectsFilterDTO';
 import { Transform } from 'class-transformer';
 import { TypeEntity } from '../entities/Type.entity';
+import { FindManyOptions } from 'typeorm';
+import { isFindOptionsWhereAnObject } from '../../../core/helpers/functions';
 
 export class TypesGetObjectsFilterDTO extends GetObjectsFilterDTO<TypeEntity> {
-  @IsInt()
-  @IsOptional()
-  @Transform((params) => params.value == null ? null : parseInt(params.value))
-  ID?: number;
-
   @IsInt()
   @IsOptional()
   @Transform((params) => params.value == null ? null : parseInt(params.value))
@@ -46,15 +43,41 @@ export class TypesGetObjectsFilterDTO extends GetObjectsFilterDTO<TypeEntity> {
   @Transform((params) => params.value == null ? null : parseInt(params.value))
   EENHEDEN?: number | null;
 
-  @IsOptional()
-  @IsBoolean()
-  @Transform((params) => params.value === 'true')
-  VERWIJDERD?: boolean;
+  buildTypeORMFindManyObject(): FindManyOptions<TypeEntity> {
+    const findOptions = super.buildTypeORMFindManyObject();
 
-  @IsDate()
-  @IsOptional()
-  @Transform((params) => new Date(params.value))
-  LAATSTE_AANPASSING?: Date;
+    if(this.GROEP && isFindOptionsWhereAnObject(findOptions.where)) {
+      findOptions.where.GROEP = this.GROEP;
+    }
 
-  // todo: override defaultSortOrder and buildTypeORMFindManyObject om nieuwe properties van deze DTO te gebruiken
+    if (this.CODE && isFindOptionsWhereAnObject(findOptions.where)) {
+      findOptions.where.CODE = this.CODE;
+    }
+
+    if (this.EXT_REF && isFindOptionsWhereAnObject(findOptions.where)) {
+      findOptions.where.EXT_REF = this.EXT_REF;
+    }
+
+    if (this.OMSCHRIJVING && isFindOptionsWhereAnObject(findOptions.where)) {
+      findOptions.where.OMSCHRIJVING = this.OMSCHRIJVING;
+    }
+
+    if (this.SORTEER_VOLGORDE && isFindOptionsWhereAnObject(findOptions.where)) {
+      findOptions.where.SORTEER_VOLGORDE = this.SORTEER_VOLGORDE;
+    }
+
+    if (this.READ_ONLY && isFindOptionsWhereAnObject(findOptions.where)) {
+      findOptions.where.READ_ONLY = this.READ_ONLY;
+    }
+
+    if (this.BEDRAG && isFindOptionsWhereAnObject(findOptions.where)) {
+      findOptions.where.BEDRAG = this.BEDRAG;
+    }
+
+    if (this.EENHEDEN && isFindOptionsWhereAnObject(findOptions.where)) {
+      findOptions.where.EENHEDEN = this.EENHEDEN;
+    }
+
+    return findOptions;
+  }
 }

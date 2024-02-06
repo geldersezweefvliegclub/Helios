@@ -1,13 +1,11 @@
 import { GetObjectsFilterDTO } from '../../../core/DTO/GetObjectsFilterDTO';
-import { IsBoolean, IsDate, IsInt, IsNumber, IsOptional, IsString } from 'class-validator';
-import { Transform } from 'class-transformer';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 import { TypeGroepEntity } from '../entities/TypeGroep.entity';
+import { FindManyOptions } from 'typeorm';
+import { isFindOptionsWhereAnObject } from '../../../core/helpers/functions';
+import { ObjectID } from '../../../core/DTO/ObjectID';
 
 export class TypesGroepenGetObjectsFilterDTO extends GetObjectsFilterDTO<TypeGroepEntity> {
-  @IsInt()
-  @IsOptional()
-  ID?: number;
-
   @IsString()
   @IsOptional()
   CODE?: string | null;
@@ -32,15 +30,38 @@ export class TypesGroepenGetObjectsFilterDTO extends GetObjectsFilterDTO<TypeGro
   @IsOptional()
   BEDRAG_EENHEDEN: number;
 
-  @IsOptional()
-  @IsBoolean()
-  @Transform((params) => params.value === 'true')
-  VERWIJDERD?: boolean;
+  buildTypeORMFindManyObject(): FindManyOptions<TypeGroepEntity> {
+    const findOptions = super.buildTypeORMFindManyObject();
 
-  @IsDate()
-  @IsOptional()
-  @Transform((params) => new Date(params.value))
-  LAATSTE_AANPASSING?: Date;
+    if (this.ID && isFindOptionsWhereAnObject(findOptions.where)) {
+      findOptions.where.ID = this.ID;
+    }
 
-  // todo: override defaultSorting en buildTypeORMFindManyObject om de properties van deze class toe te voegen
+    if (this.CODE && isFindOptionsWhereAnObject(findOptions.where)) {
+      findOptions.where.CODE = this.CODE;
+    }
+
+    if (this.EXT_REF && isFindOptionsWhereAnObject(findOptions.where)) {
+      findOptions.where.EXT_REF = this.EXT_REF;
+    }
+
+    if (this.OMSCHRIJVING && isFindOptionsWhereAnObject(findOptions.where)) {
+      findOptions.where.OMSCHRIJVING = this.OMSCHRIJVING;
+    }
+
+    if (this.SORTEER_VOLGORDE && isFindOptionsWhereAnObject(findOptions.where)) {
+      findOptions.where.SORTEER_VOLGORDE = this.SORTEER_VOLGORDE;
+    }
+
+    if (this.READ_ONLY && isFindOptionsWhereAnObject(findOptions.where)) {
+      findOptions.where.READ_ONLY = this.READ_ONLY;
+    }
+
+    if (this.BEDRAG_EENHEDEN && isFindOptionsWhereAnObject(findOptions.where)) {
+      findOptions.where.BEDRAG_EENHEDEN = this.BEDRAG_EENHEDEN;
+    }
+
+
+    return findOptions;
+  }
 }

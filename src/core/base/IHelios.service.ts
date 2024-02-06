@@ -5,6 +5,11 @@ import { createHash } from 'crypto';
 import { IHeliosEntity } from '../DTO/IHeliosEntity';
 import { IHeliosFilterDTO } from '../DTO/IHeliosFilterDTO';
 
+/**
+ * Base-service die basisfunctionaliteiten biedt voor het ophalen, updaten, toevoegen, herstellen en verwijderen van een TypeORM Entity in de database.
+ * Deze service weet niet hoe de Entity eruit ziet, behalve dat het een IHeliosEntity is.
+ *  @param Entity TypeORM Entity die de service behandelt.
+ */
 export abstract class IHeliosService<Entity extends IHeliosEntity> {
   protected constructor(protected readonly repository: Repository<Entity>) {
   }
