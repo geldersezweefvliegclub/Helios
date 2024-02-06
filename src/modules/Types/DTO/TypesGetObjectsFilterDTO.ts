@@ -1,4 +1,4 @@
-import { IsBoolean, IsDate, IsInt, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsInt, IsNumber, IsOptional, IsString } from 'class-validator';
 import { GetObjectsFilterDTO } from '../../../core/DTO/GetObjectsFilterDTO';
 import { Transform } from 'class-transformer';
 import { TypeEntity } from '../entities/Type.entity';
@@ -43,8 +43,8 @@ export class TypesGetObjectsFilterDTO extends GetObjectsFilterDTO<TypeEntity> {
   @Transform((params) => params.value == null ? null : parseInt(params.value))
   EENHEDEN?: number | null;
 
-  buildTypeORMFindManyObject(): FindManyOptions<TypeEntity> {
-    const findOptions = super.buildTypeORMFindManyObject();
+  bouwGetObjectsFindOptions(): FindManyOptions<TypeEntity> {
+    const findOptions = super.bouwGetObjectsFindOptions();
 
     if(this.GROEP && isFindOptionsWhereAnObject(findOptions.where)) {
       findOptions.where.GROEP = this.GROEP;

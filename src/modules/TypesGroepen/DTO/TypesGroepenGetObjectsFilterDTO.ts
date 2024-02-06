@@ -3,7 +3,6 @@ import { IsNumber, IsOptional, IsString } from 'class-validator';
 import { TypeGroepEntity } from '../entities/TypeGroep.entity';
 import { FindManyOptions } from 'typeorm';
 import { isFindOptionsWhereAnObject } from '../../../core/helpers/functions';
-import { ObjectID } from '../../../core/DTO/ObjectID';
 
 export class TypesGroepenGetObjectsFilterDTO extends GetObjectsFilterDTO<TypeGroepEntity> {
   @IsString()
@@ -30,8 +29,8 @@ export class TypesGroepenGetObjectsFilterDTO extends GetObjectsFilterDTO<TypeGro
   @IsOptional()
   BEDRAG_EENHEDEN: number;
 
-  buildTypeORMFindManyObject(): FindManyOptions<TypeGroepEntity> {
-    const findOptions = super.buildTypeORMFindManyObject();
+  bouwGetObjectsFindOptions(): FindManyOptions<TypeGroepEntity> {
+    const findOptions = super.bouwGetObjectsFindOptions();
 
     if (this.ID && isFindOptionsWhereAnObject(findOptions.where)) {
       findOptions.where.ID = this.ID;
