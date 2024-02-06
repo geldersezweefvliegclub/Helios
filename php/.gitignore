@@ -1,0 +1,20 @@
+# Jetbrains files
+.idea
+
+# Visual Studio Code files
+.vscode
+
+install/sourcecode/node_modules
+installer_account.php
+install_error_db.txt
+include/config.php
+log/sql.txt
+log/debug.txt
+log/exec.txt
+log/insert.txt
+.gitignore
+cronjobs/config.php
+
+log/
+documenten/
+lib/.DS_Store
