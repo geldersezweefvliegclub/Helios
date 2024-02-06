@@ -34,7 +34,7 @@ export abstract class IHeliosService<Entity extends IHeliosEntity> {
    * @param filter Filter om de objecten op te halen.
    */
   async getObjects(filter: IHeliosFilterDTO<Entity>): Promise<GetObjectsResponse<Entity>> {
-    const findOptions = filter.buildTypeORMFindManyObject();
+    const findOptions = filter.bouwGetObjectsFindOptions();
     const dataset = await this.repository.find(findOptions);
     const hash = createHash('md5').update(JSON.stringify(dataset)).digest('hex');
 

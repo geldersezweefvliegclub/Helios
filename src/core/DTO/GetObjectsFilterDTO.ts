@@ -28,9 +28,9 @@ export abstract class GetObjectsFilterDTO<Entity extends IHeliosEntity> extends 
   @IsString()
   SORT?: string;
 
-  buildTypeORMFindManyObject(): FindManyOptions<Entity> {
-    const findOptions = super.buildTypeORMFindManyObject()
-    let order: FindOptionsOrder<Entity> = this.defaultSortOrder;
+  bouwGetObjectsFindOptions(): FindManyOptions<Entity> {
+    const findOptions = super.bouwGetObjectsFindOptions()
+    let order: FindOptionsOrder<Entity> = this.defaultGetObjectsSortering;
 
     if (this.SORT) {
       order = this.bouwSorteringOp(this.SORT);
@@ -61,7 +61,7 @@ export abstract class GetObjectsFilterDTO<Entity extends IHeliosEntity> extends 
     return findOptions;
   }
 
-  get defaultSortOrder(): FindOptionsOrder<Entity> {
+  get defaultGetObjectsSortering(): FindOptionsOrder<Entity> {
     return {} as FindOptionsOrder<Entity>;
   }
 }

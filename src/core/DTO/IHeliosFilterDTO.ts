@@ -20,7 +20,12 @@ export abstract class IHeliosFilterDTO<Entity extends IHeliosEntity> {
   LAATSTE_AANPASSING?: Date;
 
 
-  buildTypeORMFindManyObject(): FindManyOptions<Entity> {
+  /**
+   * Bouw een FindManyOptions object op die gebruikt kan worden door TypeORM om objecten op te halen.
+   * Het object wordt opgebouwd op basis van de properties van de DTO.
+   * Override deze methode in een subclass om extra properties toe te voegen.
+   */
+  bouwGetObjectsFindOptions(): FindManyOptions<Entity> {
     // Gebruik de object variant, niet de array variant.
     // De array variant is voor OR queries, de object variant is voor AND queries, wat we willen.
     const findOptions: FindManyOptions<Entity> = {
@@ -28,7 +33,7 @@ export abstract class IHeliosFilterDTO<Entity extends IHeliosEntity> {
         // Default VERWIJDERD naar false
         VERWIJDERD: false as never
       },
-      order: this.defaultSortOrder,
+      order: this.defaultGetObjectsSortering,
     };
 
     if (this.ID && isFindOptionsWhereAnObject(findOptions.where)) {
@@ -46,7 +51,10 @@ export abstract class IHeliosFilterDTO<Entity extends IHeliosEntity> {
     return findOptions;
   }
 
-  abstract get defaultSortOrder(): FindOptionsOrder<Entity>;
+  /**
+   * De default sortering die gebruikt wordt voor GetObjects, als er verder in de DTO geen sortering is opgegeven.
+   */
+  abstract get defaultGetObjectsSortering(): FindOptionsOrder<Entity>;
 
   /**
    * Zet de sortering om naar een FindOptionsOrder object
