@@ -45,20 +45,20 @@ export abstract class IHeliosService<Entity extends IHeliosEntity> {
    * Update een object in de database met gegeven data.
    * @throws BadRequestException ID moet ingevuld zijn.
    * @throws BadRequestException Object om te updaten niet gevonden.
-   * @param typeData
+   * @param objectData
    */
-  async updateObject(typeData: DeepPartial<Entity>): Promise<Entity> {
-    if (!typeData.ID) {
+  async updateObject(objectData: DeepPartial<Entity>): Promise<Entity> {
+    if (!objectData.ID) {
       throw new BadRequestException('ID moet ingevuld zijn.');
     }
 
-    const existingType = await this.repository.findOne({where: {ID: typeData.ID} as never});
+    const existingType = await this.getObject(objectData.ID);
 
     if (!existingType) {
       throw new BadRequestException('Object om te updaten niet gevonden.');
     }
 
-    const updatedType = this.repository.merge(existingType, typeData);
+    const updatedType = this.repository.merge(existingType, objectData);
     return this.repository.save(updatedType);
   }
 
@@ -84,7 +84,7 @@ export abstract class IHeliosService<Entity extends IHeliosEntity> {
    */
   async restoreObject(id?: number): Promise<Entity> {
     if (!id) throw new BadRequestException('ID moet ingevuld zijn.');
-    const existingType = await this.repository.findOne({ where: { ID: id } as never});
+    const existingType = await this.getObject(id);
 
     if (!existingType) {
       throw new BadRequestException('Object om te herstellen niet gevonden.');
@@ -102,7 +102,7 @@ export abstract class IHeliosService<Entity extends IHeliosEntity> {
    */
   async deleteObject(id?: number) {
     if (!id) throw new BadRequestException('ID moet ingevuld zijn.');
-    const existingType = await this.repository.findOne({ where: { ID: id } as never });
+    const existingType = await this.getObject(id);
 
     if (!existingType) {
       throw new BadRequestException('Type om te verwijderen niet gevonden.');
