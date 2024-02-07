@@ -1,4 +1,15 @@
-import { Entity, PrimaryGeneratedColumn, Column, UpdateDateColumn, Index } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  UpdateDateColumn,
+  Index,
+  ManyToOne,
+  JoinColumn,
+  AfterLoad,
+} from 'typeorm';
+import { TypeEntity } from '../../Types/entities/Type.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity('ref_vliegtuigen')
 @Index('VERWIJDERD', ['VERWIJDERD'])
@@ -49,8 +60,6 @@ export class VliegtuigenEntity {
   @Column({ type: 'smallint', unsigned: true })
   BEVOEGDHEID_OVERLAND_ID: number;
 
-
-
   @Column({ type: 'varchar', length: 255, nullable: true })
   URL: string | null;
 
@@ -62,4 +71,26 @@ export class VliegtuigenEntity {
 
   @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
   LAATSTE_AANPASSING: Date;
+
+  @ManyToOne(() => TypeEntity, {eager: true})
+  @JoinColumn({ name: "TYPE_ID" })
+  @Exclude()
+  Type: TypeEntity | null;
+
+  REG_CALL: string;
+  VLIEGTUIGTYPE: string;
+  // todo
+  BEVOEGDHEID_LOKAAL: string;
+  BEVOEGDHEID_OVERLAND: string;
+
+  @AfterLoad()
+  createComputedFields() {
+    this.TYPE_ID = this.Type?.ID;
+    this.REG_CALL = `${this.REGISTRATIE} (${this.CALLSIGN ?? ''})`;
+    this.VLIEGTUIGTYPE = this.Type?.OMSCHRIJVING;
+    // todo:
+    // Assuming you have the BEVOEGDHEID_LOKAAL and BEVOEGDHEID_OVERLAND entities loaded
+    // this.BEVOEGDHEID_LOKAAL = this.BEVOEGDHEID_LOKAAL.OMSCHRIJVING;
+    // this.BEVOEGDHEID_OVERLAND = this.BEVOEGDHEID_OVERLAND.OMSCHRIJVING;
+  }
 }
