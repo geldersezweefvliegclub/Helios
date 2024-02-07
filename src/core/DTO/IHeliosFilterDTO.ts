@@ -7,6 +7,7 @@ import { Transform } from 'class-transformer';
 export abstract class IHeliosFilterDTO<Entity extends IHeliosEntity> {
   @IsInt()
   @IsOptional()
+  @Transform((params) => params.value == null ? null : parseInt(params.value))
   ID?: number;
 
   @IsOptional()
