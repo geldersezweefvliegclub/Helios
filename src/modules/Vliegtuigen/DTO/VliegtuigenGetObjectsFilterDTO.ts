@@ -36,6 +36,11 @@ export class VliegtuigenGetObjectsFilterDTO extends GetObjectsFilterDTO<Vliegtui
   @IsBoolean()
   @IsOptional()
   @Transform((params) => params.value === 'true')
+  CLUBKIST?: boolean;
+
+  @IsBoolean()
+  @IsOptional()
+  @Transform((params) => params.value === 'true')
   TMG?: boolean;
 
   bouwGetObjectsFindOptions(): FindManyOptions<VliegtuigenEntity> {
@@ -64,6 +69,10 @@ export class VliegtuigenGetObjectsFilterDTO extends GetObjectsFilterDTO<Vliegtui
 
     if(this.ZELFSTART && isFindOptionsWhereAnObject(findOptions.where)) {
       findOptions.where.ZELFSTART = this.ZELFSTART;
+    }
+
+    if(this.CLUBKIST && isFindOptionsWhereAnObject(findOptions.where)) {
+      findOptions.where.CLUBKIST = this.CLUBKIST;
     }
 
     if(this.TMG && isFindOptionsWhereAnObject(findOptions.where)) {
