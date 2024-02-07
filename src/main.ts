@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { INestApplication, Logger, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { TransformInterceptor } from './core/interceptors/class-transfor.interceptor';
 
 function setupSwagger(app: INestApplication, swaggerUrl: string) {
   const swaggerConfig = new DocumentBuilder()
@@ -35,6 +36,7 @@ async function bootstrap() {
     }),
   );
 
+  app.useGlobalInterceptors(new TransformInterceptor());
   await app.listen(port);
 
   Logger.log(`🚀 Application is running on: http://localhost:${port}/`);
