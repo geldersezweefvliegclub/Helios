@@ -2,7 +2,7 @@ import { IsBoolean, IsInt, IsOptional, IsString } from 'class-validator';
 import { GetObjectsFilterDTO } from '../../../core/base/GetObjectsFilterDTO';
 import { Transform } from 'class-transformer';
 import { VliegtuigenEntity } from '../entities/Vliegtuigen.entity';
-import { In } from 'typeorm';
+import { In, Like } from 'typeorm';
 
 export class VliegtuigenGetObjectsFilterDTO extends GetObjectsFilterDTO<VliegtuigenEntity> {
   @IsInt()
@@ -49,33 +49,40 @@ export class VliegtuigenGetObjectsFilterDTO extends GetObjectsFilterDTO<Vliegtui
       this.findOptionsBuilder.and({ ZITPLAATSEN: this.ZITPLAATSEN });
     }
 
-    // todo: search for either REGISTRATIE, CALLSIGN or FLARM_CODE
-    if (this.SELECTIE) {
-      console.warn('SELECTIE is not implemented yet');
-    }
 
     if (this.IN) {
-      this.findOptionsBuilder.and({ ID: In(this.IN.split(',').map((id) => parseInt(id)) ) });
+      this.findOptionsBuilder.and({ ID: In(this.IN.split(',').map((id) => parseInt(id))) });
     }
 
     if (this.TYPES) {
-      this.findOptionsBuilder.and({ TYPE_ID: In(this.TYPES.split(',').map((id) => parseInt(id)) ) });
+      this.findOptionsBuilder.and({ TYPE_ID: In(this.TYPES.split(',').map((id) => parseInt(id))) });
     }
 
-    if(this.SLEEPKIST) {
+    if (this.SLEEPKIST) {
       this.findOptionsBuilder.and({ SLEEPKIST: this.SLEEPKIST });
     }
 
-    if(this.ZELFSTART) {
+    if (this.ZELFSTART) {
       this.findOptionsBuilder.and({ ZELFSTART: this.ZELFSTART });
     }
 
-    if(this.CLUBKIST) {
+    if (this.CLUBKIST) {
       this.findOptionsBuilder.and({ CLUBKIST: this.CLUBKIST });
     }
 
-    if(this.TMG) {
+    if (this.TMG) {
       this.findOptionsBuilder.and({ TMG: this.TMG });
+    }
+
+    // Moet als laatste komen zodat alle andere (simpele) AND filters al zijn toegevoegd
+    if (this.SELECTIE) {
+      const currentWhere = this.findOptionsBuilder.takeWhereCondition(0);
+      this.findOptionsBuilder.clearWhere();
+      const findOperator = Like(`%${this.SELECTIE}%`);
+      this.findOptionsBuilder.or({ REGISTRATIE: findOperator, ...currentWhere });
+      this.findOptionsBuilder.or({ CALLSIGN: findOperator, ...currentWhere });
+      this.findOptionsBuilder.or({ FLARMCODE: findOperator, ...currentWhere });
+      console.log(this.findOptionsBuilder.findOptions.where)
     }
   }
 }

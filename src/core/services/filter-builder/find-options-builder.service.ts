@@ -122,4 +122,12 @@ export class FindOptionsBuilder<Entity extends IHeliosEntity> {
     this._findOptions.take = count;
     return this;
   }
+
+  public takeWhereCondition(index: number): FindOptionsWhere<Entity> {
+    return (this._findOptions.where as FindOptionsWhere<Entity>[])[index];
+  }
+
+  clearWhere() {
+    this._findOptions.where = [];
+  }
 }
