@@ -1,9 +1,10 @@
 import { GetObjectsResponse } from './GetObjectsResponse';
-import { DeepPartial, Repository } from 'typeorm';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { DeepPartial, FindOptionsSelectByString, Repository } from 'typeorm';
+import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
 import { createHash } from 'crypto';
 import { IHeliosEntity } from './IHeliosEntity';
 import { IHeliosFilterDTO } from './IHeliosFilterDTO';
+import { FindOptionsSelect } from 'typeorm/find-options/FindOptionsSelect';
 
 /**
  * Base-service die basisfunctionaliteiten biedt voor het ophalen, updaten, toevoegen, herstellen en verwijderen van een TypeORM Entity in de database.
@@ -11,6 +12,7 @@ import { IHeliosFilterDTO } from './IHeliosFilterDTO';
  *  @param Entity TypeORM Entity die de service behandelt.
  */
 export abstract class IHeliosService<Entity extends IHeliosEntity> {
+  private logger: Logger = new Logger('IHeliosService');
   protected constructor(protected readonly repository: Repository<Entity>) {
   }
 
@@ -20,7 +22,7 @@ export abstract class IHeliosService<Entity extends IHeliosEntity> {
    * @throws BadRequestException ID moet ingevuld zijn.
    * @throws NotFoundException Object niet gevonden.
    */
-  async getObject(id?: number): Promise<Entity>{
+  async getObject(id?: number): Promise<Entity> {
     if (!id) throw new BadRequestException('ID moet ingevuld zijn.');
 
     const result = await this.repository.findOne({ where: { ID: id } as never });
@@ -36,7 +38,8 @@ export abstract class IHeliosService<Entity extends IHeliosEntity> {
   async getObjects(filter: IHeliosFilterDTO<Entity>): Promise<GetObjectsResponse<Entity>> {
     filter.bouwGetObjectsFindOptions();
     const findOptions = filter.findOptionsBuilder.findOptions;
-    const dataset = await this.repository.find(findOptions);
+    const datasetRaw = await this.repository.find(findOptions);
+    const dataset = this.applySelectionFilterToCalculatedColumns(datasetRaw, findOptions.select);
     const hash = createHash('md5').update(JSON.stringify(dataset)).digest('hex');
 
     return {
@@ -117,5 +120,35 @@ export abstract class IHeliosService<Entity extends IHeliosEntity> {
 
     existingType.VERWIJDERD = true;
     return this.repository.save(existingType);
+  }
+
+  /**
+   * A find object filters the dataset on database level, but does not filter on fields that are calculated in the Entity class.
+   * This method applies the selection filter on a list of objects that are mostly already filtered by TypeORM, but where calculated fields are still remaining.
+   * @param dataset
+   * @param selection
+   * @private
+   */
+  private applySelectionFilterToCalculatedColumns(dataset: Entity[], selection: FindOptionsSelect<Entity> | FindOptionsSelectByString<Entity>) {
+    if (!selection) return dataset;
+    if (Array.isArray(selection)) {
+      this.logger.warn('applySelectionFilterToCalculatedColumns is not implemented for FindOptionsSelectByString filter. Returning the dataset unfiltered.');
+      return dataset;
+    }
+    // For each object in the dataset
+    return dataset.map((dbObject) => {
+      // Create a new object to hold the properties included in the selection object
+      const filteredObj: Partial<Entity> = {};
+
+      Object.keys(dbObject).forEach((key) => {
+        // If the property is in the selection object, add it to the filtered object
+        if (selection[key as keyof Entity]) {
+          filteredObj[key as keyof Entity] = dbObject[key as keyof Entity];
+        }
+      });
+
+      // Return the filtered object
+      return filteredObj as Entity;
+    });
   }
 }
