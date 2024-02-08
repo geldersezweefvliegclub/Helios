@@ -1,7 +1,7 @@
-import {Injectable, Logger} from "@nestjs/common";
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from '@nestjs/typeorm';
-import {DatabaseLogger} from "./DatabaseLogger";
+import { DatabaseLogger } from './DatabaseLogger';
 import * as path from 'path';
 
 

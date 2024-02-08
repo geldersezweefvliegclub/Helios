@@ -1,13 +1,4 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  UpdateDateColumn,
-  Index,
-  ManyToOne,
-  JoinColumn,
-  AfterLoad,
-} from 'typeorm';
+import { AfterLoad, Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { TypeEntity } from '../../Types/entities/Type.entity';
 import { Exclude } from 'class-transformer';
 import { IHeliosDatabaseEntity } from '../../../core/base/IHeliosDatabaseEntity';
