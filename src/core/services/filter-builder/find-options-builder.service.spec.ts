@@ -2,10 +2,14 @@ import { FindOptionsBuilder } from './find-options-builder.service';
 
 
 describe('FindOptionsBuilder', () => {
-  let service: FindOptionsBuilder<NonNullable<unknown>>;
+  let service: FindOptionsBuilder<NonNullable<{
+    ID: number;
+    VERWIJDERD: boolean;
+    LAATSTE_AANPASSING: Date;
+  }>>;
 
   beforeEach(async () => {
-    service = new FindOptionsBuilder<NonNullable<unknown>>();
+    service = new FindOptionsBuilder();
   });
 
   it('should be defined', () => {
@@ -35,16 +39,16 @@ describe('FindOptionsBuilder', () => {
   });
 
   it('should chain multiple AND conditions', () => {
-    service.and({ id: 1 }).and({ name: 'John' });
-    expect(service.findOptions.where).toEqual([{ id: 1, name: 'John' }]);
+    service.and({ ID: 1 }).and({ VERWIJDERD: true });
+    expect(service.findOptions.where).toEqual([{ ID: 1, VERWIJDERD: true }]);
   });
 
   it('should throw when adding an AND to a non-existing OR condition', () => {
-    expect(() => service.and({ id: 1 }, 1)).toThrow();
+    expect(() => service.and({ ID: 1 }, 1)).toThrow();
   });
 
   it('should chain multiple OR conditions', () => {
-    service.or({ id: 1 }).or({ name: 'John' });
-    expect(service.findOptions.where).toEqual([{ id: 1 }, { name: 'John' }]);
+    service.or({ ID: 1 }).or({ VERWIJDERD: true });
+    expect(service.findOptions.where).toEqual([{ ID: 1 }, { VERWIJDERD: true }]);
   });
 });
