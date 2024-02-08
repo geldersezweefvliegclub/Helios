@@ -2,8 +2,8 @@ import { GetObjectsResponse } from '../types/GetObjectsResponse';
 import { DeepPartial, Repository } from 'typeorm';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { createHash } from 'crypto';
-import { IHeliosEntity } from '../DTO/IHeliosEntity';
-import { IHeliosFilterDTO } from '../DTO/IHeliosFilterDTO';
+import { IHeliosEntity } from './IHeliosEntity';
+import { IHeliosFilterDTO } from './IHeliosFilterDTO';
 
 /**
  * Base-service die basisfunctionaliteiten biedt voor het ophalen, updaten, toevoegen, herstellen en verwijderen van een TypeORM Entity in de database.

@@ -1,4 +1,4 @@
-import { GetObjectsFilterDTO } from '../../../core/DTO/GetObjectsFilterDTO';
+import { GetObjectsFilterDTO } from '../../../core/base/GetObjectsFilterDTO';
 import { IsNumber, IsOptional, IsString } from 'class-validator';
 import { TypeGroepEntity } from '../entities/TypeGroep.entity';
 import { FindManyOptions } from 'typeorm';

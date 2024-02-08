@@ -3,7 +3,7 @@ import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { VliegtuigenEntity } from '../entities/Vliegtuigen.entity';
 import { VliegtuigenService } from '../service/vliegtuigen.service';
 import { VliegtuigenGetObjectsFilterDTO } from '../DTO/VliegtuigenGetObjectsFilterDTO';
-import { ObjectID } from '../../../core/DTO/ObjectID';
+import { ObjectID } from '../../../core/base/ObjectID';
 
 @ApiTags('Vliegtuigen')
 @Controller('Vliegtuigen')

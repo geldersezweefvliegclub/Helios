@@ -1,5 +1,5 @@
 import { IsInt, IsNumber, IsOptional, IsString } from 'class-validator';
-import { GetObjectsFilterDTO } from '../../../core/DTO/GetObjectsFilterDTO';
+import { GetObjectsFilterDTO } from '../../../core/base/GetObjectsFilterDTO';
 import { Transform } from 'class-transformer';
 import { TypeEntity } from '../entities/Type.entity';
 import { FindManyOptions } from 'typeorm';

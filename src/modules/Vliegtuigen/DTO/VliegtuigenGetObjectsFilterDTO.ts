@@ -1,5 +1,5 @@
 import { IsInt, IsOptional, IsString, IsBoolean } from 'class-validator';
-import { GetObjectsFilterDTO } from '../../../core/DTO/GetObjectsFilterDTO';
+import { GetObjectsFilterDTO } from '../../../core/base/GetObjectsFilterDTO';
 import { Transform } from 'class-transformer';
 import { VliegtuigenEntity } from '../entities/Vliegtuigen.entity';
 import { FindManyOptions, In } from 'typeorm';
