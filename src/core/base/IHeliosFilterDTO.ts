@@ -1,10 +1,10 @@
 import { FindOptionsOrder } from 'typeorm';
-import { IHeliosEntity } from './IHeliosEntity';
+import { IHeliosObject } from './IHeliosObject';
 import { IsBoolean, IsDate, IsInt, IsOptional } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { FindOptionsBuilder } from '../services/filter-builder/find-options-builder.service';
 
-export abstract class IHeliosFilterDTO<Entity extends IHeliosEntity> {
+export abstract class IHeliosFilterDTO<Entity extends IHeliosObject> {
   public findOptionsBuilder = new FindOptionsBuilder<Entity>({
     where: {
       // Default VERWIJDERD naar false

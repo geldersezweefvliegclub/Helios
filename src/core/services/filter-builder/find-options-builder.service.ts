@@ -2,10 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { FindManyOptions, FindOptionsOrder, FindOptionsSelect } from 'typeorm';
 import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
 import { InvalidArgumentException } from '../../helpers/exceptions/InvalidArgumentException';
-import { IHeliosEntity } from '../../base/IHeliosEntity';
+import { IHeliosObject } from '../../base/IHeliosObject';
 
 @Injectable()
-export class FindOptionsBuilder<Entity extends IHeliosEntity> {
+export class FindOptionsBuilder<Entity extends IHeliosObject> {
   get findOptions(): FindManyOptions<Entity> {
     return this._findOptions;
   }

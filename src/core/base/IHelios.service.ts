@@ -2,7 +2,7 @@ import { GetObjectsResponse } from './GetObjectsResponse';
 import { DeepPartial, FindOptionsSelectByString, Repository } from 'typeorm';
 import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
 import { createHash } from 'crypto';
-import { IHeliosEntity } from './IHeliosEntity';
+import { IHeliosObject } from './IHeliosObject';
 import { IHeliosFilterDTO } from './IHeliosFilterDTO';
 import { FindOptionsSelect } from 'typeorm/find-options/FindOptionsSelect';
 
@@ -11,7 +11,7 @@ import { FindOptionsSelect } from 'typeorm/find-options/FindOptionsSelect';
  * Deze service weet niet hoe de Entity eruit ziet, behalve dat het een IHeliosEntity is.
  *  @param Entity TypeORM Entity die de service behandelt.
  */
-export abstract class IHeliosService<Entity extends IHeliosEntity> {
+export abstract class IHeliosService<Entity extends IHeliosObject> {
   private logger: Logger = new Logger('IHeliosService');
   protected constructor(protected readonly repository: Repository<Entity>) {
   }
