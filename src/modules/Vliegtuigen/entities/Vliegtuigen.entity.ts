@@ -85,9 +85,9 @@ export class VliegtuigenEntity {
 
   @AfterLoad()
   createComputedFields() {
-    this.TYPE_ID = this.Type?.ID;
+    this.TYPE_ID = this.Type?.ID ?? null;
     this.REG_CALL = `${this.REGISTRATIE} (${this.CALLSIGN ?? ''})`;
-    this.VLIEGTUIGTYPE = this.Type?.OMSCHRIJVING;
+    this.VLIEGTUIGTYPE = this.Type?.OMSCHRIJVING ?? null;
     // todo:
     // Assuming you have the BEVOEGDHEID_LOKAAL and BEVOEGDHEID_OVERLAND entities loaded
     // this.BEVOEGDHEID_LOKAAL = this.BEVOEGDHEID_LOKAAL.OMSCHRIJVING;
