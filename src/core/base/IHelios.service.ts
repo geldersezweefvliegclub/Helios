@@ -1,4 +1,4 @@
-import { GetObjectsResponse } from '../types/GetObjectsResponse';
+import { GetObjectsResponse } from './GetObjectsResponse';
 import { DeepPartial, Repository } from 'typeorm';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { createHash } from 'crypto';
