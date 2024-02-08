@@ -1,11 +1,8 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity } from 'typeorm';
+import { IHeliosDatabaseEntity } from '../../../core/base/IHeliosDatabaseEntity';
 
 @Entity('ref_types_groepen')
-export class TypeGroepEntity {
-
-    @PrimaryGeneratedColumn()
-    ID: number;
-
+export class TypeGroepEntity extends IHeliosDatabaseEntity{
     @Column({ type: 'varchar', length: 10, nullable: true })
     CODE: string;
 
@@ -23,10 +20,4 @@ export class TypeGroepEntity {
 
     @Column({ type: 'tinyint', default: 0 })
     BEDRAG_EENHEDEN: number;
-
-    @Column("boolean", { default: false, name: "VERWIJDERD" })
-    VERWIJDERD: boolean;
-
-    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
-    LAATSTE_AANPASSING: Date;
 }

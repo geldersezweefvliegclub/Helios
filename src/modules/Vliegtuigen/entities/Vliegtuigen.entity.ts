@@ -10,13 +10,11 @@ import {
 } from 'typeorm';
 import { TypeEntity } from '../../Types/entities/Type.entity';
 import { Exclude } from 'class-transformer';
+import { IHeliosDatabaseEntity } from '../../../core/base/IHeliosDatabaseEntity';
 
 @Entity('ref_vliegtuigen')
 @Index('VERWIJDERD', ['VERWIJDERD'])
-export class VliegtuigenEntity {
-  @PrimaryGeneratedColumn({ type: 'mediumint', unsigned: true })
-  ID: number;
-
+export class VliegtuigenEntity extends IHeliosDatabaseEntity{
   @Column({ type: 'varchar', length: 50 })
   REGISTRATIE: string;
 
@@ -37,7 +35,6 @@ export class VliegtuigenEntity {
 
   @Column("boolean", { default: false })
   SLEEPKIST: boolean;
-
 
   @Column("boolean", { default: false })
   TMG: boolean;
@@ -65,12 +62,6 @@ export class VliegtuigenEntity {
 
   @Column({ type: 'text', nullable: true })
   OPMERKINGEN: string | null;
-
-  @Column("boolean", { default: false })
-  VERWIJDERD: boolean;
-
-  @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
-  LAATSTE_AANPASSING: Date;
 
   @ManyToOne(() => TypeEntity, {eager: true})
   @JoinColumn({ name: "TYPE_ID" })
