@@ -1,7 +1,7 @@
 import { IsNumber, IsOptional, IsString } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { IHeliosFilterDTO } from './IHeliosFilterDTO';
-import { FindManyOptions, FindOptionsOrder, FindOptionsSelect } from 'typeorm';
+import { FindOptionsOrder } from 'typeorm';
 import { IHeliosEntity } from './IHeliosEntity';
 
 /**
@@ -28,37 +28,24 @@ export abstract class GetObjectsFilterDTO<Entity extends IHeliosEntity> extends 
   @IsString()
   SORT?: string;
 
-  bouwGetObjectsFindOptions(): FindManyOptions<Entity> {
-    const findOptions = super.bouwGetObjectsFindOptions()
-    let order: FindOptionsOrder<Entity> = this.defaultGetObjectsSortering;
+  bouwGetObjectsFindOptions(): void {
+    super.bouwGetObjectsFindOptions()
 
     if (this.SORT) {
-      order = this.bouwSorteringOp(this.SORT);
+      this.findOptionsBuilder.order({});
     }
 
     if (this.MAX) {
-      findOptions.take = this.MAX;
+      this.findOptionsBuilder.max(this.MAX);
     }
 
     if (this.START) {
-      findOptions.skip = this.START;
+      this.findOptionsBuilder.skip(this.START);
     }
 
     if (this.VELDEN) {
-      const select: Record<string, boolean> = {};
-      // VELDEN is een comma separated string met de velden die je wilt selecteren.
-      // TypeORM wil graag een object met de velden die je wilt selecteren, waarbij de waarde true is.
-      // Bijvoorbeeld: { ID: true, OMSCHRIJVING: true }
-
-      const velden = this.VELDEN.split(',');
-      velden.forEach((veld) => {
-        select[veld.trim()] = true;
-      });
-      findOptions.select = select as FindOptionsSelect<Entity>;
+      this.findOptionsBuilder.select(this.VELDEN);
     }
-
-    findOptions.order = order;
-    return findOptions;
   }
 
   get defaultGetObjectsSortering(): FindOptionsOrder<Entity> {

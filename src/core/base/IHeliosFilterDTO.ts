@@ -1,10 +1,17 @@
-import { FindManyOptions, FindOptionsOrder } from 'typeorm';
+import { FindOptionsOrder } from 'typeorm';
 import { IHeliosEntity } from './IHeliosEntity';
 import { IsBoolean, IsDate, IsInt, IsOptional } from 'class-validator';
-import { isFindOptionsWhereAnObject } from '../helpers/functions';
 import { Transform } from 'class-transformer';
+import { FindOptionsBuilder } from '../services/filter-builder/find-options-builder.service';
 
 export abstract class IHeliosFilterDTO<Entity extends IHeliosEntity> {
+  public findOptionsBuilder = new FindOptionsBuilder<Entity>({
+    where: {
+      // Default VERWIJDERD naar false
+      VERWIJDERD: false as never
+    },
+  });
+
   @IsInt()
   @IsOptional()
   @Transform((params) => params.value == null ? null : parseInt(params.value))
@@ -26,56 +33,24 @@ export abstract class IHeliosFilterDTO<Entity extends IHeliosEntity> {
    * Het object wordt opgebouwd op basis van de properties van de DTO.
    * Override deze methode in een subclass om extra properties toe te voegen.
    */
-  bouwGetObjectsFindOptions(): FindManyOptions<Entity> {
-    // Gebruik de object variant, niet de array variant.
-    // De array variant is voor OR queries, de object variant is voor AND queries, wat we willen.
-    const findOptions: FindManyOptions<Entity> = {
-      where: {
-        // Default VERWIJDERD naar false
-        VERWIJDERD: false as never
-      },
-      order: this.defaultGetObjectsSortering,
-    };
+  bouwGetObjectsFindOptions(): void {
+    this.findOptionsBuilder.findOptions.order = this.defaultGetObjectsSortering;
 
-    if (this.ID && isFindOptionsWhereAnObject(findOptions.where)) {
-      findOptions.where.ID = this.ID as never;
+    if (this.ID) {
+      this.findOptionsBuilder.and({ ID: this.ID as never});
     }
 
-    if (this.VERWIJDERD && isFindOptionsWhereAnObject(findOptions.where)) {
-      findOptions.where.VERWIJDERD = this.VERWIJDERD as never;
+    if (this.VERWIJDERD) {
+      this.findOptionsBuilder.and({ VERWIJDERD: this.VERWIJDERD as never });
     }
 
-    if (this.LAATSTE_AANPASSING && isFindOptionsWhereAnObject(findOptions.where)) {
-      findOptions.where.LAATSTE_AANPASSING = this.LAATSTE_AANPASSING as never;
+    if (this.LAATSTE_AANPASSING) {
+      this.findOptionsBuilder.and({ LAATSTE_AANPASSING: this.LAATSTE_AANPASSING as never });
     }
-
-    return findOptions;
   }
 
   /**
    * De default sortering die gebruikt wordt voor GetObjects, als er verder in de DTO geen sortering is opgegeven.
    */
   abstract get defaultGetObjectsSortering(): FindOptionsOrder<Entity>;
-
-  /**
-   * Zet de sortering om naar een FindOptionsOrder object
-   * Input: SORT=CLUBKIST DESC, VOLGORDE, REGISTRATIE
-   * Output: { CLUBKIST: 'DESC', VOLGORDE: 'ASC', REGISTRATIE: 'ASC' }
-   * @param commaSeparatedString
-   * @private
-   */
-  protected bouwSorteringOp(commaSeparatedString: string): FindOptionsOrder<Entity> {
-    const order: Record<string, string> = {};
-
-    const sortFields = commaSeparatedString.split(',');
-
-    for (const sortField of sortFields) {
-      const parts = sortField.trim().split(' ');
-      const field = parts[0];
-      // Pak de de waarde van de sortering, als die er niet is, dan default naar ASC
-      order[field as keyof typeof order] = parts.length > 1 ? parts[1] : 'ASC';
-    }
-
-    return order as FindOptionsOrder<Entity>;
-  }
 }

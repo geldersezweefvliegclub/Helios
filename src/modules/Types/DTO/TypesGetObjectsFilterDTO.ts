@@ -2,8 +2,6 @@ import { IsInt, IsNumber, IsOptional, IsString } from 'class-validator';
 import { GetObjectsFilterDTO } from '../../../core/base/GetObjectsFilterDTO';
 import { Transform } from 'class-transformer';
 import { TypeEntity } from '../entities/Type.entity';
-import { FindManyOptions } from 'typeorm';
-import { isFindOptionsWhereAnObject } from '../../../core/helpers/functions';
 
 export class TypesGetObjectsFilterDTO extends GetObjectsFilterDTO<TypeEntity> {
   @IsInt()
@@ -43,41 +41,39 @@ export class TypesGetObjectsFilterDTO extends GetObjectsFilterDTO<TypeEntity> {
   @Transform((params) => params.value == null ? null : parseInt(params.value))
   EENHEDEN?: number | null;
 
-  bouwGetObjectsFindOptions(): FindManyOptions<TypeEntity> {
-    const findOptions = super.bouwGetObjectsFindOptions();
+  bouwGetObjectsFindOptions(): void {
+    super.bouwGetObjectsFindOptions();
 
-    if(this.GROEP && isFindOptionsWhereAnObject(findOptions.where)) {
-      findOptions.where.GROEP = this.GROEP;
+    if (this.GROEP) {
+      this.findOptionsBuilder.and({ GROEP: this.GROEP });
     }
 
-    if (this.CODE && isFindOptionsWhereAnObject(findOptions.where)) {
-      findOptions.where.CODE = this.CODE;
+    if (this.CODE) {
+      this.findOptionsBuilder.and({ CODE: this.CODE });
     }
 
-    if (this.EXT_REF && isFindOptionsWhereAnObject(findOptions.where)) {
-      findOptions.where.EXT_REF = this.EXT_REF;
+    if (this.EXT_REF) {
+      this.findOptionsBuilder.and({ EXT_REF: this.EXT_REF });
     }
 
-    if (this.OMSCHRIJVING && isFindOptionsWhereAnObject(findOptions.where)) {
-      findOptions.where.OMSCHRIJVING = this.OMSCHRIJVING;
+    if (this.OMSCHRIJVING) {
+      this.findOptionsBuilder.and({ OMSCHRIJVING: this.OMSCHRIJVING });
     }
 
-    if (this.SORTEER_VOLGORDE && isFindOptionsWhereAnObject(findOptions.where)) {
-      findOptions.where.SORTEER_VOLGORDE = this.SORTEER_VOLGORDE;
+    if (this.SORTEER_VOLGORDE) {
+      this.findOptionsBuilder.and({ SORTEER_VOLGORDE: this.SORTEER_VOLGORDE });
     }
 
-    if (this.READ_ONLY && isFindOptionsWhereAnObject(findOptions.where)) {
-      findOptions.where.READ_ONLY = this.READ_ONLY;
+    if (this.READ_ONLY) {
+      this.findOptionsBuilder.and({ READ_ONLY: this.READ_ONLY });
     }
 
-    if (this.BEDRAG && isFindOptionsWhereAnObject(findOptions.where)) {
-      findOptions.where.BEDRAG = this.BEDRAG;
+    if (this.BEDRAG) {
+      this.findOptionsBuilder.and({ BEDRAG: this.BEDRAG });
     }
 
-    if (this.EENHEDEN && isFindOptionsWhereAnObject(findOptions.where)) {
-      findOptions.where.EENHEDEN = this.EENHEDEN;
+    if (this.EENHEDEN) {
+      this.findOptionsBuilder.and({ EENHEDEN: this.EENHEDEN });
     }
-
-    return findOptions;
   }
 }
