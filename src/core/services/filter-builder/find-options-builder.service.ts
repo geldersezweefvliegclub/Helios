@@ -8,9 +8,20 @@ export class FindOptionsBuilder<Entity extends ObjectLiteral> {
   get findOptions(): FindManyOptions<Entity> {
     return this._findOptions;
   }
-  private _findOptions: FindManyOptions<Entity> = {
+  private readonly _findOptions: FindManyOptions<Entity> = {
     where: [],
   };
+
+  constructor(defaults?: Partial<FindManyOptions<Entity>>) {
+    if (defaults?.where && !Array.isArray(defaults.where)) {
+      defaults.where = [defaults.where];
+    }
+
+    this._findOptions = {
+      ...this._findOptions,
+      ...defaults,
+    };
+  }
 
   public and(condition: FindOptionsWhere<Entity>, index: number = 0) {
     const currentWhere = this._findOptions.where as FindOptionsWhere<Entity>[];
