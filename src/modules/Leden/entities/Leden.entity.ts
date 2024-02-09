@@ -61,54 +61,54 @@ export class LedenEntity extends IHeliosDatabaseEntity {
   @Column({ type: 'mediumint', unsigned: true, nullable: true })
   BUDDY_ID2: number | null;
 
-  @Column({ type: 'tinyint', unsigned: true, default: 0 })
+  @Column({ type: 'boolean', unsigned: true, default: 0 })
   LIERIST: boolean;
 
   // todo typo in column name? For now to keep the contract the same, transform to _IO with class-transformer but internally use _LIO
-  @Column({ type: 'tinyint', unsigned: true, default: 0, name: "LIERIST_IO"})
+  @Column({ type: 'boolean', unsigned: true, default: 0, name: "LIERIST_IO"})
   @Expose({ name: 'LIERIST_IO' })
   LIERIST_LIO: boolean;
 
-  @Column({ type: 'tinyint', unsigned: true, default: 0 })
+  @Column({ type: 'boolean', unsigned: true, default: 0 })
   STARTLEIDER: boolean;
 
-  @Column({ type: 'tinyint', unsigned: true, default: 0 })
+  @Column({ type: 'boolean', unsigned: true, default: 0 })
   INSTRUCTEUR: boolean;
 
-  @Column({ type: 'tinyint', unsigned: true, default: 0 })
+  @Column({ type: 'boolean', unsigned: true, default: 0 })
   CIMT: boolean;
 
-  @Column({ type: 'tinyint', unsigned: true, default: 0 })
+  @Column({ type: 'boolean', unsigned: true, default: 0 })
   DDWV_CREW: boolean;
 
-  @Column({ type: 'tinyint', unsigned: true, default: 0 })
+  @Column({ type: 'boolean', unsigned: true, default: 0 })
   DDWV_BEHEERDER: boolean;
 
-  @Column({ type: 'tinyint', unsigned: true, default: 0 })
+  @Column({ type: 'boolean', unsigned: true, default: 0 })
   BEHEERDER: boolean;
 
-  @Column({ type: 'tinyint', unsigned: true, default: 0 })
+  @Column({ type: 'boolean', unsigned: true, default: 0 })
   STARTTOREN: boolean;
 
-  @Column({ type: 'tinyint', unsigned: true, default: 0 })
+  @Column({ type: 'boolean', unsigned: true, default: 0 })
   ROOSTER: boolean;
 
-  @Column({ type: 'tinyint', unsigned: true, default: 0 })
+  @Column({ type: 'boolean', unsigned: true, default: 0 })
   SLEEPVLIEGER: boolean;
 
-  @Column({ type: 'tinyint', unsigned: true, default: 0 })
+  @Column({ type: 'boolean', unsigned: true, default: 0 })
   RAPPORTEUR: boolean;
 
-  @Column({ type: 'tinyint', unsigned: true, default: 0 })
+  @Column({ type: 'boolean', unsigned: true, default: 0 })
   GASTENVLIEGER: boolean;
 
-  @Column({ type: 'tinyint', unsigned: true, default: 0 })
+  @Column({ type: 'boolean', unsigned: true, default: 0 })
   TECHNICUS: boolean;
 
-  @Column({ type: 'tinyint', unsigned: true, default: 0 })
+  @Column({ type: 'boolean', unsigned: true, default: 0 })
   CLUBBLAD_POST: boolean;
 
-  @Column({ type: 'tinyint', unsigned: true, default: 0 })
+  @Column({ type: 'boolean', unsigned: true, default: 0 })
   ZELFSTART_ABONNEMENT: boolean;
 
   @Column({ type: 'date', nullable: true })
@@ -126,16 +126,16 @@ export class LedenEntity extends IHeliosDatabaseEntity {
   @Column({ type: 'varchar', length: 255, nullable: true })
   SECRET: string | null;
 
-  @Column({ type: 'tinyint', unsigned: true, default: 0 })
+  @Column({ type: 'boolean', unsigned: true, default: 0 })
   AUTH: boolean;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   AVATAR: string | null;
 
-  @Column({ type: 'tinyint', unsigned: true, default: 0 })
+  @Column({ type: 'boolean', unsigned: true, default: 0 })
   STARTVERBOD: boolean;
 
-  @Column({ type: 'tinyint', unsigned: true, default: 0 })
+  @Column({ type: 'boolean', unsigned: true, default: 0 })
   PRIVACY: boolean;
 
   @Column({ type: 'varchar', length: 25, nullable: true })
@@ -150,7 +150,7 @@ export class LedenEntity extends IHeliosDatabaseEntity {
   @Column({ type: 'varchar', length: 25, nullable: true })
   BREVET_NUMMER: string | null;
 
-  @Column({ type: 'tinyint', unsigned: true, default: 0 })
+  @Column({ type: 'boolean', unsigned: true, default: 0 })
   EMAIL_DAGINFO: boolean;
 
   @Column({ type: 'text', nullable: true })
