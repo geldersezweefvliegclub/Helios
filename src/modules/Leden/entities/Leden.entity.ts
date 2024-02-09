@@ -1,6 +1,7 @@
-import { Column, Entity, Index } from 'typeorm';
+import { AfterLoad, Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { IHeliosDatabaseEntity } from '../../../core/base/IHeliosDatabaseEntity';
-import { Expose } from 'class-transformer';
+import { Exclude, Expose, Transform } from 'class-transformer';
+import { TypeEntity } from '../../Types/entities/Type.entity';
 
 @Entity('ref_leden')
 @Index('NAAM', ['NAAM'])
@@ -158,4 +159,22 @@ export class LedenEntity extends IHeliosDatabaseEntity {
 
   @Column({ type: 'float', default: 0 })
   TEGOED: number;
+
+  @ManyToOne(() => TypeEntity, (lidtype) => lidtype.ID, {eager: true})
+  @JoinColumn({ name: "LIDTYPE_ID" })
+  @Exclude()
+  LIDTYPEENTITY: TypeEntity | null;
+  // @ManyToOne(() => LedenEntity, (lid) => lid.ID)
+  // @JoinColumn({ name: "ZUSTERCLUB_ID" })
+  // @Exclude()
+  // ZUSTERCLUBENTITY: LedenEntity | null;
+
+  LIDTYPE: string | null;
+  ZUSTERCLUB: string | null;
+
+  @AfterLoad()
+  setComputedFields() {
+    // todo zusterclub is throwing max call stack size reached exception
+    this.LIDTYPE = this.LIDTYPEENTITY?.OMSCHRIJVING ?? null;
+  }
 }
