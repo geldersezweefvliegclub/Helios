@@ -175,5 +175,7 @@ if (!moduleName) {
 }
 
 createModule(moduleName);
+console.log()
 console.log(`Module ${moduleName} created successfully.`);
 console.log("Don't forget to add the new module to the app.module.ts file.");
+console.log("Also check your Entity to make sure it defines the correct table name inside the @Entity decorator.");
