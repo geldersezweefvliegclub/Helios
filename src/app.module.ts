@@ -5,6 +5,7 @@ import { TypeOrmConfigService } from './typeorm/typeorm.service';
 import { TypesModule } from './modules/Types/types.module';
 import { TypesGroepenModule } from './modules/TypesGroepen/types-groepen.module';
 import { VliegtuigenModule } from './modules/Vliegtuigen/vliegtuigen.module';
+import { LedenModule } from './modules/Leden/Leden.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { VliegtuigenModule } from './modules/Vliegtuigen/vliegtuigen.module';
     TypesModule,
     TypesGroepenModule,
     VliegtuigenModule,
+    LedenModule
   ],
   controllers: [],
   providers: [TypeOrmConfigService],
