@@ -1,8 +1,14 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, Index } from 'typeorm';
 import { IHeliosDatabaseEntity } from '../../../core/base/IHeliosDatabaseEntity';
 import { Expose } from 'class-transformer';
 
-@Entity('Leden')
+@Entity('ref_leden')
+@Index('NAAM', ['NAAM'])
+@Index('LIDTYPE_ID', ['LIDTYPE_ID'])
+@Index('STARTLEIDER', ['STARTLEIDER'])
+@Index('INSTRUCTEUR', ['INSTRUCTEUR'])
+@Index('LIERIST', ['LIERIST'])
+@Index('VERWIJDERD', ['VERWIJDERD'])
 export class LedenEntity extends IHeliosDatabaseEntity {
   @Column({ type: 'varchar', length: 255 })
   NAAM: string;
