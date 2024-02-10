@@ -385,7 +385,7 @@ class Login extends Helios
 				$this->setSessionUser($lObj['ID']);	
 
 			}
-            $l->SyncLeden($lObj['ID']);
+            $l->SyncLeden($lObj['ID'], $password);
             return $this->JWT($lObj);
 		}
 		

@@ -11,9 +11,44 @@ if (!isset($matrix_settings)) {
     exit;
 }
 
-$alleLeden = false;
 if (isset($_GET['Leden'])) {
-    $alleLeden = true;
+    // Alle leden synchroniseren
+
+    // 600 = Student
+    // 601 = Erelid
+    // 602 = Lid
+    // 603 = Jeugdlid
+    // 604 = private owner
+    // 605 = veteraan
+    // 606 = Donateur
+    // 625 = DDWV
+
+    heliosInit("Leden/GetObjects?TYPES=600,601,602,603,605,606");
+    $result = curl_exec($curl_session);
+
+    $status_code = curl_getinfo($curl_session, CURLINFO_HTTP_CODE); //get status code
+    list($header, $body) = returnHeaderBody($result);
+
+    if ($status_code != 200) // We verwachten een status code van 200
+    {
+        Error(__FILE__, __LINE__, "Leden/GetObjects: " . $status_code . "; " . $body . "; " . print_r($header, true));
+        emailError($result);
+        die;
+    }
+    else {
+        $leden = json_decode($body, true);
+
+        foreach ($leden['dataset'] as $lid)
+        {
+            if (!isset($lid['INLOGNAAM'])) {
+                HeliosError(__FILE__, __LINE__, sprintf ("Lid %s heeft geen inlognaam: ", $lid['NAAM']));
+                continue;
+            }
+            synapse::updateGebruiker($lid, null);
+            synapse::toevoegenAanKamers($lid);
+        }
+        sleep(60);
+    }
 }
 
 heliosInit("Sync/GetObjects");
@@ -49,6 +84,7 @@ else {
                 if ($status_code != 200)
                     continue;
             }
+            Debug(__FILE__, __LINE__, sprintf("Sync ID %s: %s %s", $item['ID'], $item['LID_ID'], $lid['NAAM']));
 
             if (!isset($lid['INLOGNAAM'])) {
                 HeliosError(__FILE__, __LINE__, sprintf ("Lid %s heeft geen inlognaam: ", $lid['NAAM']));

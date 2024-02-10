@@ -704,7 +704,8 @@ class Leden extends Helios
 		if ($lid['SECRET'] == null)
 			$this->SetSecret($id);
 
-        $this->SyncLeden($lid['ID'], $lid['WACHTWOORD']);
+        $ww = isset($LidData['WACHTWOORD']) ? $LidData['WACHTWOORD'] : null;
+        $this->SyncLeden($id, $ww);
 		return $lid;
 	}
 
@@ -782,7 +783,8 @@ class Leden extends Helios
 		if ($lid['SECRET'] == null)
 			$this->SetSecret($id);
 
-        $this->SyncLeden($lid['ID'], $lid['WACHTWOORD']);
+        $ww = isset($LidData['WACHTWOORD']) ? $LidData['WACHTWOORD'] : null;
+        $this->SyncLeden($id, $ww);
 		return $lid;
 	}
 
