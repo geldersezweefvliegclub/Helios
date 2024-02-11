@@ -1,6 +1,6 @@
-import { AfterLoad, Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { IHeliosDatabaseEntity } from '../../../core/base/IHeliosDatabaseEntity';
-import { Exclude, Expose, Transform } from 'class-transformer';
+import { Expose, Transform } from 'class-transformer';
 import { TypeEntity } from '../../Types/entities/Type.entity';
 
 @Entity('ref_leden')
@@ -179,6 +179,11 @@ export class LedenEntity extends IHeliosDatabaseEntity {
   @JoinColumn({ name: 'BUDDY_ID2' })
   @Transform(({ value }) => value?.NAAM ?? null, { toPlainOnly: true })
   BUDDY2: LedenEntity | null;
+
+  @ManyToOne(() => TypeEntity, (statustype) => statustype.ID, { eager: true })
+  @JoinColumn({ name: 'STATUSTYPE_ID' })
+  @Transform(({ value }) => value?.OMSCHRIJVING ?? null, { toPlainOnly: true })
+  STATUS: string | null;
 
   // TODO: PAX field als competenties gebouwd zijn
 }
