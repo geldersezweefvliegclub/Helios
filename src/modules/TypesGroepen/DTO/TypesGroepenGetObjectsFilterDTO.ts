@@ -1,6 +1,7 @@
 import { GetObjectsFilterDTO } from '../../../core/base/GetObjectsFilterDTO';
 import { IsBoolean, IsOptional, IsString } from 'class-validator';
 import { TypeGroepEntity } from '../entities/TypeGroep.entity';
+import { FindOptionsOrder } from 'typeorm';
 
 export class TypesGroepenGetObjectsFilterDTO extends GetObjectsFilterDTO<TypeGroepEntity> {
   @IsString()
@@ -27,6 +28,13 @@ export class TypesGroepenGetObjectsFilterDTO extends GetObjectsFilterDTO<TypeGro
   @IsOptional()
   BEDRAG_EENHEDEN: boolean;
 
+  get defaultGetObjectsSortering(): FindOptionsOrder<TypeGroepEntity> {
+    return {
+      SORTEER_VOLGORDE: 'ASC',
+      ID: 'ASC',
+    }
+  }
+
   bouwGetObjectsFindOptions(): void {
     super.bouwGetObjectsFindOptions();
 
@@ -48,6 +56,10 @@ export class TypesGroepenGetObjectsFilterDTO extends GetObjectsFilterDTO<TypeGro
 
     if (this.READ_ONLY) {
       this.findOptionsBuilder.and({ READ_ONLY: this.READ_ONLY });
+    }
+
+    if (this.SORT) {
+      this.findOptionsBuilder.order(this.SORT, {SORTEER_VOLGORDE: 'ASC'});
     }
 
     if (this.BEDRAG_EENHEDEN) {
