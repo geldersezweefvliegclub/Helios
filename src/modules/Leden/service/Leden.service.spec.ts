@@ -1,9 +1,9 @@
-
 import { Test, TestingModule } from '@nestjs/testing';
 import { LedenService } from './Leden.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { LedenEntity } from '../entities/Leden.entity';
 import { Repository } from 'typeorm';
+import { AuditEntity } from '../../../core/entities/Audit.entity';
 
 describe('LedenService', () => {
   let service: LedenService;
@@ -17,6 +17,7 @@ describe('LedenService', () => {
           provide: getRepositoryToken(LedenEntity),
           useValue: jest.fn()
         },
+        { provide: getRepositoryToken(AuditEntity), useClass: jest.fn() },
       ],
     }).compile();
 

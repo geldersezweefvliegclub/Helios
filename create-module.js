@@ -135,6 +135,7 @@ import { ${moduleName}Service } from './${moduleName}.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ${moduleName}Entity } from '../entities/${moduleName}.entity';
 import { Repository } from 'typeorm';
+import { AuditEntity } from '../../../core/entities/Audit.entity';
 
 describe('${moduleName}Service', () => {
   let service: ${moduleName}Service;
@@ -144,10 +145,8 @@ describe('${moduleName}Service', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ${moduleName}Service,
-        {
-          provide: getRepositoryToken(${moduleName}Entity),
-          useValue: jest.fn()
-        },
+        { provide: getRepositoryToken(${moduleName}Entity), useValue: jest.fn()},
+        { provide: getRepositoryToken(AuditEntity), useClass: jest.fn() },
       ],
     }).compile();
 

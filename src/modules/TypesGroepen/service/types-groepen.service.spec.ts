@@ -3,6 +3,7 @@ import { TypesGroepenService } from './types-groepen.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { mockRepository } from '../../../core/helpers/testing/TypeORMTestingModule';
 import { TypeGroepEntity } from '../entities/TypeGroep.entity';
+import { AuditEntity } from '../../../core/entities/Audit.entity';
 
 describe('TypesGroepenService', () => {
   let service: TypesGroepenService;
@@ -11,7 +12,8 @@ describe('TypesGroepenService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         TypesGroepenService,
-        { provide: getRepositoryToken(TypeGroepEntity), useClass: mockRepository },
+        { provide: getRepositoryToken(TypeGroepEntity), useClass: mockRepository,},
+        { provide: getRepositoryToken(AuditEntity), useClass: mockRepository },
       ],
     }).compile();
 
