@@ -5,6 +5,8 @@ import { createHash } from 'crypto';
 import { IHeliosObject } from './IHeliosObject';
 import { IHeliosFilterDTO } from './IHeliosFilterDTO';
 import { FindOptionsSelect } from 'typeorm/find-options/FindOptionsSelect';
+import { AuditEntity } from '../entities/Audit.entity';
+import { InjectRepository } from '@nestjs/typeorm';
 
 /**
  * Base-service die basisfunctionaliteiten biedt voor het ophalen, updaten, toevoegen, herstellen en verwijderen van een TypeORM Entity in de database.
@@ -13,7 +15,7 @@ import { FindOptionsSelect } from 'typeorm/find-options/FindOptionsSelect';
  */
 export abstract class IHeliosService<Entity extends IHeliosObject> {
   private logger: Logger = new Logger('IHeliosService');
-  protected constructor(protected readonly repository: Repository<Entity>) {
+  protected constructor(protected readonly repository: Repository<Entity>, @InjectRepository(AuditEntity) protected readonly auditRepository: Repository<AuditEntity>) {
   }
 
   /**
@@ -42,9 +44,13 @@ export abstract class IHeliosService<Entity extends IHeliosObject> {
     const dataset = this.applySelectionFilterToCalculatedColumns(datasetRaw, findOptions.select);
     const hash = createHash('md5').update(JSON.stringify(dataset)).digest('hex');
 
+    // For LAATSTE_AANPASSING, search through the audit table for the latest change for this table
+    const entityTable = this.repository.metadata.tableName;
+    const auditTrail = await this.auditRepository.findOne({ where: { TABEL: entityTable }, order: { LAATSTE_AANPASSING: 'DESC' } });
+
     return {
       totaal: dataset.length,
-      laatste_aanpassing: new Date(),
+      laatste_aanpassing: auditTrail.LAATSTE_AANPASSING,
       dataset: dataset,
       hash: hash,
     };
