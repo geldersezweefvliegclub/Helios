@@ -1,7 +1,7 @@
 import { GetObjectsFilterDTO } from '../../../core/base/GetObjectsFilterDTO';
 import { LedenEntity } from '../entities/Leden.entity';
 import { IsOptional, IsString } from 'class-validator';
-import { Between, In, Like } from 'typeorm';
+import { Between, FindOptionsOrder, In, Like } from 'typeorm';
 
 export class LedenGetObjectsFilterDTO extends GetObjectsFilterDTO<LedenEntity> {
   @IsOptional()
@@ -39,6 +39,13 @@ export class LedenGetObjectsFilterDTO extends GetObjectsFilterDTO<LedenEntity> {
   @IsOptional()
   @IsString()
   STARTLEIDERS?: boolean;
+
+  get defaultGetObjectsSortering(): FindOptionsOrder<LedenEntity> {
+    return {
+      ACHTERNAAM: 'ASC',
+      VOORNAAM: 'ASC',
+    };
+  }
 
   bouwGetObjectsFindOptions(): void {
     super.bouwGetObjectsFindOptions();
@@ -92,6 +99,6 @@ export class LedenGetObjectsFilterDTO extends GetObjectsFilterDTO<LedenEntity> {
     }
 
     // Load zusterclub relation here instead of using eager: true. Eager: true create a maximum callstack error
-    this.findOptionsBuilder.relations({ 'ZUSTERCLUBENTITY': true });
+    this.findOptionsBuilder.relations({ ZUSTERCLUB: true, BUDDY: true, BUDDY2: true});
   }
 }

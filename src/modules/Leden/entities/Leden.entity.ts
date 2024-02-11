@@ -1,6 +1,6 @@
 import { AfterLoad, Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { IHeliosDatabaseEntity } from '../../../core/base/IHeliosDatabaseEntity';
-import { Exclude, Expose } from 'class-transformer';
+import { Exclude, Expose, Transform } from 'class-transformer';
 import { TypeEntity } from '../../Types/entities/Type.entity';
 
 @Entity('ref_leden')
@@ -66,7 +66,7 @@ export class LedenEntity extends IHeliosDatabaseEntity {
   LIERIST: boolean;
 
   // todo typo in column name? For now to keep the contract the same, transform to _IO with class-transformer but internally use _LIO
-  @Column({ type: 'boolean', unsigned: true, default: 0, name: "LIERIST_IO"})
+  @Column({ type: 'boolean', unsigned: true, default: 0, name: 'LIERIST_IO' })
   @Expose({ name: 'LIERIST_IO' })
   LIERIST_LIO: boolean;
 
@@ -160,22 +160,25 @@ export class LedenEntity extends IHeliosDatabaseEntity {
   @Column({ type: 'float', default: 0 })
   TEGOED: number;
 
-  @ManyToOne(() => TypeEntity, (lidtype) => lidtype.ID, {eager: true})
-  @JoinColumn({ name: "LIDTYPE_ID" })
-  @Exclude()
-  LIDTYPEENTITY: TypeEntity | null;
+  @ManyToOne(() => TypeEntity, (lidtype) => lidtype.ID, { eager: true })
+  @JoinColumn({ name: 'LIDTYPE_ID' })
+  @Transform(({ value }) => value?.OMSCHRIJVING ?? null, { toPlainOnly: true })
+  LIDTYPE: string | null;
 
   @ManyToOne(() => LedenEntity, leden => leden.ID)
-  @JoinColumn({ name: "ZUSTERCLUB_ID" })
-  @Exclude()
-  ZUSTERCLUBENTITY: LedenEntity | null;
+  @JoinColumn({ name: 'ZUSTERCLUB_ID' })
+  @Transform(({ value }) => value?.NAAM ?? null, { toPlainOnly: true })
+  ZUSTERCLUB: LedenEntity | null;
 
-  LIDTYPE: string | null;
-  ZUSTERCLUB: string | null;
+  @ManyToOne(() => LedenEntity, leden => leden.ID)
+  @JoinColumn({ name: 'BUDDY_ID' })
+  @Transform(({ value }) => value?.NAAM ?? null, { toPlainOnly: true })
+  BUDDY: LedenEntity | null;
 
-  @AfterLoad()
-  setComputedFields() {
-    this.LIDTYPE = this.LIDTYPEENTITY?.OMSCHRIJVING ?? null;
-    this.ZUSTERCLUB = this.ZUSTERCLUBENTITY?.NAAM ?? null;
-  }
+  @ManyToOne(() => LedenEntity, leden => leden.ID)
+  @JoinColumn({ name: 'BUDDY_ID2' })
+  @Transform(({ value }) => value?.NAAM ?? null, { toPlainOnly: true })
+  BUDDY2: LedenEntity | null;
+
+  // TODO: PAX field als competenties gebouwd zijn
 }
