@@ -2,6 +2,7 @@ import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nes
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { instanceToPlain } from 'class-transformer';
+import { DateTime } from 'luxon';
 
 @Injectable()
 export class TransformInterceptor implements NestInterceptor {
@@ -12,6 +13,21 @@ export class TransformInterceptor implements NestInterceptor {
    * @param next
    */
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    return next.handle().pipe(map(data => instanceToPlain(data)));
+    return next.handle().pipe(map(data => instanceToPlain(this.transformDates(data))));
+  }
+
+  transformDates(obj: any): any {
+    if (obj instanceof Date) {
+      const date = DateTime.fromJSDate(obj, { zone: 'Europe/Amsterdam' });
+      return date.toFormat('yyyy-MM-dd HH:mm:ss');
+    }
+
+    if (typeof obj === 'object') {
+      for (const key in obj) {
+        obj[key] = this.transformDates(obj[key]);
+      }
+    }
+
+    return obj;
   }
 }
