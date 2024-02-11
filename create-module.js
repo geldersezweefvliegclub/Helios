@@ -46,10 +46,11 @@ import { ${moduleName}Controller } from './controller/${moduleName}.controller';
 import { ${moduleName}Service } from './service/${moduleName}.service';
 import { ${moduleName}Entity } from './entities/${moduleName}.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuditEntity } from '../../core/entities/Audit.entity';
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([${moduleName}Entity])
+        TypeOrmModule.forFeature([${moduleName}Entity, AuditEntity])
     ],
     controllers: [${moduleName}Controller],
     providers: [${moduleName}Service],
@@ -117,11 +118,15 @@ import { Repository } from 'typeorm';
 import { ${moduleName}Entity } from '../entities/${moduleName}.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IHeliosService } from '../../../core/base/IHelios.service';
+import { AuditEntity } from '../../../core/entities/Audit.entity';
 
 @Injectable()
 export class ${moduleName}Service extends IHeliosService<${moduleName}Entity> {
-  constructor(@InjectRepository(${moduleName}Entity) protected readonly repository: Repository<${moduleName}Entity>) {
-    super(repository);
+  constructor(
+    @InjectRepository(${moduleName}Entity) protected readonly repository: Repository<${moduleName}Entity>,
+    @InjectRepository(AuditEntity) protected readonly auditRepository: Repository<AuditEntity>
+  ) {
+    super(repository, auditRepository);
   }
 }`,
     [`service/${moduleName}.service.spec.ts`]: `
