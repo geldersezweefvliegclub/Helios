@@ -1,8 +1,9 @@
-import { NestFactory } from '@nestjs/core';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { INestApplication, Logger, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { TransformInterceptor } from './core/interceptors/class-transfor.interceptor';
+import { HttpExceptionLogger } from './core/filters/http-exception-logger-filter/http-exception-logger.filter';
 
 function setupSwagger(app: INestApplication, swaggerUrl: string) {
   const swaggerConfig = new DocumentBuilder()
@@ -28,6 +29,8 @@ async function bootstrap() {
     },
   });
 
+  const adapterHost = app.get(HttpAdapterHost);
+
   setupSwagger(app, 'docs');
 
   app.useGlobalPipes(
@@ -37,6 +40,7 @@ async function bootstrap() {
   );
 
   app.useGlobalInterceptors(new TransformInterceptor());
+  app.useGlobalFilters(new HttpExceptionLogger(adapterHost));
   await app.listen(port);
 
   Logger.log(`🚀 Application is running on: http://localhost:${port}/`);
