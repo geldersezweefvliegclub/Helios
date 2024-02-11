@@ -6,7 +6,7 @@ export class DatabaseLogger implements TypeOrmLogger {
 
 
     logQuery(query: string, parameters?: unknown[]) {
-        this.logger.log(`${query} -- Parameters: ${this.stringifyParameters(parameters)}`);
+        this.logger.debug(`${query} -- Parameters: ${this.stringifyParameters(parameters)}`);
     }
 
     logQueryError(error: string, query: string, parameters?: unknown[]) {
