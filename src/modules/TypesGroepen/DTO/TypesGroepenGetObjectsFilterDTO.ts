@@ -1,5 +1,5 @@
 import { GetObjectsFilterDTO } from '../../../core/base/GetObjectsFilterDTO';
-import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsOptional, IsString } from 'class-validator';
 import { TypeGroepEntity } from '../entities/TypeGroep.entity';
 
 export class TypesGroepenGetObjectsFilterDTO extends GetObjectsFilterDTO<TypeGroepEntity> {
@@ -19,13 +19,13 @@ export class TypesGroepenGetObjectsFilterDTO extends GetObjectsFilterDTO<TypeGro
   @IsOptional()
   SORTEER_VOLGORDE?: number | null;
 
-  @IsString()
+  @IsBoolean()
   @IsOptional()
-  READ_ONLY?: number;
+  READ_ONLY?: boolean;
 
-  @IsNumber()
+  @IsBoolean()
   @IsOptional()
-  BEDRAG_EENHEDEN: number;
+  BEDRAG_EENHEDEN: boolean;
 
   bouwGetObjectsFindOptions(): void {
     super.bouwGetObjectsFindOptions();

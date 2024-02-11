@@ -15,9 +15,9 @@ export class TypeGroepEntity extends IHeliosDatabaseEntity{
     @Column({ type: 'tinyint', nullable: true })
     SORTEER_VOLGORDE: number;
 
-    @Column({ type: 'tinyint', default: 0 })
-    READ_ONLY: number;
+    @Column({ type: 'boolean', default: 0 })
+    READ_ONLY: boolean;
 
-    @Column({ type: 'tinyint', default: 0 })
-    BEDRAG_EENHEDEN: number;
+    @Column({ type: 'boolean', default: 0 })
+    BEDRAG_EENHEDEN: boolean;
 }
