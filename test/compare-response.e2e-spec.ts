@@ -53,7 +53,7 @@ class RequestBuilder {
       logger.log(`Making a request to "${url}". Query parameters:`, endpoint.queryParams);
       await request;
     } catch (e) {
-      logger.error(`An error occurred while making a request to "${url}"`, e);
+      logger.error(`An error occurred while making a request to "${url}": ${JSON.stringify(e)}`);
       throw e;
     }
 
