@@ -1,4 +1,4 @@
-import { TransformInterceptor } from './class-transfor.interceptor';
+import { TransformInterceptor } from './class-transform.interceptor';
 import { CallHandler, ExecutionContext } from '@nestjs/common';
 import { firstValueFrom, of } from 'rxjs';
 

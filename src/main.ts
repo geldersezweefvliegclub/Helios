@@ -2,7 +2,7 @@ import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { INestApplication, Logger, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { TransformInterceptor } from './core/interceptors/class-transfor.interceptor';
+import { TransformInterceptor } from './core/interceptors/class-transform.interceptor';
 import { HttpExceptionLogger } from './core/filters/http-exception-logger-filter/http-exception-logger.filter';
 
 function setupSwagger(app: INestApplication, swaggerUrl: string) {
