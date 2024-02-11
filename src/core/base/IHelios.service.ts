@@ -57,7 +57,7 @@ export abstract class IHeliosService<Entity extends IHeliosObject> {
     const queryBuilder  = this.repository.createQueryBuilder(this.repository.metadata.tableName);
     queryBuilder.select('MAX(LAATSTE_AANPASSING)', 'laatste_aanpassing')
 
-    if (isResultLimited) queryBuilder.whereInIds(dataset.map((obj) => obj.ID));
+    if (!isResultLimited) queryBuilder.whereInIds(dataset.map((obj) => obj.ID));
 
     const laatsteAanpassing = (await queryBuilder.getRawOne())?.laatste_aanpassing;
 
