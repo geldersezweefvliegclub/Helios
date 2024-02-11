@@ -11,7 +11,7 @@ export class RequestLoggingMiddleware implements NestMiddleware {
    * @param next
    */
   use(req: Request, res: Response, next: () => void) {
-    this.logger.log(`Starting request for: ${req.method} ${req.originalUrl}`);
+    this.logger.log(`Received request: ${req.method} ${req.originalUrl}`);
     next();
   }
 }
