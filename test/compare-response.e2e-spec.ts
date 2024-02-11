@@ -12,7 +12,7 @@ import { AppModule } from '../src/app.module';
 import axios, { AxiosResponse } from 'axios';
 
 
-const logger = new Logger('API Response Comparison (e2e)')
+const logger = new Logger('API Response Comparison (e2e)');
 
 class EndpointGroup {
   constructor(public name: string, public endpoints: Endpoint[]) {
@@ -41,7 +41,7 @@ class RequestBuilder {
         request = axios.get(url, {
           params: endpoint.queryParams,
           auth: auth,
-          timeout: 5000
+          timeout: 5000,
         });
         break;
       // Add other HTTP methods as needed
@@ -69,20 +69,38 @@ describe('API Response Comparison (e2e)', () => {
   const PHP_API_URL = 'http://localhost:8081';
 
   const endpoints = [
+    new EndpointGroup('TypesGroepen', [
+      new Endpoint("ID", 'GET', '/TypesGroepen/GetObjects', { ID: 1 }),
+      new Endpoint("Max", 'GET', '/TypesGroepen/GetObjects', { MAX: 2 }),
+      new Endpoint("Sort ID ASC", 'GET', '/TypesGroepen/GetObjects', { SORT: 'ID' }),
+      new Endpoint("Sort ID DESC", 'GET', '/TypesGroepen/GetObjects', { SORT: 'ID DESC' }),
+      new Endpoint('GetObjects', 'GET', '/TypesGroepen/GetObjects'),
+      new Endpoint("Velden", 'GET', '/TypesGroepen/GetObjects', { MAX: 2, VELDEN:"ID, OMSCHRIJVING" }),
+    ]),
+    new EndpointGroup('Types', [
+      new Endpoint("ID", 'GET', '/Types/GetObjects', { ID: 601 }),
+      new Endpoint("Max", 'GET', '/Types/GetObjects', { MAX: 2 }),
+      new Endpoint("Sort ID ASC", 'GET', '/Types/GetObjects', { SORT: 'ID' }),
+      new Endpoint("Sort ID DESC", 'GET', '/Types/GetObjects', { SORT: 'ID DESC' }),
+      new Endpoint('GetObjects', 'GET', '/Types/GetObjects'),
+      new Endpoint("Groep = 1", 'GET', '/Types/GetObjects', { GROEP: 1 }),
+      new Endpoint("Velden", 'GET', '/Types/GetObjects', { MAX: 2, VELDEN:"ID, OMSCHRIJVING" }),
+    ]),
     new EndpointGroup('Leden', [
       new Endpoint('ID', 'GET', '/Leden/GetObjects', { ID: 10858 }),
-      new Endpoint("Max", "GET", "/Leden/GetObjects", { MAX: 2 }),
-      new Endpoint("Jeugdleden / Ereleden", "GET", "/Leden/GetObjects", { TYPES: "601,603" }),
-      new Endpoint("DDWV", "GET", "/Leden/GetObjects", { TYPES: "625" }),
-      new Endpoint("Lieristen", "GET", "/Leden/GetObjects", { LIERISTEN: 1 }),
-      new Endpoint("Startleiders", "GET", "/Leden/GetObjects", { STARTLEIDERS: 1 }),
-      new Endpoint("Instructeurs", "GET", "/Leden/GetObjects", { INSTRUCTEURS: 1 }),
-      new Endpoint("Instructeurs en Lieristen", "GET", "/Leden/GetObjects", { INSTRUCTEURS: 1, LIERISTEN: 1 }),
-      new Endpoint("DDWV crew", "GET", "/Leden/GetObjects", { DDWV_CREW: 1 }),
-      new Endpoint("Sort ID ASC", "GET", "/Leden/GetObjects", { SORT: "ID" }),
-      new Endpoint("Sort ID DESC", "GET", "/Leden/GetObjects", { SORT: "ID DESC" }),
-      new Endpoint('Leden GetObjects', 'GET', '/Leden/GetObjects'),
-    ])
+      new Endpoint('Max', 'GET', '/Leden/GetObjects', { MAX: 2 }),
+      new Endpoint('Jeugdleden / Ereleden', 'GET', '/Leden/GetObjects', { TYPES: '601,603' }),
+      new Endpoint('DDWV', 'GET', '/Leden/GetObjects', { TYPES: '625' }),
+      new Endpoint('Lieristen', 'GET', '/Leden/GetObjects', { LIERISTEN: 1 }),
+      new Endpoint('Startleiders', 'GET', '/Leden/GetObjects', { STARTLEIDERS: 1 }),
+      new Endpoint('Instructeurs', 'GET', '/Leden/GetObjects', { INSTRUCTEURS: 1 }),
+      new Endpoint('Instructeurs en Lieristen', 'GET', '/Leden/GetObjects', { INSTRUCTEURS: 1, LIERISTEN: 1 }),
+      new Endpoint('DDWV crew', 'GET', '/Leden/GetObjects', { DDWV_CREW: 1 }),
+      new Endpoint('Sort ID ASC', 'GET', '/Leden/GetObjects', { SORT: 'ID' }),
+      new Endpoint('Sort ID DESC', 'GET', '/Leden/GetObjects', { SORT: 'ID DESC' }),
+      new Endpoint('GetObjects', 'GET', '/Leden/GetObjects'),
+      new Endpoint('Velden', 'GET', '/Leden/GetObjects', { MAX: 2, VELDEN: 'ID, NAAM' }),
+    ]),
   ];
 
   beforeAll(async () => {
