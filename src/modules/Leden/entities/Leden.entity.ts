@@ -1,4 +1,4 @@
-import { AfterLoad, Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
+import { AfterLoad, Column, Entity, Index, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { IHeliosDatabaseEntity } from '../../../core/base/IHeliosDatabaseEntity';
 import { Exclude, Expose, Transform } from 'class-transformer';
 import { TypeEntity } from '../../Types/entities/Type.entity';
@@ -164,17 +164,18 @@ export class LedenEntity extends IHeliosDatabaseEntity {
   @JoinColumn({ name: "LIDTYPE_ID" })
   @Exclude()
   LIDTYPEENTITY: TypeEntity | null;
-  // @ManyToOne(() => LedenEntity, (lid) => lid.ID)
-  // @JoinColumn({ name: "ZUSTERCLUB_ID" })
-  // @Exclude()
-  // ZUSTERCLUBENTITY: LedenEntity | null;
+
+  @ManyToOne(() => LedenEntity, leden => leden.ID)
+  @JoinColumn({ name: "ZUSTERCLUB_ID" })
+  @Exclude()
+  ZUSTERCLUBENTITY: LedenEntity | null;
 
   LIDTYPE: string | null;
   ZUSTERCLUB: string | null;
 
   @AfterLoad()
   setComputedFields() {
-    // todo zusterclub is throwing max call stack size reached exception
     this.LIDTYPE = this.LIDTYPEENTITY?.OMSCHRIJVING ?? null;
+    this.ZUSTERCLUB = this.ZUSTERCLUBENTITY?.NAAM ?? null;
   }
 }

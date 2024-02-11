@@ -1,5 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { FindManyOptions, FindOptionsOrder, FindOptionsSelect } from 'typeorm';
+import {
+  FindManyOptions,
+  FindOptionsOrder,
+  FindOptionsRelationByString,
+  FindOptionsRelations,
+  FindOptionsSelect,
+} from 'typeorm';
 import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
 import { InvalidArgumentException } from '../../helpers/exceptions/InvalidArgumentException';
 import { IHeliosObject } from '../../base/IHeliosObject';
@@ -129,5 +135,10 @@ export class FindOptionsBuilder<Entity extends IHeliosObject> {
 
   clearWhere() {
     this._findOptions.where = [];
+  }
+
+  public relations(relations: FindOptionsRelations<Entity>) {
+    this._findOptions.relations = relations
+    return this;
   }
 }

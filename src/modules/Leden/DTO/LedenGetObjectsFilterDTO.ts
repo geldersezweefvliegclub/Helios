@@ -90,5 +90,8 @@ export class LedenGetObjectsFilterDTO extends GetObjectsFilterDTO<LedenEntity> {
       this.findOptionsBuilder.or({ NOODNUMMER: findOperator, ...currentWhere });
       this.findOptionsBuilder.or({ EMAIL: findOperator, ...currentWhere });
     }
+
+    // Load zusterclub relation here instead of using eager: true. Eager: true create a maximum callstack error
+    this.findOptionsBuilder.relations({ 'ZUSTERCLUBENTITY': true });
   }
 }
