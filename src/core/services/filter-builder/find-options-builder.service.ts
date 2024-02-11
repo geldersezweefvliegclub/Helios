@@ -1,11 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import {
-  FindManyOptions,
-  FindOptionsOrder,
-  FindOptionsRelationByString,
-  FindOptionsRelations,
-  FindOptionsSelect,
-} from 'typeorm';
+import { FindManyOptions, FindOptionsOrder, FindOptionsRelations, FindOptionsSelect } from 'typeorm';
 import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
 import { InvalidArgumentException } from '../../helpers/exceptions/InvalidArgumentException';
 import { IHeliosObject } from '../../base/IHeliosObject';
