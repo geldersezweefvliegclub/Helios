@@ -138,6 +138,10 @@ describe('API Response Comparison (e2e)', () => {
           const nestjsResponse = await requestBuilder.makeRequest(NESTJS_API_URL, endpoint);
           const phpResponse = await requestBuilder.makeRequest(PHP_API_URL, endpoint);
 
+          // The hash will always be different across the two APIs, so we remove it from the response to compare the rest of the data
+          const nestjsResponseDataWithoutHash = {...nestjsResponse.data, ...{hash: undefined} };
+          const phpResponseDataWithoutHash = {...phpResponse.data, ...{hash: undefined} };
+
 
           expect(nestjsResponse.status).toEqual(phpResponse.status);
           logger.log('Comparison of status codes completed: success');
@@ -146,7 +150,7 @@ describe('API Response Comparison (e2e)', () => {
           logger.log('NestJS response has 2xx status code: success');
 
           logger.log('Comparing response bodies...');
-          expect(nestjsResponse.data).toEqual(phpResponse.data);
+          expect(nestjsResponseDataWithoutHash).toEqual(phpResponseDataWithoutHash);
           logger.log('Comparison of response bodies completed: success');
         }, 20000);
       }
