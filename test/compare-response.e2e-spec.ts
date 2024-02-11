@@ -7,9 +7,12 @@
  */
 
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, Logger } from '@nestjs/common';
 import { AppModule } from '../src/app.module';
 import axios, { AxiosResponse } from 'axios';
+
+
+const logger = new Logger('API Response Comparison (e2e)')
 
 class EndpointGroup {
   constructor(public name: string, public endpoints: Endpoint[]) {
@@ -38,6 +41,7 @@ class RequestBuilder {
         request = axios.get(url, {
           params: endpoint.queryParams,
           auth: auth,
+          timeout: 5000
         });
         break;
       // Add other HTTP methods as needed
@@ -46,10 +50,10 @@ class RequestBuilder {
     }
 
     try {
-      console.log(`Making a request to "${url}". Query parameters:`, endpoint.queryParams);
+      logger.log(`Making a request to "${url}". Query parameters:`, endpoint.queryParams);
       await request;
     } catch (e) {
-      console.error(`An error occurred while making a request to "${url}"`, e);
+      logger.error(`An error occurred while making a request to "${url}"`, e);
       throw e;
     }
 
@@ -102,15 +106,15 @@ describe('API Response Comparison (e2e)', () => {
 
 
           expect(nestjsResponse.status).toEqual(phpResponse.status);
-          console.log('Comparison of status codes completed: success');
+          logger.log('Comparison of status codes completed: success');
           // Expect a status code to be 200, 201 or 204
           expect([200, 201, 204]).toContain(nestjsResponse.status);
-          console.log('NestJS response has 2xx status code: success');
+          logger.log('NestJS response has 2xx status code: success');
 
-          console.log('Comparing response bodies...');
+          logger.log('Comparing response bodies...');
           expect(nestjsResponse.data).toEqual(phpResponse.data);
-          console.log('Comparison of response bodies completed: success');
-        });
+          logger.log('Comparison of response bodies completed: success');
+        }, 20000);
       }
     });
   }
