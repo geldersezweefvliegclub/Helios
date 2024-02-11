@@ -15,6 +15,7 @@ import { InjectRepository } from '@nestjs/typeorm';
  */
 export abstract class IHeliosService<Entity extends IHeliosObject> {
   private logger: Logger = new Logger('IHeliosService');
+
   protected constructor(protected readonly repository: Repository<Entity>, @InjectRepository(AuditEntity) protected readonly auditRepository: Repository<AuditEntity>) {
   }
 
@@ -46,11 +47,26 @@ export abstract class IHeliosService<Entity extends IHeliosObject> {
 
     // For LAATSTE_AANPASSING, search through the audit table for the latest change for this table
     const entityTable = this.repository.metadata.tableName;
-    const auditTrail = await this.auditRepository.findOne({ where: { TABEL: entityTable }, order: { LAATSTE_AANPASSING: 'DESC' } });
+    const auditTrail = await this.auditRepository.findOne({
+      where: { TABEL: entityTable },
+      order: { LAATSTE_AANPASSING: 'DESC' },
+    });
+
+    let laatsteAanpassing = auditTrail?.LAATSTE_AANPASSING;
+    // If we don't have an audit trail, we should fall back to the last change recorded on a record
+    if (!auditTrail) {
+      const sorted = [...dataset].sort((a, b) => {
+        if (a.LAATSTE_AANPASSING < b.LAATSTE_AANPASSING) return 1;
+        if (a.LAATSTE_AANPASSING > b.LAATSTE_AANPASSING) return -1;
+        return 0;
+      });
+      laatsteAanpassing = sorted[0]?.LAATSTE_AANPASSING;
+    }
+
 
     return {
       totaal: dataset.length,
-      laatste_aanpassing: auditTrail.LAATSTE_AANPASSING,
+      laatste_aanpassing: laatsteAanpassing,
       dataset: dataset,
       hash: hash,
     };
