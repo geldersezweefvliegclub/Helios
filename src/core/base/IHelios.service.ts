@@ -45,28 +45,24 @@ export abstract class IHeliosService<Entity extends IHeliosObject> {
     const dataset = this.applySelectionFilterToCalculatedColumns(datasetRaw, findOptions.select);
     const hash = createHash('md5').update(JSON.stringify(dataset)).digest('hex');
 
-    // For LAATSTE_AANPASSING, search through the audit table for the latest change for this table
-    const entityTable = this.repository.metadata.tableName;
-    const auditTrail = await this.auditRepository.findOne({
-      where: { TABEL: entityTable },
-      order: { LAATSTE_AANPASSING: 'DESC' },
-    });
+    // if the filter contains a limit, get the total count of the dataset without the limit, otherwise just get the total count of the dataset.
+    const isResultLimited = !!filter.findOptionsBuilder.findOptions.take;
+    const totaal = isResultLimited
+      ? await this.repository.count({ where: filter.findOptionsBuilder.findOptions.where })
+      : dataset.length;
 
-    let laatsteAanpassing = auditTrail?.LAATSTE_AANPASSING;
-    // If we don't have an audit trail, we should fall back to the last change recorded on a record
-    // todo when VELDEN excludes LAATSTE_AANPASSING this also fails -> returns undefined
-    if (!auditTrail) {
-      const sorted = [...dataset].sort((a, b) => {
-        if (a.LAATSTE_AANPASSING < b.LAATSTE_AANPASSING) return 1;
-        if (a.LAATSTE_AANPASSING > b.LAATSTE_AANPASSING) return -1;
-        return 0;
-      });
-      laatsteAanpassing = sorted[0]?.LAATSTE_AANPASSING;
-    }
 
+    // Get the latest LAATSTE_AANPASSING from the dataset, by querying for it again, but only for the IDs in the dataset.
+    // Except when the dataset is result-limited, then we get the latest LAATSTE_AANPASSING from the entire dataset.
+    const queryBuilder  = this.repository.createQueryBuilder(this.repository.metadata.tableName);
+    queryBuilder.select('MAX(LAATSTE_AANPASSING)', 'laatste_aanpassing')
+
+    if (isResultLimited) queryBuilder.whereInIds(dataset.map((obj) => obj.ID));
+
+    const laatsteAanpassing = (await queryBuilder.getRawOne())?.laatste_aanpassing;
 
     return {
-      totaal: dataset.length,
+      totaal: totaal,
       laatste_aanpassing: laatsteAanpassing,
       dataset: dataset,
       hash: hash,
