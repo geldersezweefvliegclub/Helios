@@ -54,6 +54,7 @@ export abstract class IHeliosService<Entity extends IHeliosObject> {
 
     let laatsteAanpassing = auditTrail?.LAATSTE_AANPASSING;
     // If we don't have an audit trail, we should fall back to the last change recorded on a record
+    // todo when VELDEN excludes LAATSTE_AANPASSING this also fails -> returns undefined
     if (!auditTrail) {
       const sorted = [...dataset].sort((a, b) => {
         if (a.LAATSTE_AANPASSING < b.LAATSTE_AANPASSING) return 1;

@@ -58,10 +58,6 @@ export class TypesGroepenGetObjectsFilterDTO extends GetObjectsFilterDTO<TypeGro
       this.findOptionsBuilder.and({ READ_ONLY: this.READ_ONLY });
     }
 
-    if (this.SORT) {
-      this.findOptionsBuilder.order(this.SORT, {SORTEER_VOLGORDE: 'ASC'});
-    }
-
     if (this.BEDRAG_EENHEDEN) {
       this.findOptionsBuilder.and({ BEDRAG_EENHEDEN: this.BEDRAG_EENHEDEN });
     }

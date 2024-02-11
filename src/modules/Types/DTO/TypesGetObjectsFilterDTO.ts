@@ -2,6 +2,7 @@ import { IsInt, IsNumber, IsOptional, IsString } from 'class-validator';
 import { GetObjectsFilterDTO } from '../../../core/base/GetObjectsFilterDTO';
 import { Transform } from 'class-transformer';
 import { TypeEntity } from '../entities/Type.entity';
+import { FindOptionsOrder } from 'typeorm';
 
 export class TypesGetObjectsFilterDTO extends GetObjectsFilterDTO<TypeEntity> {
   @IsInt()
@@ -40,6 +41,14 @@ export class TypesGetObjectsFilterDTO extends GetObjectsFilterDTO<TypeEntity> {
   @IsOptional()
   @Transform((params) => params.value == null ? null : parseInt(params.value))
   EENHEDEN?: number | null;
+
+  get defaultGetObjectsSortering(): FindOptionsOrder<TypeEntity> {
+    return {
+      GROEP: 'ASC',
+      SORTEER_VOLGORDE: 'ASC',
+      ID: 'ASC',
+    }
+  }
 
   bouwGetObjectsFindOptions(): void {
     super.bouwGetObjectsFindOptions();
