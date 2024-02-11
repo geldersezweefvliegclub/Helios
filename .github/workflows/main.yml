@@ -18,6 +18,8 @@ jobs:
         cache: 'npm'
     - run: npm ci
       name: npm install
+    - run: npm run lint
+      name: Lint
     - run: npm run build
       name: Build
     - run: npm test

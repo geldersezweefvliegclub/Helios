@@ -139,6 +139,7 @@ import { AuditEntity } from '../../../core/entities/Audit.entity';
 
 describe('${moduleName}Service', () => {
   let service: ${moduleName}Service;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let mockRepository: Repository<${moduleName}Entity>;
 
   beforeEach(async () => {
