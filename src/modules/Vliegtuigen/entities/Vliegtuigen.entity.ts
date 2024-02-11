@@ -1,6 +1,6 @@
 import { AfterLoad, Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { TypeEntity } from '../../Types/entities/Type.entity';
-import { Exclude } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 import { IHeliosDatabaseEntity } from '../../../core/base/IHeliosDatabaseEntity';
 
 @Entity('ref_vliegtuigen')
@@ -54,22 +54,26 @@ export class VliegtuigenEntity extends IHeliosDatabaseEntity{
   @Column({ type: 'text', nullable: true })
   OPMERKINGEN: string | null;
 
-  @ManyToOne(() => TypeEntity, {eager: true})
+  @ManyToOne(() => TypeEntity)
   @JoinColumn({ name: "TYPE_ID" })
   @Exclude()
-  Type: TypeEntity | null;
+  TYPE: TypeEntity | null;
 
-  REG_CALL: string;
+  @Expose()
+  get REG_CALL(): string {
+    return `${this.REGISTRATIE} (${this.CALLSIGN ?? ''})`;
+  }
+
   VLIEGTUIGTYPE: string;
-  // todo
+
+  // todo wanneer competenties af zijn
   BEVOEGDHEID_LOKAAL: string;
   BEVOEGDHEID_OVERLAND: string;
 
   @AfterLoad()
   createComputedFields() {
-    this.TYPE_ID = this.Type?.ID ?? null;
-    this.REG_CALL = `${this.REGISTRATIE} (${this.CALLSIGN ?? ''})`;
-    this.VLIEGTUIGTYPE = this.Type?.OMSCHRIJVING ?? null;
+    this.VLIEGTUIGTYPE = this.TYPE?.OMSCHRIJVING ?? null;
+
     // todo:
     // Assuming you have the BEVOEGDHEID_LOKAAL and BEVOEGDHEID_OVERLAND entities loaded
     // this.BEVOEGDHEID_LOKAAL = this.BEVOEGDHEID_LOKAAL.OMSCHRIJVING;

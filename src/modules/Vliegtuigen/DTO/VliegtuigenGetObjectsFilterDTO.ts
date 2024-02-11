@@ -82,7 +82,8 @@ export class VliegtuigenGetObjectsFilterDTO extends GetObjectsFilterDTO<Vliegtui
       this.findOptionsBuilder.or({ REGISTRATIE: findOperator, ...currentWhere });
       this.findOptionsBuilder.or({ CALLSIGN: findOperator, ...currentWhere });
       this.findOptionsBuilder.or({ FLARMCODE: findOperator, ...currentWhere });
-      console.log(this.findOptionsBuilder.findOptions.where)
     }
+
+    this.findOptionsBuilder.relations({TYPE: true});
   }
 }
