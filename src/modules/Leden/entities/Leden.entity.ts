@@ -160,10 +160,10 @@ export class LedenEntity extends IHeliosDatabaseEntity {
   @Column({ type: 'float', default: 0 })
   TEGOED: number;
 
-  @ManyToOne(() => TypeEntity, (lidtype) => lidtype.ID, { eager: true })
+  @ManyToOne(() => TypeEntity, (lidtype) => lidtype.ID)
   @JoinColumn({ name: 'LIDTYPE_ID' })
   @Transform(({ value }) => value?.OMSCHRIJVING ?? null, { toPlainOnly: true })
-  LIDTYPE: string | null;
+  LIDTYPE: TypeEntity | null;
 
   @ManyToOne(() => LedenEntity, leden => leden.ID)
   @JoinColumn({ name: 'ZUSTERCLUB_ID' })
@@ -180,10 +180,10 @@ export class LedenEntity extends IHeliosDatabaseEntity {
   @Transform(({ value }) => value?.NAAM ?? null, { toPlainOnly: true })
   BUDDY2: LedenEntity | null;
 
-  @ManyToOne(() => TypeEntity, (statustype) => statustype.ID, { eager: true })
+  @ManyToOne(() => TypeEntity, (statustype) => statustype.ID,)
   @JoinColumn({ name: 'STATUSTYPE_ID' })
   @Transform(({ value }) => value?.OMSCHRIJVING ?? null, { toPlainOnly: true })
-  STATUS: string | null;
+  STATUS: TypeEntity | null;
 
   // TODO: PAX field als competenties gebouwd zijn
 }

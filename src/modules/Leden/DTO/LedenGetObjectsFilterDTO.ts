@@ -99,6 +99,6 @@ export class LedenGetObjectsFilterDTO extends GetObjectsFilterDTO<LedenEntity> {
     }
 
     // Load zusterclub relation here instead of using eager: true. Eager: true create a maximum callstack error
-    this.findOptionsBuilder.relations({ ZUSTERCLUB: true, BUDDY: true, BUDDY2: true});
+    this.findOptionsBuilder.relations({ ZUSTERCLUB: true, BUDDY: true, BUDDY2: true, STATUS: true, LIDTYPE: true });
   }
 }
