@@ -39,7 +39,8 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
             logger: this.databaseLogger,
             synchronize: false, //todo find out what it is, do not set to TRUE in production mode - possible data loss
             autoLoadEntities: true,
-            logging: true
+            logging: true,
+            supportBigNumbers: false,
         };
     }
 }
