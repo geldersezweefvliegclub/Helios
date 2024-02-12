@@ -6,8 +6,7 @@ import { TransformInterceptor } from './core/interceptors/class-transform.interc
 import { HttpExceptionLogger } from './core/filters/http-exception-logger-filter/http-exception-logger.filter';
 import { WinstonModule } from 'nest-winston';
 import { SeqTransport } from '@datalust/winston-seq';
-
-const winston = require('winston');
+import * as winston from 'winston';
 
 function setupSwagger(app: INestApplication, swaggerUrl: string) {
   const swaggerConfig = new DocumentBuilder()
