@@ -7,6 +7,7 @@ import { TypesGroepenModule } from './modules/TypesGroepen/types-groepen.module'
 import { VliegtuigenModule } from './modules/Vliegtuigen/vliegtuigen.module';
 import { LedenModule } from './modules/Leden/Leden.module';
 import { RequestLoggingMiddleware } from './core/middleware/request-logging/request-logging.middleware';
+import { CompetentiesModule } from './modules/Competenties/Competenties.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { RequestLoggingMiddleware } from './core/middleware/request-logging/requ
     TypesGroepenModule,
     VliegtuigenModule,
     LedenModule,
+    CompetentiesModule
   ],
   controllers: [],
   providers: [TypeOrmConfigService],
