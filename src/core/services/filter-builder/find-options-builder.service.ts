@@ -47,22 +47,18 @@ export class FindOptionsBuilder<Entity extends IHeliosObject> {
   /**
    * Set the sorting (ordering) for the query
    * @param sorting Either a comma seperated string or an object
-   * @param baseOrdering Optional base ordering to put before other sorting options are put
    * @example
    * // Comma seperated string
    * builder.order('CLUBKIST DESC, VOLGORDE, REGISTRATIE'); // { CLUBKIST: 'DESC', VOLGORDE: 'ASC', REGISTRATIE: 'ASC' }
    *
    * // Object
    * builder.order({ CLUBKIST: 'DESC', VOLGORDE: 'ASC', REGISTRATIE: 'ASC' }); // { CLUBKIST: 'DESC', VOLGORDE: 'ASC', REGISTRATIE: 'ASC' }
-   *
-   * // Base ordering
-   * builder.order('CLUBKIST DESC, VOLGORDE, REGISTRATIE', { ID: 'ASC' }); // { ID: 'ASC', CLUBKIST: 'DESC', VOLGORDE: 'ASC', REGISTRATIE: 'ASC'}
    */
-  public order(sorting: string | FindOptionsOrder<Entity>, baseOrdering: FindOptionsOrder<Entity> = {}) {
+  public order(sorting: string | FindOptionsOrder<Entity>) {
     if (typeof sorting === 'string') {
-      this._findOptions.order = { ...baseOrdering, ...this.buildOrdering(sorting) };
+      this._findOptions.order = this.buildOrdering(sorting);
     } else {
-      this._findOptions.order = { ...baseOrdering, ...sorting };
+      this._findOptions.order = sorting;
     }
     return this;
   }

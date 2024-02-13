@@ -32,7 +32,7 @@ export abstract class GetObjectsFilterDTO<Entity extends IHeliosObject> extends 
     super.bouwGetObjectsFindOptions()
 
     if (this.SORT) {
-      this.findOptionsBuilder.order(this.SORT, this.defaultGetObjectsSortering);
+      this.findOptionsBuilder.order(this.SORT);
     }
 
     if (this.MAX) {
