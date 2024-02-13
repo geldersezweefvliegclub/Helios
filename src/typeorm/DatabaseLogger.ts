@@ -5,15 +5,26 @@ export class DatabaseLogger implements TypeOrmLogger {
   private readonly logger = new Logger('DatabaseLogger');
 
   logQuery(query: string, parameters?: unknown[]) {
-    this.logger.debug(`${query} -- Parameters: ${this.stringifyParameters(parameters)}`);
+    this.logger.debug(`${query} -- Parameters: ${this.stringifyParameters(parameters)}`, {
+      query: query,
+      parameters: this.stringifyParameters(parameters)
+    });
   }
 
   logQueryError(error: string, query: string, parameters?: unknown[]) {
-    this.logger.error(`${query} -- Parameters: ${this.stringifyParameters(parameters)} -- ${error}`);
+    this.logger.error(`An error occurred during query execution: ${error}`, {
+      error: error,
+      query: query,
+      parameters: this.stringifyParameters(parameters)
+    });
   }
 
   logQuerySlow(time: number, query: string, parameters?: unknown[]) {
-    this.logger.warn(`Time: ${time} -- Parameters: ${this.stringifyParameters(parameters)} -- ${query}`);
+    this.logger.warn(`Time: ${time} -- Parameters: ${this.stringifyParameters(parameters)} -- ${query}`, {
+      time: time,
+      query: query,
+      parameters: this.stringifyParameters(parameters)
+    });
   }
 
   logMigration(message: string) {
