@@ -21,40 +21,46 @@ function setupSwagger(app: INestApplication, swaggerUrl: string) {
 }
 
 
+function createLogger() {
+  return WinstonModule.createLogger({
+    // todo take from config?
+    level: 'debug',
+    format: winston.format.combine(   /* This is required to get errors to log with stack traces. See https://github.com/winstonjs/winston/issues/1498 */
+      winston.format.errors({ stack: true }),
+      winston.format.json(),
+    ),
+    defaultMeta: {
+      Application: 'Helios API',
+      Environment: process.env.NODE_ENV || 'Local',
+    },
+    transports: [
+      // log everything to the console
+      new winston.transports.Console({
+        format: winston.format.combine(
+          winston.format.colorize({
+            all: true,
+          }),
+          winston.format.simple(),
+        ),
+      }),
+      new SeqTransport({
+        serverUrl: 'http://localhost:5341',
+        apiKey: undefined,
+        onError: (e => {
+          console.error(e);
+        }),
+        handleExceptions: true,
+        handleRejections: true,
+      }),
+    ],
+  });
+}
+
 async function bootstrap() {
   const port = 3333;
 
   const app = await NestFactory.create(AppModule, {
-    logger: WinstonModule.createLogger({
-      // todo take from config?
-      level: 'debug',
-      format: winston.format.combine(   /* This is required to get errors to log with stack traces. See https://github.com/winstonjs/winston/issues/1498 */
-        winston.format.errors({ stack: true }),
-        winston.format.json(),
-      ),
-      defaultMeta: {
-        application: 'Helios API',
-        environment: process.env.NODE_ENV || 'development',
-      },
-      transports: [
-        // log everything to the console
-        new winston.transports.Console({
-          format: winston.format.combine(
-            winston.format.colorize({
-              all:true
-            }),
-            winston.format.simple()
-          )
-        }),
-        new SeqTransport({
-          serverUrl: "http://localhost:5341",
-          apiKey: undefined,
-          onError: (e => { console.error(e) }),
-          handleExceptions: true,
-          handleRejections: true,
-        })
-      ],
-    }),
+    logger: createLogger(),
     cors: {
       // todo: make this work in production with a configurable origin
       origin: 'http://localhost:4200',
