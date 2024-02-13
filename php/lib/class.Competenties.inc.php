@@ -416,7 +416,7 @@ class Competenties extends Helios
 			SELECT 
 				%s
 			FROM
-				`####competenties_view` " . $where; // . $orderby;
+				`####competenties_view` " . $where . $orderby;
 		$query = str_replace("####", ($alleenVerwijderd ? "verwijderd_" : "") , $query);		
 		
 		$retVal = array();

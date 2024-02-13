@@ -476,7 +476,7 @@ class Types extends Helios
 			SELECT 
 				%s
 			FROM
-				`####types_view` " . $where; // . $orderby;
+				`####types_view` " . $where . $orderby;
 		$query = str_replace("####", ($alleenVerwijderd ? "verwijderd_" : "") , $query);		
 		
 		$retVal = array();
