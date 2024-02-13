@@ -1,5 +1,7 @@
-import { Column, Entity, Index } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { IHeliosDatabaseEntity } from '../../../core/base/IHeliosDatabaseEntity';
+import { Exclude } from 'class-transformer';
+import { TypeGroepEntity } from '../../TypesGroepen/entities/TypeGroep.entity';
 
 @Entity('ref_types')
 @Index('GROEP', ['GROEP'])
@@ -28,4 +30,9 @@ export class TypeEntity extends IHeliosDatabaseEntity{
 
     @Column({ type: 'decimal', precision: 6, scale: 2, nullable: true })
     EENHEDEN: number | null;
+
+    @ManyToOne(() => TypeGroepEntity)
+    @JoinColumn({ name: 'GROEP' })
+    @Exclude()
+    TYPEGROEP: TypeEntity;
 }

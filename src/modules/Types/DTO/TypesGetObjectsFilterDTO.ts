@@ -84,5 +84,7 @@ export class TypesGetObjectsFilterDTO extends GetObjectsFilterDTO<TypeEntity> {
     if (this.EENHEDEN) {
       this.findOptionsBuilder.and({ EENHEDEN: this.EENHEDEN });
     }
+
+    this.findOptionsBuilder.relations({ TYPEGROEP: true });
   }
 }
