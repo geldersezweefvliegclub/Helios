@@ -7,7 +7,7 @@ Todo: write readme about Helios
 - [x] Convert GETs ref_types
 - [x] Convert GETs ref_types_groepen
 - [ ] Convert GETs ref_leden
-  - Partially done, need to add the rest of the foreign keys to entities that don't exist yet
+  - Done but response from NestJS is different and I don't understand how PHP does everything. Especially around `SECRET` and `PASSWORD`
 - [x] Convert GETs ref_vliegtuigen
 - [x] Convert GETs ref_competenties
 - [ ] Convert GETs oper_progressie
