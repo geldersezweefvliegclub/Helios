@@ -1,7 +1,8 @@
 import { AfterLoad, Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { TypeEntity } from '../../Types/entities/Type.entity';
-import { Exclude, Expose } from 'class-transformer';
+import { Exclude, Expose, Transform } from 'class-transformer';
 import { IHeliosDatabaseEntity } from '../../../core/base/IHeliosDatabaseEntity';
+import { CompetentiesEntity } from '../../Competenties/entities/Competenties.entity';
 
 @Entity('ref_vliegtuigen')
 @Index('VERWIJDERD', ['VERWIJDERD'])
@@ -56,27 +57,22 @@ export class VliegtuigenEntity extends IHeliosDatabaseEntity{
 
   @ManyToOne(() => TypeEntity)
   @JoinColumn({ name: "TYPE_ID" })
-  @Exclude()
-  TYPE: TypeEntity | null;
+  @Transform(({ value }) => value?.OMSCHRIJVING ?? null)
+  VLIEGTUIGTYPE: TypeEntity | null;
+
+  @ManyToOne(() => CompetentiesEntity)
+  @JoinColumn({ name: "BEVOEGDHEID_LOKAAL_ID" })
+  @Transform(({ value }) => value?.ONDERWERP ?? null)
+  BEVOEGDHEID_LOKAAL: CompetentiesEntity | null;
+
+  @ManyToOne(() => CompetentiesEntity)
+  @JoinColumn({ name: "BEVOEGDHEID_OVERLAND_ID" })
+  @Transform(({ value }) => value?.ONDERWERP ?? null)
+  BEVOEGDHEID_OVERLAND: CompetentiesEntity | null;
 
   @Expose()
   get REG_CALL(): string {
     return `${this.REGISTRATIE} (${this.CALLSIGN ?? ''})`;
   }
 
-  VLIEGTUIGTYPE: string;
-
-  // todo wanneer competenties af zijn
-  BEVOEGDHEID_LOKAAL: string;
-  BEVOEGDHEID_OVERLAND: string;
-
-  @AfterLoad()
-  createComputedFields() {
-    this.VLIEGTUIGTYPE = this.TYPE?.OMSCHRIJVING ?? null;
-
-    // todo:
-    // Assuming you have the BEVOEGDHEID_LOKAAL and BEVOEGDHEID_OVERLAND entities loaded
-    // this.BEVOEGDHEID_LOKAAL = this.BEVOEGDHEID_LOKAAL.OMSCHRIJVING;
-    // this.BEVOEGDHEID_OVERLAND = this.BEVOEGDHEID_OVERLAND.OMSCHRIJVING;
-  }
 }
