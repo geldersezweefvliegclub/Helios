@@ -34,7 +34,7 @@ export class TypesGroepenController {
         return this.typesGroepenService.getObjects(filter);
     }
 
-    @Put('SaveObject')
+   /* @Put('SaveObject')
     @ApiOperation({ summary: 'Update existing type record' })
     @ApiResponse({ status: 200, description: 'Return the updated object.' })
     async updateObject(@Body() body: Partial<TypeGroepEntity>) {
@@ -63,5 +63,5 @@ export class TypesGroepenController {
     @HttpCode(204)
     async deleteObject(@Query() query: ObjectID<TypesGroepenGetObjectsFilterDTO>) {
         await this.typesGroepenService.deleteObject(query.ID);
-    }
+    }*/
 }

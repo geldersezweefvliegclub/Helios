@@ -1,9 +1,7 @@
-import { Body, Controller, Delete, Get, HttpCode, Patch, Post, Put, Query } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { VliegtuigenEntity } from '../entities/Vliegtuigen.entity';
 import { VliegtuigenService } from '../service/vliegtuigen.service';
 import { VliegtuigenGetObjectsFilterDTO } from '../DTO/VliegtuigenGetObjectsFilterDTO';
-import { ObjectID } from '../../../core/base/ObjectID';
 
 @ApiTags('Vliegtuigen')
 @Controller('Vliegtuigen')
@@ -41,7 +39,7 @@ export class VliegtuigenController {
         return this.vliegtuigenService.getObjects(filter);
     }
 
-    @Put('SaveObject')
+   /* @Put('SaveObject')
     @ApiOperation({ summary: 'Update existing vliegtuig record' })
     @ApiResponse({ status: 200, description: 'Return the updated object.' })
     async updateObject(@Body() body: Partial<VliegtuigenEntity>) {
@@ -70,5 +68,5 @@ export class VliegtuigenController {
     @HttpCode(204)
     async deleteObject(@Query() query: ObjectID<VliegtuigenGetObjectsFilterDTO>) {
         return this.vliegtuigenService.deleteObject(query.ID);
-    }
+    }*/
 }

@@ -60,8 +60,10 @@ export class ${moduleName}Module {
 
     [`controller/${moduleName}.controller.ts`]: `
 import { Controller } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('${moduleName}')
+@ApiTags('${moduleName}')
 export class ${moduleName}Controller {
   constructor() {
   }

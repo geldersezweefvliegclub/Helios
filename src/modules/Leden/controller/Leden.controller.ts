@@ -1,11 +1,10 @@
-import { Body, Controller, Delete, Get, HttpCode, Patch, Post, Put, Query } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { LedenService } from '../service/Leden.service';
-import { ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
+import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { LedenGetObjectsFilterDTO } from '../DTO/LedenGetObjectsFilterDTO';
-import { ObjectID } from '../../../core/base/ObjectID';
-import { LedenEntity } from '../entities/Leden.entity';
 
 @Controller('Leden')
+@ApiTags('Leden')
 export class LedenController {
   constructor(private readonly ledenService: LedenService) {
   }
@@ -21,11 +20,27 @@ export class LedenController {
   @Get('GetObjects')
   @ApiOperation({ summary: 'Get all objects' })
   @ApiResponse({ status: 200, description: 'Return all the objects.' })
+  @ApiQuery({ name: 'ID', required: false, type: Number, description: 'Database ID van het aanwezig record' })
+  @ApiQuery({ name: 'VERWIJDERD', required: false, type: Boolean, description: 'Toon welke records verwijderd zijn. Default = false' })
+  @ApiQuery({ name: 'LAATSTE_AANPASSING', required: false, type: Boolean, description: 'Laatste aanpassing op basis van records in dataset. Bedoeld om data verbruik te verminderen. Dataset is daarom leeg' })
+  @ApiQuery({ name: 'SORT', required: false, type: String, description: 'Sortering van de velden in ORDER BY formaat. Default = NAAM' })
+  @ApiQuery({ name: 'MAX', required: false, type: Number, description: 'Maximum aantal records in de dataset. Gebruikt in LIMIT query' })
+  @ApiQuery({ name: 'START', required: false, type: Number, description: 'Eerste record in de dataset. Gebruikt in LIMIT query' })
+  @ApiQuery({ name: 'VELDEN', required: false, type: String, description: 'Welke velden moet opgenomen worden in de dataset' })
+  @ApiQuery({ name: 'SELECTIE', required: false, type: String, description: 'Zoek in de NAAM, TELEFOON, MOBIEL, NOODNUMMER, EMAIL' })
+  @ApiQuery({ name: 'IN', required: false, type: String, description: 'Meerdere lid database IDs in CSV formaat' })
+  @ApiQuery({ name: 'TYPES', required: false, type: String, description: 'Zoek op een of meerder lid types. Types als CSV formaat' })
+  @ApiQuery({ name: 'CLUBLEDEN', required: false, type: Boolean, description: 'Wanneer true, toon alleen de leden' })
+  @ApiQuery({ name: 'INSTRUCTEURS', required: false, type: Boolean, description: 'Wanneer true, toon alleen de instructeurs' })
+  @ApiQuery({ name: 'DDWV_CREW', required: false, type: Boolean, description: 'Wanneer true, toon alleen de DDWV crew' })
+  @ApiQuery({ name: 'LIERISTEN', required: false, type: Boolean, description: 'Wanneer true, toon alleen de lieristen' })
+  @ApiQuery({ name: 'LIO', required: false, type: Boolean, description: 'Wanneer true, toon alleen de lieristen in opleiding' })
+  @ApiQuery({ name: 'STARTLEIDERS', required: false, type: Boolean, description: 'Wanneer true, toon alleen de startleiders' })
   async getObjects(@Query() filter: LedenGetObjectsFilterDTO) {
     return this.ledenService.getObjects(filter);
   }
 
-  @Put('SaveObject')
+ /* @Put('SaveObject')
   @ApiOperation({ summary: 'Update existing type record' })
   @ApiResponse({ status: 200, description: 'Return the updated object.' })
   async updateObject(@Body() body: Partial<LedenEntity>) {
@@ -54,5 +69,5 @@ export class LedenController {
   @HttpCode(204)
   async deleteObject(@Query() query: ObjectID<LedenGetObjectsFilterDTO>) {
     await this.ledenService.deleteObject(query.ID);
-  }
+  }*/
 }

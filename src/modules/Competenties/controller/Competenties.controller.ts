@@ -1,10 +1,11 @@
 
 import { Controller, Get, Query } from '@nestjs/common';
-import { ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
+import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CompetentiesService } from '../service/Competenties.service';
 import { CompetentiesGetObjectsFilterDTO } from '../DTO/CompetentiesGetObjectsFilterDTO';
 
 @Controller('Competenties')
+@ApiTags('Competenties')
 export class CompetentiesController {
   constructor(private readonly competentiesService: CompetentiesService) {}
 
