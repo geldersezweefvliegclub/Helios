@@ -185,5 +185,5 @@ export class LedenEntity extends IHeliosDatabaseEntity {
   @Transform(({ value }) => value?.OMSCHRIJVING ?? null, { toPlainOnly: true })
   STATUS: TypeEntity | null;
 
-  // TODO: PAX field als competenties gebouwd zijn
+  // TODO: PAX field als competenties en progressie gebouwd zijn
 }
