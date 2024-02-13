@@ -44,7 +44,16 @@ export abstract class GetObjectsFilterDTO<Entity extends IHeliosObject> extends 
     }
 
     if (this.VELDEN) {
-      this.findOptionsBuilder.select(this.VELDEN);
+      // WORKAROUND: TypeORM throws invalid SQL error when using `select`, `order` and `take` together, in particular when ordering on a field not included in the select.
+      // Therefore we always add the fields we also apply default sorting on to the `select` clause.
+      // GH Issue: https://github.com/typeorm/typeorm/issues/9719
+      // GH Minimal reproduce repo: https://github.com/Staijn1/typeorm-relation-ordering
+      const defaultSortering = this.defaultGetObjectsSortering;
+      const select: Record<string, boolean> = {};
+      for (const field in defaultSortering) {
+        select[field] = true;
+      }
+      this.findOptionsBuilder.select(this.VELDEN, select as any);
     }
   }
 

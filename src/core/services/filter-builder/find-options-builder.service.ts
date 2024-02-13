@@ -67,10 +67,11 @@ export class FindOptionsBuilder<Entity extends IHeliosObject> {
   /**
    * Only select particular fields from the database
    * @param fields Either a comma seperated string, or a FindOptionsSelect type
+   * @param additionalFields Additional fields to select regardless of the fields parameter
    */
-  select(fields: string | FindOptionsSelect<Entity>) {
+  select(fields: string | FindOptionsSelect<Entity>, additionalFields: FindOptionsSelect<Entity> = {}) {
     if (typeof fields === 'object') {
-      this._findOptions.select = fields;
+      this._findOptions.select = { ...fields, ...additionalFields };
       return this;
     }
 
@@ -79,7 +80,7 @@ export class FindOptionsBuilder<Entity extends IHeliosObject> {
     fieldNames.forEach((fieldName) => {
       select[fieldName.trim()] = true;
     });
-    this._findOptions.select = select as FindOptionsSelect<Entity>;
+    this._findOptions.select = { ...(select as FindOptionsSelect<Entity>), ...additionalFields };
   }
 
   /**
