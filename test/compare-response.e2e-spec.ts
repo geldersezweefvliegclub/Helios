@@ -69,6 +69,16 @@ describe('API Response Comparison (e2e)', () => {
   const PHP_API_URL = 'http://localhost:8081';
 
   const endpoints = [
+    new EndpointGroup('Progressie', [
+      new Endpoint('ID', 'GET', '/Progressie/GetObjects', { ID: 10 }),
+      new Endpoint('Max', 'GET', '/Progressie/GetObjects', { MAX: 2 }),
+      new Endpoint('Sort ID ASC', 'GET', '/Progressie/GetObjects', { SORT: 'ID' }),
+      new Endpoint('Sort ID DESC', 'GET', '/Progressie/GetObjects', { SORT: 'ID DESC' }),
+      new Endpoint('GetObjects', 'GET', '/Progressie/GetObjects'),
+      new Endpoint('Velden', 'GET', '/Progressie/GetObjects', { MAX: 2, VELDEN: 'ID, LID_NAAM' }),
+      new Endpoint('ProgressieKaart', 'GET', '/ProgressieKaart', { LID_ID: 10395 }),
+      new Endpoint('ProgressieBoom', 'GET', '/ProgressieBoom', { LID_ID: 10395 }),
+    ]),
     new EndpointGroup('Competenties', [
       new Endpoint('ID', 'GET', '/Competenties/GetObjects', { ID: 34 }),
       new Endpoint('Max', 'GET', '/Competenties/GetObjects', { MAX: 2 }),

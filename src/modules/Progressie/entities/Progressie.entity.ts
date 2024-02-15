@@ -3,7 +3,7 @@ import { Column, Entity, ManyToOne } from 'typeorm';
 import { LedenEntity } from '../../Leden/entities/Leden.entity';
 import { CompetentiesEntity } from '../../Competenties/entities/Competenties.entity';
 
-@Entity('ref_progressie')
+@Entity('oper_progressie')
 export class ProgressieEntity extends IHeliosDatabaseEntity {
   @Column()
   LID_ID: number;
