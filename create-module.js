@@ -100,7 +100,7 @@ export class ${moduleName}GetObjectsFilterDTO extends GetObjectsFilterDTO<${modu
 import { IHeliosDatabaseEntity } from '../../../core/base/IHeliosDatabaseEntity';
 import { Entity } from 'typeorm';
 
-@Entity('${moduleName}')
+@Entity('TODO!')
 export class ${moduleName}Entity extends IHeliosDatabaseEntity{
   // Add your properties here
 }`,
