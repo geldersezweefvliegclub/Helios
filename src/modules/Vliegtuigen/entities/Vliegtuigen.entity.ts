@@ -1,6 +1,6 @@
-import { AfterLoad, Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { TypeEntity } from '../../Types/entities/Type.entity';
-import { Exclude, Expose, Transform } from 'class-transformer';
+import { Expose, Transform } from 'class-transformer';
 import { IHeliosDatabaseEntity } from '../../../core/base/IHeliosDatabaseEntity';
 import { CompetentiesEntity } from '../../Competenties/entities/Competenties.entity';
 
