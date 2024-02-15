@@ -8,6 +8,7 @@ import { VliegtuigenModule } from './modules/Vliegtuigen/vliegtuigen.module';
 import { LedenModule } from './modules/Leden/Leden.module';
 import { RequestLoggingMiddleware } from './core/middleware/request-logging/request-logging.middleware';
 import { CompetentiesModule } from './modules/Competenties/Competenties.module';
+import { ProgressieModule } from './modules/Progressie/Progressie.module';
 
 @Module({
   imports: [
@@ -17,7 +18,8 @@ import { CompetentiesModule } from './modules/Competenties/Competenties.module';
     TypesGroepenModule,
     VliegtuigenModule,
     LedenModule,
-    CompetentiesModule
+    CompetentiesModule,
+    ProgressieModule
   ],
   controllers: [],
   providers: [TypeOrmConfigService],
