@@ -1,7 +1,8 @@
 import { IHeliosDatabaseEntity } from '../../../core/base/IHeliosDatabaseEntity';
-import { Column, Entity, ManyToOne } from 'typeorm';
+import {AfterLoad, Column, Entity, JoinColumn, ManyToOne} from 'typeorm';
 import { LedenEntity } from '../../Leden/entities/Leden.entity';
 import { CompetentiesEntity } from '../../Competenties/entities/Competenties.entity';
+import {Exclude} from "class-transformer";
 
 @Entity('oper_progressie')
 export class ProgressieEntity extends IHeliosDatabaseEntity {
@@ -26,13 +27,34 @@ export class ProgressieEntity extends IHeliosDatabaseEntity {
   @Column({ type: 'smallint', nullable: true })
   SCORE: number;
 
-  // many to one to LedenEntity based on LID_ID
-  @ManyToOne('LedenEntity', 'LID_ID')
-  Lid: LedenEntity | null;
+  @Column({ type: 'date', nullable: true })
+  INGEVOERD: Date;
 
-  @ManyToOne('CompetentiesEntity', 'COMPETENTIE_ID')
-  Competentie: CompetentiesEntity | null;
+  @ManyToOne(() => LedenEntity)
+  @JoinColumn({ name: 'LID_ID' })
+  @Exclude()
+  LidEntity: LedenEntity | null;
 
-  @ManyToOne('LedenEntity', 'INSTRUCTEUR_ID')
-  Instructeur: LedenEntity | null;
+  @ManyToOne(() => CompetentiesEntity)
+  @JoinColumn({ name: 'COMPETENTIE_ID' })
+  @Exclude()
+  CompetentieEntity: CompetentiesEntity | null;
+
+  @ManyToOne(() => LedenEntity)
+  @JoinColumn({ name: 'INSTRUCTEUR_ID' })
+  @Exclude()
+  InstructeurEntity: LedenEntity | null;
+
+  LEERFASE: string | null;
+  LID_NAAM : string | null;
+  INSTRUCTEUR_NAAM : string | null;
+  COMPETENTIE: string | null;
+
+  @AfterLoad()
+  setComputed() {
+    this.LEERFASE = this.CompetentieEntity?.LEERFASE ?? null;
+    this.LID_NAAM = this.LidEntity?.NAAM ?? null;
+    this.INSTRUCTEUR_NAAM = this.InstructeurEntity?.NAAM ?? null;
+    this.COMPETENTIE = this.CompetentieEntity?.ONDERWERP ?? null;
+  }
 }

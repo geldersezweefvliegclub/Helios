@@ -31,20 +31,20 @@ export class CompetentiesEntity extends IHeliosDatabaseEntity{
   @Column({ type: 'boolean', unsigned: true, default: 0 })
   SCORE: boolean;
 
-  @ManyToOne(() => TypeEntity)
+  @ManyToOne(() => TypeEntity, {eager: true})
   @JoinColumn({ name: 'LEERFASE_ID' })
   @Exclude()
-  leerfase: TypeEntity;
+  LeerfaseEntity: TypeEntity;
 
   @ManyToOne(() => CompetentiesEntity)
   @JoinColumn({ name: 'BLOK_ID' })
   @Exclude()
-  blok: CompetentiesEntity;
+  BlokEntity: CompetentiesEntity;
 
   LEERFASE: string | null;
 
   @AfterLoad()
   setComputed() {
-    this.LEERFASE = this.leerfase?.OMSCHRIJVING ?? null;
+    this.LEERFASE = this.LeerfaseEntity?.OMSCHRIJVING ?? null;
   }
 }

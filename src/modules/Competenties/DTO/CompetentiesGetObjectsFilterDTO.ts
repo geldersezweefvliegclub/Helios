@@ -20,6 +20,6 @@ export class CompetentiesGetObjectsFilterDTO extends GetObjectsFilterDTO<Compete
       this.findOptionsBuilder.and({ LEERFASE_ID: In(this.LEERFASE_ID.split(',')) });
     }
 
-    this.findOptionsBuilder.relations({ leerfase: true });
+    this.findOptionsBuilder.relations({ LeerfaseEntity: true });
   }
 }
