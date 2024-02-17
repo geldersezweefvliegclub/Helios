@@ -7,7 +7,7 @@ services:
       - "5341:5341"
       - "80:80"
     volumes:
-      - /seq-data:/data
+      - /data/seq-data:/data
     environment:
       ACCEPT_EULA: Y
     restart: unless-stopped
