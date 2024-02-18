@@ -5,7 +5,6 @@ import {ProgressieEntity} from '../entities/Progressie.entity';
 import {Repository} from 'typeorm';
 import {AuditEntity} from '../../../core/entities/Audit.entity';
 import {ProgressieViewEntity} from "../entities/ProgressieView.entity";
-import {CompetentiesViewEntity} from "../../Competenties/entities/CompetentiesView.entity";
 import {CompetentiesEntity} from "../../Competenties/entities/Competenties.entity";
 
 describe('ProgressieService', () => {
