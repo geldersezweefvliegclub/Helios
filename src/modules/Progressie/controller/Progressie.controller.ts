@@ -1,11 +1,9 @@
-import {Controller, Get, NotImplementedException, Query} from '@nestjs/common';
-import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { ProgressieService } from '../service/Progressie.service';
-import { ProgressieGetObjectsFilterDTO } from '../DTO/ProgressieGetObjectsFilterDTO';
+import {Controller, Get, Query} from '@nestjs/common';
+import {ApiOperation, ApiQuery, ApiResponse, ApiTags} from '@nestjs/swagger';
+import {ProgressieService} from '../service/Progressie.service';
+import {ProgressieGetObjectsFilterDTO} from '../DTO/ProgressieGetObjectsFilterDTO';
 import {ProgressieKaartFilterDTO} from "../DTO/ProgressieKaartFilterDTO";
 import {GetObjectsResponse} from "../../../core/base/GetObjectsResponse";
-import {CompetentiesEntity} from "../../Competenties/entities/Competenties.entity";
-import {ProgressieEntity} from "../entities/Progressie.entity";
 import {ProgressiekaartDTO} from "../DTO/ProgressiekaartDTO";
 
 @Controller('Progressie')
