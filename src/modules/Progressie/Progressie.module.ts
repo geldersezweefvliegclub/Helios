@@ -5,10 +5,11 @@ import { ProgressieService } from './service/Progressie.service';
 import { ProgressieEntity } from './entities/Progressie.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuditEntity } from '../../core/entities/Audit.entity';
+import {CompetentiesEntity} from "../Competenties/entities/Competenties.entity";
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([ProgressieEntity, AuditEntity])
+        TypeOrmModule.forFeature([ProgressieEntity, AuditEntity, CompetentiesEntity]),
     ],
     controllers: [ProgressieController],
     providers: [ProgressieService],

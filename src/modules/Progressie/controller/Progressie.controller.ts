@@ -3,6 +3,10 @@ import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ProgressieService } from '../service/Progressie.service';
 import { ProgressieGetObjectsFilterDTO } from '../DTO/ProgressieGetObjectsFilterDTO';
 import {ProgressieKaartFilterDTO} from "../DTO/ProgressieKaartFilterDTO";
+import {GetObjectsResponse} from "../../../core/base/GetObjectsResponse";
+import {CompetentiesEntity} from "../../Competenties/entities/Competenties.entity";
+import {ProgressieEntity} from "../entities/Progressie.entity";
+import {ProgressiekaartDTO} from "../DTO/ProgressiekaartDTO";
 
 @Controller('Progressie')
 @ApiTags('Progressie')
@@ -42,8 +46,7 @@ export class ProgressieController {
   @ApiQuery({name: 'LAATSTE_AANPASSING', required: false, type: Boolean, description: 'Laatste aanpassing op basis van records in dataset. Bedoeld om data verbruik te verminderen. Dataset is daarom leeg'})
   @ApiQuery({name: 'VELDEN', required: false, type: String, description: 'Welke velden moet opgenomen worden in de dataset'})
   @ApiQuery({name: 'LID_ID', required: false, type: String, description: 'Progressiekaart van een bepaald lid'})
-  async getProgressiekaart(@Query() query: ProgressieKaartFilterDTO) {
-    // todo
-    return new NotImplementedException();
+  async getProgressiekaart(@Query() query: ProgressieKaartFilterDTO): Promise<GetObjectsResponse<ProgressiekaartDTO>> {
+    return this.progressieService.getProgressiekaart(query) as Promise<GetObjectsResponse<ProgressiekaartDTO>>;
   }
 }
