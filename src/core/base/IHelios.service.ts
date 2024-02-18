@@ -1,5 +1,5 @@
 import { GetObjectsResponse } from './GetObjectsResponse';
-import { DeepPartial, FindOptionsSelectByString, Repository } from 'typeorm';
+import {DeepPartial, FindManyOptions, FindOptionsSelectByString, Repository} from 'typeorm';
 import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
 import { createHash } from 'crypto';
 import { IHeliosObject } from './IHeliosObject';
@@ -43,30 +43,8 @@ export abstract class IHeliosService<Entity extends IHeliosObject> {
     const findOptions = filter.findOptionsBuilder.findOptions;
     const datasetRaw = await this.repository.find(findOptions);
     const dataset = this.applySelectionFilterToCalculatedColumns(datasetRaw, findOptions.select);
-    const hash = createHash('md5').update(JSON.stringify(dataset)).digest('hex');
 
-    // if the filter contains a limit, get the total count of the dataset without the limit, otherwise just get the total count of the dataset.
-    const isResultLimited = !!filter.findOptionsBuilder.findOptions.take;
-    const totaal = isResultLimited
-      ? await this.repository.count({ where: filter.findOptionsBuilder.findOptions.where })
-      : dataset.length;
-
-
-    // Get the latest LAATSTE_AANPASSING from the dataset, by querying for it again, but only for the IDs in the dataset.
-    // Except when the dataset is result-limited, then we get the latest LAATSTE_AANPASSING from the entire dataset.
-    const queryBuilder  = this.repository.createQueryBuilder(this.repository.metadata.tableName);
-    queryBuilder.select('MAX(LAATSTE_AANPASSING)', 'laatste_aanpassing')
-
-    if (!isResultLimited) queryBuilder.whereInIds(dataset.map((obj) => obj.ID));
-
-    const laatsteAanpassing = (await queryBuilder.getRawOne())?.laatste_aanpassing;
-
-    return {
-      totaal: totaal,
-      laatste_aanpassing: laatsteAanpassing,
-      dataset: dataset,
-      hash: hash,
-    };
+    return this.bouwDatasetResponse(dataset, findOptions);
   }
 
   /**
@@ -148,7 +126,7 @@ export abstract class IHeliosService<Entity extends IHeliosObject> {
    * @param selection
    * @private
    */
-  private applySelectionFilterToCalculatedColumns(dataset: Entity[], selection: FindOptionsSelect<Entity> | FindOptionsSelectByString<Entity>) {
+  protected applySelectionFilterToCalculatedColumns(dataset: Entity[], selection: FindOptionsSelect<Entity> | FindOptionsSelectByString<Entity>) {
     if (!selection) return dataset;
     if (Array.isArray(selection)) {
       this.logger.warn('applySelectionFilterToCalculatedColumns is not implemented for FindOptionsSelectByString filter. Returning the dataset unfiltered.');
@@ -169,5 +147,31 @@ export abstract class IHeliosService<Entity extends IHeliosObject> {
       // Return the filtered object
       return filteredObj as Entity;
     });
+  }
+
+  protected async bouwDatasetResponse(dataset: Entity[], findOptions: FindManyOptions<Entity>): Promise<GetObjectsResponse<Entity>>{
+      const hash = createHash('md5').update(JSON.stringify(dataset)).digest('hex');
+
+      // if the filter contains a limit, get the total count of the dataset without the limit, otherwise just get the total count of the dataset.
+      const isResultLimited = !!findOptions.take;
+      const totaal = isResultLimited
+          ? await this.repository.count({ where: findOptions.where })
+          : dataset.length;
+
+      // Get the latest LAATSTE_AANPASSING from the dataset, by querying for it again, but only for the IDs in the dataset.
+      // Except when the dataset is result-limited, then we get the latest LAATSTE_AANPASSING from the entire dataset.
+      const queryBuilder  = this.repository.createQueryBuilder(this.repository.metadata.tableName);
+      queryBuilder.select('MAX(LAATSTE_AANPASSING)', 'laatste_aanpassing')
+
+      if (!isResultLimited) queryBuilder.whereInIds(dataset.map((obj) => obj.ID));
+
+      const laatsteAanpassing = (await queryBuilder.getRawOne())?.laatste_aanpassing;
+
+      return {
+          totaal: totaal,
+          laatste_aanpassing: laatsteAanpassing,
+          dataset: dataset,
+          hash: hash,
+      };
   }
 }
