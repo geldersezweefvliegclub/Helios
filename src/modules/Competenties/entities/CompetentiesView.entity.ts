@@ -36,11 +36,11 @@ export class CompetentiesViewEntity extends IHeliosDatabaseEntity{
     @ViewColumn()
     public DOCUMENTATIE: string | null;
 
-    @ViewColumn()
-    public GELDIGHEID: Date;
+    @ViewColumn({transformer: booleanTransformer})
+    public GELDIGHEID: boolean;
 
-    @ViewColumn()
-    public SCORE: number;
+    @ViewColumn({transformer: booleanTransformer})
+    public SCORE: boolean;
 
     @ViewColumn({transformer: booleanTransformer})
     public VERWIJDERD: boolean;
