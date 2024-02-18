@@ -23,24 +23,19 @@ export class ProgressieService extends IHeliosService<ProgressieEntity, Progress
 
     async getProgressiekaart(filter: ProgressieKaartFilterDTO): Promise<GetObjectsResponse<ProgressiekaartDTO>> {
         const datasetRaw = await this.competentiesRepository.createQueryBuilder('c')
-            .select("t.OMSCHRIJVING as LEERFASE, c.BLOK, c.ONDERWERP, c.DOCUMENTATIE, p.OPMERKINGEN, LI.NAAM as INSTRUCTEUR_NAAM, p.INGEVOERD, p.SCORE, p.GELDIG_TOT, c.LEERFASE_ID, c.ID, p.ID as PROGRESSIE_ID, c.BLOK_ID")
-            .leftJoin(
-                (qb) => qb
+            .select('c.BLOK as BLOK, c.BLOK_ID as BLOK_ID, c.DOCUMENTATIE as DOCUMENTATIE, p.GELDIG_TOT as GELDIG_TOT, c.ID as ID, p.INGEVOERD as INGEVOERD, p.INSTRUCTEUR_NAAM as INSTRUCTEUR_NAAM, p.LEERFASE as LEERFASE, c.LEERFASE_ID as LEERFASE_ID, c.ONDERWERP as ONDERWERP, p.OPMERKINGEN as OPMERKINGEN, p.ID as PROGRESSIE_ID, c.SCORE as SCORE')
+            .leftJoin(qb => {
+                return qb
                     .select('*')
-                    .from(ProgressieEntity, 'p')
-                    .where('p.LID_ID = :lidId', { lidId: filter.LID_ID }),
-                'p',
-                'c.ID = p.COMPETENTIE_ID'
-            )
-            .leftJoin('ref_types', 't', 'c.LEERFASE_ID = t.ID')
-            .leftJoin('ref_leden', 'LI', 'p.LID_ID = LI.ID')
+                    .from(ProgressieViewEntity, 'p')
+                    .where('p.LID_ID = :lidId', { lidId: filter.LID_ID });
+            }, 'p', 'c.ID = p.COMPETENTIE_ID')
             .orderBy({
                 'c.LEERFASE_ID': 'ASC',
                 'c.VOLGORDE': 'ASC',
                 'c.ID': 'ASC',
             })
             .getRawMany();
-
         // todo fix ugly casting
         return this.bouwDatasetResponse(datasetRaw, filter.findOptionsBuilder.findOptions) as unknown as GetObjectsResponse<ProgressiekaartDTO>;
     }
