@@ -1,7 +1,6 @@
-
-import { Test, TestingModule } from '@nestjs/testing';
-import { ProgressieController } from './Progressie.controller';
-import { ProgressieService } from '../service/Progressie.service';
+import {Test, TestingModule} from '@nestjs/testing';
+import {ProgressieController} from './Progressie.controller';
+import {ProgressieService} from '../service/Progressie.service';
 
 describe('ProgressieController', () => {
   let controller: ProgressieController;
