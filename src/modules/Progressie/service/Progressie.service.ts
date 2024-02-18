@@ -7,17 +7,18 @@ import {AuditEntity} from '../../../core/entities/Audit.entity';
 import {ProgressieKaartFilterDTO} from "../DTO/ProgressieKaartFilterDTO";
 import {CompetentiesEntity} from "../../Competenties/entities/Competenties.entity";
 import {GetObjectsResponse} from "../../../core/base/GetObjectsResponse";
-import {IHeliosDatabaseEntity} from "../../../core/base/IHeliosDatabaseEntity";
 import {ProgressiekaartDTO} from "../DTO/ProgressiekaartDTO";
+import { ProgressieViewEntity } from '../entities/ProgressieView.entity';
 
 @Injectable()
-export class ProgressieService extends IHeliosService<ProgressieEntity> {
+export class ProgressieService extends IHeliosService<ProgressieEntity, ProgressieViewEntity> {
   constructor(
     @InjectRepository(ProgressieEntity) protected readonly repository: Repository<ProgressieEntity>,
+    @InjectRepository(ProgressieViewEntity) protected readonly viewRepository: Repository<ProgressieViewEntity>,
     @InjectRepository(CompetentiesEntity) protected readonly competentiesRepository: Repository<CompetentiesEntity>,
     @InjectRepository(AuditEntity) protected readonly auditRepository: Repository<AuditEntity>
   ) {
-    super(repository, auditRepository);
+    super(repository, viewRepository, auditRepository);
   }
 
     async getProgressiekaart(filter: ProgressieKaartFilterDTO): Promise<GetObjectsResponse<ProgressiekaartDTO>> {

@@ -5,10 +5,11 @@ import { CompetentiesService } from './service/Competenties.service';
 import { CompetentiesEntity } from './entities/Competenties.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuditEntity } from '../../core/entities/Audit.entity';
+import {CompetentiesViewEntity} from "./entities/CompetentiesView.entity";
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([CompetentiesEntity, AuditEntity])
+        TypeOrmModule.forFeature([CompetentiesEntity, AuditEntity, CompetentiesViewEntity])
     ],
     controllers: [CompetentiesController],
     providers: [CompetentiesService],

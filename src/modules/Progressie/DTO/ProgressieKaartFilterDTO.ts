@@ -1,11 +1,10 @@
-import {ProgressieEntity} from '../entities/Progressie.entity';
 import {IsDate, IsNumber, IsOptional, IsString} from 'class-validator';
 import {Transform} from 'class-transformer';
-import {FindOptionsOrder} from "typeorm";
 import {FindOptionsBuilder} from "../../../core/services/filter-builder/find-options-builder.service";
+import {ProgressieViewEntity} from "../entities/ProgressieView.entity";
 
 export class ProgressieKaartFilterDTO {
-  public readonly findOptionsBuilder = new FindOptionsBuilder<ProgressieEntity>();
+  public readonly findOptionsBuilder = new FindOptionsBuilder<ProgressieViewEntity>();
 
   @IsOptional()
   @IsNumber()
@@ -33,11 +32,5 @@ export class ProgressieKaartFilterDTO {
     if (this.LAATSTE_AANPASSING) {
         this.findOptionsBuilder.and({LAATSTE_AANPASSING: this.LAATSTE_AANPASSING});
     }
-
-    this.findOptionsBuilder.relations({LidEntity: true, InstructeurEntity: true, CompetentieEntity: true});
-  }
-
-  get defaultGetObjectsSortering(): FindOptionsOrder<ProgressieEntity> {
-    return {LID_ID: 'ASC', LAATSTE_AANPASSING: 'DESC', ID: 'ASC'};
   }
 }

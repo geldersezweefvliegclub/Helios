@@ -3,8 +3,9 @@ import { ProgressieEntity } from '../entities/Progressie.entity';
 import { IsNumber, IsOptional, IsString } from 'class-validator';
 import { Transform } from 'class-transformer';
 import {FindOptionsOrder} from "typeorm";
+import {ProgressieViewEntity} from "../entities/ProgressieView.entity";
 
-export class ProgressieGetObjectsFilterDTO extends GetObjectsFilterDTO<ProgressieEntity> {
+export class ProgressieGetObjectsFilterDTO extends GetObjectsFilterDTO<ProgressieViewEntity> {
   @IsOptional()
   @IsNumber()
   @Transform((params) => params.value == null ? null : parseInt(params.value))
@@ -61,8 +62,6 @@ export class ProgressieGetObjectsFilterDTO extends GetObjectsFilterDTO<Progressi
     if (this.SCORE) {
       this.findOptionsBuilder.and({ SCORE: this.SCORE });
     }
-
-    this.findOptionsBuilder.relations({LidEntity: true, InstructeurEntity: true, CompetentieEntity: true});
   }
 
   get defaultGetObjectsSortering(): FindOptionsOrder<ProgressieEntity> {

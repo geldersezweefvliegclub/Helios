@@ -3,8 +3,9 @@ import { CompetentiesEntity } from '../entities/Competenties.entity';
 
 import { IsOptional, IsString } from 'class-validator';
 import { FindOptionsOrder, In } from 'typeorm';
+import {CompetentiesViewEntity} from "../entities/CompetentiesView.entity";
 
-export class CompetentiesGetObjectsFilterDTO extends GetObjectsFilterDTO<CompetentiesEntity> {
+export class CompetentiesGetObjectsFilterDTO extends GetObjectsFilterDTO<CompetentiesViewEntity> {
   @IsString()
   @IsOptional()
   LEERFASE_ID?: string;
@@ -19,7 +20,5 @@ export class CompetentiesGetObjectsFilterDTO extends GetObjectsFilterDTO<Compete
     if (this.LEERFASE_ID) {
       this.findOptionsBuilder.and({ LEERFASE_ID: In(this.LEERFASE_ID.split(',')) });
     }
-
-    this.findOptionsBuilder.relations({ LeerfaseEntity: true });
   }
 }
