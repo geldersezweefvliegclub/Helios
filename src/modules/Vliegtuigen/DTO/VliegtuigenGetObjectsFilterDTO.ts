@@ -1,10 +1,10 @@
 import { IsBoolean, IsInt, IsOptional, IsString } from 'class-validator';
 import { GetObjectsFilterDTO } from '../../../core/base/GetObjectsFilterDTO';
 import { Transform } from 'class-transformer';
-import { VliegtuigenEntity } from '../entities/Vliegtuigen.entity';
 import { FindOptionsOrder, In, Like } from 'typeorm';
+import {VliegtuigenViewEntity} from "../entities/VliegtuigenView.entity";
 
-export class VliegtuigenGetObjectsFilterDTO extends GetObjectsFilterDTO<VliegtuigenEntity> {
+export class VliegtuigenGetObjectsFilterDTO extends GetObjectsFilterDTO<VliegtuigenViewEntity> {
   @IsInt()
   @IsOptional()
   @Transform((params) => params.value == null ? null : parseInt(params.value))
@@ -83,11 +83,9 @@ export class VliegtuigenGetObjectsFilterDTO extends GetObjectsFilterDTO<Vliegtui
       this.findOptionsBuilder.or({ CALLSIGN: findOperator, ...currentWhere });
       this.findOptionsBuilder.or({ FLARMCODE: findOperator, ...currentWhere });
     }
-
-    this.findOptionsBuilder.relations({VLIEGTUIGTYPE: true, BEVOEGDHEID_OVERLAND: true, BEVOEGDHEID_LOKAAL: true});
   }
 
-  get defaultGetObjectsSortering(): FindOptionsOrder<VliegtuigenEntity> {
+  get defaultGetObjectsSortering(): FindOptionsOrder<VliegtuigenViewEntity> {
     return {
       CLUBKIST: 'DESC',
       VOLGORDE: 'ASC',

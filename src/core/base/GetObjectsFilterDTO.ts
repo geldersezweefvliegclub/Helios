@@ -48,12 +48,13 @@ export abstract class GetObjectsFilterDTO<Entity extends IHeliosObject> extends 
       // Therefore we always add the fields we also apply default sorting on to the `select` clause.
       // GH Issue: https://github.com/typeorm/typeorm/issues/9719
       // GH Minimal reproduce repo: https://github.com/Staijn1/typeorm-relation-ordering
-      const defaultSortering = this.defaultGetObjectsSortering;
-      const select: Record<string, boolean> = {};
-      for (const field in defaultSortering) {
-        select[field] = true;
-      }
-      this.findOptionsBuilder.select(this.VELDEN, select as any);
+      // todo possibly with the use of views we can avoid this workaround
+      // const defaultSortering = this.defaultGetObjectsSortering;
+      // const select: Record<string, boolean> = {};
+      // for (const field in defaultSortering) {
+      //   select[field] = true;
+      // }
+      this.findOptionsBuilder.select(this.VELDEN);
     }
   }
 

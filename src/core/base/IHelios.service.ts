@@ -13,10 +13,14 @@ import { InjectRepository } from '@nestjs/typeorm';
  * Deze service weet niet hoe de Entity eruit ziet, behalve dat het een IHeliosEntity is.
  *  @param Entity TypeORM Entity die de service behandelt.
  */
-export abstract class IHeliosService<Entity extends IHeliosObject> {
+export abstract class IHeliosService<Entity extends IHeliosObject, ViewEntity extends IHeliosObject> {
   private logger: Logger = new Logger('IHeliosService');
 
-  protected constructor(protected readonly repository: Repository<Entity>, @InjectRepository(AuditEntity) protected readonly auditRepository: Repository<AuditEntity>) {
+  protected constructor(
+      protected readonly repository: Repository<Entity>,
+      protected readonly viewRepository: Repository<ViewEntity>,
+      @InjectRepository(AuditEntity) protected readonly auditRepository: Repository<AuditEntity>,
+  ) {
   }
 
   /**
@@ -38,10 +42,10 @@ export abstract class IHeliosService<Entity extends IHeliosObject> {
    * Haal een lijst van objecten op uit de database die voldoen aan het gegeven filter.
    * @param filter Filter om de objecten op te halen.
    */
-  async getObjects(filter: IHeliosFilterDTO<Entity>): Promise<GetObjectsResponse<Entity>> {
+  async getObjects(filter: IHeliosFilterDTO<ViewEntity>): Promise<GetObjectsResponse<ViewEntity>> {
     filter.bouwGetObjectsFindOptions();
     const findOptions = filter.findOptionsBuilder.findOptions;
-    const datasetRaw = await this.repository.find(findOptions);
+    const datasetRaw = await this.viewRepository.find(findOptions);
     const dataset = this.applySelectionFilterToCalculatedColumns(datasetRaw, findOptions.select);
 
     return this.bouwDatasetResponse(dataset, findOptions);
@@ -126,7 +130,7 @@ export abstract class IHeliosService<Entity extends IHeliosObject> {
    * @param selection
    * @private
    */
-  protected applySelectionFilterToCalculatedColumns(dataset: Entity[], selection: FindOptionsSelect<Entity> | FindOptionsSelectByString<Entity>) {
+  protected applySelectionFilterToCalculatedColumns(dataset: ViewEntity[], selection: FindOptionsSelect<ViewEntity> | FindOptionsSelectByString<ViewEntity>) {
     if (!selection) return dataset;
     if (Array.isArray(selection)) {
       this.logger.warn('applySelectionFilterToCalculatedColumns is not implemented for FindOptionsSelectByString filter. Returning the dataset unfiltered.');
@@ -135,27 +139,27 @@ export abstract class IHeliosService<Entity extends IHeliosObject> {
     // For each object in the dataset
     return dataset.map((dbObject) => {
       // Create a new object to hold the properties included in the selection object
-      const filteredObj: Partial<Entity> = {};
+      const filteredObj: Partial<ViewEntity> = {};
 
       Object.keys(dbObject).forEach((key) => {
         // If the property is in the selection object, add it to the filtered object
-        if (selection[key as keyof Entity]) {
-          filteredObj[key as keyof Entity] = dbObject[key as keyof Entity];
+        if (selection[key]) {
+          filteredObj[key as keyof ViewEntity] = dbObject[key as keyof ViewEntity];
         }
       });
 
       // Return the filtered object
-      return filteredObj as Entity;
+      return filteredObj as ViewEntity;
     });
   }
 
-  protected async bouwDatasetResponse(dataset: Entity[], findOptions: FindManyOptions<Entity>): Promise<GetObjectsResponse<Entity>>{
+  protected async bouwDatasetResponse(dataset: ViewEntity[], findOptions: FindManyOptions<ViewEntity>): Promise<GetObjectsResponse<ViewEntity>>{
       const hash = createHash('md5').update(JSON.stringify(dataset)).digest('hex');
 
       // if the filter contains a limit, get the total count of the dataset without the limit, otherwise just get the total count of the dataset.
       const isResultLimited = !!findOptions.take;
       const totaal = isResultLimited
-          ? await this.repository.count({ where: findOptions.where })
+          ? await this.viewRepository.count({ where: findOptions.where })
           : dataset.length;
 
       // Get the latest LAATSTE_AANPASSING from the dataset, by querying for it again, but only for the IDs in the dataset.

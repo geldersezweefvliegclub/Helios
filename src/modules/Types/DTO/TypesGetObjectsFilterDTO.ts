@@ -3,8 +3,9 @@ import { GetObjectsFilterDTO } from '../../../core/base/GetObjectsFilterDTO';
 import { Transform } from 'class-transformer';
 import { TypeEntity } from '../entities/Type.entity';
 import { FindOptionsOrder } from 'typeorm';
+import { TypeViewEntity } from "../entities/TypeView.entity";
 
-export class TypesGetObjectsFilterDTO extends GetObjectsFilterDTO<TypeEntity> {
+export class TypesGetObjectsFilterDTO extends GetObjectsFilterDTO<TypeViewEntity> {
   @IsInt()
   @IsOptional()
   @Transform((params) => params.value == null ? null : parseInt(params.value))
@@ -84,7 +85,5 @@ export class TypesGetObjectsFilterDTO extends GetObjectsFilterDTO<TypeEntity> {
     if (this.EENHEDEN) {
       this.findOptionsBuilder.and({ EENHEDEN: this.EENHEDEN });
     }
-
-    this.findOptionsBuilder.relations({ TYPEGROEP: true });
   }
 }
