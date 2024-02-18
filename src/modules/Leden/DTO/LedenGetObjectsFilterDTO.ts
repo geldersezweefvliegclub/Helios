@@ -1,9 +1,9 @@
-import { GetObjectsFilterDTO } from '../../../core/base/GetObjectsFilterDTO';
-import { LedenEntity } from '../entities/Leden.entity';
-import { IsOptional, IsString } from 'class-validator';
-import { Between, FindOptionsOrder, In, Like } from 'typeorm';
+import {GetObjectsFilterDTO} from '../../../core/base/GetObjectsFilterDTO';
+import {IsOptional, IsString} from 'class-validator';
+import {Between, In, Like} from 'typeorm';
+import {LedenViewEntity} from "../entities/LedenView.entity";
 
-export class LedenGetObjectsFilterDTO extends GetObjectsFilterDTO<LedenEntity> {
+export class LedenGetObjectsFilterDTO extends GetObjectsFilterDTO<LedenViewEntity> {
   @IsOptional()
   @IsString()
   SELECTIE?: string;
@@ -40,13 +40,6 @@ export class LedenGetObjectsFilterDTO extends GetObjectsFilterDTO<LedenEntity> {
   @IsString()
   STARTLEIDERS?: boolean;
 
-  get defaultGetObjectsSortering(): FindOptionsOrder<LedenEntity> {
-    return {
-      ACHTERNAAM: 'ASC',
-      VOORNAAM: 'ASC',
-    };
-  }
-
   bouwGetObjectsFindOptions(): void {
     super.bouwGetObjectsFindOptions();
 
@@ -79,7 +72,7 @@ export class LedenGetObjectsFilterDTO extends GetObjectsFilterDTO<LedenEntity> {
     }
 
     if (this.LIO) {
-      this.findOptionsBuilder.and({ LIERIST_LIO: this.LIO });
+      this.findOptionsBuilder.and({ LIERIST_IO: this.LIO });
     }
 
     if (this.STARTLEIDERS) {
@@ -97,8 +90,5 @@ export class LedenGetObjectsFilterDTO extends GetObjectsFilterDTO<LedenEntity> {
       this.findOptionsBuilder.or({ NOODNUMMER: findOperator, ...currentWhere });
       this.findOptionsBuilder.or({ EMAIL: findOperator, ...currentWhere });
     }
-
-    // Load zusterclub relation here instead of using eager: true. Eager: true create a maximum callstack error
-    this.findOptionsBuilder.relations({ ZUSTERCLUB: true, BUDDY: true, BUDDY2: true, STATUS: true, LIDTYPE: true });
   }
 }
