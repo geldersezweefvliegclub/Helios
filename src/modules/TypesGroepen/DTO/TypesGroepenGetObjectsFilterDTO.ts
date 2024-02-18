@@ -1,7 +1,5 @@
-import { GetObjectsFilterDTO } from '../../../core/base/GetObjectsFilterDTO';
-import { IsBoolean, IsOptional, IsString } from 'class-validator';
-import { TypeGroepEntity } from '../entities/TypeGroep.entity';
-import { FindOptionsOrder } from 'typeorm';
+import {GetObjectsFilterDTO} from '../../../core/base/GetObjectsFilterDTO';
+import {IsBoolean, IsOptional, IsString} from 'class-validator';
 import {TypeGroepViewEntity} from "../entities/TypeGroepView.entity";
 
 export class TypesGroepenGetObjectsFilterDTO extends GetObjectsFilterDTO<TypeGroepViewEntity> {

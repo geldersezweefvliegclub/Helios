@@ -1,9 +1,7 @@
-import { IsInt, IsNumber, IsOptional, IsString } from 'class-validator';
-import { GetObjectsFilterDTO } from '../../../core/base/GetObjectsFilterDTO';
-import { Transform } from 'class-transformer';
-import { TypeEntity } from '../entities/Type.entity';
-import { FindOptionsOrder } from 'typeorm';
-import { TypeViewEntity } from "../entities/TypeView.entity";
+import {IsInt, IsNumber, IsOptional, IsString} from 'class-validator';
+import {GetObjectsFilterDTO} from '../../../core/base/GetObjectsFilterDTO';
+import {Transform} from 'class-transformer';
+import {TypeViewEntity} from "../entities/TypeView.entity";
 
 export class TypesGetObjectsFilterDTO extends GetObjectsFilterDTO<TypeViewEntity> {
   @IsInt()

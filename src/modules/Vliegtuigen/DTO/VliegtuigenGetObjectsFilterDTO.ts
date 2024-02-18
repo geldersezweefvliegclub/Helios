@@ -1,7 +1,7 @@
-import { IsBoolean, IsInt, IsOptional, IsString } from 'class-validator';
-import { GetObjectsFilterDTO } from '../../../core/base/GetObjectsFilterDTO';
-import { Transform } from 'class-transformer';
-import { FindOptionsOrder, In, Like } from 'typeorm';
+import {IsBoolean, IsInt, IsOptional, IsString} from 'class-validator';
+import {GetObjectsFilterDTO} from '../../../core/base/GetObjectsFilterDTO';
+import {Transform} from 'class-transformer';
+import {In, Like} from 'typeorm';
 import {VliegtuigenViewEntity} from "../entities/VliegtuigenView.entity";
 
 export class VliegtuigenGetObjectsFilterDTO extends GetObjectsFilterDTO<VliegtuigenViewEntity> {
