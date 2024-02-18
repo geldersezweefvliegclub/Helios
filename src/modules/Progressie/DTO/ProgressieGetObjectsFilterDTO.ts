@@ -1,8 +1,6 @@
-import { GetObjectsFilterDTO } from '../../../core/base/GetObjectsFilterDTO';
-import { ProgressieEntity } from '../entities/Progressie.entity';
-import { IsNumber, IsOptional, IsString } from 'class-validator';
-import { Transform } from 'class-transformer';
-import {FindOptionsOrder} from "typeorm";
+import {GetObjectsFilterDTO} from '../../../core/base/GetObjectsFilterDTO';
+import {IsNumber, IsOptional, IsString} from 'class-validator';
+import {Transform} from 'class-transformer';
 import {ProgressieViewEntity} from "../entities/ProgressieView.entity";
 
 export class ProgressieGetObjectsFilterDTO extends GetObjectsFilterDTO<ProgressieViewEntity> {
@@ -62,9 +60,5 @@ export class ProgressieGetObjectsFilterDTO extends GetObjectsFilterDTO<Progressi
     if (this.SCORE) {
       this.findOptionsBuilder.and({ SCORE: this.SCORE });
     }
-  }
-
-  get defaultGetObjectsSortering(): FindOptionsOrder<ProgressieEntity> {
-    return {LID_ID: 'ASC', LAATSTE_AANPASSING: 'DESC', ID: 'ASC'};
   }
 }

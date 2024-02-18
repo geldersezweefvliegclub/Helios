@@ -84,12 +84,4 @@ export class VliegtuigenGetObjectsFilterDTO extends GetObjectsFilterDTO<Vliegtui
       this.findOptionsBuilder.or({ FLARMCODE: findOperator, ...currentWhere });
     }
   }
-
-  get defaultGetObjectsSortering(): FindOptionsOrder<VliegtuigenViewEntity> {
-    return {
-      CLUBKIST: 'DESC',
-      VOLGORDE: 'ASC',
-      REGISTRATIE: 'ASC',
-    }
-  }
 }

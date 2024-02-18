@@ -43,14 +43,6 @@ export class TypesGetObjectsFilterDTO extends GetObjectsFilterDTO<TypeViewEntity
   @Transform((params) => params.value == null ? null : parseInt(params.value))
   EENHEDEN?: number | null;
 
-  get defaultGetObjectsSortering(): FindOptionsOrder<TypeEntity> {
-    return {
-      GROEP: 'ASC',
-      SORTEER_VOLGORDE: 'ASC',
-      ID: 'ASC',
-    }
-  }
-
   bouwGetObjectsFindOptions(): void {
     super.bouwGetObjectsFindOptions();
 

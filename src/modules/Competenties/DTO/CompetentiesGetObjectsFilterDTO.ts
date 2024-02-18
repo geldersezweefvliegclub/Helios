@@ -1,18 +1,13 @@
-import { GetObjectsFilterDTO } from '../../../core/base/GetObjectsFilterDTO';
-import { CompetentiesEntity } from '../entities/Competenties.entity';
+import {GetObjectsFilterDTO} from '../../../core/base/GetObjectsFilterDTO';
 
-import { IsOptional, IsString } from 'class-validator';
-import { FindOptionsOrder, In } from 'typeorm';
+import {IsOptional, IsString} from 'class-validator';
+import {In} from 'typeorm';
 import {CompetentiesViewEntity} from "../entities/CompetentiesView.entity";
 
 export class CompetentiesGetObjectsFilterDTO extends GetObjectsFilterDTO<CompetentiesViewEntity> {
   @IsString()
   @IsOptional()
   LEERFASE_ID?: string;
-
-  get defaultGetObjectsSortering(): FindOptionsOrder<CompetentiesEntity> {
-    return { LEERFASE_ID: 'ASC', BLOK_ID: 'ASC', VOLGORDE: 'ASC', ID: 'ASC' };
-  }
 
   bouwGetObjectsFindOptions() {
     super.bouwGetObjectsFindOptions();

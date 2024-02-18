@@ -29,13 +29,6 @@ export class TypesGroepenGetObjectsFilterDTO extends GetObjectsFilterDTO<TypeGro
   @IsOptional()
   BEDRAG_EENHEDEN: boolean;
 
-  get defaultGetObjectsSortering(): FindOptionsOrder<TypeGroepEntity> {
-    return {
-      SORTEER_VOLGORDE: 'ASC',
-      ID: 'ASC',
-    }
-  }
-
   bouwGetObjectsFindOptions(): void {
     super.bouwGetObjectsFindOptions();
 

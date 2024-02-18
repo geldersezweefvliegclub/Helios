@@ -57,7 +57,7 @@ export class VliegtuigenViewEntity extends IHeliosDatabaseEntity{
   @ViewColumn({transformer: booleanTransformer})
   INZETBAAR: boolean;
 
-  @ViewColumn()
+  @ViewColumn({transformer: booleanTransformer})
   TRAINER: boolean;
 
   @ViewColumn()
