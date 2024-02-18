@@ -5,6 +5,7 @@ import { ProgressieEntity } from '../entities/Progressie.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IHeliosService } from '../../../core/base/IHelios.service';
 import { AuditEntity } from '../../../core/entities/Audit.entity';
+import {ProgressieKaartFilterDTO} from "../DTO/ProgressieKaartFilterDTO";
 
 @Injectable()
 export class ProgressieService extends IHeliosService<ProgressieEntity> {

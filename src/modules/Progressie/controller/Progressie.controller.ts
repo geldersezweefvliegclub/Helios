@@ -1,7 +1,8 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import {Controller, Get, NotImplementedException, Query} from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ProgressieService } from '../service/Progressie.service';
 import { ProgressieGetObjectsFilterDTO } from '../DTO/ProgressieGetObjectsFilterDTO';
+import {ProgressieKaartFilterDTO} from "../DTO/ProgressieKaartFilterDTO";
 
 @Controller('Progressie')
 @ApiTags('Progressie')
@@ -33,5 +34,16 @@ export class ProgressieController {
   @ApiQuery({ name: 'IN', required: false, type: String, description: 'Comptententie ID\'s in CSV formaat' })
   async getObjects(@Query() query: ProgressieGetObjectsFilterDTO) {
     return this.progressieService.getObjects(query);
+  }
+
+  @Get('Progressiekaart')
+  @ApiOperation({summary: 'Haal alle comptenties en progressie op en zet deze in een datset (dezelfde data als progressieboom)'})
+  @ApiResponse({status: 200, description: 'OK, data succesvol opgehaald'})
+  @ApiQuery({name: 'LAATSTE_AANPASSING', required: false, type: Boolean, description: 'Laatste aanpassing op basis van records in dataset. Bedoeld om data verbruik te verminderen. Dataset is daarom leeg'})
+  @ApiQuery({name: 'VELDEN', required: false, type: String, description: 'Welke velden moet opgenomen worden in de dataset'})
+  @ApiQuery({name: 'LID_ID', required: false, type: String, description: 'Progressiekaart van een bepaald lid'})
+  async getProgressiekaart(@Query() query: ProgressieKaartFilterDTO) {
+    // todo
+    return new NotImplementedException();
   }
 }
