@@ -121,7 +121,7 @@ describe('API Response Comparison (e2e)', () => {
       new Endpoint('Velden', 'GET', '/Vliegtuigen/GetObjects', { MAX: 2, VELDEN: 'ID, REGISTRATIE' }),
     ]),
     new EndpointGroup('Leden', [
-      new Endpoint('ID', 'GET', '/Leden/GetObjects', { ID: 10858 }),
+      new Endpoint('ID', 'GET', '/Leden/GetObjects', { ID: 10395 }),
       new Endpoint('Max', 'GET', '/Leden/GetObjects', { MAX: 2 }),
       new Endpoint('Jeugdleden / Ereleden', 'GET', '/Leden/GetObjects', { TYPES: '601,603' }),
       new Endpoint('DDWV', 'GET', '/Leden/GetObjects', { TYPES: '625' }),
