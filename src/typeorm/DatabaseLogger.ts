@@ -12,11 +12,11 @@ export class DatabaseLogger implements TypeOrmLogger {
   }
 
   logQueryError(error: string, query: string, parameters?: unknown[]) {
-    this.logger.error(`An error occurred during query execution: ${error}`, {
-      error: error,
+    this.logger.error(`An error occurred during query execution: ${error}`, JSON.stringify({
+      error: JSON.stringify(error),
       query: query,
       parameters: this.stringifyParameters(parameters)
-    });
+    }));
   }
 
   logQuerySlow(time: number, query: string, parameters?: unknown[]) {
