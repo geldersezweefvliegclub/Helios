@@ -1,10 +1,12 @@
-
-import { Test, TestingModule } from '@nestjs/testing';
-import { ProgressieService } from './Progressie.service';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { ProgressieEntity } from '../entities/Progressie.entity';
-import { Repository } from 'typeorm';
-import { AuditEntity } from '../../../core/entities/Audit.entity';
+import {Test, TestingModule} from '@nestjs/testing';
+import {ProgressieService} from './Progressie.service';
+import {getRepositoryToken} from '@nestjs/typeorm';
+import {ProgressieEntity} from '../entities/Progressie.entity';
+import {Repository} from 'typeorm';
+import {AuditEntity} from '../../../core/entities/Audit.entity';
+import {ProgressieViewEntity} from "../entities/ProgressieView.entity";
+import {CompetentiesViewEntity} from "../../Competenties/entities/CompetentiesView.entity";
+import {CompetentiesEntity} from "../../Competenties/entities/Competenties.entity";
 
 describe('ProgressieService', () => {
   let service: ProgressieService;
@@ -17,6 +19,8 @@ describe('ProgressieService', () => {
         ProgressieService,
         { provide: getRepositoryToken(ProgressieEntity), useValue: jest.fn()},
         { provide: getRepositoryToken(AuditEntity), useClass: jest.fn() },
+        { provide: getRepositoryToken(CompetentiesEntity), useClass: jest.fn()},
+        { provide: getRepositoryToken(ProgressieViewEntity), useClass: jest.fn()}
       ],
     }).compile();
 

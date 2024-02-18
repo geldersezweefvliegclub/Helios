@@ -4,6 +4,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { mockRepository } from '../../../core/helpers/testing/TypeORMTestingModule';
 import { TypeGroepEntity } from '../entities/TypeGroep.entity';
 import { AuditEntity } from '../../../core/entities/Audit.entity';
+import {TypeGroepViewEntity} from "../entities/TypeGroepView.entity";
 
 describe('TypesGroepenService', () => {
   let service: TypesGroepenService;
@@ -14,6 +15,7 @@ describe('TypesGroepenService', () => {
         TypesGroepenService,
         { provide: getRepositoryToken(TypeGroepEntity), useClass: mockRepository,},
         { provide: getRepositoryToken(AuditEntity), useClass: mockRepository },
+        { provide: getRepositoryToken(TypeGroepViewEntity), useClass: jest.fn()},
       ],
     }).compile();
 

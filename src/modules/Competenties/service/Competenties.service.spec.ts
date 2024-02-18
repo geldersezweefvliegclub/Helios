@@ -5,6 +5,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { CompetentiesEntity } from '../entities/Competenties.entity';
 import { Repository } from 'typeorm';
 import { AuditEntity } from '../../../core/entities/Audit.entity';
+import {CompetentiesViewEntity} from "../entities/CompetentiesView.entity";
 
 describe('CompetentiesService', () => {
   let service: CompetentiesService;
@@ -17,6 +18,7 @@ describe('CompetentiesService', () => {
         CompetentiesService,
         { provide: getRepositoryToken(CompetentiesEntity), useValue: jest.fn()},
         { provide: getRepositoryToken(AuditEntity), useClass: jest.fn() },
+        { provide: getRepositoryToken(CompetentiesViewEntity), useClass: jest.fn()}
       ],
     }).compile();
 
