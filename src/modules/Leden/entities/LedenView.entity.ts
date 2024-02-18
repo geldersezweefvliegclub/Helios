@@ -127,8 +127,8 @@ export class LedenViewEntity extends IHeliosDatabaseEntity {
     @ViewColumn({transformer: booleanTransformer})
     ZELFSTART_ABONNEMENT: boolean | null;
 
-    @ViewColumn({transformer: booleanTransformer})
-    MEDICAL: boolean | null;
+    @ViewColumn()
+    MEDICAL: Date | null;
 
     @ViewColumn()
     GEBOORTE_DATUM: Date | null;
@@ -142,8 +142,8 @@ export class LedenViewEntity extends IHeliosDatabaseEntity {
     @ViewColumn()
     SECRET: string | null;
 
-    @ViewColumn()
-    AUTH: string | null;
+    @ViewColumn({transformer: booleanTransformer})
+    AUTH: boolean | null;
 
     @ViewColumn()
     AVATAR: string | null;
@@ -166,7 +166,7 @@ export class LedenViewEntity extends IHeliosDatabaseEntity {
     @ViewColumn()
     BREVET_NUMMER: string | null;
 
-    @ViewColumn()
+    @ViewColumn({transformer: booleanTransformer})
     EMAIL_DAGINFO: string | null;
 
     @ViewColumn()
@@ -181,7 +181,7 @@ export class LedenViewEntity extends IHeliosDatabaseEntity {
     @ViewColumn()
     LAATSTE_AANPASSING: Date | null;
 
-    @ViewColumn()
+    @ViewColumn({transformer: booleanTransformer})
     PAX: boolean | null;
 
     @ViewColumn()
