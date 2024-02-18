@@ -57,5 +57,6 @@ export class ProgressieController {
   async getProgressieboom(@Query() query: ProgressieKaartFilterDTO){
     // todo
     throw new NotImplementedException()
+    console.log(query)
   }
 }
