@@ -824,6 +824,10 @@ components:
               description: Lidtype in text
               type: string
               example: Jeugdlid
+            LIDTYPE_REF:
+              description: Lidtype externe referentie
+              type: string
+              example: JL
             STATUS: 
               description: Vliegstatus, zoals DBO, Solist of Brevethouder
               type: string

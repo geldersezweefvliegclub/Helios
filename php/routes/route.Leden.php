@@ -317,7 +317,7 @@ $app->post(url_base() . 'Leden/SynapseGebruiker', function (Request $request, Re
 
     // aanroepen van de cronjob om de sync buffer te verwerken
     $url = $_SERVER['HTTPS'] ? 'https://' : 'http://';
-    $url .= $_SERVER['HTTP_HOST'] . "/cronjobs/syncMatrix.php";
+    $url .= $_SERVER['HTTP_HOST'] . "/cronjobs/sync.php";
     Debug(__FILE__, __LINE__, "url=" . $url);
     try
     {

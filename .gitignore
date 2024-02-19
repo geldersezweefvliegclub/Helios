@@ -18,6 +18,10 @@ lerna-debug.log*
 /coverage
 /.nyc_output
 
+log/
+documenten/
+lib/.DS_Store
+.DS_Store
 # IDEs and editors
 /.idea
 .project
