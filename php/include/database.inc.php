@@ -26,6 +26,15 @@ if (!IsSet($GLOBALS['DATABASE_INCLUDED']))
 			return false;
 		}
 
+		function isHeliosNumeric($input) {
+			if (preg_match("/^[0-9]*$/", $input)) {
+				return true;
+				// return (substr($input,0,1) != "0");
+			} else {
+				return false;
+			}
+		}
+
 		function Connect($conn = '')
 		{
 			global $db_info;
@@ -192,7 +201,7 @@ if (!IsSet($GLOBALS['DATABASE_INCLUDED']))
 				{
 					if ($value === null)
 						$values = sprintf("NULL");
-					elseif ((is_numeric($value)) && (substr($value,0,1) != "0"))
+					elseif ($this->isHeliosNumeric($value))
 						$values = sprintf("%s", $value);
 					else
 						$values = sprintf("'%s'", $value);
@@ -201,7 +210,7 @@ if (!IsSet($GLOBALS['DATABASE_INCLUDED']))
 				{
 					if ($value === null)
 						$values = sprintf("%s,  NULL", $values);
-					elseif ((is_numeric($value)) && (substr($value,0,1) != "0")) 
+					elseif ($this->isHeliosNumeric($value))
 						$values = sprintf("%s,%s", $values, $value);
 					else
 						$values = sprintf("%s,'%s'", $values, str_replace("'","\'", $value));
@@ -285,7 +294,7 @@ if (!IsSet($GLOBALS['DATABASE_INCLUDED']))
 				{
 					if ($value === null)
 						$fields = sprintf("%s=NULL", $field);
-					elseif ((is_numeric($value)) && (substr($value,0,1) != "0")) 
+					elseif ($this->isHeliosNumeric($value))
 						$fields = sprintf("%s=%s", $field, $value);
 					else
 						$fields = sprintf("%s='%s'", $field, str_replace("'","\'", $value));
@@ -294,10 +303,10 @@ if (!IsSet($GLOBALS['DATABASE_INCLUDED']))
 				{
 					error_log($field . "=" . $value  . "\n", 3, $app_settings['LogDir'] . "update.txt");
 
-					if ((is_numeric($value)) && (substr($value,0,1) != "0")) 
-							$fields = sprintf("%s,%s=%s", $fields, $field, $value);
-					elseif ($value === null)
+					if ($value === null)
 						$fields = sprintf("%s,%s=NULL", $fields, $field);
+					elseif ($this->isHeliosNumeric($value))
+						$fields = sprintf("%s,%s=%s", $fields, $field, $value);
 					else
 						$fields = sprintf("%s,%s='%s'", $fields, $field, str_replace("'","\'", $value));
 				}

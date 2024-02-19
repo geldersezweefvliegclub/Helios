@@ -37,12 +37,49 @@ class synapse
     {
         global $matrix_settings;
 
-        Debug(__FILE__, __LINE__, sprintf("login(%s, ???)", $username));
+        Debug(__FILE__, __LINE__, sprintf("login(%s, %s)", $username, isset($password) ? "true" : "false"));
+
+        if (((!isset($username)) || (!isset($password))) && file_exists("matrix-access_token.json")) {
+            $tokens = json_decode(file_get_contents("matrix-access_token.json"), true);
+
+            if (time() < $tokens["expires_in"]) {
+                return $tokens["access_token"];       // token is nog geldig
+            }
+
+            // refresh van het token
+            $reloginUrl = $matrix_settings['url'] . "_matrix/client/r0/refresh";
+            $curl_session = self::initCurl($reloginUrl, "POST");
+            curl_setopt($curl_session, CURLOPT_POSTFIELDS, sprintf("{\"refresh_token\":\"%s\"}", $tokens["refresh_token"]));
+            $body = curl_exec($curl_session);
+
+            $status_code = curl_getinfo($curl_session, CURLINFO_HTTP_CODE); //get status code
+
+            if ($status_code != 200) {
+                Error(__FILE__, __LINE__, sprintf("Refresh mislukt, status=%s body=%s", $status_code, $body));
+                //throw new Exception("500;Refresh mislukt;" . $body);
+            }
+            else
+            {
+                $response = json_decode($body, true);
+                $response["expires_in"] = time() + ($response["expires_in_ms"] / 1000) - 10;
+                Debug(__FILE__, __LINE__, sprintf("refresh token=%s", $username, $response["access_token"]));
+
+                // opslaan voor later gebruik
+                $fd = fopen("matrix-access_token.json", "w");
+                fwrite($fd, json_encode($response));
+                fclose($fd);
+
+                return $response["access_token"];
+            }
+
+            return $tokens["access_token"];
+        }
 
         if ((!isset($username)) || (!isset($password))) {
             $data = array(
                 "type" => "m.login.password",
                 "user" => $matrix_settings["user"],
+                "refresh_token" => true,
                 "password" => $matrix_settings["password"]
             );
         }
@@ -50,6 +87,7 @@ class synapse
         {
             $data = array(
                 "type" => "m.login.password",
+                "refresh_token" => true,
                 "user" => $username,
                 "password" => $password
             );
@@ -68,7 +106,16 @@ class synapse
         }
 
         $response = json_decode($body, true);
-        Debug(__FILE__, __LINE__, sprintf("login gebruiker=%s  token=%s", $username, $response["access_token"]));
+        $response["expires_in"] = time() + 5 * 60;
+        Debug(__FILE__, __LINE__, sprintf("login gebruiker=%s  token=%s", $username, $body));
+
+        // opslaan voor later gebruik, maar alleen voor helios account
+        if (!isset($username)) {
+            $fd = fopen("matrix-access_token.json", "w");
+            fwrite($fd, json_encode($response));
+            fclose($fd);
+        }
+
         return $response["access_token"];
     }
 
@@ -102,7 +149,7 @@ class synapse
     {
         global $matrix_settings;
 
-        Debug(__FILE__, __LINE__, sprintf("updateGebruiker (%s,password)", print_r($lid, true)));
+        Debug(__FILE__, __LINE__, sprintf("updateGebruiker (%s,%s)", print_r($lid, true), isset($password) ? "true" : "false"));
         if (!isset($matrix_settings))
             return;
 
@@ -591,5 +638,27 @@ class synapse
             }
             curl_multi_remove_handle($mh, $c);
         }
+    }
+
+    function directeKamer($gebruiker)
+    {
+        global $matrix_settings;
+
+        $gebruiker_id = sprintf("@%s:%s", strtolower($gebruiker), $matrix_settings["domein"]);
+        $createRoom = array(
+            "preset" => "trusted_private_chat",
+            "visibility" => "private",
+            "invite" => array($gebruiker_id),
+            "is_direct" => true,
+            "initial_state" => array(
+                array(
+                    "type" => "m.room.guest_access",
+                    "state_key" => "",
+                    "content" => array(
+                        "guest_access" => "can_join"
+                    )
+                )
+            )
+        );
     }
 }
