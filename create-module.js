@@ -12,6 +12,7 @@
  * ├── entities
  * │   ├── ModuleName.entity.ts
  * │   └── ModuleName.entity.spec.ts
+ * │   └── ModuleNameView.entity.ts
  * └── service
  *    ├── ModuleName.service.ts
  *    └── ModuleName.service.spec.ts
@@ -45,12 +46,13 @@ import { Module } from '@nestjs/common';
 import { ${moduleName}Controller } from './controller/${moduleName}.controller';
 import { ${moduleName}Service } from './service/${moduleName}.service';
 import { ${moduleName}Entity } from './entities/${moduleName}.entity';
+import { ${moduleName}ViewEntity } from './entities/${moduleName}View.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuditEntity } from '../../core/entities/Audit.entity';
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([${moduleName}Entity, AuditEntity])
+        TypeOrmModule.forFeature([${moduleName}Entity, ${moduleName}ViewEntity, AuditEntity])
     ],
     controllers: [${moduleName}Controller],
     providers: [${moduleName}Service],
@@ -104,6 +106,14 @@ import { Entity } from 'typeorm';
 export class ${moduleName}Entity extends IHeliosDatabaseEntity{
   // Add your properties here
 }`,
+    [`entities/${moduleName}View.entity.ts`]: `
+import { IHeliosDatabaseEntity } from '../../../core/base/IHeliosDatabaseEntity';
+import { ViewEntity } from 'typeorm';
+
+@ViewEntity({name: 'TODO!', expression: "SELECT * FROM TODO!"})
+export class ${moduleName}ViewEntity extends IHeliosDatabaseEntity{
+  // Add your properties here with @ViewColumn
+}`,
     [`entities/${moduleName}.entity.spec.ts`]: `
 import { ${moduleName}Entity } from './${moduleName}.entity';
 
@@ -118,17 +128,19 @@ describe('${moduleName}Entity', () => {
 import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { ${moduleName}Entity } from '../entities/${moduleName}.entity';
+import { ${moduleName}ViewEntity } from '../entities/${moduleName}View.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IHeliosService } from '../../../core/base/IHelios.service';
 import { AuditEntity } from '../../../core/entities/Audit.entity';
 
 @Injectable()
-export class ${moduleName}Service extends IHeliosService<${moduleName}Entity> {
+export class ${moduleName}Service extends IHeliosService<${moduleName}Entity, ${moduleName}Entity> {
   constructor(
     @InjectRepository(${moduleName}Entity) protected readonly repository: Repository<${moduleName}Entity>,
+    @InjectRepository(${moduleName}ViewEntity) protected readonly viewRepository: Repository<${moduleName}ViewEntity>,
     @InjectRepository(AuditEntity) protected readonly auditRepository: Repository<AuditEntity>
   ) {
-    super(repository, auditRepository);
+    super(repository, viewRepository, auditRepository);
   }
 }`,
     [`service/${moduleName}.service.spec.ts`]: `
@@ -136,6 +148,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ${moduleName}Service } from './${moduleName}.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ${moduleName}Entity } from '../entities/${moduleName}.entity';
+import { ${moduleName}ViewEntity } from '../entities/${moduleName}View.entity';
 import { Repository } from 'typeorm';
 import { AuditEntity } from '../../../core/entities/Audit.entity';
 
@@ -149,6 +162,7 @@ describe('${moduleName}Service', () => {
       providers: [
         ${moduleName}Service,
         { provide: getRepositoryToken(${moduleName}Entity), useValue: jest.fn()},
+        { provide: getRepositoryToken(${moduleName}ViewEntity), useValue: jest.fn()},
         { provide: getRepositoryToken(AuditEntity), useClass: jest.fn() },
       ],
     }).compile();
