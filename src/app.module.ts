@@ -9,6 +9,7 @@ import { LedenModule } from './modules/Leden/Leden.module';
 import { RequestLoggingMiddleware } from './core/middleware/request-logging/request-logging.middleware';
 import { CompetentiesModule } from './modules/Competenties/Competenties.module';
 import { ProgressieModule } from './modules/Progressie/Progressie.module';
+import { RoosterModule } from './modules/Rooster/Rooster.module';
 
 @Module({
   imports: [
@@ -19,7 +20,8 @@ import { ProgressieModule } from './modules/Progressie/Progressie.module';
     VliegtuigenModule,
     LedenModule,
     CompetentiesModule,
-    ProgressieModule
+    ProgressieModule,
+    RoosterModule
   ],
   controllers: [],
   providers: [TypeOrmConfigService],

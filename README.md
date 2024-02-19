@@ -10,9 +10,10 @@ Todo: write readme about Helios
   - Done but response from NestJS is different and I don't understand how PHP does everything. Especially around `SECRET` and `PASSWORD`
 - [x] Convert GETs ref_vliegtuigen
 - [x] Convert GETs ref_competenties
-- [x] Convert GETs oper_progressie
+- [ ] Convert GETs oper_progressie
   - But PHP API returns inconsistent date format compared to previous endpoints. It includes the time
-  - TODO: progressiekaart and progressieboom
+  - TODO: progressieboom
+  - TODO: progressiekaart laatste_aanpassing incorrect
 - [ ] Convert GETs oper_rooster
 - [ ] Convert GETs oper_diensten
 - [ ] Convert GETs oper_journaal
