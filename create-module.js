@@ -93,9 +93,9 @@ describe('${moduleName}Controller', () => {
 
     [`DTO/${moduleName}GetObjectsFilterDTO.ts`]: `
 import { GetObjectsFilterDTO } from '../../../core/base/GetObjectsFilterDTO';
-import { ${moduleName}Entity } from '../entities/${moduleName}.entity';
+import { ${moduleName}ViewEntity } from '../entities/${moduleName}View.entity';
 
-export class ${moduleName}GetObjectsFilterDTO extends GetObjectsFilterDTO<${moduleName}Entity> {
+export class ${moduleName}GetObjectsFilterDTO extends GetObjectsFilterDTO<${moduleName}ViewEntity> {
   // Add your properties here
 }`,
     [`entities/${moduleName}.entity.ts`]: `
@@ -134,7 +134,7 @@ import { IHeliosService } from '../../../core/base/IHelios.service';
 import { AuditEntity } from '../../../core/entities/Audit.entity';
 
 @Injectable()
-export class ${moduleName}Service extends IHeliosService<${moduleName}Entity, ${moduleName}Entity> {
+export class ${moduleName}Service extends IHeliosService<${moduleName}Entity, ${moduleName}ViewEntity> {
   constructor(
     @InjectRepository(${moduleName}Entity) protected readonly repository: Repository<${moduleName}Entity>,
     @InjectRepository(${moduleName}ViewEntity) protected readonly viewRepository: Repository<${moduleName}ViewEntity>,
