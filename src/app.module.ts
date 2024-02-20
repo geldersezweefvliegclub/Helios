@@ -10,6 +10,7 @@ import { RequestLoggingMiddleware } from './core/middleware/request-logging/requ
 import { CompetentiesModule } from './modules/Competenties/Competenties.module';
 import { ProgressieModule } from './modules/Progressie/Progressie.module';
 import { RoosterModule } from './modules/Rooster/Rooster.module';
+import { DienstenModule } from './modules/Diensten/Diensten.module';
 
 @Module({
   imports: [
@@ -21,7 +22,8 @@ import { RoosterModule } from './modules/Rooster/Rooster.module';
     LedenModule,
     CompetentiesModule,
     ProgressieModule,
-    RoosterModule
+    RoosterModule,
+    DienstenModule
   ],
   controllers: [],
   providers: [TypeOrmConfigService],

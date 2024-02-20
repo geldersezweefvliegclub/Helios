@@ -14,7 +14,7 @@ Todo: write readme about Helios
   - But PHP API returns inconsistent date format compared to previous endpoints. It includes the time
   - TODO: progressieboom
   - TODO: progressiekaart laatste_aanpassing incorrect
-- [ ] Convert GETs oper_rooster
+- [x] Convert GETs oper_rooster
 - [ ] Convert GETs oper_diensten
 - [ ] Convert GETs oper_journaal
 - [ ] Convert GETs oper_daginfo
