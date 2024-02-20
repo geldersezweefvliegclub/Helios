@@ -6,6 +6,7 @@ import {Repository} from 'typeorm';
 import {AuditEntity} from '../../../core/entities/Audit.entity';
 import {ProgressieViewEntity} from "../entities/ProgressieView.entity";
 import {CompetentiesEntity} from "../../Competenties/entities/Competenties.entity";
+import { CompetentiesViewEntity } from '../../Competenties/entities/CompetentiesView.entity';
 
 describe('ProgressieService', () => {
   let service: ProgressieService;
@@ -18,7 +19,7 @@ describe('ProgressieService', () => {
         ProgressieService,
         { provide: getRepositoryToken(ProgressieEntity), useValue: jest.fn()},
         { provide: getRepositoryToken(AuditEntity), useClass: jest.fn() },
-        { provide: getRepositoryToken(CompetentiesEntity), useClass: jest.fn()},
+        { provide: getRepositoryToken(CompetentiesViewEntity), useClass: jest.fn()},
         { provide: getRepositoryToken(ProgressieViewEntity), useClass: jest.fn()}
       ],
     }).compile();
