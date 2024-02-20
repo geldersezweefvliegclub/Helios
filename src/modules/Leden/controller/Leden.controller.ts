@@ -58,7 +58,7 @@ export class LedenController {
   @ApiOperation({ summary: 'Restore deleted type record' })
   @ApiQuery({ name: 'ID', required: true, type: Number, description: 'The object ID' })
   @HttpCode(202)
-  async restoreObject(@Query() query: ObjectID<LedenGetObjectsFilterDTO>) {
+  async restoreObject(@Query() query: ObjectID) {
     return this.ledenService.restoreObject(query.ID);
   }
 
@@ -67,7 +67,7 @@ export class LedenController {
   @ApiResponse({ status: 204, description: 'Object Deleted' })
   @ApiQuery({ name: 'ID', required: true, type: Number, description: 'The object ID' })
   @HttpCode(204)
-  async deleteObject(@Query() query: ObjectID<LedenGetObjectsFilterDTO>) {
+  async deleteObject(@Query() query: ObjectID) {
     await this.ledenService.deleteObject(query.ID);
   }*/
 }

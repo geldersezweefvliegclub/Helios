@@ -15,7 +15,7 @@ export class TypesController {
   @ApiOperation({ summary: 'Get object by id' })
   @ApiResponse({ status: 200, description: 'Return the object.' })
   @ApiQuery({ name: 'ID', required: false, type: Number, description: 'The object ID' })
-  async getObject(@Query() query: { ID: number }) {
+  async getObject(@Query() query: ObjectID) {
     return this.typesService.getObject(query.ID);
   }
 
@@ -53,7 +53,7 @@ export class TypesController {
   @ApiOperation({ summary: 'Restore deleted type record' })
   @ApiQuery({ name: 'ID', required: true, type: Number, description: 'The object ID' })
   @HttpCode(202)
-  async restoreObject(@Query() query: ObjectID<TypesGetObjectsFilterDTO>) {
+  async restoreObject(@Query() query: ObjectID) {
     return this.typesService.restoreObject(query.ID);
   }
 
@@ -62,7 +62,7 @@ export class TypesController {
   @ApiResponse({ status: 204, description: 'Object Deleted' })
   @ApiQuery({ name: 'ID', required: true, type: Number, description: 'The object ID' })
   @HttpCode(204)
-  async deleteObject(@Query() query: ObjectID<TypesGetObjectsFilterDTO>) {
+  async deleteObject(@Query() query: ObjectID) {
     await this.typesService.deleteObject(query.ID);
   }
 }

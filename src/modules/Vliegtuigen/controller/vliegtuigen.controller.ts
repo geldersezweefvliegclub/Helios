@@ -57,7 +57,7 @@ export class VliegtuigenController {
     @ApiOperation({ summary: 'Restore deleted vliegtuig record' })
     @ApiQuery({ name: 'ID', required: true, type: Number, description: 'The object ID' })
     @HttpCode(202)
-    async restoreObject(@Query() query: ObjectID<VliegtuigenGetObjectsFilterDTO>) {
+    async restoreObject(@Query() query: ObjectID) {
         return this.vliegtuigenService.restoreObject(query.ID);
     }
 
@@ -66,7 +66,7 @@ export class VliegtuigenController {
     @ApiResponse({ status: 204, description: 'Object Deleted' })
     @ApiQuery({ name: 'ID', required: true, type: Number, description: 'The object ID' })
     @HttpCode(204)
-    async deleteObject(@Query() query: ObjectID<VliegtuigenGetObjectsFilterDTO>) {
+    async deleteObject(@Query() query: ObjectID) {
         return this.vliegtuigenService.deleteObject(query.ID);
     }*/
 }

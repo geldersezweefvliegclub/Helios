@@ -36,3 +36,8 @@ Todo: write readme about Helios
 - [ ] Convert POSTs
 - [ ] Convert PUTs
 - [ ] Convert DELETEs
+
+# Todo list to convert PHP to NestJS - Extra
+- [ ] Setup sonarcloud analysis
+- [ ] Setup Continuous Deployment for main branch
+- [ ] Fix ugly HTTP 500 error when VELDEN filter includes a VELD that does not exist

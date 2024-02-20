@@ -50,7 +50,7 @@ export class TypesGroepenController {
     @ApiOperation({ summary: 'Restore deleted type record' })
     @ApiQuery({ name: 'ID', required: true, type: Number, description: 'The object ID' })
     @HttpCode(202)
-    async restoreObject(@Query() query: ObjectID<TypesGroepenGetObjectsFilterDTO>) {
+    async restoreObject(@Query() query: ObjectID) {
         return this.typesGroepenService.restoreObject(query.ID);
     }
 
@@ -59,7 +59,7 @@ export class TypesGroepenController {
     @ApiResponse({ status: 204, description: 'Object Deleted' })
     @ApiQuery({ name: 'ID', required: true, type: Number, description: 'The object ID' })
     @HttpCode(204)
-    async deleteObject(@Query() query: ObjectID<TypesGroepenGetObjectsFilterDTO>) {
+    async deleteObject(@Query() query: ObjectID) {
         await this.typesGroepenService.deleteObject(query.ID);
     }*/
 }

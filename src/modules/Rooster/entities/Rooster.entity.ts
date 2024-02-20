@@ -1,8 +1,24 @@
 
 import { IHeliosDatabaseEntity } from '../../../core/base/IHeliosDatabaseEntity';
-import { Entity } from 'typeorm';
+import { Column, Entity } from 'typeorm';
 
-@Entity('TODO!')
+@Entity('oper_rooster')
 export class RoosterEntity extends IHeliosDatabaseEntity{
-  // Add your properties here
+  @Column({ type: 'date', nullable: false })
+  public DATUM: Date;
+
+  @Column({ type: 'boolean', nullable: false, default: false })
+  public DDWV: boolean;
+
+  @Column({ type: 'boolean', nullable: false, default: true })
+  public CLUB_BEDRIJF: boolean;
+
+  @Column({ type: 'int', nullable: false, default: 3 })
+  public MIN_SLEEPSTART: number;
+
+  @Column({ type: 'int', nullable: false, default: 10 })
+  public MIN_LIERSTART: number;
+
+  @Column({ type: 'text', nullable: true })
+  public OPMERKINGEN: string;
 }
