@@ -41,3 +41,5 @@ Todo: write readme about Helios
 - [ ] Setup sonarcloud analysis
 - [ ] Setup Continuous Deployment for main branch
 - [ ] Fix ugly HTTP 500 error when VELDEN filter includes a VELD that does not exist
+- [ ] Generate migrations
+- [ ] Setup initial dataseed for empty database 
