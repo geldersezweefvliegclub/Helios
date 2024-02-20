@@ -8,7 +8,7 @@ import { IHeliosService } from '../../../core/base/IHelios.service';
 import { AuditEntity } from '../../../core/entities/Audit.entity';
 
 @Injectable()
-export class DienstenService extends IHeliosService<DienstenEntity, DienstenEntity> {
+export class DienstenService extends IHeliosService<DienstenEntity, DienstenViewEntity> {
   constructor(
     @InjectRepository(DienstenEntity) protected readonly repository: Repository<DienstenEntity>,
     @InjectRepository(DienstenViewEntity) protected readonly viewRepository: Repository<DienstenViewEntity>,

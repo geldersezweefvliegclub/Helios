@@ -69,6 +69,14 @@ describe('API Response Comparison (e2e)', () => {
   const PHP_API_URL = 'http://localhost:8081';
 
   const endpoints = [
+    new EndpointGroup('Diensten', [
+      new Endpoint('ID', 'GET', '/Diensten/GetObjects', { ID: 1 }),
+      new Endpoint('Max', 'GET', '/Diensten/GetObjects', { MAX: 2 }),
+      new Endpoint('Sort ID ASC', 'GET', '/Diensten/GetObjects', { SORT: 'ID' }),
+      new Endpoint('Sort ID DESC', 'GET', '/Diensten/GetObjects', { SORT: 'ID DESC' }),
+      new Endpoint('GetObjects', 'GET', '/Diensten/GetObjects'),
+      new Endpoint('Velden', 'GET', '/Diensten/GetObjects', { MAX: 2, VELDEN: 'ID, OMSCHRIJVING' }),
+    ]),
     new EndpointGroup('Rooster', [
       new Endpoint('ID', 'GET', '/Rooster/GetObjects', { ID: 3 }),
       new Endpoint('Max', 'GET', '/Rooster/GetObjects', { MAX: 2 }),
