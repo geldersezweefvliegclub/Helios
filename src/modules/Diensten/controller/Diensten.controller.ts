@@ -1,8 +1,6 @@
-
 import { Controller, Get, Query } from '@nestjs/common';
 import { ApiQuery, ApiTags } from '@nestjs/swagger';
 import { DienstenService } from '../service/Diensten.service';
-import { DienstenViewEntity } from '../entities/DienstenView.entity';
 import { ObjectID } from '../../../core/base/ObjectID';
 import { DienstenGetObjectsFilterDTO } from '../DTO/DienstenGetObjectsFilterDTO';
 

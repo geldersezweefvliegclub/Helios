@@ -72,10 +72,10 @@ describe('API Response Comparison (e2e)', () => {
     new EndpointGroup('Diensten', [
       new Endpoint('ID', 'GET', '/Diensten/GetObjects', { ID: 27 }),
       new Endpoint('Max', 'GET', '/Diensten/GetObjects', { MAX: 2 }),
-      new Endpoint('Sort ID ASC', 'GET', '/Diensten/GetObjects', { SORT: 'ID' }),
-      new Endpoint('Sort ID DESC', 'GET', '/Diensten/GetObjects', { SORT: 'ID DESC' }),
+      new Endpoint('Sort ID ASC', 'GET', '/Diensten/GetObjects', { SORT: 'TYPE_DIENST_ID' }),
+      new Endpoint('Sort ID DESC', 'GET', '/Diensten/GetObjects', { SORT: 'TYPE_DIENST_ID DESC' }),
       new Endpoint('GetObjects', 'GET', '/Diensten/GetObjects'),
-      new Endpoint('Velden', 'GET', '/Diensten/GetObjects', { MAX: 2, VELDEN: 'ID, OMSCHRIJVING' }),
+      new Endpoint('Velden', 'GET', '/Diensten/GetObjects', { MAX: 2, VELDEN: 'TYPE_DIENST_ID, INGEVOERD_DOOR' }),
     ]),
     new EndpointGroup('Rooster', [
       new Endpoint('ID', 'GET', '/Rooster/GetObjects', { ID: 3 }),
