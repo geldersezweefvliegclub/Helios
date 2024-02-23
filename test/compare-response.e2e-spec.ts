@@ -70,7 +70,7 @@ describe('API Response Comparison (e2e)', () => {
 
   const endpoints = [
     new EndpointGroup('Diensten', [
-      new Endpoint('ID', 'GET', '/Diensten/GetObjects', { ID: 1 }),
+      new Endpoint('ID', 'GET', '/Diensten/GetObjects', { ID: 27 }),
       new Endpoint('Max', 'GET', '/Diensten/GetObjects', { MAX: 2 }),
       new Endpoint('Sort ID ASC', 'GET', '/Diensten/GetObjects', { SORT: 'ID' }),
       new Endpoint('Sort ID DESC', 'GET', '/Diensten/GetObjects', { SORT: 'ID DESC' }),
