@@ -1,0 +1,1200 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>Helios documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+    </head>
+    <body>
+          <script>
+               // Blocking script to avaoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
+
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+
+               if ($darkModeToggles.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-block d-sm-none">
+            <a href="../" class="navbar-brand">Helios documentation</a>
+            <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="hidden-xs menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content class">
+                   <div class="content-data">
+
+
+
+
+
+
+
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Classes</li>
+  <li class="breadcrumb-item" >IHeliosService</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" 
+                class="nav-link"
+                class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" 
+                class="nav-link"
+                
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info">
+        <p class="comment">
+            <h3>File</h3>
+        </p>
+        <p class="comment">
+            <code>src/core/base/IHelios.service.ts</code>
+        </p>
+
+
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>Base-service die basisfunctionaliteiten biedt voor het ophalen, updaten, toevoegen, herstellen en verwijderen van een TypeORM Entity in de database.
+Deze service weet niet hoe de Entity eruit ziet, behalve dat het een IHeliosEntity is.
+ @param Entity TypeORM Entity die de service behandelt.</p>
+
+            </p>
+
+
+
+
+            <section data-compodoc="block-index">
+    <h3 id="index">Index</h3>
+    <table class="table table-sm table-bordered index-table">
+        <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Properties</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#logger" >logger</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Methods</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#addObject" >addObject</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Protected</span>
+                                <a href="#applySelectionFilterToCalculatedColumns" >applySelectionFilterToCalculatedColumns</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Protected</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#bouwDatasetResponse" >bouwDatasetResponse</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#deleteObject" >deleteObject</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#getObject" >getObject</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#getObjects" >getObjects</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#restoreObject" >restoreObject</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#updateObject" >updateObject</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+
+
+
+
+        </tbody>
+    </table>
+</section>
+
+            <section data-compodoc="block-constructor">
+    <h3 id="constructor">Constructor</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                                <span class="modifier">Protected</span>
+                        <code>constructor(repository: Repository<Entity>, viewRepository: Repository<ViewEntity>, auditRepository: <a href="../classes/AuditEntity.html" target="_self">Repository&lt;AuditEntity&gt;</a>)</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="17" class="link-to-prism">src/core/base/IHelios.service.ts:17</a></div>
+                            </td>
+                        </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                            <div>
+                                    <b>Parameters :</b>
+                                    <table class="params">
+                                        <thead>
+                                            <tr>
+                                                <td>Name</td>
+                                                    <td>Type</td>
+                                                <td>Optional</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                                <tr>
+                                                        <td>repository</td>
+                                                  
+                                                        <td>
+                                                                    <code>Repository&lt;Entity&gt;</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>viewRepository</td>
+                                                  
+                                                        <td>
+                                                                    <code>Repository&lt;ViewEntity&gt;</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>auditRepository</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../classes/AuditEntity.html" target="_self" >Repository&lt;AuditEntity&gt;</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                        </tbody>
+                                    </table>
+                            </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+</section>
+
+            <section data-compodoc="block-properties">
+    
+    <h3 id="inputs">
+        Properties
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="logger"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>logger</b></span>
+                        <a href="#logger"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>Logger</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>new Logger(&#x27;IHeliosService&#x27;)</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="17" class="link-to-prism">src/core/base/IHelios.service.ts:17</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+</section>
+
+            <section data-compodoc="block-methods">
+    
+    <h3 id="methods">
+        Methods
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="addObject"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>addObject</b></span>
+                        <a href="#addObject"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>addObject(data: Entity)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="80"
+                                    class="link-to-prism">src/core/base/IHelios.service.ts:80</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Voeg een nieuw object toe aan de database.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>data</td>
+                                            <td>
+                                                        <code>Entity</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;Entity&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="applySelectionFilterToCalculatedColumns"></a>
+                    <span class="name">
+                            <span class="modifier">Protected</span>
+                        <span ><b>applySelectionFilterToCalculatedColumns</b></span>
+                        <a href="#applySelectionFilterToCalculatedColumns"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>applySelectionFilterToCalculatedColumns(dataset: ViewEntity[], selection: FindOptionsSelect<ViewEntity> | FindOptionsSelectByString<ViewEntity>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="133"
+                                    class="link-to-prism">src/core/base/IHelios.service.ts:133</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>A find object filters the dataset on database level, but does not filter on fields that are calculated in the Entity class.
+This method applies the selection filter on a list of objects that are mostly already filtered by TypeORM, but where calculated fields are still remaining.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>dataset</td>
+                                            <td>
+                                                        <code>ViewEntity[]</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>selection</td>
+                                            <td>
+                                                        <code>FindOptionsSelect&lt;ViewEntity&gt; | FindOptionsSelectByString&lt;ViewEntity&gt;</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="bouwDatasetResponse"></a>
+                    <span class="name">
+                            <span class="modifier">Protected</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>bouwDatasetResponse</b></span>
+                        <a href="#bouwDatasetResponse"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>bouwDatasetResponse(dataset: ViewEntity[], findOptions: FindManyOptions<ViewEntity>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="156"
+                                    class="link-to-prism">src/core/base/IHelios.service.ts:156</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>dataset</td>
+                                            <td>
+                                                        <code>ViewEntity[]</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>findOptions</td>
+                                            <td>
+                                                        <code>FindManyOptions&lt;ViewEntity&gt;</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../interfaces/GetObjectsResponse.html" target="_self" >Promise&lt;GetObjectsResponse&lt;ViewEntity&gt;&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="deleteObject"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>deleteObject</b></span>
+                        <a href="#deleteObject"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>deleteObject(id?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="114"
+                                    class="link-to-prism">src/core/base/IHelios.service.ts:114</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Soft-delete (VERWIJDERD=true) het object met gegeven ID uit de database.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>unknown</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getObject"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>getObject</b></span>
+                        <a href="#getObject"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getObject(id?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="32"
+                                    class="link-to-prism">src/core/base/IHelios.service.ts:32</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Haal een enkel object op uit de database met gegeven ID.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;Entity&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getObjects"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>getObjects</b></span>
+                        <a href="#getObjects"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getObjects(filter: <a href="../classes/IHeliosFilterDTO.html" target="_self">IHeliosFilterDTO&lt;ViewEntity&gt;</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="45"
+                                    class="link-to-prism">src/core/base/IHelios.service.ts:45</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Haal een lijst van objecten op uit de database die voldoen aan het gegeven filter.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>filter</td>
+                                            <td>
+                                                            <code><a href="../classes/IHeliosFilterDTO.html" target="_self" >IHeliosFilterDTO&lt;ViewEntity&gt;</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>Filter om de objecten op te halen.</p>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../interfaces/GetObjectsResponse.html" target="_self" >Promise&lt;GetObjectsResponse&lt;ViewEntity&gt;&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="restoreObject"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>restoreObject</b></span>
+                        <a href="#restoreObject"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>restoreObject(id?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="96"
+                                    class="link-to-prism">src/core/base/IHelios.service.ts:96</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Herstel een soft-deleted object in de database, zodat deze niet meer als verwijderd wordt gezien.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
+                                            </td>
+
+
+                                            <td>
+                                                    <p>ID van het object om te herstellen.</p>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;Entity&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="updateObject"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>updateObject</b></span>
+                        <a href="#updateObject"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>updateObject(objectData: DeepPartial<Entity>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="60"
+                                    class="link-to-prism">src/core/base/IHelios.service.ts:60</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Update een object in de database met gegeven data.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>objectData</td>
+                                            <td>
+                                                        <code>DeepPartial&lt;Entity&gt;</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;Entity&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+
+
+
+
+    </div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { GetObjectsResponse } from &#x27;./GetObjectsResponse&#x27;;
+import {DeepPartial, FindManyOptions, FindOptionsSelectByString, Repository} from &#x27;typeorm&#x27;;
+import { BadRequestException, Logger, NotFoundException } from &#x27;@nestjs/common&#x27;;
+import { createHash } from &#x27;crypto&#x27;;
+import { IHeliosObject } from &#x27;./IHeliosObject&#x27;;
+import { IHeliosFilterDTO } from &#x27;./IHeliosFilterDTO&#x27;;
+import { FindOptionsSelect } from &#x27;typeorm/find-options/FindOptionsSelect&#x27;;
+import { AuditEntity } from &#x27;../entities/Audit.entity&#x27;;
+import { InjectRepository } from &#x27;@nestjs/typeorm&#x27;;
+
+/**
+ * Base-service die basisfunctionaliteiten biedt voor het ophalen, updaten, toevoegen, herstellen en verwijderen van een TypeORM Entity in de database.
+ * Deze service weet niet hoe de Entity eruit ziet, behalve dat het een IHeliosEntity is.
+ *  @param Entity TypeORM Entity die de service behandelt.
+ */
+export abstract class IHeliosService&lt;Entity extends IHeliosObject, ViewEntity extends IHeliosObject&gt; {
+  private logger: Logger &#x3D; new Logger(&#x27;IHeliosService&#x27;);
+
+  protected constructor(
+      protected readonly repository: Repository&lt;Entity&gt;,
+      protected readonly viewRepository: Repository&lt;ViewEntity&gt;,
+      @InjectRepository(AuditEntity) protected readonly auditRepository: Repository&lt;AuditEntity&gt;,
+  ) {
+  }
+
+  /**
+   * Haal een enkel object op uit de database met gegeven ID.
+   * @param id
+   * @throws BadRequestException ID moet ingevuld zijn.
+   * @throws NotFoundException Object niet gevonden.
+   */
+  async getObject(id?: number): Promise&lt;Entity&gt; {
+    if (!id) throw new BadRequestException(&#x27;ID moet ingevuld zijn.&#x27;);
+
+    const result &#x3D; await this.repository.findOne({ where: { ID: id } as never });
+    if (!result) throw new NotFoundException(&#x27;Object niet gevonden.&#x27;);
+
+    return result;
+  };
+
+  /**
+   * Haal een lijst van objecten op uit de database die voldoen aan het gegeven filter.
+   * @param filter Filter om de objecten op te halen.
+   */
+  async getObjects(filter: IHeliosFilterDTO&lt;ViewEntity&gt;): Promise&lt;GetObjectsResponse&lt;ViewEntity&gt;&gt; {
+    filter.bouwGetObjectsFindOptions();
+    const findOptions &#x3D; filter.findOptionsBuilder.findOptions;
+    const datasetRaw &#x3D; await this.viewRepository.find(findOptions);
+    const dataset &#x3D; this.applySelectionFilterToCalculatedColumns(datasetRaw, findOptions.select);
+
+    return this.bouwDatasetResponse(dataset, findOptions);
+  }
+
+  /**
+   * Update een object in de database met gegeven data.
+   * @throws BadRequestException ID moet ingevuld zijn.
+   * @throws BadRequestException Object om te updaten niet gevonden.
+   * @param objectData
+   */
+  async updateObject(objectData: DeepPartial&lt;Entity&gt;): Promise&lt;Entity&gt; {
+    if (!objectData.ID) {
+      throw new BadRequestException(&#x27;ID moet ingevuld zijn.&#x27;);
+    }
+
+    const existingType &#x3D; await this.getObject(objectData.ID);
+
+    if (!existingType) {
+      throw new BadRequestException(&#x27;Object om te updaten niet gevonden.&#x27;);
+    }
+
+    const updatedType &#x3D; this.repository.merge(existingType, objectData);
+    return this.repository.save(updatedType);
+  }
+
+  /**
+   * Voeg een nieuw object toe aan de database.
+   * @param data
+   * @throws BadRequestException Object data moet zijn ingevuld.
+   */
+  async addObject(data: Entity): Promise&lt;Entity&gt; {
+    if (!data) {
+      throw new BadRequestException(&#x27;Object data moet zijn ingevuld.&#x27;);
+    }
+
+    // TODO: Check for Conflict (bestaat al) wat oude PHP backend ook doet
+    const newType &#x3D; this.repository.create(data);
+    return this.repository.save(newType);
+  }
+
+  /**
+   * Herstel een soft-deleted object in de database, zodat deze niet meer als verwijderd wordt gezien.
+   * @param id ID van het object om te herstellen.
+   * @throws BadRequestException ID moet ingevuld zijn.
+   * @throws BadRequestException Object om te herstellen niet gevonden.
+   */
+  async restoreObject(id?: number): Promise&lt;Entity&gt; {
+    if (!id) throw new BadRequestException(&#x27;ID moet ingevuld zijn.&#x27;);
+    const existingType &#x3D; await this.getObject(id);
+
+    if (!existingType) {
+      throw new BadRequestException(&#x27;Object om te herstellen niet gevonden.&#x27;);
+    }
+
+    existingType.VERWIJDERD &#x3D; false;
+    return this.repository.save(existingType);
+  }
+
+  /**
+   * Soft-delete (VERWIJDERD&#x3D;true) het object met gegeven ID uit de database.
+   * @throws BadRequestException ID moet ingevuld zijn.
+   * @throws BadRequestException Type om te verwijderen niet gevonden.
+   * @param id
+   */
+  async deleteObject(id?: number) {
+    if (!id) throw new BadRequestException(&#x27;ID moet ingevuld zijn.&#x27;);
+    const existingType &#x3D; await this.getObject(id);
+
+    if (!existingType) {
+      throw new BadRequestException(&#x27;Type om te verwijderen niet gevonden.&#x27;);
+    }
+
+    existingType.VERWIJDERD &#x3D; true;
+    return this.repository.save(existingType);
+  }
+
+  /**
+   * A find object filters the dataset on database level, but does not filter on fields that are calculated in the Entity class.
+   * This method applies the selection filter on a list of objects that are mostly already filtered by TypeORM, but where calculated fields are still remaining.
+   * @param dataset
+   * @param selection
+   * @private
+   */
+  protected applySelectionFilterToCalculatedColumns(dataset: ViewEntity[], selection: FindOptionsSelect&lt;ViewEntity&gt; | FindOptionsSelectByString&lt;ViewEntity&gt;) {
+    if (!selection) return dataset;
+    if (Array.isArray(selection)) {
+      this.logger.warn(&#x27;applySelectionFilterToCalculatedColumns is not implemented for FindOptionsSelectByString filter. Returning the dataset unfiltered.&#x27;);
+      return dataset;
+    }
+    // For each object in the dataset
+    return dataset.map((dbObject) &#x3D;&gt; {
+      // Create a new object to hold the properties included in the selection object
+      const filteredObj: Partial&lt;ViewEntity&gt; &#x3D; {};
+
+      Object.keys(dbObject).forEach((key) &#x3D;&gt; {
+        // If the property is in the selection object, add it to the filtered object
+        if (selection[key]) {
+          filteredObj[key as keyof ViewEntity] &#x3D; dbObject[key as keyof ViewEntity];
+        }
+      });
+
+      // Return the filtered object
+      return filteredObj as ViewEntity;
+    });
+  }
+
+  protected async bouwDatasetResponse(dataset: ViewEntity[], findOptions: FindManyOptions&lt;ViewEntity&gt;): Promise&lt;GetObjectsResponse&lt;ViewEntity&gt;&gt;{
+      const hash &#x3D; createHash(&#x27;md5&#x27;).update(JSON.stringify(dataset)).digest(&#x27;hex&#x27;);
+
+      // if the filter contains a limit, get the total count of the dataset without the limit, otherwise just get the total count of the dataset.
+      const isResultLimited &#x3D; !!findOptions.take;
+      const totaal &#x3D; isResultLimited
+          ? await this.viewRepository.count({ where: findOptions.where })
+          : dataset.length;
+
+      // Get the latest LAATSTE_AANPASSING from the dataset, by querying for it again, but only for the IDs in the dataset.
+      // Except when the dataset is result-limited, then we get the latest LAATSTE_AANPASSING from the entire dataset.
+      const queryBuilder  &#x3D; this.repository.createQueryBuilder(this.repository.metadata.tableName);
+      queryBuilder.select(&#x27;MAX(LAATSTE_AANPASSING)&#x27;, &#x27;laatste_aanpassing&#x27;)
+
+      if (!isResultLimited) queryBuilder.whereInIds(dataset.map((obj) &#x3D;&gt; obj.ID));
+
+      const laatsteAanpassing &#x3D; (await queryBuilder.getRawOne())?.laatste_aanpassing;
+
+      return {
+          totaal: totaal,
+          laatste_aanpassing: laatsteAanpassing,
+          dataset: dataset,
+          hash: hash,
+      };
+  }
+}
+</code></pre>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'class';
+            var COMPODOC_CURRENT_PAGE_URL = 'IHeliosService.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+       <script src="../js/libs/zepto.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>
