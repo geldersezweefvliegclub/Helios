@@ -6,7 +6,7 @@ include "../cronjobs/functions.php";
 
 $vliegtuigenHTML = "";
 
-$url_args = "CLUBKIST=true&VELDEN=REG_CALL,INZETBAAR,OPMERKINGEN";
+$url_args = "CLUBKIST=true&VELDEN=CALLSIGN,INZETBAAR,OPMERKINGEN";
 heliosInit("Vliegtuigen/GetObjects?" . $url_args);
 
 $result      = curl_exec($curl_session);
@@ -31,7 +31,7 @@ else {
             $inzetbaar = ($vliegtuig['INZETBAAR'] == true) ? "Inzetbaar" : "<div style='color:red;'><b>NIET</b> inzetbaar</div>";
 
             $vliegtuigenHTML .= "<tr>";
-            $vliegtuigenHTML .= "<td style='padding-right:10px;'>" . $vliegtuig['REG_CALL'] . "</td>";
+            $vliegtuigenHTML .= "<td style='padding-right:10px;'>" . $vliegtuig['CALLSIGN'] . "</td>";
             $vliegtuigenHTML .= "<td style='padding-right:10px;'>" . $inzetbaar . "</td>";
             $vliegtuigenHTML .= "<td>" . $vliegtuig['OPMERKINGEN'] . "</td>";
             $vliegtuigenHTML .= "</tr>";
@@ -111,7 +111,7 @@ else {
             }
 
             table {
-                font-size:30px;
+                font-size:25px;
             }
         </style>
     </head>
