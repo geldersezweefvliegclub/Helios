@@ -19,3 +19,4 @@ log/
 documenten/
 lib/.DS_Store
 .DS_Store
+/cronjobs/matrix-access_token.json
