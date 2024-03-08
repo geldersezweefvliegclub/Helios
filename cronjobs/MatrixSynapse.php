@@ -101,6 +101,7 @@ class synapse
         $status_code = curl_getinfo($curl_session, CURLINFO_HTTP_CODE); //get status code
 
         if ($status_code != 200) {
+            Error(__FILE__, __LINE__, sprintf("login(%s, %s)", $username, isset($password) ? "true" : "false"));
             Error(__FILE__, __LINE__, sprintf("Inloggen mislukt, status=%s body=%s", $status_code, $body));
             throw new Exception("500;Inloggen mislukt;" . $body);
         }
@@ -172,7 +173,7 @@ class synapse
         else
         {
             // Als de gebruiker bestaat, gaan we kijken of er een update nodig is
-            $avatarUrl = synapse::updateAvatar($lid);
+            $avatarUrl = null;  // synapse::updateAvatar($lid);
             if (isset($avatarUrl)) {
                 $updateNodig = true;
             }
@@ -201,6 +202,8 @@ class synapse
         Debug(__FILE__, __LINE__, sprintf("gebruikerBestaat=%s updateNodig=%s", $gebruikerBestaat ? "true" : "false", $updateNodig ? "true" : "false"));
         if (!$gebruikerBestaat || $updateNodig || isset($password))
         {
+            $data = array();
+
             if (!isset($_SESSION["MATRIX"]))
                 $_SESSION["MATRIX"] = self::login();
 
@@ -232,22 +235,35 @@ class synapse
             if (isset($avatarUrl))
                 $data["avatar_url"] = $avatarUrl;
 
-            Debug(__FILE__, __LINE__, sprintf("url=%s", $url));
-            Debug(__FILE__, __LINE__, sprintf("data=%s", json_encode($data)));
-
-            $curl_session = self::initCurl($url, "PUT");
-            curl_setopt($curl_session, CURLOPT_POSTFIELDS, json_encode($data));
-            $body = curl_exec($curl_session);
-
-            $status_code = curl_getinfo($curl_session, CURLINFO_HTTP_CODE); //get status code
-
-            if ($status_code != 200) {
-                if ($status_code == 0)
-                    Error(__FILE__, __LINE__, sprintf("status=0 url=%s", $url));
-                else
-                    Error(__FILE__, __LINE__, sprintf("status=%s body=%s", $status_code, $body));
+            // voor re-activeren moet wachtwoord ingevoerd zijn. Als dat niet zo is de maken we een fake wachtwoord
+            if (!$lid['VERWIJDERD'] && $matrixGebruiker['deactivated'])
+            {
+                if (!array_key_exists("password", $data))
+                    $data["password"] = base64_encode(random_bytes(10));
             }
-            Debug(__FILE__, __LINE__, sprintf("updateGebruiker result = %s %s", $status_code, $body));
+
+            Debug(__FILE__, __LINE__, sprintf("url=%s", $url));
+            Debug(__FILE__, __LINE__, sprintf("data=%s", print_r($data, true)));
+
+            if (count($data) == 0) {
+                Debug(__FILE__, __LINE__, sprintf("Geen data om te updaten %s %s", print_r($lid, true), print_r($matrixGebruiker, true)));
+                Error(__FILE__, __LINE__, sprintf("Geen data om te updaten"));
+            }
+            else {
+                $curl_session = self::initCurl($url, "PUT");
+                curl_setopt($curl_session, CURLOPT_POSTFIELDS, json_encode($data));
+                $body = curl_exec($curl_session);
+
+                $status_code = curl_getinfo($curl_session, CURLINFO_HTTP_CODE); //get status code
+
+                if ($status_code != 200) {
+                    if ($status_code == 0)
+                        Error(__FILE__, __LINE__, sprintf("status=0 url=%s", $url));
+                    else
+                        Error(__FILE__, __LINE__, sprintf("status=%s body=%s", $status_code, $body));
+                }
+                Debug(__FILE__, __LINE__, sprintf("updateGebruiker result = %s %s", $status_code, $body));
+            }
         }
     }
 
@@ -256,12 +272,18 @@ class synapse
     {
         global $matrix_settings;
 
-        Debug(__FILE__, __LINE__, sprintf("verwijderGebruiker %s", (isset($matrix_settings)) ? "true" : "false"));
+        Debug(__FILE__, __LINE__, sprintf("verwijderGebruiker %s", $lid["INLOGNAAM"]));
         if (!isset($matrix_settings))
             return;
 
         if (!isset($_SESSION["MATRIX"]))
             $_SESSION["MATRIX"] = self::login();
+
+        $matrixGebruiker = self::bestaatGebruiker(strtolower($lid["INLOGNAAM"]));
+        if (!isset($matrixGebruiker)) {
+            Debug(__FILE__, __LINE__, sprintf("Gebruiker %s bestaat niet in Matrix", $lid["INLOGNAAM"]));
+            return;
+        }
 
         $data = array("erase" => true);
 
