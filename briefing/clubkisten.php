@@ -25,15 +25,14 @@ else {
         $vliegtuigenHTML = "<h1>Er zijn geen vliegtuigen</h1>";
     } else {
         $vliegtuigenHTML = "<table>";
-        $vliegtuigenHTML .= "<tr><td>&nbsp;</td></tr>";
 
         foreach ($vliegtuigen['dataset'] as $vliegtuig) {
-            $inzetbaar = ($vliegtuig['INZETBAAR'] == true) ? "Inzetbaar" : "<div style='color:red;'><b>NIET</b> inzetbaar</div>";
+            $inzetbaar = ($vliegtuig['INZETBAAR'] == true) ? "Inzetbaar" : "<div style='color:red;'><b>US</b></div>";
 
             $vliegtuigenHTML .= "<tr>";
             $vliegtuigenHTML .= "<td style='padding-right:10px;'>" . $vliegtuig['CALLSIGN'] . "</td>";
             $vliegtuigenHTML .= "<td style='padding-right:10px;'>" . $inzetbaar . "</td>";
-            $vliegtuigenHTML .= "<td>" . $vliegtuig['OPMERKINGEN'] . "</td>";
+            $vliegtuigenHTML .= "<td style='font-size:15px;'>" . $vliegtuig['OPMERKINGEN'] . "</td>";
             $vliegtuigenHTML .= "</tr>";
         }
 
@@ -66,7 +65,6 @@ else {
     {
         $ledenHTML = sprintf("
         <table style='padding-right: 10px'>
-            <tr><td>&nbsp;</td></tr>
             <tr><td>Aanmeldingen<td></td>   <td style='padding-left: 10px;'>%s</td></tr>
             <tr><td>DBO<td></td>            <td style='padding-left: 10px;'>%s</td></tr>
             <tr><td>Solisten<td></td>       <td style='padding-left: 10px;'>%s</td></tr>
@@ -113,24 +111,34 @@ else {
             table {
                 font-size:25px;
             }
+
+            h1 {
+                font-size: 35px;
+                margin-bottom: 10px;
+            }
+
+            h2 {
+                font-size: 25px;
+                margin-bottom: 10px;
+            }
         </style>
     </head>
     <body style="background-color: rgba(222,235,247,1)">
         <img src='logo.jpg' width="100%"></img>
         <table style="width: 100%">
             <tr>
-                <td><div class='titel'><h1>Status club vliegtuigen</h1></div></td>
+                <td><div class='titel'><h1>Status vliegtuigen</h1></div></td>
                 <td  style="padding-left: 30px;"><div class='titel'><h1>Aanmeldingen</h1></div></td>
             </tr>
             <tr>
-                <td style="vertical-align: top; width: 40%;">
+                <td style="vertical-align: top; width: 35%;">
                     <?php echo $vliegtuigenHTML; ?>
                 </td>
-                <td style="padding-left: 30px;vertical-align: top;width=60%;">
+                <td style="padding-left: 30px;vertical-align: top;width=65%;">
                     <table style="width:100%">
                         <tr style='vertical-align:top;'">
-                            <td style="width: 50%;"> <?php echo $ledenHTML; ?></td>
-                            <td style="width: 50%;">  <?php echo $samenvattingHTML; ?></td>
+                            <td style="width: 35%;"> <?php echo $ledenHTML; ?></td>
+                            <td style="width: 65%;">  <?php echo $samenvattingHTML; ?></td>
                         </tr>
                     </table>
                 </td>
