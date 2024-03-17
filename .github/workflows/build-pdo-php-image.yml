@@ -1,0 +1,44 @@
+# We need to build a custom PHP apache image because the default one on Docker Hub does not have the database (PDO) drivers installed for mysql/mariadb
+# Therefore we need to build our own image and publish it to Docker Hub.
+# To make sure we always build on the same CPU architecture we build this image in Github Actions and emulate different CPU architectures.
+# This makes our docker image very portable because we can deploy it on any platform we emulate the architecture for.
+
+name: Build Docker Apache PHP image W/ PDO MySQL Drivers
+
+on:
+# Trigger on every push to every branch
+  push:
+# Allows for manual trigger too in the Github Actions user interface (on github.com, Actions tab)
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    # Git clone the repository
+    - uses: actions/checkout@v3
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.USERNAME }}
+        password: ${{ secrets.TOKEN }}
+        
+    # Set up the emulator
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v2
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Create custom buildx builder
+      run: docker buildx create --name mybuilder
+      
+    - name: Use the created builder
+      run: docker buildx use mybuilder
+    
+    - name: Bootstrap builder bootstrap
+      run: docker buildx inspect --bootstrap
+
+    - name: Build and push image
+      run: docker buildx build --platform=linux/arm64/v8,linux/amd64 -t ${{ secrets.USERNAME }}/php-apache-pdo:latest --push -f ./docker_productie/Dockerfile
