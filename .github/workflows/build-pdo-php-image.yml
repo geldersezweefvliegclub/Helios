@@ -6,8 +6,9 @@
 name: Build Docker Apache PHP image W/ PDO MySQL Drivers
 
 on:
-# Trigger on every push to every branch
-  push:
+  schedule:
+  # Run at 00:00 on day 1 of the month automatically so we are on a semi-latest version of the official PHP base image
+  - cron: "0 0 1 * *"
 # Allows for manual trigger too in the Github Actions user interface (on github.com, Actions tab)
   workflow_dispatch:
 
