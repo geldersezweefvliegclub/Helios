@@ -41,4 +41,4 @@ jobs:
       run: docker buildx inspect --bootstrap
 
     - name: Build and push image
-      run: docker buildx build --platform=linux/arm64/v8,linux/amd64 -t ${{ secrets.USERNAME }}/php-apache-pdo:latest --push ./docker_productie/Dockerfile
+      run: docker buildx build --platform=linux/arm64/v8,linux/amd64 -f ./docker_productie/Dockerfile -t ${{ secrets.USERNAME }}/php-apache-pdo:latest --push . 
