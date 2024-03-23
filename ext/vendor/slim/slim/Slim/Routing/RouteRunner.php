@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -21,26 +22,12 @@ use Slim\Middleware\RoutingMiddleware;
 
 class RouteRunner implements RequestHandlerInterface
 {
-    /**
-     * @var RouteResolverInterface
-     */
-    private $routeResolver;
+    private RouteResolverInterface $routeResolver;
 
-    /**
-     * @var RouteParserInterface
-     */
-    private $routeParser;
+    private RouteParserInterface $routeParser;
 
-    /**
-     * @var RouteCollectorProxyInterface|null
-     */
-    private $routeCollectorProxy;
+    private ?RouteCollectorProxyInterface $routeCollectorProxy;
 
-    /**
-     * @param RouteResolverInterface            $routeResolver
-     * @param RouteParserInterface              $routeParser
-     * @param RouteCollectorProxyInterface|null $routeCollectorProxy
-     */
     public function __construct(
         RouteResolverInterface $routeResolver,
         RouteParserInterface $routeParser,
@@ -58,25 +45,26 @@ class RouteRunner implements RequestHandlerInterface
      * defined middleware stack. In the event that the user did not perform routing
      * it is done here
      *
-     * @param ServerRequestInterface $request
-     * @return ResponseInterface
      * @throws HttpNotFoundException
      * @throws HttpMethodNotAllowedException
      */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         // If routing hasn't been done, then do it now so we can dispatch
-        if ($request->getAttribute('routingResults') === null) {
+        if ($request->getAttribute(RouteContext::ROUTING_RESULTS) === null) {
             $routingMiddleware = new RoutingMiddleware($this->routeResolver, $this->routeParser);
             $request = $routingMiddleware->performRouting($request);
         }
 
         if ($this->routeCollectorProxy !== null) {
-            $request = $request->withAttribute('basePath', $this->routeCollectorProxy->getBasePath());
+            $request = $request->withAttribute(
+                RouteContext::BASE_PATH,
+                $this->routeCollectorProxy->getBasePath()
+            );
         }
 
         /** @var Route $route */
-        $route = $request->getAttribute('route');
+        $route = $request->getAttribute(RouteContext::ROUTE);
         return $route->run($request);
     }
 }

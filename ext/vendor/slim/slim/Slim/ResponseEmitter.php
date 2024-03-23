@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -11,16 +12,21 @@ namespace Slim;
 
 use Psr\Http\Message\ResponseInterface;
 
+use function connection_status;
+use function header;
+use function headers_sent;
+use function in_array;
+use function min;
+use function sprintf;
+use function strlen;
+use function strtolower;
+
+use const CONNECTION_NORMAL;
+
 class ResponseEmitter
 {
-    /**
-     * @var int
-     */
-    private $responseChunkSize;
+    private int $responseChunkSize;
 
-    /**
-     * @param int $responseChunkSize
-     */
     public function __construct(int $responseChunkSize = 4096)
     {
         $this->responseChunkSize = $responseChunkSize;
@@ -28,21 +34,17 @@ class ResponseEmitter
 
     /**
      * Send the response the client
-     *
-     * @param ResponseInterface $response
-     * @return void
      */
     public function emit(ResponseInterface $response): void
     {
         $isEmpty = $this->isResponseEmpty($response);
         if (headers_sent() === false) {
-            if ($isEmpty) {
-                $response = $response
-                    ->withoutHeader('Content-Type')
-                    ->withoutHeader('Content-Length');
-            }
-            $this->emitStatusLine($response);
             $this->emitHeaders($response);
+
+            // Set the status _after_ the headers, because of PHP's "helpful" behavior with location headers.
+            // See https://github.com/slimphp/Slim/issues/1730
+
+            $this->emitStatusLine($response);
         }
 
         if (!$isEmpty) {
@@ -52,8 +54,6 @@ class ResponseEmitter
 
     /**
      * Emit Response Headers
-     *
-     * @param ResponseInterface $response
      */
     private function emitHeaders(ResponseInterface $response): void
     {
@@ -69,8 +69,6 @@ class ResponseEmitter
 
     /**
      * Emit Status Line
-     *
-     * @param ResponseInterface $response
      */
     private function emitStatusLine(ResponseInterface $response): void
     {
@@ -85,8 +83,6 @@ class ResponseEmitter
 
     /**
      * Emit Body
-     *
-     * @param ResponseInterface $response
      */
     private function emitBody(ResponseInterface $response): void
     {
@@ -124,9 +120,6 @@ class ResponseEmitter
 
     /**
      * Asserts response body is empty or status code is 204, 205 or 304
-     *
-     * @param ResponseInterface $response
-     * @return bool
      */
     public function isResponseEmpty(ResponseInterface $response): bool
     {

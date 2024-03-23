@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -15,6 +16,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Psr\Log\LoggerInterface;
 use Slim\Factory\ServerRequestCreatorFactory;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\MiddlewareDispatcherInterface;
@@ -27,6 +29,8 @@ use Slim\Routing\RouteCollectorProxy;
 use Slim\Routing\RouteResolver;
 use Slim\Routing\RouteRunner;
 
+use function strtoupper;
+
 class App extends RouteCollectorProxy implements RequestHandlerInterface
 {
     /**
@@ -34,26 +38,12 @@ class App extends RouteCollectorProxy implements RequestHandlerInterface
      *
      * @var string
      */
-    public const VERSION = '4.3.0';
+    public const VERSION = '4.12.0';
 
-    /**
-     * @var RouteResolverInterface
-     */
-    protected $routeResolver;
+    protected RouteResolverInterface $routeResolver;
 
-    /**
-     * @var MiddlewareDispatcherInterface
-     */
-    protected $middlewareDispatcher;
+    protected MiddlewareDispatcherInterface $middlewareDispatcher;
 
-    /**
-     * @param ResponseFactoryInterface              $responseFactory
-     * @param ContainerInterface|null               $container
-     * @param CallableResolverInterface|null        $callableResolver
-     * @param RouteCollectorInterface|null          $routeCollector
-     * @param RouteResolverInterface|null           $routeResolver
-     * @param MiddlewareDispatcherInterface|null    $middlewareDispatcher
-     */
     public function __construct(
         ResponseFactoryInterface $responseFactory,
         ?ContainerInterface $container = null,
@@ -99,7 +89,6 @@ class App extends RouteCollectorProxy implements RequestHandlerInterface
 
     /**
      * @param MiddlewareInterface|string|callable $middleware
-     * @return self
      */
     public function add($middleware): self
     {
@@ -109,7 +98,6 @@ class App extends RouteCollectorProxy implements RequestHandlerInterface
 
     /**
      * @param MiddlewareInterface $middleware
-     * @return self
      */
     public function addMiddleware(MiddlewareInterface $middleware): self
     {
@@ -137,23 +125,26 @@ class App extends RouteCollectorProxy implements RequestHandlerInterface
     /**
      * Add the Slim built-in error middleware to the app middleware stack
      *
-     * @param bool $displayErrorDetails
-     * @param bool $logErrors
-     * @param bool $logErrorDetails
+     * @param bool                 $displayErrorDetails
+     * @param bool                 $logErrors
+     * @param bool                 $logErrorDetails
+     * @param LoggerInterface|null $logger
      *
      * @return ErrorMiddleware
      */
     public function addErrorMiddleware(
         bool $displayErrorDetails,
         bool $logErrors,
-        bool $logErrorDetails
+        bool $logErrorDetails,
+        ?LoggerInterface $logger = null
     ): ErrorMiddleware {
         $errorMiddleware = new ErrorMiddleware(
             $this->getCallableResolver(),
             $this->getResponseFactory(),
             $displayErrorDetails,
             $logErrors,
-            $logErrorDetails
+            $logErrorDetails,
+            $logger
         );
         $this->add($errorMiddleware);
         return $errorMiddleware;

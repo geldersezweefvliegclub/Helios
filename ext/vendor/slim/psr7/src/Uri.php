@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -12,63 +13,63 @@ namespace Slim\Psr7;
 use InvalidArgumentException;
 use Psr\Http\Message\UriInterface;
 
+use function filter_var;
+use function is_integer;
+use function is_null;
+use function is_object;
+use function is_string;
+use function ltrim;
+use function method_exists;
+use function preg_replace_callback;
+use function rawurlencode;
+use function str_replace;
+use function strtolower;
+
+use const FILTER_FLAG_IPV6;
+use const FILTER_VALIDATE_IP;
+
 class Uri implements UriInterface
 {
+    public const SUPPORTED_SCHEMES = [
+        '' => null,
+        'http' => 80,
+        'https' => 443
+    ];
+
     /**
      * Uri scheme (without "://" suffix)
-     *
-     * @var string
      */
-    protected $scheme = '';
+    protected string $scheme = '';
 
-    /**
-     * @var string
-     */
-    protected $user = '';
+    protected string $user = '';
 
-    /**
-     * @var string
-     */
-    protected $password = '';
+    protected string $password = '';
 
-    /**
-     * @var string
-     */
-    protected $host = '';
+    protected string $host = '';
 
-    /**
-     * @var null|int
-     */
-    protected $port;
+    protected ?int $port;
 
-    /**
-     * @var string
-     */
-    protected $path = '';
+    protected string $path = '';
 
     /**
      * Uri query string (without "?" prefix)
-     *
-     * @var string
      */
-    protected $query = '';
+    protected string $query = '';
 
     /**
      * Uri fragment string (without "#" prefix)
-     *
-     * @var string
      */
-    protected $fragment = '';
+    protected string $fragment = '';
 
     /**
-     * @param string $scheme   Uri scheme.
-     * @param string $host     Uri host.
-     * @param int    $port     Uri port number.
-     * @param string $path     Uri path.
-     * @param string $query    Uri query string.
-     * @param string $fragment Uri fragment.
-     * @param string $user     Uri user.
-     * @param string $password Uri password.
+     * @param string   $scheme   Uri scheme.
+     * @param string   $host     Uri host.
+     * @param int|null $port     Uri port number.
+     * @param string   $path     Uri path.
+     * @param string   $query    Uri query string.
+     * @param string   $fragment Uri fragment.
+     * @param string   $user     Uri user.
+     * @param string   $password Uri password.
      */
     public function __construct(
         string $scheme,
@@ -86,8 +87,8 @@ class Uri implements UriInterface
         $this->path = $this->filterPath($path);
         $this->query = $this->filterQuery($query);
         $this->fragment = $this->filterFragment($fragment);
-        $this->user = $user;
-        $this->password = $password;
+        $this->user = $this->filterUserInfo($user);
+        $this->password = $this->filterUserInfo($password);
     }
 
     /**
@@ -100,6 +101,7 @@ class Uri implements UriInterface
 
     /**
      * {@inheritdoc}
+     * @return static
      */
     public function withScheme($scheme)
     {
@@ -118,7 +120,7 @@ class Uri implements UriInterface
      * @return string
      *
      * @throws InvalidArgumentException If the Uri scheme is not a string.
-     * @throws InvalidArgumentException If Uri scheme is not "", "https", or "http".
+     * @throws InvalidArgumentException If Uri scheme is not exists in SUPPORTED_SCHEMES
      */
     protected function filterScheme($scheme): string
     {
@@ -126,15 +128,11 @@ class Uri implements UriInterface
             throw new InvalidArgumentException('Uri scheme must be a string.');
         }
 
-        static $valid = [
-            '' => true,
-            'https' => true,
-            'http' => true,
-        ];
-
         $scheme = str_replace('://', '', strtolower($scheme));
-        if (!isset($valid[$scheme])) {
-            throw new InvalidArgumentException('Uri scheme must be one of: "", "https", "http"');
+        if (!key_exists($scheme, static::SUPPORTED_SCHEMES)) {
+            throw new InvalidArgumentException(
+                'Uri scheme must be one of: "' . implode('", "', array_keys(static::SUPPORTED_SCHEMES)) . '"'
+            );
         }
 
         return $scheme;
@@ -159,7 +157,7 @@ class Uri implements UriInterface
     {
         $info = $this->user;
 
-        if (isset($this->password) && $this->password !== '') {
+        if ($this->password !== '') {
             $info .= ':' . $this->password;
         }
 
@@ -168,6 +166,7 @@ class Uri implements UriInterface
 
     /**
      * {@inheritdoc}
+     * @return static
      */
     public function withUserInfo($user, $password = null)
     {
@@ -219,6 +218,7 @@ class Uri implements UriInterface
 
     /**
      * {@inheritdoc}
+     * @return static
      */
     public function withHost($host)
     {
@@ -267,6 +267,7 @@ class Uri implements UriInterface
 
     /**
      * {@inheritdoc}
+     * @return static
      */
     public function withPort($port)
     {
@@ -284,15 +285,15 @@ class Uri implements UriInterface
      */
     protected function hasStandardPort(): bool
     {
-        return ($this->scheme === 'http' && $this->port === 80) || ($this->scheme === 'https' && $this->port === 443);
+        return static::SUPPORTED_SCHEMES[$this->scheme] === $this->port;
     }
 
     /**
      * Filter Uri port.
      *
-     * @param  null|int $port The Uri port number.
+     * @param  int|null $port The Uri port number.
      *
-     * @return null|int
+     * @return int|null
      *
      * @throws InvalidArgumentException If the port is invalid.
      */
@@ -315,6 +316,7 @@ class Uri implements UriInterface
 
     /**
      * {@inheritdoc}
+     * @return static
      */
     public function withPath($path)
     {
@@ -363,6 +365,7 @@ class Uri implements UriInterface
 
     /**
      * {@inheritdoc}
+     * @return static
      */
     public function withQuery($query)
     {
@@ -413,6 +416,7 @@ class Uri implements UriInterface
 
     /**
      * {@inheritdoc}
+     * @return static
      */
     public function withFragment($fragment)
     {
@@ -466,7 +470,20 @@ class Uri implements UriInterface
         $query = $this->getQuery();
         $fragment = $this->getFragment();
 
-        $path = '/' . ltrim($path, '/');
+        if ($path !== '') {
+            if ($path[0] !== '/') {
+                if ($authority !== '') {
+                    // If the path is rootless and an authority is present, the path MUST be prefixed by "/".
+                    $path = '/' . $path;
+                }
+            } elseif (isset($path[1]) && $path[1] === '/') {
+                if ($authority === '') {
+                    // If the path is starting with more than one "/" and no authority is present,
+                    // the starting slashes MUST be reduced to one.
+                    $path = '/' . ltrim($path, '/');
+                }
+            }
+        }
 
         return ($scheme !== '' ? $scheme . ':' : '')
             . ($authority !== '' ? '//' . $authority : '')

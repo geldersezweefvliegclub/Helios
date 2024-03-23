@@ -6,7 +6,9 @@ include('include/GoogleAuthenticator.php');
 
 require __DIR__ . '/ext/vendor/autoload.php';
 
-session_set_cookie_params(["SameSite" => "None", 'domain' => $_SERVER['HTTP_HOST'], "Secure" => "true"]); 
+error_reporting(E_ERROR | E_PARSE);
+
+session_set_cookie_params(["SameSite" => "None", 'domain' => $_SERVER['HTTP_HOST'], "Secure" => "true"]);
 
 // Allow from any origin
 if (isset($_SERVER['HTTP_ORIGIN'])) 

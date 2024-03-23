@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -14,17 +15,17 @@ use Psr\Http\Message\MessageInterface;
 use Psr\Http\Message\StreamInterface;
 use Slim\Psr7\Interfaces\HeadersInterface;
 
+use function array_keys;
+use function header;
+use function header_remove;
+use function implode;
+use function sprintf;
+
 abstract class Message implements MessageInterface
 {
-    /**
-     * @var string
-     */
-    protected $protocolVersion = '1.1';
+    protected string $protocolVersion = '1.1';
 
-    /**
-     * @var array
-     */
-    protected static $validProtocolVersions = [
+    protected static array $validProtocolVersions = [
         '1.0' => true,
         '1.1' => true,
         '2.0' => true,
@@ -63,6 +64,7 @@ abstract class Message implements MessageInterface
     }
 
     /**
+     * @return static
      * {@inheritdoc}
      */
     public function withProtocolVersion($version)
@@ -114,6 +116,7 @@ abstract class Message implements MessageInterface
     }
 
     /**
+     * @return static
      * {@inheritdoc}
      */
     public function withHeader($name, $value)
@@ -129,6 +132,7 @@ abstract class Message implements MessageInterface
     }
 
     /**
+     * @return static
      * {@inheritdoc}
      */
     public function withAddedHeader($name, $value)
@@ -144,6 +148,7 @@ abstract class Message implements MessageInterface
     }
 
     /**
+     * @return static
      * {@inheritdoc}
      */
     public function withoutHeader($name)
@@ -167,6 +172,7 @@ abstract class Message implements MessageInterface
     }
 
     /**
+     * @return static
      * {@inheritdoc}
      */
     public function withBody(StreamInterface $body)

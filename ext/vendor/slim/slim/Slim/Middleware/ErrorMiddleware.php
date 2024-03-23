@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -14,75 +15,61 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Psr\Log\LoggerInterface;
 use Slim\Exception\HttpException;
 use Slim\Handlers\ErrorHandler;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\ErrorHandlerInterface;
 use Throwable;
 
+use function get_class;
+use function is_subclass_of;
+
 class ErrorMiddleware implements MiddlewareInterface
 {
-    /**
-     * @var CallableResolverInterface
-     */
-    protected $callableResolver;
+    protected CallableResolverInterface $callableResolver;
+
+    protected ResponseFactoryInterface $responseFactory;
+
+    protected bool $displayErrorDetails;
+
+    protected bool $logErrors;
+
+    protected bool $logErrorDetails;
+
+    protected ?LoggerInterface $logger = null;
 
     /**
-     * @var ResponseFactoryInterface
+     * @var ErrorHandlerInterface[]|callable[]|string[]
      */
-    protected $responseFactory;
+    protected array $handlers = [];
 
     /**
-     * @var bool
+     * @var ErrorHandlerInterface[]|callable[]|string[]
      */
-    protected $displayErrorDetails;
+    protected array $subClassHandlers = [];
 
     /**
-     * @var bool
-     */
-    protected $logErrors;
-
-    /**
-     * @var bool
-     */
-    protected $logErrorDetails;
-
-    /**
-     * @var array
-     */
-    protected $handlers = [];
-
-    /**
-     * @var ErrorHandlerInterface|callable|null
+     * @var ErrorHandlerInterface|callable|string|null
      */
     protected $defaultErrorHandler;
 
-    /**
-     * @param CallableResolverInterface $callableResolver
-     * @param ResponseFactoryInterface  $responseFactory
-     * @param bool                      $displayErrorDetails
-     * @param bool                      $logErrors
-     * @param bool                      $logErrorDetails
-     */
     public function __construct(
         CallableResolverInterface $callableResolver,
         ResponseFactoryInterface $responseFactory,
         bool $displayErrorDetails,
         bool $logErrors,
-        bool $logErrorDetails
+        bool $logErrorDetails,
+        ?LoggerInterface $logger = null
     ) {
         $this->callableResolver = $callableResolver;
         $this->responseFactory = $responseFactory;
         $this->displayErrorDetails = $displayErrorDetails;
         $this->logErrors = $logErrors;
         $this->logErrorDetails = $logErrorDetails;
+        $this->logger = $logger;
     }
 
-    /**
-     * @param ServerRequestInterface  $request
-     * @param RequestHandlerInterface $handler
-     * @return ResponseInterface
-     */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         try {
@@ -92,11 +79,6 @@ class ErrorMiddleware implements MiddlewareInterface
         }
     }
 
-    /**
-     * @param ServerRequestInterface $request
-     * @param Throwable              $exception
-     * @return ResponseInterface
-     */
     public function handleException(ServerRequestInterface $request, Throwable $exception): ResponseInterface
     {
         if ($exception instanceof HttpException) {
@@ -122,6 +104,16 @@ class ErrorMiddleware implements MiddlewareInterface
             return $this->callableResolver->resolve($this->handlers[$type]);
         }
 
+        if (isset($this->subClassHandlers[$type])) {
+            return $this->callableResolver->resolve($this->subClassHandlers[$type]);
+        }
+
+        foreach ($this->subClassHandlers as $class => $handler) {
+            if (is_subclass_of($type, $class)) {
+                return $this->callableResolver->resolve($handler);
+            }
+        }
+
         return $this->getDefaultErrorHandler();
     }
 
@@ -133,7 +125,11 @@ class ErrorMiddleware implements MiddlewareInterface
     public function getDefaultErrorHandler()
     {
         if ($this->defaultErrorHandler === null) {
-            $this->defaultErrorHandler = new ErrorHandler($this->callableResolver, $this->responseFactory);
+            $this->defaultErrorHandler = new ErrorHandler(
+                $this->callableResolver,
+                $this->responseFactory,
+                $this->logger
+            );
         }
 
         return $this->callableResolver->resolve($this->defaultErrorHandler);
@@ -148,15 +144,14 @@ class ErrorMiddleware implements MiddlewareInterface
      *
      * 1. Instance of \Psr\Http\Message\ServerRequestInterface
      * 2. Instance of \Throwable
-     * 3. Boolean displayErrorDetails
+     * 3. Boolean $displayErrorDetails
      * 4. Boolean $logErrors
      * 5. Boolean $logErrorDetails
      *
      * The callable MUST return an instance of
      * \Psr\Http\Message\ResponseInterface.
      *
-     * @param callable|ErrorHandler $handler
-     * @return self
+     * @param string|callable|ErrorHandler $handler
      */
     public function setDefaultErrorHandler($handler): self
     {
@@ -170,24 +165,48 @@ class ErrorMiddleware implements MiddlewareInterface
      *
      * The callable signature MUST match the ErrorHandlerInterface
      *
+     * Pass true to $handleSubclasses to make the handler handle all subclasses of
+     * the type as well. Pass an array of classes to make the same function handle multiple exceptions.
+     *
      * @see \Slim\Interfaces\ErrorHandlerInterface
      *
      * 1. Instance of \Psr\Http\Message\ServerRequestInterface
      * 2. Instance of \Throwable
-     * 3. Boolean displayErrorDetails
+     * 3. Boolean $displayErrorDetails
      * 4. Boolean $logErrors
      * 5. Boolean $logErrorDetails
      *
      * The callable MUST return an instance of
      * \Psr\Http\Message\ResponseInterface.
      *
-     * @param string                         $type Exception/Throwable name. ie: RuntimeException::class
-     * @param callable|ErrorHandlerInterface $handler
-     * @return self
+     * @param string|string[] $typeOrTypes Exception/Throwable name.
+     * ie: RuntimeException::class or an array of classes
+     * ie: [HttpNotFoundException::class, HttpMethodNotAllowedException::class]
+     * @param string|callable|ErrorHandlerInterface $handler
      */
-    public function setErrorHandler(string $type, $handler): self
+    public function setErrorHandler($typeOrTypes, $handler, bool $handleSubclasses = false): self
     {
-        $this->handlers[$type] = $handler;
+        if (is_array($typeOrTypes)) {
+            foreach ($typeOrTypes as $type) {
+                $this->addErrorHandler($type, $handler, $handleSubclasses);
+            }
+        } else {
+            $this->addErrorHandler($typeOrTypes, $handler, $handleSubclasses);
+        }
+
         return $this;
+    }
+
+    /**
+     * Used internally to avoid code repetition when passing multiple exceptions to setErrorHandler().
+     * @param string|callable|ErrorHandlerInterface $handler
+     */
+    private function addErrorHandler(string $type, $handler, bool $handleSubclasses): void
+    {
+        if ($handleSubclasses) {
+            $this->subClassHandlers[$type] = $handler;
+        } else {
+            $this->handlers[$type] = $handler;
+        }
     }
 }

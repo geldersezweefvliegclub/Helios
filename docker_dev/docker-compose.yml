@@ -27,15 +27,14 @@ services:
     volumes:
       - db_data:/var/lib/mysql
   phpmyadmin_dev:
-    image: phpmyadmin
+    image: phpmyadmin/phpmyadmin
     container_name: phpmyadmin_dev
     restart: always
     ports:
       - 8080:80
-    volumes:
-      - ./php.ini:/usr/local/etc/php/php.ini
     environment:
-      - "PMA_HOST=mariadb"
-      - "PMA_PORT=3306"
+      - PMA_HOST=mariadb
+      - PMA_PORT=3306
+      - UPLOAD_LIMIT=500M
     depends_on:
       - mariadb_dev

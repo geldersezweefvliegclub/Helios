@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -13,8 +14,5 @@ use Psr\Http\Message\ServerRequestInterface;
 
 interface ServerRequestCreatorInterface
 {
-    /**
-     * @return ServerRequestInterface
-     */
     public function createServerRequestFromGlobals(): ServerRequestInterface;
 }

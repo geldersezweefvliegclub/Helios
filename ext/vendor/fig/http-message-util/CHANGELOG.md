@@ -2,12 +2,56 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 1.1.5 - 2020-11-24
+
+### Added
+
+- [#19](https://github.com/php-fig/http-message-util/pull/19) adds support for PHP 8.
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- Nothing.
+
+## 1.1.4 - 2020-02-05
+
+### Added
+
+- Nothing.
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- [#15](https://github.com/php-fig/http-message-util/pull/15) removes the dependency on psr/http-message, as it is not technically necessary for usage of this package.
+
+### Fixed
+
+- Nothing.
+
 ## 1.1.3 - 2018-11-19
 
 ### Added
 
 - [#10](https://github.com/php-fig/http-message-util/pull/10) adds the constants `StatusCodeInterface::STATUS_EARLY_HINTS` (103) and
-  `StatusCodeInterface::STATUS_TOO_EARLY (425).
+  `StatusCodeInterface::STATUS_TOO_EARLY` (425).
 
 ### Changed
 

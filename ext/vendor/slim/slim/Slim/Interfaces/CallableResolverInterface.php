@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -15,7 +16,6 @@ interface CallableResolverInterface
      * Resolve $toResolve into a callable
      *
      * @param string|callable $toResolve
-     * @return callable
      */
     public function resolve($toResolve): callable;
 }

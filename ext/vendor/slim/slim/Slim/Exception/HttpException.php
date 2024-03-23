@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -9,33 +10,21 @@ declare(strict_types=1);
 
 namespace Slim\Exception;
 
-use Exception;
 use Psr\Http\Message\ServerRequestInterface;
+use RuntimeException;
 use Throwable;
 
-class HttpException extends Exception
+/**
+ * @method int getCode()
+ */
+class HttpException extends RuntimeException
 {
-    /**
-     * @var ServerRequestInterface
-     */
-    protected $request;
+    protected ServerRequestInterface $request;
 
-    /**
-     * @var string
-     */
-    protected $title = '';
+    protected string $title = '';
 
-    /**
-     * @var string
-     */
-    protected $description = '';
+    protected string $description = '';
 
-    /**
-     * @param ServerRequestInterface $request
-     * @param string                 $message
-     * @param int                    $code
-     * @param Throwable|null         $previous
-     */
     public function __construct(
         ServerRequestInterface $request,
         string $message = '',
@@ -46,44 +35,27 @@ class HttpException extends Exception
         $this->request = $request;
     }
 
-    /**
-     * @return ServerRequestInterface
-     */
     public function getRequest(): ServerRequestInterface
     {
         return $this->request;
     }
 
-    /**
-     * @return string
-     */
     public function getTitle(): string
     {
         return $this->title;
     }
 
-    /**
-     * @param string $title
-     * @return self
-     */
     public function setTitle(string $title): self
     {
         $this->title = $title;
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getDescription(): string
     {
         return $this->description;
     }
 
-    /**
-     * @param string $description
-     * @return self
-     */
     public function setDescription(string $description): self
     {
         $this->description = $description;

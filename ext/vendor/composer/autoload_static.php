@@ -7,19 +7,21 @@ namespace Composer\Autoload;
 class ComposerStaticInite39cdff3d4671ad6f7505052d4cd4b1c
 {
     public static $files = array (
-        '7b11c4dc42b3b3023073cb14e519683c' => __DIR__ . '/..' . '/ralouphie/getallheaders/src/getallheaders.php',
         '253c157292f75eb38082b5acb06f3f01' => __DIR__ . '/..' . '/nikic/fast-route/src/functions.php',
+        '7b11c4dc42b3b3023073cb14e519683c' => __DIR__ . '/..' . '/ralouphie/getallheaders/src/getallheaders.php',
+        'a4a119a56e50fbb293281d9a48007e0e' => __DIR__ . '/..' . '/symfony/polyfill-php80/bootstrap.php',
     );
 
     public static $prefixLengthsPsr4 = array (
         'S' => 
         array (
-            'Slim\\Tests\\' => 11,
+            'Symfony\\Polyfill\\Php80\\' => 23,
             'Slim\\Psr7\\' => 10,
             'Slim\\' => 5,
         ),
         'P' => 
         array (
+            'Psr\\Log\\' => 8,
             'Psr\\Http\\Server\\' => 16,
             'Psr\\Http\\Message\\' => 17,
             'Psr\\Container\\' => 14,
@@ -27,6 +29,7 @@ class ComposerStaticInite39cdff3d4671ad6f7505052d4cd4b1c
         ),
         'M' => 
         array (
+            'Mollie\\Api\\' => 11,
             'MessageBird\\' => 12,
         ),
         'F' => 
@@ -35,12 +38,16 @@ class ComposerStaticInite39cdff3d4671ad6f7505052d4cd4b1c
             'Fig\\Http\\Message\\' => 17,
             'FastRoute\\' => 10,
         ),
+        'C' => 
+        array (
+            'Composer\\CaBundle\\' => 18,
+        ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'Slim\\Tests\\' => 
+        'Symfony\\Polyfill\\Php80\\' => 
         array (
-            0 => __DIR__ . '/..' . '/slim/slim/tests',
+            0 => __DIR__ . '/..' . '/symfony/polyfill-php80',
         ),
         'Slim\\Psr7\\' => 
         array (
@@ -49,6 +56,10 @@ class ComposerStaticInite39cdff3d4671ad6f7505052d4cd4b1c
         'Slim\\' => 
         array (
             0 => __DIR__ . '/..' . '/slim/slim/Slim',
+        ),
+        'Psr\\Log\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/psr/log/src',
         ),
         'Psr\\Http\\Server\\' => 
         array (
@@ -68,6 +79,10 @@ class ComposerStaticInite39cdff3d4671ad6f7505052d4cd4b1c
         array (
             0 => __DIR__ . '/..' . '/phpmailer/phpmailer/src',
         ),
+        'Mollie\\Api\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/mollie/mollie-api-php/src',
+        ),
         'MessageBird\\' => 
         array (
             0 => __DIR__ . '/..' . '/messagebird/php-rest-api/src/MessageBird',
@@ -84,10 +99,19 @@ class ComposerStaticInite39cdff3d4671ad6f7505052d4cd4b1c
         array (
             0 => __DIR__ . '/..' . '/nikic/fast-route/src',
         ),
+        'Composer\\CaBundle\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/composer/ca-bundle/src',
+        ),
     );
 
     public static $classMap = array (
+        'Attribute' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
+        'PhpToken' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/PhpToken.php',
+        'Stringable' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/Stringable.php',
+        'UnhandledMatchError' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/UnhandledMatchError.php',
+        'ValueError' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/ValueError.php',
     );
 
     public static function getInitializer(ClassLoader $loader)

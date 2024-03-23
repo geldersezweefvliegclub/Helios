@@ -1,29 +1,23 @@
 <?php
 
-try {
-    if (is_file(__DIR__ . '/../DigiWallet/autoload.php')) // wanneer hosted bij TransIP
-        require_once __DIR__ . '/../DigiWallet/autoload.php';
-}
-catch (Exception $exception) {}
-
-
-try {
-    if (is_file('/DigiWallet/autoload.php'))            // wanneer hosted in a docker
-        require_once '/DigiWallet/autoload.php';
-}
-catch (Exception $exception) {}
-
-use DigiWallet as DigiWallet;
+require_once __DIR__ . '/../ext/vendor/autoload.php';
 
 
 class Transacties extends Helios
 {
+    private $mollie;
+
 	function __construct() 
 	{
+        global $iDeal;
+
 		parent::__construct();
 		$this->dbTable = "oper_transacties";
         $this->dbView = "transacties_view";
 		$this->Naam = "Transacties";
+
+        $this->mollie = new \Mollie\Api\MollieApiClient();
+        $this->mollie->setApiKey($iDeal['mollieKey']);
 	}
 	
 	/*
@@ -104,20 +98,18 @@ class Transacties extends Helios
     /*
     Haal een enkel record op uit de database
     */
-    function GetObject($ID,$EXT_REF=null)
+    function GetObject($ID)
     {
         $functie = "Transacties.GetObject";
-        Debug(__FILE__, __LINE__, sprintf("%s(%s, %s)", $functie, $ID, $EXT_REF));
+        Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, $ID));
 
-        if (($ID == null) && ($EXT_REF == null))
-            throw new Exception("406;Geen ID, EXT_REF in aanroep;");
+        if ($ID == null)
+            throw new Exception("406;Geen IDin aanroep;");
 
         $conditie = array();
         if ($ID !== null)
             $conditie['ID'] = isINT($ID, "ID");
 
-        if ($EXT_REF !== null)
-            $conditie['EXT_REF'] = isINT($EXT_REF, "EXT_ID");
 
         $obj = parent::GetSingleObject($conditie);
         Debug(__FILE__, __LINE__, print_r($obj, true));
@@ -387,8 +379,15 @@ class Transacties extends Helios
 	// haal de banken op die iDeal ondersteunen
 	function GetBanken()
 	{
-		$digiWallet = DigiWallet\Transaction::model("Ideal");
-		return $digiWallet->bankList();
+        Debug(__FILE__, __LINE__, "GetBanken()");
+        $banken = array();
+
+        $method = $this->mollie->methods->get(\Mollie\Api\Types\PaymentMethod::IDEAL, ["include" => "issuers"]);
+        foreach ($method->issuers() as $issuer)
+        {
+            $banken[] = array('ID' => $issuer->id, 'NAAM' => $issuer->name);
+        }
+        return $banken;
 	}
 
     // start de ideal transactie
@@ -420,28 +419,6 @@ class Transacties extends Helios
         $LidData = $lObj->getObject($lidID);
         $bestelInfo = $tObj->getObject($bestellingID);
 
-        HeliosLog(__FILE__, __LINE__, sprintf("%s: ---------- Start transactie ----------", $functie));
-        HeliosLog(__FILE__, __LINE__, sprintf("%s: %s %s %s",
-                $functie, $LidData['NAAM'],
-                print_r($bestelInfo, true),
-                print_r($TransactieData, true)));
-
-        $startPaymentResult = DigiWallet\Transaction::model("Ideal")
-            ->outletId($iDeal['outletId'])
-            ->amount(100 * $bestelInfo['BEDRAG'])
-            ->description($bestelInfo['OMSCHRIJVING'])
-            ->returnUrl($iDeal['returnUrl'])
-            ->cancelUrl($iDeal['cancelUrl'])
-            ->reportUrl($iDeal['reportUrl'])
-            ->bank($TransactieData['BANK_ID'])
-            ->start();
-
-        if (isset($startPaymentResult->error))
-        {
-            HeliosLog(__FILE__, __LINE__, sprintf("%s: %s ", $functie, $startPaymentResult->error));
-            HeliosLog(__FILE__, __LINE__, sprintf("%s: ---------- ERROR transactie ----------", $functie));
-            throw new Exception("500;" . $startPaymentResult->error . ";");
-        }
         $record = array();
 
         $record['BETAALD'] = 0;
@@ -451,85 +428,98 @@ class Transacties extends Helios
         $record['BEDRAG'] = 1*$bestelInfo['BEDRAG'];
         $record['TYPE_ID'] = $bestellingID;
         $record['OMSCHRIJVING'] = $bestelInfo['OMSCHRIJVING'];
-        $record['EXT_REF'] = $startPaymentResult->transactionId;
 
         $id = parent::DbToevoegen($record);
-        HeliosLog(__FILE__, __LINE__, sprintf("%s: %s %s %s",
-            $functie, $id, $startPaymentResult->url,
-            print_r($record, true)));
 
-        Debug(__FILE__, __LINE__, sprintf("%s url=%s", $functie, $startPaymentResult->url));
-        return $startPaymentResult->url;
+        HeliosLog(__FILE__, __LINE__, sprintf("%s: ---------- Start transactie ----------", $functie));
+        HeliosLog(__FILE__, __LINE__, sprintf("%s: %s %s %s",
+                $functie, $LidData['NAAM'],
+                print_r($bestelInfo, true),
+                print_r($TransactieData, true)));
+
+        $payment = $this->mollie->payments->create([
+            "amount" => [
+                "currency" => "EUR",
+                "value" => sprintf("%0.2f", $bestelInfo['BEDRAG'])
+            ],
+            "method" => \Mollie\Api\Types\PaymentMethod::IDEAL,
+            "description" => $bestelInfo['OMSCHRIJVING'],
+            "redirectUrl" => $iDeal['returnUrl'],
+            "webhookUrl" => $iDeal['reportUrl'],
+            "metadata" => [
+                "order_id" => sprintf("%d-%d-%d",$id, $lidID, $record['BEDRAG'] * 100),
+            ],
+            "issuer" => $TransactieData['BANK_ID'],
+        ]);
+
+        $redirectTo = $payment->getCheckoutUrl();
+        Debug(__FILE__, __LINE__, sprintf("%s url=%s", $functie, $redirectTo));
+        return $redirectTo;
     }
 
     /*
      Check of betaling ook echt gedaan is
      */
-    function ValideerIDealTransactie($PaymentResult)
+    function ValideerIDealTransactie($PaymentRef)
     {
         global $iDeal;
 
-        $functie = "Transacties.ValideerIDealTransactie";
-        HeliosLog(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($PaymentResult, true)));
-        Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($PaymentResult, true)));
+        $payment = $this->mollie->payments->get($_POST["id"]);
+        $orderref = $payment->metadata->order_id;
 
-        $dbData = $this->GetObject(null, $PaymentResult['trxid']);
+        list($orderId, $lidId, $bedrag) = explode("-", $orderref);
+
+        $functie = "Transacties.ValideerIDealTransactie";
+        HeliosLog(__FILE__, __LINE__, sprintf("%s(%s) orderref=%s", $functie, print_r($PaymentRef, true), $orderref));
+        Debug(__FILE__, __LINE__, sprintf("%s(%s) orderref=%s", $functie, print_r($PaymentRef, true), $orderref));
+
+        $dbData = $this->GetObject($orderId);
+
+        $heeftBetaald = false;
+        if (($dbData['LID_ID'] != $lidId) && ($dbData['BEDRAG']*100 != $bedrag))
+        {
+            HeliosLog(__FILE__, __LINE__, sprintf("%s:  orderref onjuist %s %s %s", $functie, $dbData['LID_ID'], $dbData['BEDRAG']*100));
+        }
+        else if ($payment->isPaid() && ! $payment->hasRefunds() && ! $payment->hasChargebacks()) {
+            $heeftBetaald = true;
+        }
 
         $l = MaakObject('Login');
         $l->setSessionUser($dbData['LID_ID']);    // deze functie wordt zonder inloggen aangeroepen, dus vertellen wie we zijn
 
-        // check of bedrag is aangepast
-        if (1*$dbData['BEDRAG']*100 != 1*$PaymentResult['amount'])
+        if ($heeftBetaald)
         {
-            HeliosLog(__FILE__, __LINE__, sprintf("%s: Bedrag ongelijk %d %d", $functie, 1*$dbData['BEDRAG']*100, 1*$PaymentResult['amount']));
+            $lObj = MaakObject('Leden');
+            $LidData = $lObj->getObject($dbData['LID_ID']);
+
+            // update van transactie record wat aangemaakt is, bij het starten van iDeal
+            $record = array();
+            $record['BETAALD'] = 1;
+            $record['SALDO_VOOR'] = 1*$LidData['TEGOED'];
+            $record['SALDO_NA'] = 1*$LidData['TEGOED'] + 1*$dbData['EENHEDEN'];
+            $record['EXT_REF'] =  $PaymentRef['id'];
+            parent::DbAanpassen($dbData['ID'], $record);
+
+            HeliosLog(__FILE__, __LINE__, sprintf("%s: Transactie : %s", $functie, print_r($dbData, true)));
+
+            // update saldo in profiel
+            $ld['ID'] = $dbData['LID_ID'];
+            $ld['TEGOED'] = $record['SALDO_NA'];
+            $lObj->UpdateObject($ld);
+
+            HeliosLog(__FILE__, __LINE__, sprintf("%s: ---------- Afgerond ----------", $functie));
+        }
+        else
+        {
+            HeliosLog(__FILE__, __LINE__, sprintf("%s: Payment result: %s", $functie, $payment->status));
             HeliosLog(__FILE__, __LINE__, sprintf("%s: ---------- ERROR transactie ----------", $functie));
 
-            $dbData['REFERENTIE'] = print_r($PaymentResult, true);
-            parent::DbAanpassen($dbData['ID'], $dbData);
+            $record = array();
+            $record['REFERENTIE'] = print_r($payment->status, true);
+            $record['EXT_REF'] =  $PaymentRef['id'];
+            parent::DbAanpassen($dbData['ID'], $record);
             parent::MarkeerAlsVerwijderd($dbData['ID']);
-
-            throw new Exception("500;" . sprintf("%s: Bedrag ongelijk %d %d", $functie, 1*$dbData['BEDRAG']*100, 1*$PaymentResult['amount']) . ";");
         }
-
-        $checkPaymentResult = DigiWallet\Transaction::model("Ideal")
-            ->outletId($iDeal['outletId'])
-            ->transactionId($PaymentResult['trxid'])
-            ->check();
-
-        Debug(__FILE__, __LINE__, sprintf("%s checkPaymentResult %s", $functie, print_r($checkPaymentResult, true)));
-        HeliosLog(__FILE__, __LINE__, sprintf("%s: checkPaymentResult %s", $functie, print_r($checkPaymentResult, true)));
-
-        if ($checkPaymentResult->status !== true)
-        {
-            HeliosLog(__FILE__, __LINE__, sprintf("%s: Payment result: %s", $functie, $checkPaymentResult->error));
-            HeliosLog(__FILE__, __LINE__, sprintf("%s: ---------- ERROR transactie ----------", $functie));
-
-            $dbData['REFERENTIE'] = print_r($PaymentResult, true);
-            parent::DbAanpassen($dbData['ID'], $dbData);
-            parent::MarkeerAlsVerwijderd($dbData['ID']);
-
-            throw new Exception("500;" . $checkPaymentResult->error . ";");
-        }
-
-        $lObj = MaakObject('Leden');
-        $LidData = $lObj->getObject($dbData['LID_ID']);
-
-        // update van transactie record wat aangemaakt is, bij het starten van iDeal
-        $dbData['BETAALD'] = 1;
-        $dbData['SALDO_VOOR'] = 1*$LidData['TEGOED'];
-        $dbData['SALDO_NA'] = 1*$LidData['TEGOED'] + 1*$dbData['EENHEDEN'];
-        $dbData['REFERENTIE'] = print_r($PaymentResult, true);
-        $dbData['EXT_REF'] =  $PaymentResult['idealtrxid'];
-        parent::DbAanpassen($dbData['ID'], $dbData);
-
-        HeliosLog(__FILE__, __LINE__, sprintf("%s: Transactie : %s", $functie, print_r($dbData, true)));
-
-        // update saldo in profiel
-        $ld['ID'] = $dbData['LID_ID'];
-        $ld['TEGOED'] = $dbData['SALDO_NA'];
-        $lObj->UpdateObject($ld);
-
-        HeliosLog(__FILE__, __LINE__, sprintf("%s: ---------- Afgerond ----------", $functie));
     }
 
     /*

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -15,6 +16,18 @@ use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use Psr\Http\Message\UriInterface;
 use Slim\Psr7\Interfaces\HeadersInterface;
+
+use function get_class;
+use function gettype;
+use function is_array;
+use function is_null;
+use function is_object;
+use function is_string;
+use function ltrim;
+use function parse_str;
+use function preg_match;
+use function sprintf;
+use function str_replace;
 
 class Request extends Message implements ServerRequestInterface
 {
@@ -34,24 +47,15 @@ class Request extends Message implements ServerRequestInterface
     protected $requestTarget;
 
     /**
-     * @var array
+     * @var ?array
      */
     protected $queryParams;
 
-    /**
-     * @var array
-     */
-    protected $cookies;
+    protected array $cookies;
 
-    /**
-     * @var array
-     */
-    protected $serverParams;
+    protected array $serverParams;
 
-    /**
-     * @var array
-     */
-    protected $attributes;
+    protected array $attributes;
 
     /**
      * @var null|array|object
@@ -61,7 +65,7 @@ class Request extends Message implements ServerRequestInterface
     /**
      * @var UploadedFileInterface[]
      */
-    protected $uploadedFiles;
+    protected array $uploadedFiles;
 
     /**
      * @param string           $method        The request method
@@ -120,6 +124,7 @@ class Request extends Message implements ServerRequestInterface
 
     /**
      * {@inheritdoc}
+     * @return static
      */
     public function withMethod($method)
     {
@@ -141,6 +146,7 @@ class Request extends Message implements ServerRequestInterface
      */
     protected function filterMethod($method): string
     {
+        /** @var mixed $method */
         if (!is_string($method)) {
             throw new InvalidArgumentException(sprintf(
                 'Unsupported HTTP method; must be a string, received %s',
@@ -184,10 +190,11 @@ class Request extends Message implements ServerRequestInterface
 
     /**
      * {@inheritdoc}
+     * @return static
      */
     public function withRequestTarget($requestTarget)
     {
-        if (preg_match('#\s#', $requestTarget)) {
+        if (!is_string($requestTarget) || preg_match('#\s#', $requestTarget)) {
             throw new InvalidArgumentException(
                 'Invalid request target provided; must be a string and cannot contain whitespace'
             );
@@ -209,6 +216,7 @@ class Request extends Message implements ServerRequestInterface
 
     /**
      * {@inheritdoc}
+     * @return static
      */
     public function withUri(UriInterface $uri, $preserveHost = false)
     {
@@ -238,6 +246,7 @@ class Request extends Message implements ServerRequestInterface
 
     /**
      * {@inheritdoc}
+     * @return static
      */
     public function withCookieParams(array $cookies)
     {
@@ -261,12 +270,14 @@ class Request extends Message implements ServerRequestInterface
         }
 
         parse_str($this->uri->getQuery(), $this->queryParams); // <-- URL decodes data
+        assert(is_array($this->queryParams));
 
         return $this->queryParams;
     }
 
     /**
      * {@inheritdoc}
+     * @return static
      */
     public function withQueryParams(array $query)
     {
@@ -286,6 +297,7 @@ class Request extends Message implements ServerRequestInterface
 
     /**
      * {@inheritdoc}
+     * @return static
      */
     public function withUploadedFiles(array $uploadedFiles)
     {
@@ -313,14 +325,16 @@ class Request extends Message implements ServerRequestInterface
 
     /**
      * {@inheritdoc}
+     * @return mixed
      */
     public function getAttribute($name, $default = null)
     {
-        return isset($this->attributes[$name]) ? $this->attributes[$name] : $default;
+        return $this->attributes[$name] ?? $default;
     }
 
     /**
      * {@inheritdoc}
+     * @return static
      */
     public function withAttribute($name, $value)
     {
@@ -332,6 +346,7 @@ class Request extends Message implements ServerRequestInterface
 
     /**
      * {@inheritdoc}
+     * @return static
      */
     public function withoutAttribute($name)
     {
@@ -352,9 +367,11 @@ class Request extends Message implements ServerRequestInterface
 
     /**
      * {@inheritdoc}
+     * @return static
      */
     public function withParsedBody($data)
     {
+        /** @var mixed $data */
         if (!is_null($data) && !is_object($data) && !is_array($data)) {
             throw new InvalidArgumentException('Parsed body value must be an array, an object, or null');
         }

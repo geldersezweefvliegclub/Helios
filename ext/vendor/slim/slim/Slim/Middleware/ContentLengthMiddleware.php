@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -16,14 +17,8 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class ContentLengthMiddleware implements MiddlewareInterface
 {
-    /**
-     * @param ServerRequestInterface  $request
-     * @param RequestHandlerInterface $handler
-     * @return ResponseInterface
-     */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        /** @var ResponseInterface $response */
         $response = $handler->handle($request);
 
         // Add Content-Length header if not already added
