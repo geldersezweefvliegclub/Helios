@@ -1,4 +1,12 @@
-Todo: write readme about Helios
+# Getting started
+Prerequisite: Have Node.js and Docker installed
+
+1. Clone the repository
+2. Run `npm install`
+3. Run `docker-compose up` to set up Seq (logging server)
+4. Run `docker-compose up` inside the `php/dockr_dev` folder to set up the PHP application w/ database. See legacy READMe.md for more information to get the PHP application running
+5. Run `npm run start` to start the NestJS application
+6. To test the NestJS application against the PHP application, run `npm run test:e2e`
 
 
 # Todo list to convert PHP to NestJS
