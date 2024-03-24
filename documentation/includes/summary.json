@@ -2,5 +2,13 @@
   {
     "title": "Writing and Updating Documentation",
     "file": "documentation.md"
+  },
+  {
+    "title": "Architecture",
+    "file": "architecture.md"
+  },
+  {
+    "title": "Logging",
+    "file": "logging.md"
   }
 ]

@@ -1,3 +1,5 @@
+# Compodoc Documentation
+
 Compodoc is a documentation tool specifically designed for Angular / NestJS applications. It **generates** a static website based on your application's **source code and JSDoc comments**. 
 The generated website includes details about your modules, services, routes, classes, interfaces, decorators, and more, providing a complete overview of your application's structure and functionality.
 
@@ -20,3 +22,7 @@ Here's how to use Compodoc and update the documentation for your project:
 
 
 Remember to commit and push your changes to the repository, so that others can access the updated documentation.
+
+
+# API Endpoint Documentation
+The API endpoint documentation is generated using Swagger and is available at the `/docs` route of your application.
