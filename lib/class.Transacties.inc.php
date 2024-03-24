@@ -444,7 +444,7 @@ class Transacties extends Helios
             ],
             "method" => \Mollie\Api\Types\PaymentMethod::IDEAL,
             "description" => $bestelInfo['OMSCHRIJVING'],
-            "redirectUrl" => $iDeal['returnUrl'],
+            "redirectUrl" => (array_key_exists('url', $TransactieData)) ? $TransactieData['url'] : $iDeal['returnUrl'],
             "webhookUrl" => $iDeal['reportUrl'],
             "metadata" => [
                 "order_id" => sprintf("%d-%d-%d",$id, $lidID, $record['BEDRAG'] * 100),
