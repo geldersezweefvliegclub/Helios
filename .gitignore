@@ -40,3 +40,4 @@ lib/.DS_Store
 .env
 
 Helios.iml
+/documentation/generated
