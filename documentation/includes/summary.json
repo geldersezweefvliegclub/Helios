@@ -10,5 +10,9 @@
   {
     "title": "Logging",
     "file": "logging.md"
+  },
+  {
+    "title": "Migrations",
+    "file": "migrations.md"
   }
 ]
