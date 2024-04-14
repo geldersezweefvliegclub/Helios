@@ -19,10 +19,10 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "docs:gen": "npx compodoc -p tsconfig.json -n \"Helios documentation\"",
     "docs:serve": "npm run docs:gen -- -s",
-    "typeorm": "ts-node --project tsconfig.app.json ./node_modules/typeorm/cli",
-    "migration-generate": "npm run typeorm migration:generate -- -n",
-    "migrations-run": "npm run typeorm migration:run",
-    "migration-revert": "npm run typeorm migration:revert"
+    "typeorm": "ts-node --project tsconfig.json ./node_modules/typeorm/cli",
+    "migration-generate": "npm run typeorm migration:generate -- -d ./src/typeorm/typeorm.config.ts",
+    "migrations-run": "npm run typeorm migration:run -- -d ./typeorm.config.ts",
+    "migration-revert": "npm run typeorm migration:revert -- -d ./typeorm.config.ts"
   },
   "dependencies": {
     "@datalust/winston-seq": "^2.0.0",

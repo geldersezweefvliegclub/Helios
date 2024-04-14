@@ -35,7 +35,7 @@ export class ConfigurationUtils {
      */
     public static LoadConfiguration(): IHeliosConfiguration {
         return {
-            database: this.getDatabaseConfigurationFromEnvironmentVariables()
+            database: ConfigurationUtils.getDatabaseConfigurationFromEnvironmentVariables()
         }
     }
 
@@ -54,11 +54,6 @@ export class ConfigurationUtils {
     }
 }
 
-class HeliosConfiguration implements IHeliosConfiguration {
-    @IsObject()
-    database: DatabaseConfiguration;
-}
-
 /**
  * Class used to perform database configuration validation, not to be used directly.
  * Please use {@link ConfigurationUtils.getDatabaseConfigurationFromEnvironmentVariables} instead.
@@ -75,3 +70,9 @@ class DatabaseConfiguration implements IDatabaseConfiguration {
     @IsString()
     password: string;
 }
+
+class HeliosConfiguration implements IHeliosConfiguration {
+    @IsObject()
+    database: DatabaseConfiguration;
+}
+

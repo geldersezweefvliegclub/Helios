@@ -1,5 +1,4 @@
 import {DataSource} from 'typeorm';
-
 import {config} from 'dotenv';
 import {TypeOrmConfigService} from "./typeorm.service";
 import {ConfigurationUtils} from "../configuration/ConfigurationUtils";

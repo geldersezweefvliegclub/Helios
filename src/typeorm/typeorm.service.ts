@@ -35,7 +35,7 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
      * For application-specific options, see {@link TypeOrmConfigService.createTypeOrmOptions}
      */
     public static GetBaseDatasourceOptions(dbConfig: IDatabaseConfiguration): DataSourceOptions {
-        // Make sure we don't log our password but we do log the rest of the configuration
+        // Make sure we don't log our password, but we do log the rest of the configuration
         const configSafeToLog = {...dbConfig, password: 'REDACTED'};
         this.logger.log(`Connecting to database user the following configuration: ${JSON.stringify(configSafeToLog, null, 2)}`);
 
