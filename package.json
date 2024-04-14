@@ -18,8 +18,11 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "docs:gen": "npx compodoc -p tsconfig.json -n \"Helios documentation\"",
-    "docs:serve": "npm run docs:gen -- -s"
-
+    "docs:serve": "npm run docs:gen -- -s",
+    "typeorm": "ts-node --project tsconfig.app.json ./node_modules/typeorm/cli",
+    "migration-generate": "npm run typeorm migration:generate -- -n",
+    "migrations-run": "npm run typeorm migration:run",
+    "migration-revert": "npm run typeorm migration:revert"
   },
   "dependencies": {
     "@datalust/winston-seq": "^2.0.0",
@@ -57,7 +60,7 @@
     "supertest": "^6.3.3",
     "ts-jest": "^29.1.0",
     "ts-loader": "^9.4.3",
-    "ts-node": "^10.9.1",
+    "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.1.3"
   },

@@ -5,7 +5,7 @@ import { Request, Response } from 'express';
 export class RequestLoggingMiddleware implements NestMiddleware {
   private readonly logger = new Logger(RequestLoggingMiddleware.name);
   /**
-   * When a request comes in, log the endpoint which was called
+   * When a request comes in, log the endpoint which was called and the HTTP method that was used
    * @param req
    * @param res
    * @param next

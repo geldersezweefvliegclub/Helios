@@ -11,10 +11,16 @@ import { CompetentiesModule } from './modules/Competenties/Competenties.module';
 import { ProgressieModule } from './modules/Progressie/Progressie.module';
 import { RoosterModule } from './modules/Rooster/Rooster.module';
 import { DienstenModule } from './modules/Diensten/Diensten.module';
+import {ConfigurationUtils} from "./configuration/ConfigurationUtils";
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      load: [ConfigurationUtils.LoadConfiguration],
+      isGlobal: true,
+      cache: true,
+      validate: ConfigurationUtils.ValidateConfiguration,
+    }),
     TypeOrmModule.forRootAsync({ useClass: TypeOrmConfigService}),
     TypesModule,
     TypesGroepenModule,
@@ -34,6 +40,7 @@ export class AppModule implements NestModule {
    * @param consumer
    */
   configure(consumer: MiddlewareConsumer) {
+    // Add request logging for all registered routes
     consumer.apply(RequestLoggingMiddleware).forRoutes('*');
   }
 }

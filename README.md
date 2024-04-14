@@ -51,3 +51,18 @@ Prerequisite: Have Node.js and Docker installed
 - [ ] Fix ugly HTTP 500 error when VELDEN filter includes a VELD that does not exist
 - [ ] Generate migrations
 - [ ] Setup initial dataseed for empty database 
+
+
+
+# Generating database migrations with TypeORM
+This project uses TypeORM for handling database operations. Here are some commands related to database migrations:
+
+- `npm run typeorm`: This command runs the TypeORM CLI. You can use this to manually run any TypeORM command.
+
+- `npm run migration-generate`: This command is used to generate a new migration file. After running this command, you will be prompted to enter a name for the migration. The new migration file will be created in the `migrations` directory.
+
+- `npm run migrations-run`: This command runs all pending migrations. These are migrations that have been generated but not yet applied to the database.
+
+- `npm run migration-revert`: This command reverts the last applied migration. This is useful if you made a mistake in your last migration and need to undo it.
+
+Remember to run these commands in your terminal from the root directory of the project.
