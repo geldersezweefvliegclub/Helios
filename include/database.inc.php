@@ -27,6 +27,8 @@ if (!IsSet($GLOBALS['DATABASE_INCLUDED']))
 		}
 
 		function isHeliosNumeric($input) {
+			if ($input == "") return false;
+
 			if (preg_match("/^[0-9]*$/", $input)) {
 				return true;
 				// return (substr($input,0,1) != "0");
