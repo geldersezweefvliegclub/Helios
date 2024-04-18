@@ -131,7 +131,6 @@ switch (date('w')) {
     case 6; $datumString = "zaterdag "; break;
 }
 $datumString .= date('d-m-Y');
-
 $datum = date('Y-m-d');
 $url_args = "SORT=VLIEGER_ID,STARTTIJD&BEGIN_DATUM=$datum&EIND_DATUM=$datum&VELDEN=VLIEGER_ID,INZITTENDE_ID,STARTTIJD";
 heliosInit("Startlijst/GetObjects?" . $url_args);
@@ -257,9 +256,7 @@ else
         foreach ($vluchten['dataset'] as $vlucht)
         {
             $d = explode("-", $vlucht['DATUM']);
-
-            if (($vlucht['VLIEGER_ID'] == $lidData['ID']) &&  ($vlucht['INSTRUCTIEVLUCHT'] == false))
-                $zelfPIC = true;
+            $zelfPIC = (($vlucht['VLIEGER_ID'] == $lidData['ID']) &&  ($vlucht['INSTRUCTIEVLUCHT'] == false));
 
             if (isset($vliegtuigen[$vlucht['VLIEGTUIG_ID']]) && $zelfPIC) {
                 $lokaal = $vliegtuigen[$vlucht['VLIEGTUIG_ID']]['BEVOEGDHEID_LOKAAL_ID'];
@@ -341,6 +338,29 @@ else
             $mail->addCC($cimt['EMAIL'], $cimt['NAAM']);
 
             printf("%s %s: Geen medical <br>\n", date("d-m-Y"), $lidData['NAAM']);
+
+            if(!$mail->Send()) {
+                print_r($mail);
+            }
+        }
+
+        // check of er gevlogen is terwijl men niet bevoegd is
+        if (count($onbevoegd) > 0)
+        {
+            $onbevoegdOp = array_unique($onbevoegd);
+
+            $callsigns = "";
+            foreach ($onbevoegdOp as $id)
+            {
+                $callsigns .= ($callsigns != "") ? ", "  : "";
+                $callsigns .= $vliegtuigen[$id]['CALLSIGN'];
+            }
+
+            $mail->Subject = sprintf("Bevoegdheid %s %s", $callsigns, $lidData['NAAM']);
+            $mail->Body    = sprintf($htmlOnbevoegd, $lidData['VOORNAAM'], $callsigns);
+            $mail->addCC($cimt['EMAIL'], $cimt['NAAM']);
+
+            printf("%s %s: %s <br>\n", date("d-m-Y"), $lidData['NAAM'], $callsigns);
 
             if(!$mail->Send()) {
                 print_r($mail);
