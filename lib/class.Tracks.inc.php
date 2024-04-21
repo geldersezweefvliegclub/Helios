@@ -408,14 +408,10 @@ class Tracks extends Helios
 			throw new Exception("406;ID moet ingevuld zijn;");
 
 		$track = $this->GetObject($TrackData['ID']);
+        $l = MaakObject('Login');
 
-		if (!$this->heeftDataToegang(null, false))
-		{
-			$l = MaakObject('Login');
-
-			if ($track["INSTRUCTEUR_ID"] != $l->getUserFromSession())
-				throw new Exception("401;Geen schrijfrechten;");
-		}
+        if ($track["INSTRUCTEUR_ID"] != $l->getUserFromSession() && !$l->isCIMT() && !$l->isBeheerder())
+            throw new Exception("401;Geen schrijfrechten;");
 
 		// Bij update willen we de oude input bewaren. We doen dit als volgt
 		// Markeer record als verwijderd
