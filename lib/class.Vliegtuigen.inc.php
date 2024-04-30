@@ -108,7 +108,8 @@ class Vliegtuigen extends Helios
 				CONCAT(IFNULL(`v`.`REGISTRATIE`,''),' (',IFNULL(`v`.`CALLSIGN`,''),')') AS `REG_CALL`,
 				`t`.`OMSCHRIJVING` AS `VLIEGTUIGTYPE`,
 				`lkl`.`ONDERWERP` AS `BEVOEGDHEID_LOKAAL`,
-				`ovl`.`ONDERWERP` AS `BEVOEGDHEID_OVERLAND`
+				`ovl`.`ONDERWERP` AS `BEVOEGDHEID_OVERLAND`,
+				(SELECT count(*) FROM `oper_journaal` where STATUS_ID <= 2504 AND CATEGORIE_ID = 2404 AND VLIEGTUIG_ID = `v`.`ID`) AS `JOURNAAL_AANTAL`
 			FROM
 				`%s` `v`    
 				LEFT JOIN `ref_types` `t` ON (`v`.`TYPE_ID` = `t`.`ID`)
@@ -418,6 +419,9 @@ class Vliegtuigen extends Helios
 
 			for ($i=0 ; $i < count($retVal['dataset']) ; $i++)
 			{
+                if ($retVal['dataset'][$i]['JOURNAAL_AANTAL'] > 0)
+                    $retVal['dataset'][$i]['INZETBAAR'] = 0;
+                
 				$retVal['dataset'][$i] = $this->RecordToOutput($retVal['dataset'][$i]);
 			}
 
