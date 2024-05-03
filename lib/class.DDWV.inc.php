@@ -96,6 +96,11 @@ class DDWV
 
         if ($startData != null)
         {
+            /*******  UITGEZET OP VERZOEK VAN DE DDWV BEHEERDER Mei 2024 *******/
+            // Bij invoeren start, wordt er wel aangemeld, maar geen strippen afgeschreven
+            return -1;
+
+            // VANAF HIER STAAT DE CODE DUS UIT
             // Kijken of zelfstart abonnement van toepassing is
             if ($startData['STARTMETHODE_ID'] == 506)       // 506 = zelfstart
             {
@@ -150,8 +155,8 @@ class DDWV
                     {}
                 }
             }
+            // TOT HIER
         }
-
 
         $dagen = (strtotime($aanmelding['DATUM']) - strtotime(date("Y-m-d"))) / (60 * 60 * 24);
         if ($dagen < 0) {    // aanmelding in het verleden

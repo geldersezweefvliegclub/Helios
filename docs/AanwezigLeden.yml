@@ -776,6 +776,10 @@ components:
               description: Staat privacy mode (AVG / GDPR) uit/aan
               type: boolean
               example: 0
+            ZELFSTART_ABONNEMENT:
+              description: Heeft het lid een zelfstart abonnement?
+              type: boolean
+              example: false
             STATUSTYPE_ID:
               description: De vliegstatus van het lid (DBO, solist, brevethouder), NULL indien niet van toepassing
               type: integer

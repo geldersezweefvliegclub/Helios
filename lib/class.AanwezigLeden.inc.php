@@ -176,6 +176,7 @@ class AanwezigLeden extends Helios
 				`l`.`PRIVACY`,
 				`l`.`STATUSTYPE_ID`,
 				`t`.`OMSCHRIJVING` AS `VELD`,
+				`l`.`ZELFSTART_ABONNEMENT`,
 				`lt`.`OMSCHRIJVING` AS `LIDTYPE`,
 				`s`.`CODE` AS `STATUS`,
 				`s`.`SORTEER_VOLGORDE` AS `STATUS_SORTEER_VOLGORDE`
@@ -1401,7 +1402,10 @@ class AanwezigLeden extends Helios
 			$retVal['VLIEGT']  = $record['VLIEGT'] == "1" ? true : false;
 			
 		if (isset($record['VERWIJDERD']))
-			$retVal['VERWIJDERD']  = $record['VERWIJDERD'] == "1" ? true : false;			
+			$retVal['VERWIJDERD']  = $record['VERWIJDERD'] == "1" ? true : false;
+
+        if (isset($record['ZELFSTART_ABONNEMENT']))
+            $retVal['ZELFSTART_ABONNEMENT']  = $record['ZELFSTART_ABONNEMENT'] == "1" ? true : false;
 
 		return $retVal;
 	}
