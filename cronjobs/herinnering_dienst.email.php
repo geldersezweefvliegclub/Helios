@@ -40,7 +40,14 @@ $htmlContent = "
 </p>
 </body></html>";
 
-$schemaClub = "De ochtenddienst vangt aan om 8:30 en wordt om 14:00 overgedragen naar de middagploeg. De overlap instructeur wordt om 11:00 op het veld verwacht.";
+$schemaClub = "De ochtenddienst vangt aan om 8:30 en wordt, voor de startleider en lierist, om 14:00 overgedragen naar de middagploeg. <br><br>";
+$schemaClub .= "Voor instructeurs is het volgende schema van toepassing:";
+$schemaClub .= "<ul>";
+$schemaClub .= "<li>Ochtend DDI: 08:30 – 16:00</li>";
+$schemaClub .= "<li>Overlap (DBO): 10:30 – 18:00</li>";
+$schemaClub .= "<li>Middag DDI: 14:00 – Einde</li>";
+$schemaClub .= "</ul><br><br>";
+
 $schemaDDWV = "DDWV dagen beginnen we om 9:00 en eindigt de dienst om 15:00";
 
 $datum = Date('Y-m-d', strtotime('+3 days'));
