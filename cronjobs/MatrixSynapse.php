@@ -42,37 +42,39 @@ class synapse
         if (((!isset($username)) || (!isset($password))) && file_exists("matrix-access_token.json")) {
             $tokens = json_decode(file_get_contents("matrix-access_token.json"), true);
 
-            if (time() < $tokens["expires_in"]) {
-                return $tokens["access_token"];       // token is nog geldig
-            }
-
-            // refresh van het token
-            $reloginUrl = $matrix_settings['url'] . "_matrix/client/r0/refresh";
-            $curl_session = self::initCurl($reloginUrl, "POST");
-            curl_setopt($curl_session, CURLOPT_POSTFIELDS, sprintf("{\"refresh_token\":\"%s\"}", $tokens["refresh_token"]));
-            $body = curl_exec($curl_session);
-
-            $status_code = curl_getinfo($curl_session, CURLINFO_HTTP_CODE); //get status code
-
-            if ($status_code != 200) {
-                Error(__FILE__, __LINE__, sprintf("Refresh mislukt, status=%s body=%s", $status_code, $body));
-                //throw new Exception("500;Refresh mislukt;" . $body);
+            if (!isset($tokens))
+            {
+                self::deleteToken();
             }
             else
             {
-                $response = json_decode($body, true);
-                $response["expires_in"] = time() + ($response["expires_in_ms"] / 1000) - 10;
-                Debug(__FILE__, __LINE__, sprintf("refresh token=%s", $username, $response["access_token"]));
+                if (time() < $tokens["expires_in"])
+                    return $tokens["access_token"];       // token is nog geldig
 
-                // opslaan voor later gebruik
-                $fd = fopen("matrix-access_token.json", "w");
-                fwrite($fd, json_encode($response));
-                fclose($fd);
+                // refresh van het token
+                $reloginUrl = $matrix_settings['url'] . "_matrix/client/r0/refresh";
+                $curl_session = self::initCurl($reloginUrl, "POST");
+                curl_setopt($curl_session, CURLOPT_POSTFIELDS, sprintf("{\"refresh_token\":\"%s\"}", $tokens["refresh_token"]));
+                $body = curl_exec($curl_session);
 
-                return $response["access_token"];
+                $status_code = curl_getinfo($curl_session, CURLINFO_HTTP_CODE); //get status code
+
+                if ($status_code != 200) {
+                    Error(__FILE__, __LINE__, sprintf("Refresh mislukt, status=%s body=%s", $status_code, $body));
+                    self::deleteToken();
+                } else {
+                    $response = json_decode($body, true);
+                    $response["expires_in"] = time() + ($response["expires_in_ms"] / 1000) - 10;
+                    Debug(__FILE__, __LINE__, sprintf("refresh token=%s", $username, $response["access_token"]));
+
+                    // opslaan voor later gebruik
+                    $fd = fopen("matrix-access_token.json", "w");
+                    fwrite($fd, json_encode($response));
+                    fclose($fd);
+
+                    return $response["access_token"];
+                }
             }
-
-            return $tokens["access_token"];
         }
 
         if ((!isset($username)) || (!isset($password))) {
@@ -120,6 +122,26 @@ class synapse
         return $response["access_token"];
     }
 
+    static private function deleteToken()
+    {
+        if (isset($_SESSION["MATRIX"]))
+            unset($_SESSION["MATRIX"]);
+        unlink("matrix-access_token.json");
+    }
+
+    static  private function HandleError($status_code, $body)
+    {
+        if ($status_code == 401)
+        {
+            $error = json_decode($body, true);
+            if ($error['errcode'] == 'M_UNKNOWN_TOKEN')
+            {
+                self::deleteToken();
+            }
+        }
+    }
+
+
     // zie https://matrix-org.github.io/synapse/latest/admin_api/user_admin_api.html#query-user-account
     static public function bestaatGebruiker($id): ?array
     {
@@ -138,8 +160,11 @@ class synapse
 
         $body = curl_exec($curl_session);
         $status_code = curl_getinfo($curl_session, CURLINFO_HTTP_CODE); //get status code
-        if ($status_code != 200)
+
+        if ($status_code != 200) {
+            self::HandleError($status_code, $body);
             return null;
+        }
 
         Debug(__FILE__, __LINE__, sprintf("gebruiker = %s", $body));
         return json_decode($body, true);
@@ -179,11 +204,13 @@ class synapse
             }
             else {
                 $email = null;
-                foreach ($matrixGebruiker["threepids"] as $t) {
-                    switch ($t["medium"]) {
-                        case "email" :
-                            $email = $t["address"];
-                            break;
+                if (isset($matrixGebruiker["threepids"])) {
+                    foreach ($matrixGebruiker["threepids"] as $t) {
+                        switch ($t["medium"]) {
+                            case "email" :
+                                $email = $t["address"];
+                                break;
+                        }
                     }
                 }
 
@@ -257,6 +284,7 @@ class synapse
                 $status_code = curl_getinfo($curl_session, CURLINFO_HTTP_CODE); //get status code
 
                 if ($status_code != 200) {
+                    self::HandleError($status_code, $body);
                     if ($status_code == 0)
                         Error(__FILE__, __LINE__, sprintf("status=0 url=%s", $url));
                     else
@@ -295,6 +323,7 @@ class synapse
         $status_code = curl_getinfo($curl_session, CURLINFO_HTTP_CODE); //get status code
 
         if ($status_code != 200) {
+            self::HandleError($status_code, $body);
             Error(__FILE__, __LINE__, sprintf("Verwijderen gebruiker mislukt, status=%s body=%s", $status_code, $body));
             throw new Exception("500;Verwijderen gebruiker mislukt;" . $body);
         }
@@ -317,8 +346,11 @@ class synapse
         $ch = self::initCurl($lid['AVATAR']);
         $avatar = curl_exec($ch);
 
+        $body = curl_exec($ch);
         $status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE); //get status code
+
         if ($status_code != 200) {
+            self::HandleError($status_code, $body);
             Error(__FILE__, __LINE__, sprintf("Oorspondelijke avatar niet beschikbaar status_code = %s", $status_code));
             return null;
         }
@@ -351,8 +383,11 @@ class synapse
             $curl_session = self::initCurl($url);
             $matrixAvatar = curl_exec($curl_session);
 
+            $body = curl_exec($curl_session);
             $status_code = curl_getinfo($curl_session, CURLINFO_HTTP_CODE); //get status code
+
             if ($status_code != 200) {
+                self::HandleError($status_code, $body);
                 Debug(__FILE__, __LINE__, sprintf("Matrix avatar niet beschikbaar status_code = %s", $status_code));
                 return null;
             }
@@ -378,11 +413,11 @@ class synapse
         curl_setopt($curl_session, CURLOPT_POSTFIELDS, $avatar);
 
         $body = curl_exec($curl_session);
-
         $status_code = curl_getinfo($curl_session, CURLINFO_HTTP_CODE); //get status code
         Debug(__FILE__, __LINE__, sprintf("uploadAvatar result = %s %s", $status_code, $body));
 
         if ($status_code != 200) {
+            self::HandleError($status_code, $body);
             Error(__FILE__, __LINE__, sprintf("Uploaden avatar mislukt, status=%s body=%s", $status_code, $body));
             return null;
         }
@@ -452,6 +487,7 @@ class synapse
         $status_code = curl_getinfo($curl_session, CURLINFO_HTTP_CODE); //get status code
 
         if ($status_code != 200) {
+            self::HandleError($status_code, $body);
             Error(__FILE__, __LINE__, sprintf("Kamers opvragen mislukt, status=%s body=%s", $status_code, $body));
             throw new Exception("500;Kamers opvragen mislukt;" . $body);
         }
@@ -517,10 +553,12 @@ class synapse
                 Error(__FILE__, __LINE__, sprintf("ERROR: curl_multi_getcontent failed for %s", $id));
             }
             else {
+                $body = curl_exec($c);
                 $status_code = curl_getinfo($c, CURLINFO_HTTP_CODE); //get status code
                 $url = curl_getinfo($c, CURLINFO_EFFECTIVE_URL);
 
                 if ($status_code != 200) {
+                    self::HandleError($status_code, $body);
                     Error(__FILE__, __LINE__, sprintf("Toevoegen aan kamer mislukt, status=%s body=%s", $status_code, $body));
                     Error(__FILE__, __LINE__, sprintf("Toevoegen aan kamer mislukt, body=%s", $result));
                 } else {
@@ -544,7 +582,13 @@ class synapse
         $url = sprintf("%s_synapse/admin/v1/rooms/%s/members", $matrix_settings['url'], $roomID);
         $curl_session = self::initCurl($url);
         $body = curl_exec($curl_session);
+        $status_code = curl_getinfo($curl_session, CURLINFO_HTTP_CODE); //get status code
 
+        if ($status_code != 200) {
+            self::HandleError($status_code, $body);
+            Error(__FILE__, __LINE__, sprintf("Kamer opvragen mislukt, status=%s body=%s", $status_code, $body));
+            throw new Exception("500;Kamer opvragen mislukt;" . $body);
+        }
         $members = json_decode($body, true)["members"];
 
         foreach ($members as $member)
@@ -644,11 +688,13 @@ class synapse
             }
             else
             {
+                $body = curl_exec($c);
                 $status_code = curl_getinfo($c, CURLINFO_HTTP_CODE); //get status code
                 $url = curl_getinfo($c, CURLINFO_EFFECTIVE_URL);
 
                 if ($status_code != 200)
                 {
+                    self::HandleError($status_code, $body);
                     Error(__FILE__, __LINE__, sprintf("Toevoegen aan favorieten mislukt, status=%s url=%s", $status_code, $url));
                     Error(__FILE__, __LINE__, sprintf("Toevoegen aan favorieten mislukt, body=%s", $result));
                 }
