@@ -308,7 +308,7 @@ class Documenten extends Helios
 
                 $record['URL'] = sprintf("%s://%s/documenten/%s/%s",
                     isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https' : 'http',
-                    $_SERVER['SERVER_NAME'], $subdir,
+                    $app_settings['ServerName'], $subdir,
                     $document['LID_ID'] . "_" . $document['DOC_NAAM']);
             }
             else {
@@ -316,7 +316,7 @@ class Documenten extends Helios
                 $filenaam = $directory . $document['DOC_NAAM'];
                 $record['URL'] = sprintf("%s://%s/documenten/%s",
                     isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https' : 'http',
-                    $_SERVER['SERVER_NAME'],
+                    $app_settings['ServerName'],
                     $document['DOC_NAAM']);
 
             }
@@ -339,7 +339,12 @@ class Documenten extends Helios
             }
 
             $bestand = base64_decode($document['BASE64_DOC']);
-            file_put_contents($filenaam, $bestand);
+            $success = file_put_contents($filenaam, $bestand);
+
+            if ($success === false) {
+                Debug(__FILE__, __LINE__, sprintf("bestand %s kan niet worden opgeslagen", $filenaam));
+                throw new Exception(sprintf("500;Bestand kan niet worden opgeslagen (%s);", $document['DOC_NAAM']));
+            }
         }
         $id = parent::DbToevoegen($record);
 
@@ -372,7 +377,7 @@ class Documenten extends Helios
         $id = isINT($document['ID'], "ID");
 
         // Neem data over uit aanvraag
-        $d = $this->RequestToRecord($document);
+        $record = $this->RequestToRecord($document);
 
         if (isset($document['DOC_NAAM']) && isset($document['BASE64_DOC']))
         {
@@ -383,7 +388,7 @@ class Documenten extends Helios
 
                 $record['URL'] = sprintf("%s://%s/documenten/%s/%s",
                     isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https' : 'http',
-                    $_SERVER['SERVER_NAME'], $subdir,
+                    $app_settings['ServerName'], $subdir,
                     $document['LID_ID'] . "_" . $document['DOC_NAAM']);
             }
             else {
@@ -391,7 +396,7 @@ class Documenten extends Helios
                 $filenaam = $directory . $document['DOC_NAAM'];
                 $record['URL'] = sprintf("%s://%s/documenten/%s",
                     isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https' : 'http',
-                    $_SERVER['SERVER_NAME'],
+                    $app_settings['ServerName'],
                     $document['DOC_NAAM']);
 
             }
@@ -403,10 +408,15 @@ class Documenten extends Helios
             }
 
             $bestand = base64_decode($document['BASE64_DOC']);
-            file_put_contents($filenaam, $bestand);
+            $success = file_put_contents($filenaam, $bestand);
+
+            if ($success === false) {
+                Debug(__FILE__, __LINE__, sprintf("bestand %s kan niet worden opgeslagen", $filenaam));
+                throw new Exception(sprintf("500;Bestand kan niet worden opgeslagen (%s);", $document['DOC_NAAM']));
+            }
         }
 
-        parent::DbAanpassen($id, $d);
+        parent::DbAanpassen($id, $record);
         if (parent::NumRows() === 0)
             throw new Exception(sprintf("404;Record niet gevonden (%s, '%s');", $this->Naam, $id));
 
