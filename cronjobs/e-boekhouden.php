@@ -116,7 +116,7 @@ class eboekhouden
             "oRel" => $relatie
         );
         $response = $client->__soapCall("UpdateRelatie", [$params]);
-        self::checkforerror($response, "UpdateRelatie");
+        self::checkforerror($response, "UpdateRelatieResult");
     }
 
     public static function verwijderLid($lid)
