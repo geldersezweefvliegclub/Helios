@@ -755,7 +755,11 @@ components:
         STARTVERBOD: 
           description: Heef het lid een startverbod?  
           type: boolean
-          example: false  
+          example: false
+        OPGEZEGD:
+          description: Heeft het lid het lidmaatschap opgezegd
+          type: boolean
+          example: true
         PRIVACY: 
           description: Staat privacy mode (AVG / GDPR) uit/aan 
           type: boolean
@@ -769,7 +773,12 @@ components:
           description: Het serienummner van sleutel 2 (SNZT)
           type: string
           maxLength: 25
-          example: 88AB021EC04       
+          example: 88AB021EC04
+        BEROEP:
+          description: Beroep van het lid
+          type: string
+          maxLength: 75
+          example: Student bedrijgfysica
         KNVVL_LIDNUMMER: 
           description: Het lidmaatschapsnummer van de KNVVL
           type: string

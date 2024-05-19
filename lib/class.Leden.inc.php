@@ -65,9 +65,11 @@ class Leden extends Helios
 				`AUTH` tinyint UNSIGNED NOT NULL DEFAULT 0,
 				`AVATAR` varchar(255) DEFAULT NULL,        
 				`STARTVERBOD` tinyint UNSIGNED NOT NULL DEFAULT 0,
+				`OPGEZEGD` tinyint UNSIGNED NOT NULL DEFAULT 0,
 				`PRIVACY` tinyint UNSIGNED NOT NULL DEFAULT 0,
 				`SLEUTEL1` varchar(25) DEFAULT NULL,
 				`SLEUTEL2` varchar(25) DEFAULT NULL,
+				`BEROEP` varchar(50) DEFAULT NULL,
 				`KNVVL_LIDNUMMER` varchar(25) DEFAULT NULL,
 				`BREVET_NUMMER` varchar(25) DEFAULT NULL,
 				`EMAIL_DAGINFO` tinyint UNSIGNED NOT NULL DEFAULT 0,
@@ -1279,6 +1281,10 @@ class Leden extends Helios
 			if (array_key_exists($field, $input))
 				$record[$field] = isBOOL($input[$field], $field);
 
+            $field = 'OPGEZEGD';
+            if (array_key_exists($field, $input))
+                $record[$field] = isBOOL($input[$field], $field);
+
 			// url naar extern bestand
 			if (array_key_exists('AVATAR', $input))
 				$record['AVATAR'] = $input['AVATAR']; 	
@@ -1361,9 +1367,12 @@ class Leden extends Helios
 				$record['SLEUTEL1'] = $input['SLEUTEL1']; 		
 				
 			if (array_key_exists('SLEUTEL2', $input))
-				$record['SLEUTEL2'] = $input['SLEUTEL2']; 	
+				$record['SLEUTEL2'] = $input['SLEUTEL2'];
 
-			if (array_key_exists('KNVVL_LIDNUMMER', $input))
+            if (array_key_exists('BEROEP', $input))
+                $record['BEROEP'] = $input['BEROEP'];
+
+            if (array_key_exists('KNVVL_LIDNUMMER', $input))
 				$record['KNVVL_LIDNUMMER'] = $input['KNVVL_LIDNUMMER']; 
 
 			if (array_key_exists('BREVET_NUMMER', $input))
@@ -1522,6 +1531,9 @@ class Leden extends Helios
 			
 		if (isset($record['STARTVERBOD']))
 			$retVal['STARTVERBOD']  = $record['STARTVERBOD'] == "1" ? true : false;
+
+        if (isset($record['OPGEZEGD']))
+            $retVal['OPGEZEGD']  = $record['OPGEZEGD'] == "1" ? true : false;
 			
 		if (isset($record['PRIVACY']))
 			$retVal['PRIVACY']  = $record['PRIVACY'] == "1" ? true : false;
