@@ -239,6 +239,23 @@ paths:
         500:
           description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"                             
 
+  /Reservering/MagNogReserveren:
+    get:
+      security:
+        - basicAuth: []
+        - bearerAuth: []
+      summary: 'Mag een lid nog een reservering maken?'
+      responses:
+        200:
+          description: "OK, data succesvol opgehaald"
+          content:
+            text/plain:
+              schema:
+                type: boolean
+                example: false
+        500:
+          description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"
+
 components:
   securitySchemes:
     basicAuth:

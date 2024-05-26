@@ -416,6 +416,25 @@ class Reservering extends Helios
 		return $this->GetObject($id);
 	}            
 
+    function magNogReserveren()
+    {
+        $vandaag = date("Y-m-d");
+        $einde = date("Y") . "-12-31";
+
+        $l = MaakObject('Login');
+        $LidID = $l->getUserFromSession();
+
+        $query = sprintf("
+            SELECT 
+                COUNT(*) AS AANTAL 
+            FROM `reservering_view` 
+            WHERE 
+                LID_ID=%d AND INGEVOERD_ID=%d AND DATUM > '%s' AND DATUM <= '%s'", $LidID, $LidID, $vandaag, $einde);
+        parent::DbOpvraag($query);
+        $aantal = parent::DbData();
+
+        return ($aantal[0]['AANTAL'] == 0) ? true : false;
+    }
 	/*
 	Copieer data van request naar velden van het record 
 	*/

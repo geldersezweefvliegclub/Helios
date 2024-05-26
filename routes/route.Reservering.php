@@ -170,4 +170,25 @@ $app->post(url_base() . 'Reservering/SaveObject', function (Request $request, Re
     }  
 });
 
+$app->get(url_base() . 'Reservering/MagNogReserveren', function (Request $request, Response $response, $args) {
+    $obj = MaakObject("Reservering");
+    try
+    {
+        $r = $obj->magNogReserveren();  // Hier staat de logica voor deze functie
+        $response->getBody()->write(json_encode($r));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+    catch(Exception $exception)
+    {
+        Debug(__FILE__, __LINE__, "/Reservering/MagNogReserveren: " .$exception);
+
+        list($dummy, $exceptionMsg) = explode(": ", $exception);
+        list($httpStatus, $message) = explode(";", $exceptionMsg);  // onze eigen formaat van een exceptie
+
+        header("X-Error-Message: $message", true, intval($httpStatus));
+        header("Content-Type: text/plain");
+        die;
+    }
+});
+
 ?>
