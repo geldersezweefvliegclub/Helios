@@ -447,7 +447,7 @@ class Journaal extends Helios
         // schrijven mag alleen door beheerder / CIMT
         $l = MaakObject('Login');
 
-        if (!$l->isBeheerder() && !$l->isCIMT())
+        if (!$l->isBeheerder() && !$l->isCIMT() && (!$l->isTechnicus()))
             throw new Exception("401;Geen rechten;");
 
         if ($journaal == null)

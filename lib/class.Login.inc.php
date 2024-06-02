@@ -113,6 +113,7 @@ class Login extends Helios
 		$Userinfo['isBeheerderDDWV'] 	= false;
 		$Userinfo['isBeheerder'] 		= false;
 		$Userinfo['isInstructeur'] 		= false;
+        $Userinfo['isTechnicus'] 		= false;
 
 		$Userinfo['isCIMT'] 			= false;
 		$Userinfo['isStarttoren'] 		= false;
@@ -145,6 +146,7 @@ class Login extends Helios
 			$Userinfo['isBeheerderDDWV'] 	= $l->isPermissie("DDWV_BEHEERDER", $LidData['ID'], $LidData);
 			$Userinfo['isBeheerder'] 		= $l->isPermissie("BEHEERDER", $LidData['ID'], $LidData);
 			$Userinfo['isInstructeur'] 		= $l->isPermissie("INSTRUCTEUR", $LidData['ID'], $LidData);
+            $Userinfo['isTechnicus'] 		= $l->isPermissie("TECHNICUS", $LidData['ID'], $LidData);
 
 			$Userinfo['isCIMT'] 			= $l->isPermissie("CIMT", $LidData['ID'], $LidData);
 			$Userinfo['isRooster'] 			= $l->isPermissie("ROOSTER", $LidData['ID'], $LidData);
@@ -454,10 +456,17 @@ class Login extends Helios
 
 	// Deze data komt uit de sessie, bij het inloggen is de sessie data gezet
 	function isInstructeur()
-	{	
-		$key = 'isInstructeur';
-		return $this->sessiePermissie($key);
-	}
+    {
+        $key = 'isInstructeur';
+        return $this->sessiePermissie($key);
+    }
+
+    // Deze data komt uit de sessie, bij het inloggen is de sessie data gezet
+    function isTechnicus()
+    {
+        $key = 'isTechnicus';
+        return $this->sessiePermissie($key);
+    }
 
 	// Deze data komt uit de sessie, bij het inloggen is de sessie data gezet
 	function isCIMT()
