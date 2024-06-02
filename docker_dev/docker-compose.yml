@@ -1,40 +1,52 @@
 version: '3.7'
 
+services:
+  helios:
+    image: 301167/php-apache-pdo
+    container_name: helios
+    ports:
+      - 8082:80
+    volumes:
+      - ..:/var/www/html
+    networks:
+      - proxy
+      - mariadb-vnet
+    restart: always
+  mariadb:
+    image: mariadb
+    container_name: mariadb
+    environment:
+      MARIADB_ROOT_PASSWORD: rootroot
+      TZ: Europe/Amsterdam
+
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - mariadb-vnet
+    ports:
+      - 3306:3306
+    restart: always
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    environment:
+      PMA_HOST: mariadb
+      UPLOAD_LIMIT: 500M
+
+    ports:
+      - 8081:80
+    networks:
+      - proxy
+      - mariadb-vnet
+    restart: always
+
+networks:
+  proxy:
+  mariadb-vnet:
+    name: mariadb-vnet
+    driver: bridge
+
 volumes:
   db_data:
     driver: local
 
-services:
-  php_dev:
-    build: ./
-    restart: always
-    container_name: php_dev
-    ports:
-      - 8081:80
-    volumes:
-      - ../:/var/www/html
-    depends_on:
-      - mariadb_dev
-  mariadb_dev:
-    image: mariadb:10.10.2
-    container_name: mariadb
-    restart: always
-    ports:
-      - 3306:3306
-    environment:
-      MYSQL_ROOT_PASSWORD: rootroot
-      MYSQL_TCP_PORT: 3306
-    volumes:
-      - db_data:/var/lib/mysql
-  phpmyadmin_dev:
-    image: phpmyadmin/phpmyadmin
-    container_name: phpmyadmin_dev
-    restart: always
-    ports:
-      - 8080:80
-    environment:
-      - PMA_HOST=mariadb
-      - PMA_PORT=3306
-      - UPLOAD_LIMIT=500M
-    depends_on:
-      - mariadb_dev
