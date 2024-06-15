@@ -15,6 +15,7 @@ $classes = array("TypesGroepen",
                  "Gasten", 
                  "Leden",
                  "Journaal",
+                 "Facturen",
                  "Rooster", 
                  "Diensten", 
                  "Daginfo",
@@ -49,7 +50,7 @@ $password = isset($_SERVER['PHP_AUTH_PW'])   ? $_SERVER['PHP_AUTH_PW'] : null;
 
 if (!file_exists("installer_account.php"))
 {
-    die ("Eerst installer uitvoeren");       
+    die ("Eerst installer uitvoeren");
 }
 if (!file_exists("include/config.php"))
 {
@@ -81,6 +82,8 @@ if (isset($_GET["id"]))
         }
     }
 }
+
+
 
 $key = sha1(strtolower ($username) . $password);
 
