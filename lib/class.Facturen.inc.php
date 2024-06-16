@@ -30,6 +30,7 @@ class Facturen extends Helios
                 `NAAM` varchar(255) DEFAULT NULL,
 				`LIDNR` varchar(10) DEFAULT NULL,
                 `FACTUUR_NUMMER` varchar(50) DEFAULT NULL,
+                `CODE` varchar(10) DEFAULT NULL,
                 `OMSCHRIJVING` varchar(50) DEFAULT NULL,
                 `GEFACTUREERD` decimal  DEFAULT NULL,
                               
@@ -202,7 +203,7 @@ class Facturen extends Helios
                 {
                     $id = isINT($value, "JAAR");
                     $where .= " AND (JAAR=? OR JAAR IS NULL)";
-                    $query_params[] = $id;
+                    array_push($query_params, $id);
 
                     Debug(__FILE__, __LINE__, sprintf("%s: JAAR='%s'", $functie, $id));
                     break;
@@ -213,6 +214,19 @@ class Facturen extends Helios
                     $where .= sprintf(" AND LID_ID IN(%s)", trim($value));
 
                     Debug(__FILE__, __LINE__, sprintf("%s: LID_ID='%s'", $functie, trim($value)));
+                    break;
+                }
+                case "SELECTIE" :
+                {
+                    $where .= " AND ((NAAM LIKE ?) ";
+                    $where .= "  OR (FACTUUR_NUMMER LIKE ?) ";
+                    $where .= "  OR (OMSCHRIJVING LIKE ?) ";
+                    $where .= "  OR (LIDNR LIKE ?)) ";
+
+                    $s = "%" . trim($value) . "%";
+                    array_push($query_params, $s, $s, $s, $s);
+
+                    Debug(__FILE__, __LINE__, sprintf("%s: SELECTIE='%s'", $functie, $s));
                     break;
                 }
 
@@ -393,7 +407,7 @@ class Facturen extends Helios
         Debug(__FILE__, __LINE__, sprintf("%s(%s, %s)", $functie, $jaar, implode(":", $ledenIDs)));
 
         $typeObj = MaakObject('Types');
-        $types = $typeObj->GetObjects(array("GROEP" => 6, "VELDEN" => "ID,OMSCHRIJVING,BEDRAG"));
+        $types = $typeObj->GetObjects(array("GROEP" => 6));
         $lidmaatschappen = array();
         foreach ($types['dataset'] as $lidmaatschap)
         {
@@ -422,6 +436,7 @@ class Facturen extends Helios
             $factuur['LID_ID'] = $lidID;
             $factuur['LIDNR'] = $lid['LIDNR'];
             $factuur['NAAM'] = $lid['NAAM'];
+            $factuur['CODE'] = $lidmaatschap['EXT_REF'];
             $factuur['OMSCHRIJVING'] = "Lidmaatschap " . $jaar . " - " . $lidmaatschap['OMSCHRIJVING'];
             $factuur['GEFACTUREERD'] = $lidmaatschap['BEDRAG'];
             $this->AddObject($factuur);
@@ -430,6 +445,8 @@ class Facturen extends Helios
 
     function UploadFactuur($data)
     {
+        global $eBoekhouden_settings;
+
         $functie = "Facturen.UploadFactuur";
         Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($data, true)));
 
@@ -446,9 +463,49 @@ class Facturen extends Helios
 
         $id = isINT($data['ID'],"ID", false, "Facturen");
 
+        $dbFactuur = $this->GetObject($id);
+
+        $factuur = new stdClass();
+
+        $factuurRegel = new stdClass();
+        $factuurRegel->Aantal = 1;
+        $factuurRegel->Code = $dbFactuur['CODE'];
+        $factuurRegel->Omschrijving = $dbFactuur['OMSCHRIJVING'];
+        $factuurRegel->PrijsPerEenheid = $dbFactuur['GEFACTUREERD'];
+        $factuurRegel->BTWCode = "GEEN";
+        $factuurRegel->TegenrekeningCode = $eBoekhouden_settings['TegenrekeningCode'];
+        $factuurRegel->KostenplaatsID = $eBoekhouden_settings['KostenplaatsID'];
+
+        $factuur->Relatiecode = $dbFactuur['LIDNR'];
+        $factuur->Datum = date('Y-m-d');
+        $factuur->Betalingstermijn = $eBoekhouden_settings['Betalingstermijn'];
+        $factuur->Factuursjabloon = $eBoekhouden_settings['Factuursjabloon'];
+        $factuur->PerEmailVerzenden = $eBoekhouden_settings['PerEmailVerzenden'];
+        $factuur->EmailOnderwerp = $eBoekhouden_settings['EmailOnderwerp'] . $dbFactuur['NAAM'];
+        $factuur->EmailBericht = $eBoekhouden_settings['EmailBericht'];
+        $factuur->EmailVanNaam = $eBoekhouden_settings['EmailVanNaam'];
+        $factuur->EmailVanAdres = $eBoekhouden_settings['EmailVanAdres'];
+        $factuur->AutomatischeIncasso = $eBoekhouden_settings['AutomatischeIncasso'];
+        $factuur->BoekhoudmutatieOmschrijving = $eBoekhouden_settings['BoekhoudmutatieOmschrijving'] . $dbFactuur['NAAM'];
+        $factuur->IncassoMachtigingDatumOndertekening = date('Y-m-d');
+        $factuur->IncassoMachtigingFirst = $eBoekhouden_settings['IncassoMachtigingFirst'];
+        $factuur->InBoekhoudingPlaatsen = $eBoekhouden_settings['InBoekhoudingPlaatsen'];
+        $factuur->Regels = array($factuurRegel);
+
+        $client = new SoapClient($eBoekhouden_settings['SoapBaseUrl']);
+
+        $params = array(
+            "SecurityCode2" => $eBoekhouden_settings['SecurityCode2'],
+            "SessionID" => $this->getSessionID(),
+            "oFact" => $factuur
+        );
+        $response = $client->__soapCall("AddFactuur", [$params]);
+        $this->checkforerror($response, "AddFactuurResult");
+
+        Debug(__FILE__, __LINE__, sprintf("response %s", json_encode($response)));
         $factuur = array(
             'ID' => $id,
-            'FACTUUR_NUMMER' => random_int(20000, 90000)
+            'FACTUUR_NUMMER' => $response->AddFactuurResult->Factuurnummer
         );
         $this->UpdateObject($factuur);
     }
@@ -536,6 +593,10 @@ class Facturen extends Helios
         if (array_key_exists($field, $input))
             $record[$field] = $input[$field];
 
+        $field = 'CODE';
+        if (array_key_exists($field, $input))
+            $record[$field] = $input[$field];
+
         $field = 'OMSCHRIJVING';
         if (array_key_exists($field, $input))
             $record[$field] = $input[$field];
@@ -583,5 +644,51 @@ class Facturen extends Helios
             $retVal['CONTRIBUTIE'] = $record['CONTRIBUTIE'] * 1;
 
         return $retVal;
+    }
+
+
+    private function getSessionID()
+    {
+        global $eBoekhouden_settings;
+
+        Debug(__FILE__, __LINE__, "getSessionID()");
+
+        if (isset($_SESSION['sessionID']))
+        {
+            Debug(__FILE__, __LINE__, sprintf("SessionID van _SESSION", $_SESSION['sessionID']));
+            return $_SESSION['sessionID'];
+        }
+
+        $client = new SoapClient($eBoekhouden_settings['SoapBaseUrl']);
+
+        $params = array(
+            "Username" => $eBoekhouden_settings['Username'],
+            "SecurityCode1" => $eBoekhouden_settings['SecurityCode1'],
+            "SecurityCode2" => $eBoekhouden_settings['SecurityCode2']
+        );
+        $response = $client->__soapCall("OpenSession", [$params]);
+        $this->checkforerror($response, "OpenSessionResult");
+        $sessionID = $response->OpenSessionResult->SessionID;
+
+        Debug(__FILE__, __LINE__, sprintf("SessionID = %s", $sessionID));
+
+        // opslaan als sessie variable hoeven we de volgende keer niet meer in te loggen
+        $l = MaakObject('Login');
+        $l->StartSession();
+        $_SESSION['sessionID'] = $sessionID;
+
+        return $sessionID;
+    }
+
+    private function checkforerror($rawresponse, $sub)
+    {
+        $errorMsg = $rawresponse->$sub->ErrorMsg;
+        $LastErrorCode = isset($errorMsg->LastErrorCode) ? $errorMsg->LastErrorCode : '';
+        $LastErrorDescription = isset($errorMsg->LastErrorDescription) ? $errorMsg->LastErrorDescription : '';
+
+        if ($LastErrorCode <> '') {
+            Debug(__FILE__, __LINE__, sprintf("Error %s:%s", $LastErrorCode, $LastErrorDescription));
+            throw new Exception(sprintf("409;%s:%s;", $LastErrorCode, $LastErrorDescription));
+        }
     }
 }
