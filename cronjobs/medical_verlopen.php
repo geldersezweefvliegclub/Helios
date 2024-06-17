@@ -65,7 +65,7 @@ $htmlContentSingleID = "
 
 
 $datum = date('Y-m-d');
-$url_args = "TYPES=601,602,603,604&VELDEN=VOORNAAM,NAAM,MEDICAL,EMAIL";
+$url_args = "TYPES=600,601,602,603,604&VELDEN=VOORNAAM,NAAM,MEDICAL,EMAIL";
 
 if (isset($_GET['ID'])) {
     $url_args .= "&ID=" . $_GET['ID'];

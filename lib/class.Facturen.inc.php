@@ -314,7 +314,7 @@ class Facturen extends Helios
                 `ref_types` `t`  ON `l`.`LIDTYPE_ID` = `t`.`ID` LEFT JOIN
                 `oper_facturen` `f` ON `l`.`ID` = `f`.`LID_ID` AND `f`.`JAAR` = ?
             WHERE
-                `l`.`VERWIJDERD` = 0 AND `l`.`LIDTYPE_ID` IN (602, 603, 604, 605, 606) AND  `f`.`ID` IS NULL 
+                `l`.`VERWIJDERD` = 0 AND `l`.`LIDTYPE_ID` IN (600, 602, 603, 604, 605, 606) AND  `f`.`ID` IS NULL 
             ORDER BY
                 `t`.`SORTEER_VOLGORDE`, `l`.`NAAM`";
 

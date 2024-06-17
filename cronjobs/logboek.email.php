@@ -219,7 +219,7 @@ else
         
         switch ($lidData['LIDTYPE_ID'])
         {
-            case 600: $mail->addAddress($penningmeester['EMAIL'], $penningmeester['NAAM']); break; // Diverse (Bijvoorbeeld bedrijven- of jongerendag)
+            case 600: $mail->addAddress($lidData['EMAIL'], $lidData['NAAM']);               break; // Student
             case 601: $mail->addAddress($lidData['EMAIL'], $lidData['NAAM']);               break; // Erelid
             case 602: $mail->addAddress($lidData['EMAIL'], $lidData['NAAM']);               break; // Lid
             case 603: $mail->addAddress($lidData['EMAIL'], $lidData['NAAM']);               break; // Jeugdlid
@@ -326,11 +326,12 @@ else
         echo file_get_contents($url);
 
         // stuur een mail als medical niet is ingevoerd
+        // 600 = Student
         // 601 = Erelid
         // 602 = Lid
         // 603 = Jeugdlid
         // 604 = Private owner
-        if (($lidData['LIDTYPE_ID'] == 601 || $lidData['LIDTYPE_ID'] == 602 ||
+        if (($lidData['LIDTYPE_ID'] == 600 || $lidData['LIDTYPE_ID'] == 601 || $lidData['LIDTYPE_ID'] == 602 ||
              $lidData['LIDTYPE_ID'] == 603 || $lidData['LIDTYPE_ID'] == 604) && !isset($lidData['MEDICAL']) && $zelfPIC)
         {
             $mail->Subject = 'Medical';

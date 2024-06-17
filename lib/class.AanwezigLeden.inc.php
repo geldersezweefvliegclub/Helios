@@ -1117,9 +1117,9 @@ class AanwezigLeden extends Helios
 		// We hebben geen potentiele vliegers, dan plan B
 		if ($rvObj['CLUBKIST'] == 1)
 		{
-			// Alle leden die vandaag aanwezig zijn, 601 = 'Erelid', 602 = 'Lid', 603 = 'Jeugdlid', 605 = veteraan,606	= 'Donateur', 608 = '5-rittenkaarthouder', 611 = 'Cursist'
+			// Alle leden die vandaag aanwezig zijn, 600 = 'Student' 601 = 'Erelid', 602 = 'Lid', 603 = 'Jeugdlid', 605 = veteraan,606	= 'Donateur', 608 = '5-rittenkaarthouder', 611 = 'Cursist'
 
-			$query = sprintf("SELECT LID_ID, NAAM FROM `aanwezig_leden_view` %s AND LIDTYPE_ID IN (601, 602, 603, 605, 606, 608, 611)", $where);
+			$query = sprintf("SELECT LID_ID, NAAM FROM `aanwezig_leden_view` %s AND LIDTYPE_ID IN (600, 601, 602, 603, 605, 606, 608, 611)", $where);
 			parent::DbOpvraag($query, array( ($datum == null) ? date("Y-m-d") : $datum ));
 			Debug(__FILE__, __LINE__, sprintf("AanwezigLeden.PotentieelVliegers Plan B1 = %d", parent::NumRows()));
 

@@ -334,14 +334,15 @@ class Leden extends Helios
 					($l->isBeheerderDDWV() == false) && 
 					($l->isStarttoren() == false)) 
 		{
-			// 601 = Erelid
+			// 600 = Student
+            // 601 = Erelid
 			// 602 = Lid
 			// 603 = Jeugdlid
             // 604 = private owner
             // 605 = veteraan
 			// 606 = Donateur
 			// 625 = DDWV
-			$where .= " AND LIDTYPE_ID IN (601,602,603,604,605,606,625)";
+			$where .= " AND LIDTYPE_ID IN (600,601,602,603,604,605,606,625)";
 		}
 
 		$rlObj = $this->GetObject($l->getUserFromSession());
@@ -935,7 +936,8 @@ class Leden extends Helios
 			catch(Exception $exception) { return false; }
 		}
 		
-		if (($lid['LIDTYPE_ID'] == "601") ||       // 601 = Erelid
+		if (($lid['LIDTYPE_ID'] == "600") ||       // 600 = Student
+            ($lid['LIDTYPE_ID'] == "601") ||       // 601 = Erelid
 			($lid['LIDTYPE_ID'] == "602") ||       // 602 = Lid 
 			($lid['LIDTYPE_ID'] == "603") ||       // 603 = Jeugdlid
             ($lid['LIDTYPE_ID'] == "604") ||       // 604 = Private owner (mag ook op club vliegtuigen vliegen voor trainingsvlucht)

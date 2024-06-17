@@ -100,7 +100,7 @@ class Types extends Helios
 				(552, 5, 'zcrd',    'Lierstart ZCD/ZCR', NULL, 1),
 				(553, 5, 'gae',     'Lierstart GAE', NULL, 1),
 
-				(600, 6, '0',       'Diverse (Bijvoorbeeld bedrijven- of jongerendag)', NULL, 0),
+				(600, 6, '0',       'Studentlid', NULL, 0),
 				(601, 6, '1',       'Erelid', NULL, 0),
 				(602, 6, '2',       'Lid', NULL, 0),
 				(603, 6, '3',       'Jeugdlid', NULL, 0),
