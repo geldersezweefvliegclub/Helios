@@ -27,6 +27,7 @@ class Rooster extends Helios
 				`DATUM` date NOT NULL,
 				`DDWV` tinyint UNSIGNED NOT NULL DEFAULT 0,
 				`CLUB_BEDRIJF` tinyint UNSIGNED NOT NULL DEFAULT 1,
+				`WINTER_WERK` tinyint UNSIGNED NOT NULL DEFAULT 0,
 				`MIN_SLEEPSTART` tinyint UNSIGNED NOT NULL DEFAULT 3,
 				`MIN_LIERSTART` tinyint UNSIGNED NOT NULL DEFAULT 10,
 				`OPMERKINGEN` text DEFAULT NULL,
@@ -402,6 +403,7 @@ class Rooster extends Helios
 
 		// check of het een clubdag is
 		$clubBedrijf = false;
+        $winterwerk = false;
 		$dateparts = explode('-', $roosterDatum);
 		$dateValue = $dateparts[1] * 100 + $dateparts[2]*1; 	// Maak maand & dag nummeric
 
@@ -409,7 +411,10 @@ class Rooster extends Helios
 
 		// alleen tussen 1 maart & 1 november is er een clubbedrijf
 		if (($dateValue >= 301) && ($dateValue < 1101) && ($weekday >= 6)) 
-			$clubBedrijf = true;		
+			$clubBedrijf = true;
+
+        if (($dateValue < 301) && ($dateValue >= 1101) && ($weekday === 6))
+            $winterwerk = true;
 
 		$ddwv = MaakObject('DDWV');
 		$l = MaakObject('Login');
@@ -420,14 +425,18 @@ class Rooster extends Helios
 				$RoosterData['CLUB_BEDRIJF'] = $clubBedrijf;
 				
 			if (!array_key_exists('DDWV', $RoosterData))				
-				$RoosterData['DDWV'] = $ddwv->dagIsDDWV($roosterDatum);		
-		}
+				$RoosterData['DDWV'] = $ddwv->dagIsDDWV($roosterDatum);
+
+            if (!array_key_exists('WINTER_WERK', $RoosterData))
+                $RoosterData['WINTER_WERK'] = $winterwerk;
+        }
 		else
 		{
 			// een gewone gebruiker mag alleen default aanmaken
 			$RoosterData['OPMERKINGEN'] = null;
 			$RoosterData['DDWV'] = $ddwv->dagIsDDWV($roosterDatum);
 			$RoosterData['CLUB_BEDRIJF'] = $clubBedrijf;
+            $RoosterData['WINTER_WERK'] = $winterwerk;
 		}		
 
 		// Voorkom dat datum meerdere keren voorkomt in de tabel
@@ -521,6 +530,10 @@ class Rooster extends Helios
 		if (array_key_exists($field, $input))
 			$record[$field] = isBOOL($input[$field], $field);
 
+        $field = 'WINTER_WERK';
+        if (array_key_exists($field, $input))
+            $record[$field] = isBOOL($input[$field], $field);
+
 		$field = 'MIN_SLEEPSTART';		// minimaal aantal aanmeldingen voordat we gaan slepen (alleen DDWV)
 		if (array_key_exists($field, $input))
 			$record[$field] = isINT($input[$field], $field);
@@ -557,9 +570,12 @@ class Rooster extends Helios
 			$retVal['CLUB_BEDRIJF']  = $record['CLUB_BEDRIJF'] == "1" ? true : false;	
 
 		if (isset($record['DDWV']))
-			$retVal['DDWV']  = $record['DDWV'] == "1" ? true : false;				
+			$retVal['DDWV']  = $record['DDWV'] == "1" ? true : false;
 
-		if (isset($record['VERWIJDERD']))
+        if (isset($record['WINTER_WERK']))
+            $retVal['WINTER_WERK']  = $record['WINTER_WERK'] == "1" ? true : false;
+
+        if (isset($record['VERWIJDERD']))
 			$retVal['VERWIJDERD']  = $record['VERWIJDERD'] == "1" ? true : false;
 
 		return $retVal;

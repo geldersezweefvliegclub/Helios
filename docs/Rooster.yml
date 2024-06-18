@@ -333,7 +333,11 @@ components:
         CLUB_BEDRIJF:
           description: Is er een clubbedrijf 
           type: boolean
-          example: 1      
+          example: 1
+        WINTER_WERK:
+          description: Wordt er gesleuteld aan vliegtuigen / rollend materieel
+          type: boolean
+          example: 0
         MIN_SLEEPSTART:
           description: Minimaal aantal aanmeldingen voordat we gaan slepen (alleen DDWV)
           type: integer
