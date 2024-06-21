@@ -817,6 +817,8 @@ class Leden extends Helios
 	*/
 	function UploadAvatar($id, $file)
 	{
+        global   $app_settings;
+
 		$functie = "Leden.UploadAvatar";
 		Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, $id));
 		
@@ -863,9 +865,8 @@ class Leden extends Helios
 			Debug(__FILE__, __LINE__, sprintf("Leden.UploadAvatar file_put_contents error"));
 			throw new Exception("422;Bestand upload mislukt;");			
 		}
-		
-		$url =  'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . "://{$_SERVER['HTTP_HOST']}";
 
+        $url = sprintf("%s://%s/",  isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https' : 'http', $app_settings['ServerName']);
 		$upd['AVATAR'] = sprintf("%s/%s/%s", $url, $upload_dir, $filename);
 		parent::DbAanpassen($id, $upd);
 
