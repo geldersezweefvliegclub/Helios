@@ -153,7 +153,7 @@ class Reservering extends Helios
 		$query_params = array();
 
 		$l = MaakObject('Login');
-		if (!$l->isClubVlieger() && !$l->isStarttoren())       // alleen clubvliegers en starttoren mogen reservingen zien
+		if (!$l->isClubVlieger() && !$l->isStarttoren() && !$l->isBeheerder())       // alleen clubvliegers en starttoren mogen reservingen zien
 		{
 			throw new Exception("401;Geen leesrechten;");
 		}
