@@ -412,6 +412,10 @@ components:
               type: integer
               format: int32
               example: 603
+            OPGEZEGD:
+              description: Heeft het lid zijn/haar lidmaatschap opgezegd?
+              type: boolean
+              example: false
             LEEFTIJD:
               description: Leeftijd van het lid op 1 januari van het te factureren jaar
               type: integer

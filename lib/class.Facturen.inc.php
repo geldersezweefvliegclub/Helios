@@ -301,6 +301,7 @@ class Facturen extends Helios
                 DATE_FORMAT(FROM_DAYS(DATEDIFF('%d-01-01',`l`.`GEBOORTE_DATUM`)), '%%Y')+0 AS LEEFTIJD,
                 `l`.`LIDNR` AS `LIDNR`,
                 `l`.`LIDTYPE_ID` AS `LIDTYPE_ID`,
+                `l`.`OPGEZEGD` AS `OPGEZEGD`,
                 `t`.`OMSCHRIJVING` AS `LIDMAATSCHAP`,
                 `t`.`BEDRAG` AS `CONTRIBUTIE`", $jaar);
 
@@ -618,6 +619,10 @@ class Facturen extends Helios
     function RecordToOutput($record)
     {
         $retVal = $record;
+
+        // boolean
+        if (isset($record['OPGEZEGD']))
+            $retVal['OPGEZEGD']  = $record['OPGEZEGD'] == "1" ? true : false;
 
         // vermengvuldigen met 1 converteer naar integer
         if (isset($record['ID']))
