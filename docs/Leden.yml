@@ -357,6 +357,24 @@ paths:
         500:
           description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"  
 
+  /Leden/GetVerjaardagen:
+    get:
+      security:
+        - basicAuth: []
+        - bearerAuth: []
+      summary: Haal de komende verjaardagen op
+      responses:
+        200:
+          description: "OK, data succesvol opgehaald"
+          content:
+            application/json:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/verjaardag'
+        500:
+          description: "Data verwerkingsfout, bijv onjuiste veldwaarde (string ipv integer)"
+
   /Leden/vCard:
     get:
       security:
@@ -905,3 +923,21 @@ components:
         carddata:
           description: de vCard
           type: string
+    verjaardag:
+      type: object
+      properties:
+        NAAM:
+          description: De volledige naam van het lid
+          type: string
+          maxLength: 255
+          example: Meindert het Paard
+        DAG:
+          description: Dag van de verjaardag
+          type: integer
+          format: int32
+          example: 4
+        MAAND:
+          description: Maand van de verjaardag
+          type: integer
+          format: int32
+          example: 10

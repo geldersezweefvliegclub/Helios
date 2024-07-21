@@ -304,8 +304,8 @@ class Leden extends Helios
 	}
 
 	/*
-	Haal een dataset op met records als een array uit de database. 
-	*/		
+	Haal een dataset op met records als een array uit de database.
+	*/
 	function GetObjects($params)
 	{
 		global $app_settings;
@@ -580,12 +580,78 @@ class Leden extends Helios
 			return $retVal;
 		}
 		return null;  // Hier komen we nooit :-)
-	}	
+	}
 
-	/*
-	Markeer een record in de database als verwijderd. Het record wordt niet fysiek verwijderd om er een link kan zijn naar andere tabellen.
-	Het veld VERWIJDERD wordt op "1" gezet.
-	*/
+    /*
+    Haal de verjaardagen op van de leden
+    */
+    function GetVerjaardagen()
+    {
+        global $app_settings;
+
+        $functie = "Leden.GetVerjaardagen";
+        Debug(__FILE__, __LINE__, sprintf("%s()", $functie));
+
+        $where = ' WHERE 1=1 ';
+        $orderby = "";
+        $alleenLaatsteAanpassing = false;
+        $hash = null;
+        $limit = -1;
+        $start = -1;
+        $velden = "*";
+        $alleenVerwijderd = false;
+        $privacyMasker = false;
+        $query_params = array();
+
+        $l = MaakObject('Login');
+        if ($l->isDDWV())
+        {
+            return null;
+        }
+        else if (($l->isBeheerder() == false) &&
+            ($l->isBeheerderDDWV() == false) &&
+            ($l->isStarttoren() == false))
+        {
+            // 600 = Student
+            // 601 = Erelid
+            // 602 = Lid
+            // 603 = Jeugdlid
+            // 604 = private owner
+            // 605 = veteraan
+            // 606 = Donateur
+            // 625 = DDWV
+            $where .= " AND LIDTYPE_ID IN (600,601,602,603,604,605,606,625)";
+        }
+
+        $rlObj = $this->GetObject($l->getUserFromSession());
+        $privacyMasker = $rlObj['PRIVACY'];
+
+
+        $query = sprintf("
+            SELECT 
+                NAAM, DAY(GEBOORTE_DATUM) AS DAG, MONTH(GEBOORTE_DATUM) AS MAAND
+            FROM `%s` 
+            WHERE 
+                DAYOFYEAR(GEBOORTE_DATUM) > (DAYOFYEAR(CURRENT_DATE) - 1) AND DAYOFYEAR(GEBOORTE_DATUM) < (DAYOFYEAR(CURRENT_DATE) + 60) AND 
+                LIDTYPE_ID IN (600,601,602,603,604,605,606)
+            ORDER BY 
+                (MONTH(GEBOORTE_DATUM) * 100 + DAY(GEBOORTE_DATUM))
+            LIMIT 0 , 7;", $this->dbTable);
+
+        parent::DbOpvraag($query);
+        $retValue = parent::DbData();
+
+        for ($i=0 ; $i < count($retValue) ; $i++)
+        {
+            $retValue[$i]['DAG'] = 1 * $retValue[$i]['DAG'];
+        }
+        return $retValue;
+
+    }
+    /*
+    Markeer een record in de database als verwijderd. Het record wordt niet fysiek verwijderd om er een link kan zijn naar andere tabellen.
+    Het veld VERWIJDERD wordt op "1" gezet.
+    */
 	function VerwijderObject($id, $verificatie = true)
 	{
 		$functie = "Leden.VerwijderObject";

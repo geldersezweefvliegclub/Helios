@@ -253,6 +253,32 @@ $app->post(url_base() . 'Leden/UploadAvatar', function (Request $request, Respon
 /*
 Haal een enkel record op uit de database
 */
+$app->get(url_base() . 'Leden/GetVerjaardagen', function (Request $request, Response $response, $args) {
+    $obj = MaakObject("Leden");
+    try
+    {
+
+        $v = $obj->GetVerjaardagen();  // Hier staat de logica voor deze functie
+
+        $response->getBody()->write(json_encode($v));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+    catch(Exception $exception)
+    {
+        Debug(__FILE__, __LINE__, "/Leden/GetObject: " .$exception);
+
+        list($dummy, $exceptionMsg) = explode(": ", $exception);
+        list($httpStatus, $message) = explode(";", $exceptionMsg);  // onze eigen formaat van een exceptie
+
+        header("X-Error-Message: $message", true, intval($httpStatus));
+        header("Content-Type: text/plain");
+        die;
+    }
+});
+
+/*
+Haal een enkel record op uit de database
+*/
 $app->get(url_base() . 'Leden/vCard', function (Request $request, Response $response, $args) {
     $obj = MaakObject("Leden");
     try
