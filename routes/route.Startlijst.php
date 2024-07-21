@@ -253,8 +253,40 @@ $app->get(url_base() . 'Startlijst/GetRecency', function (Request $request, Resp
         $params = $request->getQueryParams();
         $vliegerID = (isset($params['VLIEGER_ID'])) ? $params['VLIEGER_ID'] : null;
         $datum = (isset($params['DATUM'])) ? $params['DATUM'] : null;
-        
+
         $r = $obj->GetRecency($vliegerID, $datum);  // Hier staat de logica voor deze functie
+        if ($r === null)
+        {
+            header("X-Error-Message: Geen data", true, 404);
+            header("Content-Type: text/plain");
+            die;
+        }
+
+        $response->getBody()->write(json_encode($r));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+    catch(Exception $exception)
+    {
+        Debug(__FILE__, __LINE__, "/Startlijst/GetObject: " .$exception);
+
+        list($dummy, $exceptionMsg) = explode(": ", $exception);
+        list($httpStatus, $message) = explode(";", $exceptionMsg);  // onze eigen formaat van een exceptie
+
+        header("X-Error-Message: $message", true, intval($httpStatus));
+        header("Content-Type: text/plain");
+        die;
+    }
+});
+
+$app->get(url_base() . 'Startlijst/GetRecencyClubZonderInstructie', function (Request $request, Response $response, $args) {
+    $obj = MaakObject("Startlijst");
+    try
+    {
+        $params = $request->getQueryParams();
+        $vliegerID = (isset($params['VLIEGER_ID'])) ? $params['VLIEGER_ID'] : null;
+        $datum = (isset($params['DATUM'])) ? $params['DATUM'] : null;
+        
+        $r = $obj->GetRecency($vliegerID, $datum, false, true);  // Hier staat de logica voor deze functie
         if ($r === null)
         {
             header("X-Error-Message: Geen data", true, 404);

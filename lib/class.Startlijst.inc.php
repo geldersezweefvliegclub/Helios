@@ -1596,7 +1596,7 @@ class Startlijst extends Helios
     //  UREN_BAROMETER: "29:13"
     //	}
 
-    function GetRecency($vliegerID, $datum = null)
+    function GetRecency($vliegerID, $datum = null, $inclusiefInstructie = true, $alleenClubKisten = false)
     {
         $functie = "Startlijst.GetRecency";
         Debug(__FILE__, __LINE__, sprintf("%s(%s, %s)", $functie, $vliegerID, $datum));
@@ -1618,11 +1618,17 @@ class Startlijst extends Helios
 
         $l = MaakObject('Leden');
         $lid = $l->getObject($vliegerID);
-        if ($lid['INSTRUCTEUR'] == 1)        // Voor instructeurs tellen ook de instructie starts mee
+        if ($lid['INSTRUCTEUR'] == 1 && $inclusiefInstructie)  // Voor instructeurs tellen ook de instructie starts mee
         {
             $InstructieSQL = sprintf("((INZITTENDE_ID = %s) AND (INSTRUCTIEVLUCHT=1))", $vliegerID);
         } else {
             $InstructieSQL = "(1 = 0)";            // dit is nooit waar, en dat is prima
+        }
+
+        $clubKistSQL = "(1 = 1)";
+        if ($alleenClubKisten)
+        {
+            $clubKistSQL = "(CLUBKIST = 1)";
         }
 
         $retVal['STARTS_DRIE_MND'] = 0;
@@ -1647,7 +1653,7 @@ class Startlijst extends Helios
         $retVal['CHECKS'] = array();
 
         $where = sprintf("DATUM > '%d-01-01' AND DATUM <= '%s' AND STARTTIJD IS NOT NULL AND LANDINGSTIJD IS NOT NULL  ", $dateTime->format("Y") - 2, $dateTime->format("Y-m-d"));
-        $where .= sprintf(" AND ((VLIEGER_ID = %s) OR %s)", $vliegerID, $InstructieSQL);
+        $where .= sprintf(" AND ((VLIEGER_ID = %s) OR %s) AND %s", $vliegerID, $InstructieSQL, $clubKistSQL);
 
         $query = "
 			SELECT
@@ -1681,8 +1687,7 @@ class Startlijst extends Helios
                     $dmy = explode("-", $vlucht['DATUM']);
                     array_push($retVal['CHECKS'], sprintf("%02d-%02d-%d", $dmy[2], $dmy[1], $dmy[0]));
                 }
-
-
+                
                 switch($vlucht['STARTMETHODE_ID'])
                 {
                     case '501' :  // slepen
