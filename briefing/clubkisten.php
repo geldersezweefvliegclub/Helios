@@ -40,6 +40,43 @@ else {
     }
 }
 
+
+$reserveringenHTML = "";
+$reserveringenHTML .= "<h2>Reserveringen</h2>";
+$reserveringenHTML .= "<table>";
+
+
+$url_args = sprintf("BEGIN_DATUM=%s&EIND_DATUM=%s", date("Y-m-d"), date("Y-m-d"));
+heliosInit("Reservering/GetObjects?" . $url_args);
+
+$result      = curl_exec($curl_session);
+$status_code = curl_getinfo($curl_session, CURLINFO_HTTP_CODE); //get status code
+list($header, $body) = returnHeaderBody($result);
+
+if ($status_code != 200) // We verwachten een status code van 200
+{
+    emailError($result);
+}
+else {
+
+    $reserveringen = json_decode($body, true);
+    if (count($reserveringen['dataset']) == 0) {
+        // er zijn geen club vliegtuigen ingevoerd :-(
+        $reserveringenHTML .= "<h1>Er zijn geen reserveringen</h1>";
+    } else {
+        $reserveringenHTML .= "<table>";
+
+        foreach ($reserveringen['dataset'] as $reservering) {
+
+            $reserveringenHTML .= "<tr>";
+            $reserveringenHTML .= "<td style='padding-right:10px;'>" . $reservering['REG_CALL'] . "</td>";
+            $reserveringenHTML .= "<td>" . $reservering['NAAM'] . "</td>";
+            $reserveringenHTML .= "</tr>";
+        }
+    }
+}
+$reserveringenHTML .= "</table>";
+
 $samenvattingHTML = "";
 
 $url_args = "DATUM=" . date("Y-m-d");
@@ -99,6 +136,7 @@ else {
         $samenvattingHTML .= "</table>";
     }
 }
+
 ?>
 
 <html>
@@ -138,7 +176,7 @@ else {
                     <table style="width:100%">
                         <tr style='vertical-align:top;'">
                             <td style="width: 35%;"> <?php echo $ledenHTML; ?></td>
-                            <td style="width: 65%;">  <?php echo $samenvattingHTML; ?></td>
+                            <td style="width: 65%;">  <?php echo $samenvattingHTML; echo $reserveringenHTML; ?></td>
                         </tr>
                     </table>
                 </td>
