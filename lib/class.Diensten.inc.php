@@ -217,7 +217,7 @@ class Diensten extends Helios
 		Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($params, true)));		
 		
 		$where = ' WHERE 1=1 ';
-		$orderby = "";
+		$orderby = " ORDER BY DV.DATUM";
 		$alleenLaatsteAanpassing = false;
 		$hash = null;
 		$limit = -1;
