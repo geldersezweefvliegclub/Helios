@@ -125,57 +125,6 @@ class eboekhouden
         self::updateLid($lid);
     }
 
-    public static function nieuweFactuur($lid, $factuurRegels)
-    {
-        global $eBoekhouden_settings;
-
-        if (self::$sessionID == null)
-        {
-            self::getSessionID();
-        }
-
-        $regels = array();
-        foreach ($factuurRegels as $regel)
-        {
-            $factuurRegel = new stdClass();
-            $factuurRegel->Aantal = 1;
-            $factuurRegel->Code = "private owner";
-            $factuurRegel->Omschrijving = $regel['Omschrijving'];
-            $factuurRegel->PrijsPerEenheid = $regel['Prijs'];
-            $factuurRegel->BTWCode = "Geen btw";
-            $factuurRegel->TegenrekeningCode = "1700";
-            $factuurRegel->KostenplaatsID = 0;
-            $regels[] = $factuurRegel;
-        }
-        $factuur = new stdClass();
-
-        $factuur->Relatiecode = $lid['LIDNR'];
-        $factuur->Datum = date('Y-m-d');
-        $factuur->Betalingstermijn = 14;            // 14 dagen betalingstermijn
-        $factuur->Factuursjabloon = "Test";
-        $factuur->PerEmailVerzenden = 1;
-        $factuur->EmailOnderwerp = "Contributie factuur " . $lid['NAAM'];
-        $factuur->EmailBericht = "In de bijlage vindt je de factuur voor de contributie van de Gelderse Zweefvliegclub";
-        $factuur->EmailVanNaam = "Penningmeester GeZC";
-        $factuur->EmailVanAdres = "penningmeester@gezc.org";
-        $factuur->AutomatischeIncasso = 0;
-        $factuur->BoekhoudmutatieOmschrijving = "Contributie factuur" . $lid['NAAM'];
-        $factuur->IncassoMachtigingDatumOndertekening = date('Y-m-d');
-        $factuur->IncassoMachtigingFirst = 0;
-        $factuur->InBoekhoudingPlaatsen = 1;
-        $factuur->Regels = $regels;
-
-        $client = new SoapClient($eBoekhouden_settings['SoapBaseUrl']);
-
-        $params = array(
-            "SecurityCode2" => $eBoekhouden_settings['SecurityCode2'],
-            "SessionID" => self::$sessionID,
-            "oFact" => $factuur
-        );
-        $response = $client->__soapCall("AddFactuur", [$params]);
-        self::checkforerror($response, "AddFactuurResult");
-    }
-
     public static function updateLid($lid)
     {
         global $eBoekhouden_settings;
@@ -206,6 +155,11 @@ class eboekhouden
 
                 if ($relatie->Bedrijf != $lid['NAAM']) {
                     $relatie->Bedrijf = $lid['NAAM'];
+                    $updateNodig = true;
+                }
+
+                if ($relatie->Def2 != $lid['VOORNAAM']) {
+                    $relatie->Def2 = $lid['VOORNAAM'];
                     $updateNodig = true;
                 }
 
@@ -254,6 +208,7 @@ class eboekhouden
                 $relatie->AddDatum = date('Y-m-d');
                 $relatie->Code = $lid['LIDNR'];
                 $relatie->Bedrijf = $lid['NAAM'];
+                $relatie->Def2 = $lid['VOORNAAM'];
                 $relatie->Adres = $lid['ADRES'];
                 $relatie->Postcode = $lid['POSTCODE'];
                 $relatie->Plaats = $lid['WOONPLAATS'];
