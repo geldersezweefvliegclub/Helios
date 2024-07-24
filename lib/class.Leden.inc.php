@@ -633,7 +633,7 @@ class Leden extends Helios
             FROM `%s` 
             WHERE 
                 DAYOFYEAR(GEBOORTE_DATUM) > (DAYOFYEAR(CURRENT_DATE) - 1) AND DAYOFYEAR(GEBOORTE_DATUM) < (DAYOFYEAR(CURRENT_DATE) + 60) AND 
-                LIDTYPE_ID IN (600,601,602,603,604,605,606)
+                LIDTYPE_ID IN (600,601,602,603,604,605,606) AND VERWIJDERD = 0
             ORDER BY 
                 (MONTH(GEBOORTE_DATUM) * 100 + DAY(GEBOORTE_DATUM))
             LIMIT 0 , 7;", $this->dbTable);
