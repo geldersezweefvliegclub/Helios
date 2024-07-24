@@ -9,6 +9,7 @@ Hieronder geen wijzingen aanbrengen !!
 
 $classes = array("TypesGroepen",
                  "Types",
+                 "Agenda",
                  "Documenten",
                  "Competenties",
                  "Vliegtuigen",
