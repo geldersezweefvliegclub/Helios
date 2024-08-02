@@ -263,7 +263,7 @@ class synapse
                 $data["avatar_url"] = $avatarUrl;
 
             // voor re-activeren moet wachtwoord ingevoerd zijn. Als dat niet zo is de maken we een fake wachtwoord
-            if (!$lid['VERWIJDERD'] && $matrixGebruiker['deactivated'])
+            if (!$lid['VERWIJDERD'] && isset($matrixGebruiker) && $matrixGebruiker['deactivated'])
             {
                 if (!array_key_exists("password", $data))
                     $data["password"] = base64_encode(random_bytes(10));
