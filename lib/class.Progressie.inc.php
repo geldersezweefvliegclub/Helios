@@ -89,6 +89,7 @@ class Progressie extends Helios
 			SELECT 
 				p.*,
 				`t`.`OMSCHRIJVING` AS `LEERFASE`,
+				`c`.`LEERFASE_ID` AS `LEERFASE_ID`,
 				`c`.`ONDERWERP` AS `COMPETENTIE`,
 				`l`.`NAAM` AS `LID_NAAM`,
 				`i`.`NAAM` AS `INSTRUCTEUR_NAAM`
@@ -477,7 +478,7 @@ class Progressie extends Helios
 				competenties_view LEFT JOIN (SELECT * FROM progressie_view WHERE LID_ID = $lid_id) p ON 
 				competenties_view.ID = p.COMPETENTIE_ID 
 			ORDER BY 
-				LEERFASE_ID, competenties_view.VOLGORDE, competenties_view.ID";
+				competenties_view.LEERFASE_ID, competenties_view.VOLGORDE, competenties_view.ID";
 
 		$retVal = array();
 

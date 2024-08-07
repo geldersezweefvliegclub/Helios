@@ -493,7 +493,12 @@ components:
             LEERFASE: 
               description: Fase van de vliegopleiding
               type: string
-              example: Voortgezette vliegopleiding 1    
+              example: Voortgezette vliegopleiding 1
+            LEERFASE_ID:
+              description: In welke leerfase zit deze competentie. Verwijzing naar ref_types
+              type: integer
+              format: int32
+              example: 1000
             COMPETENTIE: 
               description: Volledige omschrijving van de compententie
               type: string
