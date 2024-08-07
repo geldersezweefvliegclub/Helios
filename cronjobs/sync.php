@@ -7,13 +7,8 @@ include "functions.php";
 include "MatrixSynapse.php";
 include "e-boekhouden.php";
 
-
 $ledenSync = array();       // Leden die gesynchroniseerd moeten worden
 $dataSync = array();        // Data die gesynchroniseerd moet worden
-
-
-
-
 
 if (isset($_GET['Leden']))
 {

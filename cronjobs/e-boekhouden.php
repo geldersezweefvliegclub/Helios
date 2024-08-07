@@ -46,6 +46,12 @@ class eboekhouden
 
     private static function checkforerror($rawresponse, $sub)
     {
+        if (!isset($rawresponse->$sub) || !isset($rawresponse->$sub->ErrorMsg))
+        {
+            Debug(__FILE__, __LINE__, sprintf("Error: %s not found %s", $sub, json_encode($rawresponse)));
+            return;
+        }
+
         $errorMsg = $rawresponse->$sub->ErrorMsg;
         $LastErrorCode = isset($errorMsg->LastErrorCode) ? $errorMsg->LastErrorCode : '';
         $LastErrorDescription = isset($errorMsg->LastErrorDescription) ? $errorMsg->LastErrorDescription : '';
