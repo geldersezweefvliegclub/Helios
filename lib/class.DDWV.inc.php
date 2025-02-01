@@ -55,6 +55,8 @@ class DDWV
         Debug(__FILE__, __LINE__, sprintf("%s(%s, %s)", $functie, print_r($aanmelding, true), print_r($startData, true)));
         Debug(__FILE__, __LINE__, sprintf("%s: DDWV=%s", $functie, print_r($ddwv, true)));
 
+        return -1;      // vanaf 2025 geen strippen boeken
+
         if (!isset($ddwv)) {
             Debug(__FILE__, __LINE__, sprintf("%s: DDWV variable bestaat niet", $functie));
             return -1;
@@ -200,6 +202,8 @@ class DDWV
 
         $functie = "DDWV.AfmeldenLidBijboekenDDWV";
         Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($afmelding, true)));
+
+        return -1;      // vanaf 2025 geen strippen boeken
 
         if (!isset($afmelding['TRANSACTIE_ID'])) {
             return -1;

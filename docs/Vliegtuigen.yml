@@ -343,9 +343,9 @@ components:
           maxLength: 8
           example: AA
         FLARMCODE:
-          description: De flarmcode zoals deze wordt uitgezonden. Zo kunnen we ontvangen flarm data herleiden naar een vliegtuig uit de database
+          description: De flarmcode zoals deze wordt uitgezonden. Zo kunnen we ontvangen flarm data herleiden naar een vliegtuig uit de database, CSV waarde voor meerdere codes
           type: string
-          maxLength: 6
+          maxLength: 30
           example: 123456
         ZITPLAATSEN:
           description: Het aantal zitplaatsen. Is 1 of 2. 

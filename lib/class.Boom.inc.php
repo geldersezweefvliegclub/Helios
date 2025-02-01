@@ -7,7 +7,7 @@ class Boom
 	public static function bouwBoom($dbdata)
 	{
 		$functie = "Boom.bouwBoom";
-		Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($dbdata, true)));	
+		//Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($dbdata, true)));
 
 		$t = MaakObject('Types');
 		$hoofdGroepen = $t->GetObjects(array("GROEP" => 10));
@@ -47,7 +47,7 @@ class Boom
 
 		foreach ($dataset as $competentie)
 		{
-			Debug(__FILE__, __LINE__, sprintf("%s - %s", $topID, print_r($competentie, true)));
+			// Debug(__FILE__, __LINE__, sprintf("%s - %s", $topID, print_r($competentie, true)));
 			if (($competentie["LEERFASE_ID"] == $topID) && ($competentie["BLOK_ID"] == null))  
 			{					
 				Debug(__FILE__, __LINE__, sprintf("%s",$competentie['ONDERWERP']));

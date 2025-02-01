@@ -45,7 +45,7 @@ $app_settings = array(
 // Maar nu komt het, apache heeft een vervelende bug. Zie https://bz.apache.org/bugzilla/show_bug.cgi?id=61820 Deze bug is opgelost in versie 2.4.48 
 // Wat is de bug? Bij een status code van 304 worden alle headers van de http response verwijderd door apache, en dat is een probleem.
 // Indien je CORS gebruikt in je website om helios aan te roepen, gaat je browser klagen dat er geen Access-Control-Allow-Origin header zijn
-// Zie index.php voor de implementatie in helios.
+// Zie run-flarm.php voor de implementatie in helios.
 
 // Er zijn twee oplossingen:
 // 		0) Upgrade apache

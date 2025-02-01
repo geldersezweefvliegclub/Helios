@@ -136,7 +136,7 @@ class Transacties extends Helios
 		$orderby = "";
 		$alleenLaatsteAanpassing = false;
 		$hash = null;
-		$limit = 1000;	 // standaard max 1000 records
+		$limit = 5000;	 // standaard max 5000 records
 		$start = -1;
 		$velden = "*";
 		$in = "";

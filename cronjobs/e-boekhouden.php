@@ -204,6 +204,11 @@ class eboekhouden
                     $updateNodig = true;
                 }
 
+                if ($relatie->Def2 != $lid['VOORNAAM']) {
+                    $relatie->Def2 = $lid['VOORNAAM'];
+                    $updateNodig = true;
+                }
+
                 if ($updateNodig) {
                     self::UpdateRelatie($relatie);
                 }
@@ -223,6 +228,7 @@ class eboekhouden
                 $relatie->Email = $lid['EMAIL'];
                 $relatie->KvkNummer = $lid['ID'];
                 $relatie->Def1 = $lid['ID'];
+                $relatie->Def2 = $lid['VOORNAAM'];
                 $relatie->Gb_ID = 0;
                 $relatie->GeenEmail = 0;
                 $relatie->NieuwsbriefgroepenCount = 0;

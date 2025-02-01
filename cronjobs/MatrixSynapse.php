@@ -141,7 +141,6 @@ class synapse
         }
     }
 
-
     // zie https://matrix-org.github.io/synapse/latest/admin_api/user_admin_api.html#query-user-account
     static public function bestaatGebruiker($id): ?array
     {

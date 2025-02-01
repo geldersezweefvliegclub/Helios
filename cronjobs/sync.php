@@ -77,7 +77,7 @@ else
 
         if (count($items) == 0) {
             // er zijn geen items om te synchroniseren
-            die;
+            //die;
         }
 
         foreach ($items as $item) {
@@ -90,6 +90,7 @@ else
     }
 }
 
+$ledenSync[] = 21033;
 $removeSyncID = array();
 foreach ($ledenSync as $lid_id)
 {

@@ -244,7 +244,7 @@ class TypesGroepen extends Helios
 			SELECT 
 				%s
 			FROM
-				`####types_groepen_view` " . $where; // . $orderby;
+				`####types_groepen_view` " . $where . $orderby;
 		$query = str_replace("####", ($alleenVerwijderd ? "verwijderd_" : "") , $query);		
 		
 		$retVal = array();

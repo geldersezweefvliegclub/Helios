@@ -13,6 +13,8 @@ $lines = explode("\r\n", $flarmLijst);
 
 // Get the header line
 $header = str_getcsv(array_shift($lines));
+
+// Remove the single quotes from the header
 for ($i = 0; $i < count($header); $i++) {
     $header[$i] = str_replace("'", '', $header[$i]);
 }
@@ -21,17 +23,30 @@ for ($i = 0; $i < count($header); $i++) {
 
 $flarmArray = [];
 foreach ($lines as $line) {
-    $csv = str_getcsv($line);
-    for ($i = 0; $i < count($csv); $i++) {
-        $csv[$i] = str_replace("'", '', $csv[$i]);
+    $velden = str_getcsv($line);    // Parse the line into velden. Velden is an array
+    for ($i = 0; $i < count($velden); $i++) {
+        // Remove the single quotes from the values
+        $velden[$i] = str_replace("'", '', $velden[$i]);
     }
 
-    if (count($csv) != count($header)) {
+    // Aantal velden moet gelijk zijn aan het aantal velden in de header
+    if (count($velden) != count($header)) {
         continue;
     }
-    $record = array_combine($header, $csv);
+    $record = array_combine($header, $velden);
+
+    if (strlen($record['REGISTRATION']) == 0) {
+        continue;           // er moet een registratie zijn, o.a. paragliders hebben geen registratie
+    }
     $key = $record['REGISTRATION'];
-    $flarmArray[$key] = $record;
+
+    if (!array_key_exists($key, $flarmArray)) {
+        $flarmArray[$key]['DEVICE_ID'] = $record['DEVICE_ID'];
+    }
+    else {
+        if (strpos($flarmArray[$key]['DEVICE_ID'], $record['DEVICE_ID']) === false)
+            $flarmArray[$key]['DEVICE_ID'] .= "," . $record['DEVICE_ID'];
+    }
 }
 
 heliosInit("Vliegtuigen/GetObjects");

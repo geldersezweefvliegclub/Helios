@@ -28,7 +28,7 @@ class Vliegtuigen extends Helios
 				`CALLSIGN` varchar(6) DEFAULT NULL,
 				`ZITPLAATSEN` tinyint UNSIGNED NOT NULL DEFAULT '1',
 				`CLUBKIST` tinyint UNSIGNED NOT NULL DEFAULT '0',
-				`FLARMCODE` varchar(6) DEFAULT NULL,
+				`FLARMCODE` varchar(30) DEFAULT NULL,
 				`TYPE_ID` mediumint UNSIGNED DEFAULT NULL,
 				`TMG` tinyint UNSIGNED NOT NULL DEFAULT '0',
 				`ZELFSTART` tinyint UNSIGNED NOT NULL DEFAULT '0',
