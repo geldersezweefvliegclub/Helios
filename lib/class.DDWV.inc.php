@@ -422,4 +422,258 @@ class DDWV
             }
         }
     }
+
+    function MaakTransacties($datum)
+    {
+        global $ddwv;
+
+        $functie = "Startlijst.MaakTransacties";
+        Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, $datum));
+
+        $l = MaakObject('Login');
+
+        if (!$l->isBeheerder() &&  !$l->isBeheerderDDWV())
+            throw new Exception("401;Gebruiker mag geen transacties aanmaken;");
+
+        isDATE($datum, "DATUM");            // validatie of datum goed ingevoerd is
+
+        $rObj = MaakObject('Rooster');
+        $rooster = $rObj->GetObject(null, $datum);
+
+        if ($rooster['DDWV'] === false)
+            throw new Exception("401;Datum is geen DDWV dag;");
+
+        Debug(__FILE__, __LINE__, sprintf("%s: rooster %s", $functie, print_r($rooster, true)));
+
+        $sObj = MaakObject('Startlijst');
+
+        $startlijst = $sObj->GetObjects(array('BEGIN_DATUM' => $datum, 'EIND_DATUM' => $datum));
+        Debug(__FILE__, __LINE__, sprintf("%s: startlijst %s", $functie, print_r($startlijst, true)));
+
+        $starts = array();
+        foreach ($startlijst['dataset'] as $start)
+        {
+            if ($start['VELD_ID'] === $ddwv->VELD_ID)
+            {
+                if ($rooster['CLUB_BEDRIJF'] !== true)         // geen club bedrijf, iedereen betaald
+                {
+                    if (!key_exists($start['VLIEGER_ID'], $starts))
+                        $starts[$start['VLIEGER_ID']] = array();
+
+                    array_push($starts[$start['VLIEGER_ID']], $start);
+                }
+                else
+                {
+                    $rl = MaakObject('Leden');
+                    if (!$rl->isClubVlieger($start['VLIEGER_ID']))  // geen club vlieger, dus betalen
+                    {
+                        if (!key_exists($start['VLIEGER_ID'], $starts))
+                            $starts[$start['VLIEGER_ID']] = array();
+
+                        array_push($starts[$start['VLIEGER_ID']], $start);
+                    }
+                }
+            }
+        }
+
+        Debug(__FILE__, __LINE__, sprintf("%s: starts %s", $functie, print_r($starts, true)));
+
+        $aObj = MaakObject('AanwezigLeden');
+        $alleAanmeldingen = $aObj->GetObjects(array('BEGIN_DATUM' => $datum, 'EIND_DATUM' => $datum));
+
+        Debug(__FILE__, __LINE__, sprintf("%s: alle aanmeldingen %s", $functie, print_r($alleAanmeldingen, true)));
+
+        $aanmeldingen = array();
+        foreach ($alleAanmeldingen['dataset'] as $aanmelding)
+        {
+            if ($aanmelding['VELD_ID'] == $ddwv->VELD_ID)
+            {
+                $aanmeldingen[$aanmelding['LID_ID']] = $aanmelding;     // omzetten naar array met lid_id als key
+            }
+        }
+        Debug(__FILE__, __LINE__, sprintf("%s: aanmeldingen %s", $functie, print_r($aanmeldingen, true)));
+
+        if (count($starts) === 0 && count($aanmeldingen) === 0)
+            throw new Exception("401;Geen DDWV infomatie aanwezig;");
+
+
+        $typeObj = MaakObject('Types');
+        $types = $typeObj->GetObjects(array('GROEP' => 20));
+
+        foreach ($types['dataset'] as $type)
+            $tarieven[$type['ID']] = $type;     // omzetten naar array met type_id als key
+
+        Debug(__FILE__, __LINE__, sprintf("%s: tarieven %s", $functie, print_r($tarieven, true)));
+
+        // nu we alles weten, kunnen we beginnen met het verwerken
+        $trObj = MaakObject('Transacties');
+
+        // beginnen met de starts
+        foreach ($starts as $vlieger)
+        {
+            $teBetalen = 0;
+            $aantal_lierstarts = 0;
+            foreach ($vlieger as $start)
+            {
+                if ($start['STARTMETHODE_ID'] == 550)       // 550 = lieren
+                    $aantal_lierstarts++;
+            }
+
+            $rl = MaakObject('Leden');
+            $lid = $rl->GetObject($start['VLIEGER_ID']);
+
+            if (!$rl->isClubVlieger(null, $lid))  // geen club vlieger, dus lidmaatschap betalen
+            {
+                // heeft lid al 3x betaald?
+                $jaar = date('Y', strtotime($datum)); // Extract year from the date
+
+                $beginDatum = $jaar . "-01-01";
+                $eindDatum = $jaar . "-12-31";
+                $transacties = $trObj->GetObjects(array('LID_ID' => $lid['ID'], 'BEGIN_DATUM' => $beginDatum, 'EIND_DATUM' => $eindDatum));
+
+                $tarief = $tarieven[2018];          // 2018 = Indivueel lidmaatschap
+
+                $aantal_lidmaatschap = 0;
+                foreach ($transacties as $t)
+                {
+                    if ($start['TYPE_ID'] === $tarief['ID'])
+                        $aantal_lidmaatschap++;
+                }
+
+                if ($aantal_lidmaatschap < 3)
+                {
+                    $transactie = array();
+                    $transactie['DDWV'] = true;
+                    $transactie['LID_ID'] = $lid['ID'];
+                    $transactie['TYPE_ID'] = $tarief['ID'];
+                    $transactie['EENHEDEN'] = 1;
+                    $transactie['VLIEGDAG'] = $datum;
+                    $transactie['OMSCHRIJVING'] = $tarief['OMSCHRIJVING'];
+                    $transactie['BEDRAG'] = $tarief['BEDRAG'];
+
+                    $id = $trObj->AddObject($transactie, false);
+                    $teBetalen += $tarief['BEDRAG'];
+                }
+            }
+
+            // basis tarief, geld voor iedereen
+            $tarief = $tarieven[2020];          // 2020 = basis tarief
+
+            $transactie = array();
+            $transactie['DDWV'] = true;
+            $transactie['LID_ID'] = $lid['ID'];
+            $transactie['TYPE_ID'] = $tarief['ID'];
+            $transactie['EENHEDEN'] = 1;
+            $transactie['VLIEGDAG'] = $datum;
+            $transactie['OMSCHRIJVING'] = $tarief['OMSCHRIJVING'];
+            $transactie['BEDRAG'] = $tarief['BEDRAG'];
+
+            $id = $trObj->AddObject($transactie, false);
+            $teBetalen += $tarief['BEDRAG'];
+
+            if ($aantal_lierstarts > 0)
+            {
+                $tarief = $tarieven[2021];          // 2021 = eerste lierstart
+
+                $transactie = array();
+                $transactie['DDWV'] = true;
+                $transactie['LID_ID'] = $lid['ID'];
+                $transactie['TYPE_ID'] = $tarief['ID'];
+                $transactie['EENHEDEN'] = 1;
+                $transactie['VLIEGDAG'] = $datum;
+                $transactie['OMSCHRIJVING'] = $tarief['OMSCHRIJVING'];
+                $transactie['BEDRAG'] = $tarief['BEDRAG'];;
+
+                $id = $trObj->AddObject($transactie, false);
+                $teBetalen += $tarief['BEDRAG'];
+            }
+
+            if ($aantal_lierstarts > 2)
+            {
+                $tarief = $tarieven[2022];          // 2022 = extra lierstarts
+
+                $transactie = array();
+                $transactie['DDWV'] = true;
+                $transactie['LID_ID'] = $lid['ID'];
+                $transactie['TYPE_ID'] = $tarief['ID'];
+                $transactie['EENHEDEN'] = 1;
+                $transactie['VLIEGDAG'] = $datum;
+                $transactie['OMSCHRIJVING'] = $tarief['OMSCHRIJVING'];
+                $transactie['BEDRAG'] = $tarief['BEDRAG'];
+
+                $id = $trObj->AddObject($transactie, false);
+                $teBetalen += $tarief['BEDRAG'];
+            }
+
+            if ($lid['TEGOED'] > 0)
+            {
+                $strippen = floor($teBetalen / 5);         // en strip heeft de waarde van 5 euro
+
+                if ($strippen > $lid['TEGOED'])
+                    $strippen = $lid['TEGOED'];
+
+                $tarief = $tarieven[2010];          // 2010 = afboeken voorraad strippen
+
+                $transactie = array();
+                $transactie['DDWV'] = true;
+                $transactie['LID_ID'] = $lid['ID'];
+                $transactie['TYPE_ID'] = $tarief['ID'];
+                $transactie['EENHEDEN'] = -1 * $strippen;
+                $transactie['VLIEGDAG'] = $datum;
+                $transactie['OMSCHRIJVING'] = $tarief['OMSCHRIJVING'];
+                $transactie['BEDRAG'] = -1 * $strippen * 5;
+
+                $id = $trObj->AddObject($transactie, true);
+            }
+        }
+
+        // nu nog aanmeldingen die niet gestart zijn
+        foreach ($aanmeldingen as $aanmelding)
+        {
+
+            if (key_exists($aanmelding['LID_ID'], $starts))
+                continue;
+
+            Debug(__FILE__, __LINE__, sprintf("%s: aanmelding, maar niet gestart %s", $functie, print_r($aanmelding, true)));
+
+            $lid = $rl->GetObject($aanmelding['LID_ID']);
+
+            // basis tarief, geld voor iedereen
+            $tarief = $tarieven[2020];          // 2020 = basis tarief
+
+            $transactie = array();
+            $transactie['DDWV'] = true;
+            $transactie['LID_ID'] = $lid['ID'];
+            $transactie['TYPE_ID'] = $tarief['ID'];
+            $transactie['EENHEDEN'] = 1;
+            $transactie['VLIEGDAG'] = $datum;
+            $transactie['OMSCHRIJVING'] = $tarief['OMSCHRIJVING'];
+            $transactie['BEDRAG'] = $tarief['BEDRAG'];
+
+            $id = $trObj->AddObject($transactie, false);
+            $teBetalen = $tarief['BEDRAG'];
+
+            if ($lid['TEGOED'] > 0)
+            {
+                $strippen = floor($teBetalen / 5);         // en strip heeft de waarde van 5 euro
+
+                if ($strippen > $lid['TEGOED'])
+                    $strippen = $lid['TEGOED'];
+
+                $tarief = $tarieven[2010];          // 2010 = afboeken voorraad strippen
+
+                $transactie = array();
+                $transactie['DDWV'] = true;
+                $transactie['LID_ID'] = $lid['ID'];
+                $transactie['TYPE_ID'] = $tarief['ID'];
+                $transactie['EENHEDEN'] = -1 * $strippen;
+                $transactie['VLIEGDAG'] = $datum;
+                $transactie['OMSCHRIJVING'] = $tarief['OMSCHRIJVING'];
+                $transactie['BEDRAG'] = -1 * $strippen * 5;
+
+                $id = $trObj->AddObject($transactie, true);
+            }
+
+        }
+    }
 }

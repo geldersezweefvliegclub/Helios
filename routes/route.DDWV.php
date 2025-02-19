@@ -89,4 +89,31 @@ $app->post(url_base() . 'DDWV/UitbetalenCrew', function (Request $request, Respo
     }
 });
 
+/*
+Aanmaken van de database tabel. Indien FILLDATA == true, dan worden er ook voorbeeld records toegevoegd
+*/
+$app->post(url_base() . 'DDWV/MaakTransacties', function (Request $request, Response $response, $args) {
+    $obj = MaakObject("DDWV");
+    try
+    {
+        $data = json_decode($request->getBody(), true);
+
+        $obj->MaakTransacties($data["DATUM"]);   // Hier staat de logica voor deze functie
+        $response->getBody()->write(json_encode(null));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+    catch(Exception $exception)
+    {
+        Debug(__FILE__, __LINE__, "/DDWV/MaakTransacties: " .$exception);
+
+        list($dummy, $exceptionMsg) = explode(": ", $exception);
+        list($httpStatus, $message) = explode(";", $exceptionMsg);  // onze eigen formaat van een exceptie
+
+        header("X-Error-Message: $message", true, intval($httpStatus));
+        header("Content-Type: text/plain");
+        die;
+    }
+});
+
+
 ?>

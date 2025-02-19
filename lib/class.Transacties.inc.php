@@ -133,7 +133,7 @@ class Transacties extends Helios
 		
 
 		$where = ' WHERE 1=1 ';
-		$orderby = "";
+		$orderby = " ORDER BY ID ";
 		$alleenLaatsteAanpassing = false;
 		$hash = null;
 		$limit = 5000;	 // standaard max 5000 records
@@ -339,38 +339,43 @@ class Transacties extends Helios
     /*
 	Toevoegen van een record. Het is niet noodzakelijk om alle velden op te nemen in het verzoek
 	*/		
-	function AddObject($Transactie)
-	{
-		$functie = "Transacties.AddObject";
-		Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($Transactie, true)));
+	function AddObject($Transactie, $updateLid = true)
+    {
+        $functie = "Transacties.AddObject";
+        Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($Transactie, true)));
 
-		if (!array_key_exists('LID_ID', $Transactie))
-			throw new Exception("406;LID_ID moet ingevuld zijn;");
+        if (!array_key_exists('LID_ID', $Transactie))
+            throw new Exception("406;LID_ID moet ingevuld zijn;");
 
         $l = MaakObject('Login');
 
-        if (!$l->isBeheerder() && !$l->isBeheerderDDWV() && ($Transactie['LID_ID'] != $l->getUserFromSession()))
-        {
+        if (!$l->isBeheerder() && !$l->isBeheerderDDWV() && ($Transactie['LID_ID'] != $l->getUserFromSession())) {
             throw new Exception("401;Geen rechten;");
         }
 
-		// Neem data over uit aanvraag
-		$record = $this->RequestToRecord($Transactie);
+        // Neem data over uit aanvraag
+        $record = $this->RequestToRecord($Transactie);
 
-		$lObj = MaakObject('Leden');
-		$LidData = $lObj->getObject($record['LID_ID']);
+        $lObj = MaakObject('Leden');
+        $LidData = $lObj->getObject($record['LID_ID']);
 
-		$record['INGEVOERD_ID'] = $l->getUserFromSession();   
-		$record['SALDO_VOOR'] = $LidData['TEGOED'] * 1;   
-		$record['SALDO_NA'] = $LidData['TEGOED'] * 1 + $record['EENHEDEN'];      
+        $record['INGEVOERD_ID'] = $l->getUserFromSession();
 
-		$id = parent::DbToevoegen($record);
+        if ($updateLid) {
+            $record['SALDO_VOOR'] = $LidData['TEGOED'] * 1;
+            $record['SALDO_NA'] = $LidData['TEGOED'] * 1 + $record['EENHEDEN'];
+        }
 
-		// Opslaan tegoed bij het lid
-		$ld = array();
-		$ld['ID'] = $record['LID_ID'];
-		$ld['TEGOED'] = $record['SALDO_NA'];
-		$lObj->UpdateObject($ld);
+        $id = parent::DbToevoegen($record);
+
+        // Opslaan tegoed bij het lid
+        if ($updateLid)
+        {
+            $ld = array();
+            $ld['ID'] = $record['LID_ID'];
+            $ld['TEGOED'] = $record['SALDO_NA'];
+            $lObj->UpdateObject($ld);
+        }
 
 		Debug(__FILE__, __LINE__, sprintf("Transactie toegevoegd id=%d, %s", $id, $LidData['NAAM']));
         return $this->GetObject($id);
