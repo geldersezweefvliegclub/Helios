@@ -320,15 +320,9 @@ class Startlijst extends Helios
         } elseif (!$this->heeftDataToegang() && !$l->isStarttoren() && !$l->isRapporteur()) {
             $w = sprintf("(VLIEGER_ID = '%d') OR (INZITTENDE_ID = '%d')", $l->getUserFromSession(), $l->getUserFromSession());
 
-            // Startlijst voor beheerder DDWV is ook op DDWV dagen bechikbaar
-            if ($l->isBeheerderDDWV() == true)
+            // Startlijst voor beheerder DDWV, en DDWV crew, is ook op DDWV dagen bechikbaar
+            if (($l->isBeheerderDDWV() == true) || ($l->isDDWVCrew() == true))
                 $w .= " OR (DDWV = 1)";
-
-            // Startlijst voor DDWV crew is mogen ook DDWV dagen zien waar ze zelf dienst hadden
-            if ($l->isDDWVCrew() == true) {
-                $w .= sprintf(" OR ((DATUM IN (select DATUM from oper_diensten WHERE LID_ID = %d))", $l->getUserFromSession());
-                $w .= " AND (DDWV = 1))";
-            }
 
             $where .= sprintf(" AND (%s)", $w);
         }
