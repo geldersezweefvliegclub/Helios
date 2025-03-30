@@ -42,7 +42,7 @@ else {
 
 
 $reserveringenHTML = "";
-$reserveringenHTML .= "<h2>Reserveringen</h2>";
+$reserveringenHTML .= "<h1>Reserveringen</h1>";
 $reserveringenHTML .= "<table>";
 
 
@@ -62,7 +62,7 @@ else {
     $reserveringen = json_decode($body, true);
     if (count($reserveringen['dataset']) == 0) {
         // er zijn geen club vliegtuigen ingevoerd :-(
-        $reserveringenHTML .= "<h1>Er zijn geen reserveringen</h1>";
+        $reserveringenHTML .= "<h2>Er zijn geen reserveringen</h2>";
     } else {
         $reserveringenHTML .= "<table>";
 
@@ -96,7 +96,8 @@ else {
 
     if ($samenvatting['aanmeldingen'] == 0) {
         // er zijn geen club vliegtuigen ingevoerd :-(
-        $samenvattingHTML = "<h1>Er zijn geen aanmeldingen</h1>";
+        $samenvattingHTML = "<h2>Er zijn geen aanmeldingen</h2>";
+        $ledenHTML = "";
     }
     else
     {
@@ -166,7 +167,7 @@ else {
         <table style="width: 100%">
             <tr>
                 <td><div class='titel'><h1>Status vliegtuigen</h1></div></td>
-                <td  style="padding-left: 30px;"><div class='titel'><h1>Aanmeldingen</h1></div></td>
+                <td style="padding-left: 30px;"><div class='titel'><h1>Aanmeldingen</h1></div></td>
             </tr>
             <tr>
                 <td style="vertical-align: top; width: 35%;">
@@ -176,7 +177,7 @@ else {
                     <table style="width:100%">
                         <tr style='vertical-align:top;'">
                             <td style="width: 35%;"> <?php echo $ledenHTML; ?></td>
-                            <td style="width: 65%;">  <?php echo $samenvattingHTML; echo $reserveringenHTML; ?></td>
+                            <td style="width: 65%;"> <?php echo $samenvattingHTML; echo $reserveringenHTML; ?></td>
                         </tr>
                     </table>
                 </td>
