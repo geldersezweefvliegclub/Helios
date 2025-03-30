@@ -28,6 +28,7 @@ $classes = array("TypesGroepen",
                  "Tracks",
                  "Reservering",
                  "Transacties",
+                 "Facturen",
                  "Audit");
 
 include('include/functions.php');
