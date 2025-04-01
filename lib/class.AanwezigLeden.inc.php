@@ -600,6 +600,7 @@ class AanwezigLeden extends Helios
 
         $l = MaakObject('Login');
         $ddwv = MaakObject('DDWV');     // eventueel DDWV strippen retour
+        $diObj = MaakObject("Daginfo");
 
 		if ($ids !== null)
         {
@@ -607,6 +608,13 @@ class AanwezigLeden extends Helios
 
             foreach ($arrayIDs as $id) {
                 $db_data = $this->GetObject($id);
+
+                try {
+                    $di = $diObj->GetObject(null, $db_data['DATUM']); // Geeft exception als er geen daginfo is
+                } catch (Exception $e) {}
+
+                if ($di !== null)       // mogen niet verwijderen als daginfo bestaat, dit is een DDWV dag, of verleden
+                    throw new Exception("409;Afmelden niet toegestaan;");
 
                 if (($this->heeftDataToegang() == false) && ($db_data['LID_ID'] != $l->getUserFromSession()))
                     throw new Exception("401;Geen schrijfrechten;");
@@ -619,6 +627,13 @@ class AanwezigLeden extends Helios
 		{
 			$db_data = $this->GetObject(null, $lid_id, $datum);
 			$id = $db_data["ID"];
+
+            try {
+                $di = $diObj->GetObject(null, $db_data['DATUM']); // Geeft exception als er geen daginfo is
+            } catch (Exception $e) {}
+
+            if ($di !== null)       // mogen niet verwijderen als daginfo bestaat, dit is een DDWV dag, of verleden
+                throw new Exception("409;Afmelden niet toegestaan;");
 
             if (($this->heeftDataToegang($datum) == false) && ($db_data['LID_ID'] != $l->getUserFromSession()))
                 throw new Exception("401;Geen schrijfrechten;");
@@ -702,6 +717,17 @@ class AanwezigLeden extends Helios
 							
 		$id = parent::DbToevoegen($a);
 		Debug(__FILE__, __LINE__, sprintf("AanwezigLeden toegevoegd id=%d", $id));
+
+
+        // Als lidnummer niet bekend is, dan gaat het fout bij factureren.
+        // Genneer een lidnummer op basis van het ID als deze niet bekend is
+        $lObj = MaakObject('Leden');
+        $lidData = $lObj->GetObject($lidID);
+
+        if (is_null($lidData['LIDNR']))
+        {
+            $lObj->UpdateObject(array('ID' => $lidID, 'LIDNR' => 9000000 + $lidID));
+        }
 
 		return $this->GetObject($id);
 	}

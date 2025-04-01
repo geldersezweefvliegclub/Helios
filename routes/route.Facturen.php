@@ -221,6 +221,7 @@ $app->post(url_base() . 'Facturen/SaveObject', function (Request $request, Respo
     }
 });
 
+
 /*
 Aanmaken van facturen voor een jaar. Lid ID worden als array meegegeven
 */
@@ -263,6 +264,34 @@ $app->post(url_base() . 'Facturen/UploadFactuur', function (Request $request, Re
     catch(Exception $exception)
     {
         Debug(__FILE__, __LINE__, "/Facturen/UploadFactuur: " .$exception);
+
+        list($dummy, $exceptionMsg) = explode(": ", $exception);
+        list($httpStatus, $message) = explode(";", $exceptionMsg);  // onze eigen formaat van een exceptie
+
+        header("X-Error-Message: $message", true, intval($httpStatus));
+        header("Content-Type: text/plain");
+        die;
+    }
+});
+
+
+
+/*
+Aanmaken van facturen voor transacties (DDWV), Lid ID en datum worden als json meegegeven
+*/
+$app->post(url_base() . 'Facturen/UploadTransactieFactuur', function (Request $request, Response $response, $args) {
+    $obj = MaakObject("Facturen");
+    try
+    {
+        $data = json_decode($request->getBody(), true);
+
+        $v = $obj->uploadTransactieFactuur($data);   // Hier staat de logica voor deze functie
+        $response->getBody()->write(json_encode($v));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+    catch(Exception $exception)
+    {
+        Debug(__FILE__, __LINE__, "/Facturen/uploadTransactieFactuur: " .$exception);
 
         list($dummy, $exceptionMsg) = explode(": ", $exception);
         list($httpStatus, $message) = explode(";", $exceptionMsg);  // onze eigen formaat van een exceptie

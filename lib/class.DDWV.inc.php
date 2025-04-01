@@ -453,6 +453,10 @@ class DDWV
         $starts = array();
         foreach ($startlijst['dataset'] as $start)
         {
+            // niet gestart, dus negeren
+            if ($start['STARTTIJD'] === null)
+                continue;
+
             if ($start['VELD_ID'] === $ddwv->VELD_ID)
             {
                 if ($rooster['CLUB_BEDRIJF'] !== true)         // geen club bedrijf, iedereen betaald
@@ -522,38 +526,21 @@ class DDWV
             $rl = MaakObject('Leden');
             $lid = $rl->GetObject($start['VLIEGER_ID']);
 
-            if (!$rl->isClubVlieger(null, $lid))  // geen club vlieger, dus lidmaatschap betalen
+            if (!$rl->isClubVlieger(null, $lid))  // geen club vlieger, dus dag lidmaatschap betalen
             {
-                // heeft lid al 3x betaald?
-                $jaar = date('Y', strtotime($datum)); // Extract year from the date
-
-                $beginDatum = $jaar . "-01-01";
-                $eindDatum = $jaar . "-12-31";
-                $transacties = $trObj->GetObjects(array('LID_ID' => $lid['ID'], 'BEGIN_DATUM' => $beginDatum, 'EIND_DATUM' => $eindDatum));
-
                 $tarief = $tarieven[2018];          // 2018 = Indivueel lidmaatschap
 
-                $aantal_lidmaatschap = 0;
-                foreach ($transacties as $t)
-                {
-                    if ($start['TYPE_ID'] === $tarief['ID'])
-                        $aantal_lidmaatschap++;
-                }
+                $transactie = array();
+                $transactie['DDWV'] = true;
+                $transactie['LID_ID'] = $lid['ID'];
+                $transactie['TYPE_ID'] = $tarief['ID'];
+                $transactie['EENHEDEN'] = 1;
+                $transactie['VLIEGDAG'] = $datum;
+                $transactie['OMSCHRIJVING'] = $tarief['OMSCHRIJVING'];
+                $transactie['BEDRAG'] = $tarief['BEDRAG'];
 
-                if ($aantal_lidmaatschap < 3)
-                {
-                    $transactie = array();
-                    $transactie['DDWV'] = true;
-                    $transactie['LID_ID'] = $lid['ID'];
-                    $transactie['TYPE_ID'] = $tarief['ID'];
-                    $transactie['EENHEDEN'] = 1;
-                    $transactie['VLIEGDAG'] = $datum;
-                    $transactie['OMSCHRIJVING'] = $tarief['OMSCHRIJVING'];
-                    $transactie['BEDRAG'] = $tarief['BEDRAG'];
-
-                    $id = $trObj->AddObject($transactie, false);
-                    $teBetalen += $tarief['BEDRAG'];
-                }
+                $id = $trObj->AddObject($transactie, false);
+                $teBetalen += $transactie['BEDRAG'];
             }
 
             // basis tarief, geld voor iedereen
@@ -585,7 +572,7 @@ class DDWV
                 $transactie['BEDRAG'] = $tarief['BEDRAG'];;
 
                 $id = $trObj->AddObject($transactie, false);
-                $teBetalen += $tarief['BEDRAG'];
+                $teBetalen += $transactie['BEDRAG'];
             }
 
             if ($aantal_lierstarts > 2)
@@ -596,18 +583,19 @@ class DDWV
                 $transactie['DDWV'] = true;
                 $transactie['LID_ID'] = $lid['ID'];
                 $transactie['TYPE_ID'] = $tarief['ID'];
-                $transactie['EENHEDEN'] = 1;
+                $transactie['EENHEDEN'] = $aantal_lierstarts - 2;
                 $transactie['VLIEGDAG'] = $datum;
                 $transactie['OMSCHRIJVING'] = $tarief['OMSCHRIJVING'];
-                $transactie['BEDRAG'] = $tarief['BEDRAG'];
+                $transactie['BEDRAG'] = ($aantal_lierstarts - 2) * $tarief['BEDRAG'];
 
                 $id = $trObj->AddObject($transactie, false);
-                $teBetalen += $tarief['BEDRAG'];
+                $teBetalen += $transactie['BEDRAG'];
             }
 
             if ($lid['TEGOED'] > 0)
             {
                 $strippen = floor($teBetalen / 5);         // en strip heeft de waarde van 5 euro
+
 
                 if ($strippen > $lid['TEGOED'])
                     $strippen = $lid['TEGOED'];
@@ -624,6 +612,25 @@ class DDWV
                 $transactie['BEDRAG'] = -1 * $strippen * 5;
 
                 $id = $trObj->AddObject($transactie, true);
+                $teBetalen += $transactie['BEDRAG'];
+            }
+
+            if ($teBetalen > 0)
+            {
+                // administratie kosten, geld voor iedereen
+                $tarief = $tarieven[2019];          // 2019 = administratie kosten
+
+                $transactie = array();
+                $transactie['DDWV'] = true;
+                $transactie['LID_ID'] = $lid['ID'];
+                $transactie['TYPE_ID'] = $tarief['ID'];
+                $transactie['EENHEDEN'] = 1;
+                $transactie['VLIEGDAG'] = $datum;
+                $transactie['OMSCHRIJVING'] = $tarief['OMSCHRIJVING'];
+                $transactie['BEDRAG'] = $tarief['BEDRAG'];
+
+                $id = $trObj->AddObject($transactie, false);
+                $teBetalen += $tarief['BEDRAG'];
             }
         }
 

@@ -244,4 +244,30 @@ $app->post(url_base() . 'Transacties/SaveObject', function (Request $request, Re
         die;
     }  
 });
+
+/*
+Aanmaken van een record. Het is niet noodzakelijk om alle velden op te nemen in het verzoek
+*/
+$app->put(url_base() . 'Transacties/SaveObject', function (Request $request, Response $response, $args) {
+    $obj = MaakObject("Transacties");
+    try
+    {
+        $data = json_decode($request->getBody(), true);
+
+        $v = $obj->UpdateObject($data);   // Hier staat de logica voor deze functie
+        $response->getBody()->write(json_encode($v));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+    catch(Exception $exception)
+    {
+        Debug(__FILE__, __LINE__, "/Transacties/SaveObject: " .$exception);
+
+        list($dummy, $exceptionMsg) = explode(": ", $exception);
+        list($httpStatus, $message) = explode(";", $exceptionMsg);  // onze eigen formaat van een exceptie
+
+        header("X-Error-Message: $message", true, intval($httpStatus));
+        header("Content-Type: text/plain");
+        die;
+    }
+});
 ?>

@@ -16,8 +16,8 @@ class Transacties extends Helios
         $this->dbView = "transacties_view";
 		$this->Naam = "Transacties";
 
-        $this->mollie = new \Mollie\Api\MollieApiClient();
-        $this->mollie->setApiKey($iDeal['mollieKey']);
+     //   $this->mollie = new \Mollie\Api\MollieApiClient();
+     //   $this->mollie->setApiKey($iDeal['mollieKey']);
 	}
 	
 	/*
@@ -379,7 +379,43 @@ class Transacties extends Helios
 
 		Debug(__FILE__, __LINE__, sprintf("Transactie toegevoegd id=%d, %s", $id, $LidData['NAAM']));
         return $this->GetObject($id);
-	}    
+	}
+
+    /*
+    Markeer een record in de database als verwijderd. Het record wordt niet fysiek verwijderd om er een link kan zijn naar andere tabellen.
+    Het veld VERWIJDERD wordt op "1" gezet.
+    */
+    function VerwijderObject($id, $verificatie = true)
+    {
+        $functie = "Transacties.VerwijderObject";
+        Debug(__FILE__, __LINE__, sprintf("%s('%s', %s)", $functie, $id, (($verificatie === false) ? "False" :  $verificatie)));
+
+        // schrijven mag alleen door beheerder / CIMT
+        $l = MaakObject('Login');
+
+        if (!$l->isBeheerder() && !$l->isBeheerderDDWV())
+            throw new Exception("401;Geen rechten;");
+
+        if ($id == null)
+            throw new Exception("406;Geen ID in aanroep;");
+
+        $id = isINT($id, "ID");
+
+        $transactie = $this->GetObject($id);
+        // Als we transactie ongedaan maken, moeten strippen ook teruggeboekt worden
+        if ($transactie['SALDO_VOOR'] != $transactie['SALDO_NA'] && $transactie['EENHEDEN'] !== 0)
+        {
+            $lObj = MaakObject('Leden');
+            $LidData = $lObj->getObject($transactie['LID_ID']);
+
+            $ld = array();
+            $ld['ID'] = $transactie['LID_ID'];
+            $ld['TEGOED'] = $LidData['TEGOED'] - $transactie['EENHEDEN'];
+            $lObj->UpdateObject($ld);
+        }
+
+        parent::MarkeerAlsVerwijderd($id, $verificatie);
+    }
 
 	// haal de banken op die iDeal ondersteunen
 	function GetBanken()
@@ -528,6 +564,40 @@ class Transacties extends Helios
     }
 
     /*
+    Update van een bestaand record. Het is niet noodzakelijk om alle velden op te nemen in het verzoek
+    */
+    function UpdateObject($transactie)
+    {
+        global $app_settings;
+
+        $functie = "Transcties.UpdateObject";
+        Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($transactie, true)));
+
+        // schrijven mag alleen door beheerder / CIMT
+        $l = MaakObject('Login');
+
+        if (!$l->isBeheerder() && !$l->isCIMT() && (!$l->isTechnicus()))
+            throw new Exception("401;Geen rechten;");
+
+        if ($transactie == null)
+            throw new Exception("406;Journaal data moet ingevuld zijn;");
+
+        if (!array_key_exists('ID', $transactie))
+            throw new Exception("406;ID moet ingevuld zijn;");
+
+        $id = isINT($transactie['ID'], "ID");
+
+        // Neem data over uit aanvraag
+        $d = $this->RequestToRecord($transactie);
+
+        parent::DbAanpassen($id, $d);
+        if (parent::NumRows() === 0)
+            throw new Exception(sprintf("404;Record niet gevonden (%s, '%s');", $this->Naam, $id));
+
+        return $this->GetObject($id);
+    }
+
+    /*
 	Copieer data van request naar velden van het record 
 	*/
 	function RequestToRecord($input)
@@ -558,8 +628,13 @@ class Transacties extends Helios
 		if (array_key_exists($field, $input))
 			$record[$field] = isNUM($input[$field], $field, true);
 
-		if (array_key_exists('OMSCHRIJVING', $input))
-			$record['OMSCHRIJVING'] = $input['OMSCHRIJVING']; 
+        $field = 'EXT_REF';
+        if (array_key_exists($field, $input))
+            $record[$field] = $input[$field];
+
+        $field = 'OMSCHRIJVING';
+        if (array_key_exists($field, $input))
+            $record[$field] = $input[$field];
 
         return $record;
     }

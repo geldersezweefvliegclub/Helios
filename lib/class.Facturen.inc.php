@@ -444,6 +444,7 @@ class Facturen extends Helios
         }
     }
 
+    // Upload een factuur naar eBoekhouden voor contributie
     function UploadFactuur($data)
     {
         global $eBoekhouden_settings;
@@ -509,6 +510,120 @@ class Facturen extends Helios
             'FACTUUR_NUMMER' => $response->AddFactuurResult->Factuurnummer
         );
         $this->UpdateObject($factuur);
+    }
+
+    // Upload een factuur naar eBoekhouden voor DDWV (via transactie tabel)
+    function uploadTransactieFactuur($data)
+    {
+        global $ddwv;
+        global $eBoekhouden_settings;
+
+        $functie = "Facturen.uploadTransactieFactuur";
+        Debug(__FILE__, __LINE__, sprintf("%s(%s)", $functie, print_r($data, true)));
+
+        $l = MaakObject('Login');
+
+        if (!$l->isBeheerder() && !$l->isBeheerderDDWV())
+            throw new Exception("401;Geen rechten;");
+
+        if ($data == null)
+            throw new Exception("406;Data moet ingevuld zijn;");
+
+        if (!isset($data['LID_ID']))
+            throw new Exception("406;ID is verplicht;");
+
+        if (!isset($data['DATUM']))
+            throw new Exception("406;DATUM is verplicht;");
+
+        $lidID = isINT($data['LID_ID'],"LID_ID", false, "Leden");
+        $datum = isDATE($data['DATUM'], "DATUM");
+
+        $tObj = MaakObject('Transacties');
+        $transacties = $tObj->GetObjects(array("LID_ID" => $lidID, "VLIEGDAG" => $datum));
+
+        if (count($transacties['dataset']) == 0)
+            throw new Exception("404;Geen transacties gevonden;");
+
+        Debug(__FILE__, __LINE__, "transacties: " . print_r($transacties, true));
+
+        $lObj = MaakObject('Leden');
+        $lid = $lObj->GetObject($lidID);
+
+        $typeObj = MaakObject('Types');
+        $types = $typeObj->GetObjects(array("GROEP" => 20));
+        foreach ($types['dataset'] as $type)
+        {
+            $types[$type['ID']] = $type;
+        }
+
+        $factuur = new stdClass();
+        $factuurRegels = array();
+
+        foreach ($transacties['dataset'] as $transactie)
+        {
+            if (!is_numeric($transactie['BEDRAG']))  continue;
+            $type = $types[$transactie['TYPE_ID']];
+
+            $factuurRegel = new stdClass();
+            $factuurRegel->Aantal = $transactie['EENHEDEN'];
+            $factuurRegel->Code = $transactie['ID'];
+            $factuurRegel->Omschrijving = $type['OMSCHRIJVING'];
+            $factuurRegel->PrijsPerEenheid = $transactie['BEDRAG'] / $transactie['EENHEDEN'] ;
+            $factuurRegel->BTWCode = "GEEN";
+            $factuurRegel->TegenrekeningCode = $type['EXT_REF'];
+            $factuurRegel->KostenplaatsID = $ddwv->eBoekhouden_settings['KostenplaatsID'];
+
+            $factuurRegels[] = $factuurRegel;
+        }
+
+        $dmy = explode("-", $datum);
+
+        $emailBericht = $ddwv->eBoekhouden_settings['EmailBericht'];
+        $emailBericht = str_replace("[@NAAM@]", $lid['VOORNAAM'], $emailBericht);
+        $emailBericht = str_replace("[@VLIEGDAG@]", sprintf("%02d-%02d-%d", $dmy[2], $dmy[1], $dmy[0]), $emailBericht);
+        $emailBericht = str_replace("[@FACTTERMIJN@]", "14", $emailBericht);
+
+        $factuur->Relatiecode = $lid['LIDNR'];
+        $factuur->Datum = sprintf("%d-%02d-%02d", $dmy[0], $dmy[1], $dmy[2]);
+        $factuur->Betalingstermijn = $ddwv->eBoekhouden_settings['Betalingstermijn'];
+        $factuur->Factuursjabloon = $ddwv->eBoekhouden_settings['Factuursjabloon'];
+        $factuur->PerEmailVerzenden = $ddwv->eBoekhouden_settings['PerEmailVerzenden'];
+        $factuur->EmailOnderwerp = $ddwv->eBoekhouden_settings['EmailOnderwerp'] . " " . $datum;
+        $factuur->EmailBericht = $emailBericht;
+        $factuur->EmailVanNaam = $ddwv->eBoekhouden_settings['EmailVanNaam'];
+        $factuur->EmailVanAdres = $ddwv->eBoekhouden_settings['EmailVanAdres'];
+        $factuur->AutomatischeIncasso = $ddwv->eBoekhouden_settings['AutomatischeIncasso'];
+        $factuur->BoekhoudmutatieOmschrijving = $ddwv->eBoekhouden_settings['BoekhoudmutatieOmschrijving'] . $datum . " "  .$lid['NAAM'];
+        $factuur->IncassoMachtigingDatumOndertekening = date('Y-m-d');
+        $factuur->IncassoMachtigingFirst = $ddwv->eBoekhouden_settings['IncassoMachtigingFirst'];
+        $factuur->InBoekhoudingPlaatsen = $ddwv->eBoekhouden_settings['InBoekhoudingPlaatsen'];
+        $factuur->Regels = $factuurRegels;
+
+        Debug(__FILE__, __LINE__, "facturen: " . print_r($factuur, true));
+
+        $client = new SoapClient($eBoekhouden_settings['SoapBaseUrl']);
+
+        $params = array(
+            "SecurityCode2" => $eBoekhouden_settings['SecurityCode2'],
+            "SessionID" => $this->getSessionID(),
+            "oFact" => $factuur
+        );
+        // ---------------------------------
+        // TODO: TIJDELIJK VOOR TESTEN
+        // ---------------------------------
+        //$response = $client->__soapCall("AddFactuur", [$params]);
+        //$this->checkforerror($response, "AddFactuurResult");
+        //Debug(__FILE__, __LINE__, sprintf("response %s", json_encode($response)));
+
+        // toevoegen factuurnummers aan transacties
+        foreach ($transacties['dataset'] as $transactie) {
+
+            $t = array(
+                'ID' => $transactie['ID'],
+                'EXT_REF' => "F-" . $lid['LIDNR'] // $response->AddFactuurResult->Factuurnummer
+            );
+            $tObj->UpdateObject($t);
+        }
     }
 
     /*
