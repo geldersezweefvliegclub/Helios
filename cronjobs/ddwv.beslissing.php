@@ -21,11 +21,7 @@ Je hebt jezelf ingeschreven voor de vliegdag van morgen, %s. Er zijn onvoldoende
 </p>
 
 <p>
-Na afloop van de vliegdag zal aanvullend op je DDWV-inschrijving nog enkele strippen van je saldo worden afgeboekt, tot de hoogte van de gemaakte sleepkosten. Zorg hierbij voor voldoende saldo op je DDWV-tegoed.
-</p>
-
-<p>
-Mocht je onverhoopt niet gaan vliegen, dan kun je je inschrijving annuleren. Bij annuleren na het besluitmoment ontvang je 4 strippen retour.
+Mocht je onverhoopt niet gaan vliegen, dan hoef je je inschrijving niet te annuleren. Je zult wel een rekening ontvangen om de kosten van de veldleider te dekken.
 </p>
 
 <p>
@@ -52,7 +48,7 @@ Je hebt jezelf ingeschreven voor de vliegdag van morgen, %s. Er zijn voldoende i
 </p>
 
 <p>
-Mocht je onverhoopt niet gaan vliegen, dan kun je je inschrijving annuleren. Bij annuleren na het besluitmoment ontvang je 4 strippen retour.
+Mocht je onverhoopt niet gaan vliegen, dan hoef je je inschrijving niet te annuleren. Je zult wel een rekening ontvangen om de kosten van de veldleider te dekken.
 </p>
 
 <p>
@@ -79,10 +75,6 @@ Je hebt jezelf ingeschreven voor de vliegdag van morgen, %s. Er zijn helaas <b>o
 </p>
 
 <p>
-Je inschrijving is automatisch geannuleerd, en je hebt de betaalde strippen retour ontvangen.
-</p>'
-
-<p>
 Wij hopen dat we op een later moment alsnog een vliegdag voor je te kunnen organiseren
 </p>
 
@@ -103,10 +95,6 @@ $htmlContentClub = "
 </p>
 <p>
 Je hebt jezelf ingeschreven voor de vliegdag van morgen, %s. De vliegdag voor mogen is een gecombineerde dag van DDWV en het GeZC clubbedrijf. 
-</p>
-
-<p>
-Mocht je onverhoopt niet gaan vliegen, dan kun je je inschrijving annuleren. Bij annuleren na het besluitmoment ontvang je 4 strippen retour.
 </p>
 
 <p> 
