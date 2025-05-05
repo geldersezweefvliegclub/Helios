@@ -609,18 +609,26 @@ class AanwezigLeden extends Helios
             foreach ($arrayIDs as $id) {
                 $db_data = $this->GetObject($id);
 
-                try {
-                    $di = $diObj->GetObject(null, $db_data['DATUM']); // Geeft exception als er geen daginfo is
-                } catch (Exception $e) {}
+                if ($db_data['DATUM'] === date("Y-m-d"))  // vandaag, dus afmelden en niet verwijderen
+                {
+                    $this->Afmelden($db_data);
+                }
+                else {
+                    try
+                    {
+                        $di = $diObj->GetObject(null, $db_data['DATUM']); // Geeft exception als er geen daginfo is
+                    }
+                    catch (Exception $e) {}
 
-                if ($di !== null)       // mogen niet verwijderen als daginfo bestaat, dit is een DDWV dag, of verleden
-                    throw new Exception("409;Afmelden niet toegestaan;");
+                    if ($di !== null)       // mogen niet verwijderen als daginfo bestaat, dit is een DDWV dag, of verleden
+                        throw new Exception("409;Afmelden niet toegestaan;");
 
-                if (($this->heeftDataToegang() == false) && ($db_data['LID_ID'] != $l->getUserFromSession()))
-                    throw new Exception("401;Geen schrijfrechten;");
+                    if (($this->heeftDataToegang() == false) && ($db_data['LID_ID'] != $l->getUserFromSession()))
+                        throw new Exception("401;Geen schrijfrechten;");
 
-                parent::MarkeerAlsVerwijderd($id, false);
-                $ddwv->AfmeldenLidBijboekenDDWV($db_data);
+                    parent::MarkeerAlsVerwijderd($id, false);
+                    $ddwv->AfmeldenLidBijboekenDDWV($db_data);
+                }
             }
         }
         else
@@ -956,8 +964,10 @@ class AanwezigLeden extends Helios
 
 		try
 		{
-			$db_data = $this->GetObject(null, $LidID, $datetime->format('Y-m-d'), false);
-			$AfmeldenLedenData['ID'] = $db_data['ID'];
+            $db_data = $this->GetObject($AfmeldenLedenData['ID'], $LidID, $datetime->format('Y-m-d'), false);
+
+            $AfmeldenLedenData['ID'] = $db_data['ID'];
+            $LidID = $db_data['LID_ID'];
 
 			$l = MaakObject('Login');
 			if ($LidID != $l->getUserFromSession()) 
@@ -975,6 +985,7 @@ class AanwezigLeden extends Helios
 		if (!array_key_exists('VERTREK', $AfmeldenLedenData))	
 			$AfmeldenLedenData['VERTREK'] = $datetime->format('H:i:00');
 
+        /*
         // DDWV terug boeken, maar niet als we al een start hebben gemaakt
         $sObj = MaakObject('Startlijst');
         $params = array('LID_ID' => $db_data['LID_ID'],
@@ -992,6 +1003,7 @@ class AanwezigLeden extends Helios
                 $AfmeldenLedenData['TRANSACTIE_ID'] = null;
             }
         }
+        */
 		$this->UpdateObject($AfmeldenLedenData);
 
 		Debug(__FILE__, __LINE__, sprintf("%s: AanwezigLeden aangepast id=%s", $functie, $AfmeldenLedenData['ID']));
