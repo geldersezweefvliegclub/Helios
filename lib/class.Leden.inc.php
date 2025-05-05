@@ -1222,7 +1222,7 @@ class Leden extends Helios
 
 		$record = array();
 		$l = MaakObject('Login');
-		$dbLid = null;
+		$dbLid = array();
 
 		$ikBenHetZelf = false;
 		if (array_key_exists("ID", $input)) {
@@ -1510,7 +1510,18 @@ class Leden extends Helios
 					$record[$field] = isBOOL($input[$field], $field);
 			}
 		}
-		return $record;				
+
+        // hebben we een lidnummer? (uit de database of ingevoerd)
+        if (($record['LIDNR'] == null) && ($dbLid['LIDNR'] == null) && (array_key_exists('ID', $dbLid)))
+        {
+            // nee, voor DDWV leden maken we een nieuw lidnummer aan
+            if (($record['LIDTYPE_ID'] === 625) ||
+                (!array_key_exists('LIDTYPE_ID', $record) && $dbLid['LIDTYPE_ID'] === 625)) // 625 = DDWV
+            {
+                $record['LIDNR'] = sprintf("90%d", $dbLid['ID']);
+            }
+        }
+		return $record;
 	}
 
 	/*
