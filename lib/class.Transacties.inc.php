@@ -576,7 +576,7 @@ class Transacties extends Helios
         // schrijven mag alleen door beheerder / CIMT
         $l = MaakObject('Login');
 
-        if (!$l->isBeheerder() && !$l->isCIMT() && (!$l->isTechnicus()))
+        if (!$l->isBeheerder() && (!$l->isBeheerderDDWV()))
             throw new Exception("401;Geen rechten;");
 
         if ($transactie == null)

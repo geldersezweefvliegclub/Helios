@@ -561,7 +561,9 @@ class Facturen extends Helios
 
         foreach ($transacties['dataset'] as $transactie)
         {
-            if (!is_numeric($transactie['BEDRAG']))  continue;
+            if (!is_numeric($transactie['BEDRAG']))  continue;          // geen bedrag = geen factuur
+            if (!is_null($transactie['EXT_REF']))  continue;            // blijkbaar eerder al gefactureerd
+
             $type = $types[$transactie['TYPE_ID']];
 
             $factuurRegel = new stdClass();
@@ -608,19 +610,17 @@ class Facturen extends Helios
             "SessionID" => $this->getSessionID(),
             "oFact" => $factuur
         );
-        // ---------------------------------
-        // TODO: TIJDELIJK VOOR TESTEN
-        // ---------------------------------
-        //$response = $client->__soapCall("AddFactuur", [$params]);
-        //$this->checkforerror($response, "AddFactuurResult");
-        //Debug(__FILE__, __LINE__, sprintf("response %s", json_encode($response)));
+
+        $response = $client->__soapCall("AddFactuur", [$params]);
+        $this->checkforerror($response, "AddFactuurResult");
+        Debug(__FILE__, __LINE__, sprintf("response %s", json_encode($response)));
 
         // toevoegen factuurnummers aan transacties
         foreach ($transacties['dataset'] as $transactie) {
 
             $t = array(
                 'ID' => $transactie['ID'],
-                'EXT_REF' => "F-" . $lid['LIDNR'] // $response->AddFactuurResult->Factuurnummer
+                'EXT_REF' => $response->AddFactuurResult->Factuurnummer
             );
             $tObj->UpdateObject($t);
         }

@@ -54,7 +54,7 @@ $htmlContent = "
     Het correct bijhouden van het logboek is een verantwoordelijkheid van de vlieger. Aanpassingen die je zelf invoert worden ter controle opgeslagen en kunnen gebruikt worden voor audits.
     </p>
     <p> 
-    Indien je vragen hebt, mag je contact opnemen met startadmin@gezc.org. Doe dit door te reageren op deze email. We hebben dan meteen de juiste informatie beschikbaar. 
+    Indien je vragen hebt, mag je contact opnemen met onze startadministratie. Doe dit door deze e-mail door te sturen naar startadmin@gezc.org. We hebben dan meteen de juiste informatie beschikbaar. 
 </p>
 <p> 
     Met vriendelijke groet,

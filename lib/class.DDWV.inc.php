@@ -409,6 +409,7 @@ class DDWV
                 $transactie['DDWV'] = true;
                 $transactie['LID_ID'] = $dienst['LID_ID'];
                 $transactie['TYPE_ID'] = $tarief['ID'];
+                $transactie['VLIEGDAG'] = $data['DATUM'];
                 $transactie['EENHEDEN'] = $tarief['EENHEDEN'];
                 $transactie['OMSCHRIJVING'] = sprintf(", vliegdag %02d-%02d-%d", $dateparts[2], $dateparts[1], $dateparts[0]);
 
@@ -432,7 +433,7 @@ class DDWV
 
         $l = MaakObject('Login');
 
-        if (!$l->isBeheerder() &&  !$l->isBeheerderDDWV())
+        if (!$l->isBeheerder() && !$l->isBeheerderDDWV())
             throw new Exception("401;Gebruiker mag geen transacties aanmaken;");
 
         isDATE($datum, "DATUM");            // validatie of datum goed ingevoerd is
@@ -443,92 +444,133 @@ class DDWV
         if ($rooster['DDWV'] === false)
             throw new Exception("401;Datum is geen DDWV dag;");
 
-        Debug(__FILE__, __LINE__, sprintf("%s: rooster %s", $functie, print_r($rooster, true)));
+        Debug(__FILE__, __LINE__, sprintf("%s: rooster %s", $functie, json_encode($rooster)));
 
         $sObj = MaakObject('Startlijst');
 
         $startlijst = $sObj->GetObjects(array('BEGIN_DATUM' => $datum, 'EIND_DATUM' => $datum));
-        Debug(__FILE__, __LINE__, sprintf("%s: startlijst %s", $functie, print_r($startlijst, true)));
+        Debug(__FILE__, __LINE__, sprintf("%s: startlijst %s", $functie, json_encode($startlijst)));
 
-        $starts = array();
-        foreach ($startlijst['dataset'] as $start)
-        {
+        // maak een array vliegerlijst met de vliegers als key. Ieder record heeft een array met starts
+        $vliegerlijst = array();
+        $inzittendelijst = array();
+        foreach ($startlijst['dataset'] as $start) {
             // niet gestart, dus negeren
             if ($start['STARTTIJD'] === null)
                 continue;
 
-            if ($start['VELD_ID'] === $ddwv->VELD_ID)
-            {
+            if ($start['VELD_ID'] === $ddwv->VELD_ID) {
+                $toevoegen = false;
                 if ($rooster['CLUB_BEDRIJF'] !== true)         // geen club bedrijf, iedereen betaald
                 {
-                    if (!key_exists($start['VLIEGER_ID'], $starts))
-                        $starts[$start['VLIEGER_ID']] = array();
+                    $toevoegen = true;
+                } else {
+                    $rl = MaakObject('Leden');
+                    if (!$rl->isClubVlieger($start['VLIEGER_ID']))  // geen club vlieger, dus betalen
+                        $toevoegen = true;
+                }
 
-                    array_push($starts[$start['VLIEGER_ID']], $start);
+                if ($toevoegen) {
+                    if (!key_exists($start['VLIEGER_ID'], $vliegerlijst))
+                        $vliegerlijst [$start['VLIEGER_ID']] = array();
+
+                    array_push($vliegerlijst [$start['VLIEGER_ID']], $start);
+
+                    if (isset($start['INZITTENDE_ID']) && (!key_exists($start['INZITTENDE_ID'], $inzittendelijst)))
+                        $inzittendelijst [$start['INZITTENDE_ID']] = array();
+                }
+            }
+        }
+
+        Debug(__FILE__, __LINE__, sprintf("%s: $vliegerlijst  %s", $functie, json_encode($vliegerlijst)));
+
+        $aObj = MaakObject('AanwezigLeden');
+        $alleAanmeldingen = $aObj->GetObjects(array('BEGIN_DATUM' => $datum, 'EIND_DATUM' => $datum));
+
+        Debug(__FILE__, __LINE__, sprintf("%s: alle aanmeldingen %s", $functie, json_encode($alleAanmeldingen)));
+
+        // maak een array aanmeldingen met de leden als key.
+        $aanmeldingen = array();
+        foreach ($alleAanmeldingen['dataset'] as $aanmelding) {
+            if ($aanmelding['VELD_ID'] == $ddwv->VELD_ID) {
+                if (array_key_exists($aanmelding['LID_ID'], $inzittendelijst))
+                    continue;    // aangemeld lid is achterin gaan zitten, dus niet betalen.
+
+                if ($rooster['CLUB_BEDRIJF'] !== true)         // geen club bedrijf, iedereen betaald
+                {
+                    $aanmeldingen[$aanmelding['LID_ID']] = $aanmelding;
                 }
                 else
                 {
                     $rl = MaakObject('Leden');
-                    if (!$rl->isClubVlieger($start['VLIEGER_ID']))  // geen club vlieger, dus betalen
+                    if (!$rl->isClubVlieger($aanmelding['LID_ID']))  // geen club vlieger, dus betalen
                     {
-                        if (!key_exists($start['VLIEGER_ID'], $starts))
-                            $starts[$start['VLIEGER_ID']] = array();
+                        $aanmeldingen[$aanmelding['LID_ID']] = $aanmelding;
+                    }
+                }
+            }
+        }
+        Debug(__FILE__, __LINE__, sprintf("%s: aanmeldingen %s", $functie, json_encode($aanmeldingen)));
 
-                        array_push($starts[$start['VLIEGER_ID']], $start);
+        // doordat aangemelde personen en achterin meevliegen, geen rekening krijgen, kunnen we te weining inkomsten hebben
+        // als we nu onder het minimum aantal aanmeldingen komen, dan moeten ook de aangemelde personen betalen die achtterin zitten
+        if ($rooster['CLUB_BEDRIJF'] !== true)  // geen club bedrijf, alleen dan betalen we de crew
+        {
+            $min = $rooster['MIN_SLEEPSTART'] > $rooster['MIN_LIERSTART'] ? $rooster['MIN_LIERSTART'] : $rooster['MIN_SLEEPSTART'];
+            Debug(__FILE__, __LINE__, sprintf("%s: minimum aantal aanmeldingen %d, vliegerlijst %d aanmeldingen %d", $functie, $min, count($vliegerlijst), count($aanmeldingen)));
+
+            if (count($vliegerlijst) + count($aanmeldingen) < $min)
+            {
+                foreach ($alleAanmeldingen['dataset'] as $aanmelding) {
+                    $lidID = $aanmelding['LID_ID'];
+
+                    // staat hij/zij al in een lijst dan komt de rekening
+                    if (!key_exists($lidID, $vliegerlijst) && !key_exists($lidID, $aanmeldingen))
+                    {
+                        if ($aanmelding['VOORAANMELDING'] == true)
+                        {
+                            $aanmeldingen[$lidID] = $aanmelding;
+                            Debug(__FILE__, __LINE__, sprintf("%s: %s %s", $functie, $lidID, $aanmelding['NAAM']));
+                        }
                     }
                 }
             }
         }
 
-        Debug(__FILE__, __LINE__, sprintf("%s: starts %s", $functie, print_r($starts, true)));
-
-        $aObj = MaakObject('AanwezigLeden');
-        $alleAanmeldingen = $aObj->GetObjects(array('BEGIN_DATUM' => $datum, 'EIND_DATUM' => $datum));
-
-        Debug(__FILE__, __LINE__, sprintf("%s: alle aanmeldingen %s", $functie, print_r($alleAanmeldingen, true)));
-
-        $aanmeldingen = array();
-        foreach ($alleAanmeldingen['dataset'] as $aanmelding)
-        {
-            if ($aanmelding['VELD_ID'] == $ddwv->VELD_ID)
-            {
-                $aanmeldingen[$aanmelding['LID_ID']] = $aanmelding;     // omzetten naar array met lid_id als key
-            }
-        }
-        Debug(__FILE__, __LINE__, sprintf("%s: aanmeldingen %s", $functie, print_r($aanmeldingen, true)));
-
-        if (count($starts) === 0 && count($aanmeldingen) === 0)
-            throw new Exception("401;Geen DDWV infomatie aanwezig;");
-
+        if (count($vliegerlijst ) === 0 && count($aanmeldingen) === 0)
+            throw new Exception("401;Geen DDWV informatie aanwezig;");
 
         $typeObj = MaakObject('Types');
         $types = $typeObj->GetObjects(array('GROEP' => 20));
 
+        // maak een array tarieven met de type ID als key
         foreach ($types['dataset'] as $type)
             $tarieven[$type['ID']] = $type;     // omzetten naar array met type_id als key
 
-        Debug(__FILE__, __LINE__, sprintf("%s: tarieven %s", $functie, print_r($tarieven, true)));
+        Debug(__FILE__, __LINE__, sprintf("%s: tarieven %s", $functie, json_encode($tarieven)));
 
         // nu we alles weten, kunnen we beginnen met het verwerken
         $trObj = MaakObject('Transacties');
 
         // beginnen met de starts
-        foreach ($starts as $vlieger)
+        $rl = MaakObject('Leden');
+        foreach ($vliegerlijst as $vliegerID => $starts)
         {
+            $lid = $rl->GetObject($vliegerID);
+
             $teBetalen = 0;
             $aantal_lierstarts = 0;
-            foreach ($vlieger as $start)
+            foreach ($starts as $start)
             {
                 if ($start['STARTMETHODE_ID'] == 550)       // 550 = lieren
                     $aantal_lierstarts++;
             }
+            Debug(__FILE__, __LINE__, sprintf("%s: vlieger: %s aantal lierstarts: %d", $functie, $lid['NAAM'], $aantal_lierstarts));
 
-            $rl = MaakObject('Leden');
-            $lid = $rl->GetObject($start['VLIEGER_ID']);
 
-            if (!$rl->isClubVlieger(null, $lid))  // geen club vlieger, dus dag lidmaatschap betalen
+            if (($lid['LIDTYPE_ID'] == "605") || (!$rl->isClubVlieger(null, $lid)))  // geen club vlieger of donateur (605), dus dag lidmaatschap betalen
             {
-                $tarief = $tarieven[2018];          // 2018 = Indivueel lidmaatschap
+                $tarief = $tarieven[2018];          // 2018 = Individueel lidmaatschap
 
                 $transactie = array();
                 $transactie['DDWV'] = true;
@@ -541,6 +583,8 @@ class DDWV
 
                 $id = $trObj->AddObject($transactie, false);
                 $teBetalen += $transactie['BEDRAG'];
+
+                Debug(__FILE__, __LINE__, sprintf("%s: vlieger: %s Individueel lidmaatschap: %d", $functie, $lid['NAAM'], $transactie['BEDRAG']));
             }
 
             // basis tarief, geld voor iedereen
@@ -558,6 +602,8 @@ class DDWV
             $id = $trObj->AddObject($transactie, false);
             $teBetalen += $tarief['BEDRAG'];
 
+            Debug(__FILE__, __LINE__, sprintf("%s: vlieger: %s Basistarief: %d", $functie, $lid['NAAM'], $transactie['BEDRAG']));
+
             if ($aantal_lierstarts > 0)
             {
                 $tarief = $tarieven[2021];          // 2021 = eerste lierstart
@@ -573,6 +619,8 @@ class DDWV
 
                 $id = $trObj->AddObject($transactie, false);
                 $teBetalen += $transactie['BEDRAG'];
+
+                Debug(__FILE__, __LINE__, sprintf("%s: vlieger: %s Eerste/tweede lierstart: %d", $functie, $lid['NAAM'], $transactie['BEDRAG']));
             }
 
             if ($aantal_lierstarts > 2)
@@ -590,12 +638,13 @@ class DDWV
 
                 $id = $trObj->AddObject($transactie, false);
                 $teBetalen += $transactie['BEDRAG'];
+
+                Debug(__FILE__, __LINE__, sprintf("%s: vlieger: %s Extra lierstarts: %d", $functie, $lid['NAAM'], $transactie['BEDRAG']));
             }
 
             if ($lid['TEGOED'] > 0)
             {
                 $strippen = floor($teBetalen / 5);         // en strip heeft de waarde van 5 euro
-
 
                 if ($strippen > $lid['TEGOED'])
                     $strippen = $lid['TEGOED'];
@@ -613,6 +662,8 @@ class DDWV
 
                 $id = $trObj->AddObject($transactie, true);
                 $teBetalen += $transactie['BEDRAG'];
+
+                Debug(__FILE__, __LINE__, sprintf("%s: vlieger: %s Strippen verrekening: %d %d", $functie, $lid['NAAM'], $transactie['EENHEDEN'], $transactie['BEDRAG']));
             }
 
             if ($teBetalen > 0)
@@ -631,17 +682,31 @@ class DDWV
 
                 $id = $trObj->AddObject($transactie, false);
                 $teBetalen += $tarief['BEDRAG'];
+
+                Debug(__FILE__, __LINE__, sprintf("%s: vlieger: %s Administratiekosten: %d", $functie, $lid['NAAM'], $transactie['BEDRAG']));
             }
         }
 
         // nu nog aanmeldingen die niet gestart zijn
         foreach ($aanmeldingen as $aanmelding)
         {
-
-            if (key_exists($aanmelding['LID_ID'], $starts))
+            Debug(__FILE__, __LINE__, sprintf("%s: aanmelding %s", $functie, json_encode($aanmelding)));
+            if (key_exists($aanmelding['LID_ID'], $vliegerlijst)) {
+                Debug(__FILE__, __LINE__, sprintf("%s: heeft starts, transacties zijn reeds aangemaakt %s", $functie, $aanmelding['NAAM']));
                 continue;
+            }
 
-            Debug(__FILE__, __LINE__, sprintf("%s: aanmelding, maar niet gestart %s", $functie, print_r($aanmelding, true)));
+            // inzittenden en vliegers worden aangemeld bij het invoeren van de starttijd van de vlucht
+            // maar dan is VOORAANMELDING false, vliegers met een vlucht hebben we hierboven al afgehandeld
+            // inzittende moeten we overslaan, die hoeven niet te betalen
+            // tenzij ze zichzelf hebben aangemeld, dan telt de aanmelding namelijk voor het doorgaan van de vliegdag
+            if ($aanmelding['VOORAANMELDING'] === false)
+            {
+                Debug(__FILE__, __LINE__, sprintf("%s: geen vooraanmelding %s", $functie, $aanmelding['NAAM']));
+                continue;
+            }
+
+            Debug(__FILE__, __LINE__, sprintf("%s: aanmelding, maar niet gestart %s", $functie, json_encode($aanmelding)));
 
             $lid = $rl->GetObject($aanmelding['LID_ID']);
 
@@ -679,8 +744,30 @@ class DDWV
                 $transactie['BEDRAG'] = -1 * $strippen * 5;
 
                 $id = $trObj->AddObject($transactie, true);
+                $teBetalen += $transactie['BEDRAG'];
+
+                Debug(__FILE__, __LINE__, sprintf("%s: aanmelder: %s Strippen verrekening: %d %d", $functie, $lid['NAAM'], $transactie['EENHEDEN'], $transactie['BEDRAG']));
             }
 
+            if ($teBetalen > 0)
+            {
+                // administratie kosten, geld voor iedereen
+                $tarief = $tarieven[2019];          // 2019 = administratie kosten
+
+                $transactie = array();
+                $transactie['DDWV'] = true;
+                $transactie['LID_ID'] = $lid['ID'];
+                $transactie['TYPE_ID'] = $tarief['ID'];
+                $transactie['EENHEDEN'] = 1;
+                $transactie['VLIEGDAG'] = $datum;
+                $transactie['OMSCHRIJVING'] = $tarief['OMSCHRIJVING'];
+                $transactie['BEDRAG'] = $tarief['BEDRAG'];
+
+                $id = $trObj->AddObject($transactie, false);
+                $teBetalen += $tarief['BEDRAG'];
+
+                Debug(__FILE__, __LINE__, sprintf("%s: aanmelder: %s Administratiekosten: %d", $functie, $lid['NAAM'], $transactie['BEDRAG']));
+            }
         }
     }
 }

@@ -5,10 +5,12 @@ require __DIR__ . '/../ext/vendor/autoload.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\OAuth;
 use PHPMailer\PHPMailer\Exception;
+use League\OAuth2\Client\Provider\Google;
+
 
 include('../include/GoogleAuthenticator.php');
-
 
 $curl_session;
 
@@ -69,8 +71,20 @@ function heliosInit($url, $http_method = "GET")
 function emailInit()
 {
     global $smtp_settings;
+    global $OAuthGoogle;
+
+    $provider = new Google([
+        'clientId'     => $OAuthGoogle['clientId'],
+        'clientSecret' => $OAuthGoogle['clientSecret']
+    ]);
+
+// Get the access token using the refresh token
+    $accessToken = $provider->getAccessToken('refresh_token', [
+        'refresh_token' => $OAuthGoogle['refresh_token']
+    ]);
 
     $mail = new PHPMailer(true);
+
 
     try {
         //Server settings
@@ -83,6 +97,15 @@ function emailInit()
         $mail->SMTPSecure = $smtp_settings['smtpsecure'];            //Enable implicit TLS encryption
         $mail->Port = $smtp_settings['smtpport'];             //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
 
+        $mail->AuthType = 'XOAUTH2';
+        // Set the OAuth2 provider and token
+        $mail->setOAuth(new \PHPMailer\PHPMailer\OAuth([
+            'provider'       => $provider,
+            'clientId'       => $OAuthGoogle['clientId'],
+            'clientSecret'   => $OAuthGoogle['clientSecret'],
+            'refreshToken'   => $OAuthGoogle['refresh_token'],
+            'userName'       => $smtp_settings['smtpuser']
+        ]));
         return $mail;
     } catch (Exception $e) {
         echo $mail->ErrorInfo;
