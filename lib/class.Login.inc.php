@@ -684,12 +684,11 @@ class Login extends Helios
 
 	function resetWachtwoord() 
 	{
-		global $smtp_settings; 
+		global $smtp_settings;
+        global $app_settings;
 
 		$functie = "Login.resetWachtwoord";	
 		Debug(__FILE__, __LINE__, sprintf("%s()", $functie));
-
-		global $app_settings;
 
 		if (!array_key_exists('PHP_AUTH_USER', $_SERVER)) 
 		{
@@ -711,93 +710,18 @@ class Login extends Helios
 		$ascii = "<>?/~AaBbCcDeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz.$!@#$%^&*()";
 		$password = substr(str_shuffle($_SERVER['REMOTE_ADDR'] . $ascii), 0, 15);
 
-		Debug(__FILE__, __LINE__, sprintf("%s username:%s email:%s", $functie, $_SERVER['PHP_AUTH_USER'], $lObj['EMAIL'])); 
-		
-		$htmlMessage = '
-				<body>
-					<style>
-						body {
-							font-family: Arial, Helvetica, sans-serif;
-							
-						}
-					</style>
-			
-					<p>
-						Beste %s,
-					</p>
-					<p>
-						U heeft zojuist een aanvraag ingedient om uw wachtwoord te herstellen.  Natuurlijk kunnen we aan dit verzoek voldoen. Wij hebben het wachtwoord aangepast en daarom kunt u vanaf nu niet meer inloggen met het oude wachtwoord.
-					</p>
-			
-					<p>
-						Het nieuwe wachtwoord is <span style="padding: 5px; background-color: rgb(109, 109, 109); color: white; 
-						font-weight: bold;"> % s</span>
-					</p>
-			
-					<p>
-						U kunt het wachtwoord in uw profiel aanpassen. Wanneer u het wachtwoord aanpast, let dan op dat u een veilig wachtwoord gebruikt. Een veilig wachtwoord is:
-						<ul>
-							<li>Gebruik voor iedere website een uniek wachtwoord. Dus geen wachtwoorden hergebruiken.</li>
-							<li>Uw wachtwoord is geen naam, en staat niet in het woordenboek</li>
-							<li>U wachtwoord heeft tenminste een lengte van 8 tekens</li>
-							<li>U gebruikt hoofdletters en kleine letters in uw wachtwoord</li>
-							<li>U gebruikt minimaal 2 cijfers in uw wachtwoord</li>
-							<li>Het is geweldig als u ook een een leesteken toevoegd</li>
-						</ul>
-					</p>
-					<p>
-						Mocht het zo zijn dat u toch moeilijkheden blijft ondervinden om toegang te krijgen, neem dan contact met ons op. Dat kan door te reageren op deze email.
-					</p>
-					<p>
-						Met vriendelijke groet,
-					</p>
-					<p>
-						Uw systeem beheerder
-					</p>
-				</body>';
+		Debug(__FILE__, __LINE__, sprintf("%s username:%s mobiel:%s", $functie, $_SERVER['PHP_AUTH_USER'], $lObj['MOBIEL']));
 
-		$plainMessage = 'Beste %s,\nUw nieuwe wachtwoord is %s\n\nMet vriendelijke groet\nUw systeem beheerder';
+		$plainMessage = 'Beste %s, Het nieuwe wachtwoord is %s';
 
-		$mail = new PHPMailer(true);
+        $MessageBird = new \MessageBird\Client($app_settings['ApiKeySMS']);
+        $Message = new \MessageBird\Objects\Message();
+        $Message->originator = $app_settings['Vereniging'];
+        $Message->recipients = array($lObj['MOBIEL']);
+        $Message->body = sprintf ($plainMessage, $lObj['NAAM'], $password);
 
-		try {
-			//Server settings
-			// $mail->SMTPDebug = SMTP::DEBUG_SERVER;                      //Enable verbose debug output
-			$mail->isSMTP();                                            //Send using SMTP
-			$mail->Host       =  $smtp_settings['smtphost'];            //Set the SMTP server to send through
-			$mail->SMTPAuth   = true;                                   //Enable SMTP authentication
-			$mail->Username   = $smtp_settings['smtpuser'];             //SMTP username
-			$mail->Password   = $smtp_settings['smtppass'];             //SMTP password
-			$mail->SMTPSecure = $smtp_settings['smtpsecure'];         	//Enable implicit TLS encryption
-			$mail->Port       = $smtp_settings['smtpport'];             //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
-		
-			//Recipients
-			$mail->setFrom($smtp_settings['from'], $smtp_settings['name']);
-			$mail->addAddress($lObj['EMAIL'], $lObj['NAAM']);     		//Add a recipient
-			$mail->addReplyTo($smtp_settings['from'], $smtp_settings['name']);
-		
-			//Content
-			$mail->isHTML(true);                                  		//Set email format to HTML
-			$mail->Subject = 'Wachtwoord herstel';
-			$mail->Body    = sprintf ($htmlMessage,  $lObj['NAAM'], $password);
-			$mail->AltBody = sprintf ($plainMessage, $lObj['NAAM'], $password);
-		
-			if(!$mail->Send()) {
-				Debug(__FILE__, __LINE__, "Herstel email fout: " . print_r($mail, true));
-
-				} else {
-				Debug(__FILE__, __LINE__, "Herstel email succesvol verzonden: ");
-
-				$record = array();
-				$record['ID'] = $lObj['ID'];
-				$record['INLOGNAAM'] = $lObj['INLOGNAAM'];
-				$record['WACHTWOORD'] = $password;
-
-				$l->UpdateObject($record);
-				}
-		} catch (Exception $e) {
-			Debug(__FILE__, __LINE__, "Herstel email niet verzonden: {$mail->ErrorInfo}");
-		}
+        $reponse = $MessageBird->messages->create($Message);
+        Debug(__FILE__, __LINE__, sprintf("sendSMS response: %s", print_r($reponse, true)));
 	}
 
 	/*

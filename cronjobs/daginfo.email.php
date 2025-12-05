@@ -145,6 +145,7 @@ foreach ($auditRecords['dataset'] as $record) {
 }
 printf("<span>dagen: %s </span><hr>", print_r($dagen, true));
 
+
 // Voor alle dagen een rapport versturen
 foreach ($dagen as $dag) {
     $d = explode("-", $dag);
@@ -241,6 +242,8 @@ foreach ($dagen as $dag) {
 
     // email
     $mail = emailInit();
+
+    $mail->SMTPDebug  = 1;
 
     $mail->Subject = 'Dagrapport van ' . $datumString;
     $mail->isHTML(true);                                        //Set email format to HTML

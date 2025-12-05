@@ -90,7 +90,7 @@ else
     }
 }
 
-$ledenSync[] = 21033;
+
 $removeSyncID = array();
 foreach ($ledenSync as $lid_id)
 {
